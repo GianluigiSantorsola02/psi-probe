@@ -5,7 +5,7 @@
  *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
 package psiprobe.controllers.sql;
@@ -30,6 +30,7 @@ import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,21 +53,26 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
   @RequestMapping(path = "/sql/recordset.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
     String sql = ServletRequestUtils.getStringParameter(request, "sql", null);
 
     if (sql == null || sql.isEmpty() || sql.trim().isEmpty()) {
-      request.setAttribute("errorMessage",
-          getMessageSourceAccessor().getMessage("probe.src.dataSourceTest.sql.required"));
-
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage",
+                messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
       return new ModelAndView(getViewName());
     }
 
@@ -78,7 +84,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     HttpSession sess = request.getSession(false);
     DataSourceTestInfo sessData =
-        (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
+            (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 
     synchronized (sess) {
       if (sessData == null) {
@@ -96,16 +102,28 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     try {
       dataSource = getContainerWrapper().getResourceResolver().lookupDataSource(context,
-          resourceName, getContainerWrapper());
+              resourceName, getContainerWrapper());
     } catch (NamingException e) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
-          "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+                "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
       logger.trace("", e);
     }
 
     if (dataSource == null) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
-          "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+                "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
     } else {
       List<Map<String, String>> results = null;
       int rowsAffected = 0;
@@ -134,7 +152,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
                     if (rs.wasNull()) {
                       value = getMessageSourceAccessor()
-                          .getMessage("probe.src.dataSourceTest.sql.null");
+                              .getMessage("probe.src.dataSourceTest.sql.null");
                     } else {
                       value = HtmlUtils.htmlEscape(value);
                     }
@@ -176,10 +194,18 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
         return mv;
       } catch (SQLException e) {
-        String message = getMessageSourceAccessor()
-            .getMessage("probe.src.dataSourceTest.sql.failure", new Object[] {e.getMessage()});
-        logger.error(message, e);
-        request.setAttribute("errorMessage", message);
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure", new Object[] {e.getMessage()});
+          logger.error(message, e);
+          request.setAttribute("errorMessage", message);
+        } else {
+          // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+          String errorMessage = "Errore durante l'accesso al messaggio di origine.";
+          logger.error(errorMessage, e);
+
+          request.setAttribute("errorMessage", errorMessage);
+        }
       }
     }
 
