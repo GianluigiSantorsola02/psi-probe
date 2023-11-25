@@ -8,6 +8,16 @@
  * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
+/*
+ * Licensed under the GPL License. You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *
+ * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ */
 package psiprobe.controllers.sql;
 
 import java.sql.Connection;
@@ -30,6 +40,7 @@ import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,9 +75,14 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
     String sql = ServletRequestUtils.getStringParameter(request, "sql", null);
 
     if (sql == null || sql.isEmpty() || sql.trim().isEmpty()) {
-      request.setAttribute("errorMessage",
-          getMessageSourceAccessor().getMessage("probe.src.dataSourceTest.sql.required"));
-
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage",
+            messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
       return new ModelAndView(getViewName());
     }
 
@@ -98,14 +114,26 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
       dataSource = getContainerWrapper().getResourceResolver().lookupDataSource(context,
           resourceName, getContainerWrapper());
     } catch (NamingException e) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
-          "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+            "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
       logger.trace("", e);
     }
 
     if (dataSource == null) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
-          "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+            "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+      } else {
+        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+      }
     } else {
       List<Map<String, String>> results = null;
       int rowsAffected = 0;
@@ -176,10 +204,19 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
         return mv;
       } catch (SQLException e) {
-        String message = getMessageSourceAccessor()
-            .getMessage("probe.src.dataSourceTest.sql.failure", new Object[] {e.getMessage()});
-        logger.error(message, e);
-        request.setAttribute("errorMessage", message);
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure",
+              new Object[] {e.getMessage()});
+          logger.error(message, e);
+          request.setAttribute("errorMessage", message);
+        } else {
+          // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
+          String errorMessage = "Errore durante l'accesso al messaggio di origine.";
+          logger.error(errorMessage, e);
+
+          request.setAttribute("errorMessage", errorMessage);
+        }
       }
     }
 
