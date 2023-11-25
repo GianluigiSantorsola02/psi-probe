@@ -5,6 +5,16 @@
  *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ */
+/*
+ * Licensed under the GPL License. You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *
+ * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
  * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
@@ -53,13 +63,13 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
   @RequestMapping(path = "/sql/recordset.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
+      throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleContext(String contextName, Context context,
-                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
+      HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
     String sql = ServletRequestUtils.getStringParameter(request, "sql", null);
@@ -68,7 +78,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
         request.setAttribute("errorMessage",
-                messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
+            messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
         request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
@@ -84,7 +94,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     HttpSession sess = request.getSession(false);
     DataSourceTestInfo sessData =
-            (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
+        (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 
     synchronized (sess) {
       if (sessData == null) {
@@ -102,12 +112,12 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     try {
       dataSource = getContainerWrapper().getResourceResolver().lookupDataSource(context,
-              resourceName, getContainerWrapper());
+          resourceName, getContainerWrapper());
     } catch (NamingException e) {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
         request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
-                "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+            "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
         request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
@@ -119,7 +129,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
         request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
-                "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
+            "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
         request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
@@ -152,7 +162,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
                     if (rs.wasNull()) {
                       value = getMessageSourceAccessor()
-                              .getMessage("probe.src.dataSourceTest.sql.null");
+                          .getMessage("probe.src.dataSourceTest.sql.null");
                     } else {
                       value = HtmlUtils.htmlEscape(value);
                     }
@@ -196,7 +206,8 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
       } catch (SQLException e) {
         MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
         if (messageSourceAccessor != null) {
-          String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure", new Object[] {e.getMessage()});
+          String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure",
+              new Object[] {e.getMessage()});
           logger.error(message, e);
           request.setAttribute("errorMessage", message);
         } else {
