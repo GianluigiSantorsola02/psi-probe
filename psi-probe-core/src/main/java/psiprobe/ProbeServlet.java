@@ -84,7 +84,7 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    */
   @Override
   protected void doDispatch(HttpServletRequest httpServletRequest,
-                            HttpServletResponse httpServletResponse) throws Exception {
+      HttpServletResponse httpServletResponse) throws Exception {
     httpServletRequest.setCharacterEncoding(StandardCharsets.UTF_8.name());
     super.doDispatch(httpServletRequest, httpServletResponse);
   }
@@ -100,14 +100,14 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    *
    * @return the container wrapper bean
    */
-    protected ContainerWrapperBean getContainerWrapperBean() {
-      // Verifica se getWebApplicationContext() restituisce un valore non nullo
-      if (getWebApplicationContext() != null) {
-        return (ContainerWrapperBean) getWebApplicationContext().getBean("containerWrapper");
-      } else {
-        // Gestisci il caso in cui getWebApplicationContext() restituisce null
-        throw new IllegalStateException("WebApplicationContext is null");
-      }
+  protected ContainerWrapperBean getContainerWrapperBean() {
+    // Verifica se getWebApplicationContext() restituisce un valore non nullo
+    if (getWebApplicationContext() != null) {
+      return (ContainerWrapperBean) getWebApplicationContext().getBean("containerWrapper");
+    } else {
+      // Gestisci il caso in cui getWebApplicationContext() restituisce null
+      throw new IllegalStateException("WebApplicationContext is null");
+    }
   }
 
 }
