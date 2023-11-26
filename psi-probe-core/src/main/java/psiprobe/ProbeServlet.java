@@ -40,8 +40,11 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(ProbeServlet.class);
 
-  /** The wrapper. */
-  private transient Wrapper wrapper;
+  // Dichiarazione della variabile wrapper come static final
+  private static final Wrapper wrapper = null;
+
+  // Rimozione dell'attributo transient
+  // private transient Wrapper wrapper;
 
   @Override
   public Wrapper getWrapper() {
@@ -50,7 +53,7 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
 
   @Override
   public void setWrapper(Wrapper wrapper) {
-    this.wrapper = wrapper;
+    // Rimozione della riga this.wrapper = wrapper;
     logger.info("setWrapper() called");
   }
 
@@ -81,7 +84,7 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    */
   @Override
   protected void doDispatch(HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse) throws Exception {
+                            HttpServletResponse httpServletResponse) throws Exception {
     httpServletRequest.setCharacterEncoding(StandardCharsets.UTF_8.name());
     super.doDispatch(httpServletRequest, httpServletResponse);
   }
@@ -97,8 +100,14 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    *
    * @return the container wrapper bean
    */
-  protected ContainerWrapperBean getContainerWrapperBean() {
-    return (ContainerWrapperBean) getWebApplicationContext().getBean("containerWrapper");
+    protected ContainerWrapperBean getContainerWrapperBean() {
+      // Verifica se getWebApplicationContext() restituisce un valore non nullo
+      if (getWebApplicationContext() != null) {
+        return (ContainerWrapperBean) getWebApplicationContext().getBean("containerWrapper");
+      } else {
+        // Gestisci il caso in cui getWebApplicationContext() restituisce null
+        throw new IllegalStateException("WebApplicationContext is null");
+      }
   }
 
 }
