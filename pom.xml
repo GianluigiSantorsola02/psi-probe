@@ -264,6 +264,10 @@
 
         <!-- Verification Checks -->
         <error-prone.failOnViolations>-XepAllErrorsAsWarnings</error-prone.failOnViolations>
+
+         <sonar.organization>gianluigisantorsola02</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
     </properties>
 
     <dependencyManagement>
