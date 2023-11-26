@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -64,7 +65,9 @@ public class RecompileJspController extends AbstractContextHandlerController {
       getContainerWrapper().getTomcatContainer().recompileJsps(context, summary, names);
       request.getSession(false).setAttribute(DisplayJspController.SUMMARY_ATTRIBUTE, summary);
     } else if (summary != null && contextName.equals(summary.getName())) {
-      String name = ServletRequestUtils.getStringParameter(request, "source", null);
+      String name = null;
+      name = ServletRequestUtils.getStringParameter(request, "source", null);
+
       if (name != null) {
         List<String> names = new ArrayList<>();
         names.add(name);

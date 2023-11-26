@@ -161,8 +161,12 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
                     String value = rs.getString(i);
 
                     if (rs.wasNull()) {
-                      value = getMessageSourceAccessor()
-                          .getMessage("probe.src.dataSourceTest.sql.null");
+                      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+                      if (messageSourceAccessor != null) {
+                        value = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.null");
+                      } else {
+                        value = "Null value"; // Ometti questo passaggio se non hai un valore di fallback specifico
+                      }
                     } else {
                       value = HtmlUtils.htmlEscape(value);
                     }
