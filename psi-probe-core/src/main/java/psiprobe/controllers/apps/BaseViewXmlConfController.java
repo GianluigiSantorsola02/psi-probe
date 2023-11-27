@@ -101,9 +101,9 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
       xmlPath = sctx.getRealPath("/WEB-INF/web.xml");
       xmlFile = new File(xmlPath);
       mv.addObject("fileDesc",
-          getMessageSourceAccessor() != null
-              ? getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.webxml.desc")
-              : ""); // gestisci il caso in cui getMessageSourceAccessor() restituisce null
+              getMessageSourceAccessor() != null
+                      ? getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.webxml.desc")
+                      : ""); // gestisci il caso in cui getMessageSourceAccessor() restituisce null
     } else if (TARGET_CONTEXT_XML.equals(displayTarget)) {
       xmlFile = getContainerWrapper().getTomcatContainer().getConfigFile(context);
       if (xmlFile != null) {
