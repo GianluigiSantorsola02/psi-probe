@@ -42,38 +42,38 @@ public class ListSessionsController extends AbstractContextHandlerController {
   @RequestMapping(path = "/sessions.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
+      throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleContext(String contextName, Context context,
-                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
+      HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
-            && SecurityUtils.hasAttributeValueRole(getServletContext(), request);
+        && SecurityUtils.hasAttributeValueRole(getServletContext(), request);
 
     SessionSearchInfo searchInfo = new SessionSearchInfo();
     searchInfo.setSearchAction(StringUtils.trimToNull(ServletRequestUtils
-            .getStringParameter(request, "searchAction", SessionSearchInfo.ACTION_NONE)));
+        .getStringParameter(request, "searchAction", SessionSearchInfo.ACTION_NONE)));
     HttpSession sess = request.getSession(false);
 
     if (searchInfo.isApply()) {
       searchInfo.setSessionId(StringUtils
-              .trimToNull(ServletRequestUtils.getStringParameter(request, "searchSessionId")));
+          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchSessionId")));
       searchInfo.setLastIp(
-              StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchLastIP")));
+          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchLastIP")));
 
       searchInfo.setAgeFrom(
-              StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeFrom")));
+          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeFrom")));
       searchInfo.setAgeTo(
-              StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeTo")));
+          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeTo")));
       searchInfo.setIdleTimeFrom(StringUtils
-              .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeFrom")));
+          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeFrom")));
       searchInfo.setIdleTimeTo(StringUtils
-              .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeTo")));
+          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeTo")));
       searchInfo.setAttrName(StringUtils
-              .trimToNull(ServletRequestUtils.getStringParameter(request, "searchAttrName")));
+          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchAttrName")));
       if (sess != null) {
         sess.setAttribute(SessionSearchInfo.SESS_ATTR_NAME, searchInfo);
       }
@@ -82,7 +82,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
         sess.removeAttribute(SessionSearchInfo.SESS_ATTR_NAME);
       } else {
         SessionSearchInfo ss =
-                (SessionSearchInfo) sess.getAttribute(SessionSearchInfo.SESS_ATTR_NAME);
+            (SessionSearchInfo) sess.getAttribute(SessionSearchInfo.SESS_ATTR_NAME);
         if (ss != null) {
           searchInfo = ss;
         }
