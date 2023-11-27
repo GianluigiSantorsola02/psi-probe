@@ -58,11 +58,8 @@ Ajax.ImgUpdater.prototype = {
 function togglePanel(container, remember_url) {
 	if (Element.getStyle(container, "display") == 'none') {
 		if (remember_url) {
-			new Ajax.Request(remember_url, {
-				method:'get',
-				asynchronous:true,
-				parameters: 'state=on'
-			});
+
+
 		}
 		if (document.getElementById('invisible_' + container)) {
 			Element.hide('invisible_' + container);
@@ -74,11 +71,7 @@ function togglePanel(container, remember_url) {
 		Effect.Grow(container);
 	} else {
 		if (remember_url) {
-			new Ajax.Request(remember_url, {
-				method:'get',
-				asynchronous:true,
-				parameters: 'state=off'
-			});
+
 		}
 		if (document.getElementById('visible_' + container)) {
 			Element.hide('visible_' + container);
@@ -110,7 +103,6 @@ function scaleImage(v, minX, maxX, minY, maxY) {
 
 function toggleAndReloadPanel(container, url) {
 	if (Element.getStyle(container, "display") == 'none') {
-		new Ajax.Updater(container, url);
 		Effect.BlindDown(container);
 	} else {
 		Effect.Shrink(container);
@@ -149,7 +141,9 @@ function setupHelpToggle(url) {
 			element.onclick = function() {
 				var help_container = 'help';
 				if (Element.getStyle(help_container, "display") == 'none') {
-					new Ajax.Updater(help_container, url);
+					Element.show(help_container);
+				} else {
+					Element.hide(help_container);
 				}
 				Effect.toggle(help_container, 'appear');
 				if (helpTimerID) {
@@ -185,19 +179,7 @@ function addAjaxTooltip(activator, tooltip, url) {
 		tt_container.style.width = '300px';
 
 		tt_container.innerHTML = '<div class="ajax_activity">&nbsp;</div>';
-		new Ajax.Updater(tt_container, url, {
-			method: 'get',
-			onComplete: function() {
-				tt_container.style.width = null;
-				var the_title = $('tooltip_title');
-				t_title = $('tt_title');
 
-				if (the_title && t_title) {
-					the_title.hide();
-					t_title.innerHTML = the_title.innerHTML;
-					t_title.show();
-				}
-			}
-		});
+
 	});
 }
