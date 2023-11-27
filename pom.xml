@@ -270,6 +270,11 @@
 
     </properties>
 
+    <properties>
+      <sonar.organization>gianluigisantorsola02</sonar.organization>
+      <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- Sonar Needs Following for Scans -->
