@@ -86,7 +86,6 @@ public class OracleDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "oracle.jdbc.pool.OracleDataSource".equals(resource.getClass().getName())
-        && resource instanceof OracleDataSource;
+    return resource instanceof OracleDataSource;
   }
 }
