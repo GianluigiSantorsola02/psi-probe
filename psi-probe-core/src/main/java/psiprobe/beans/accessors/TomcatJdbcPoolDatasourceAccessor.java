@@ -43,8 +43,7 @@ public class TomcatJdbcPoolDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "org.apache.tomcat.jdbc.pool.DataSource".equals(resource.getClass().getName())
-        && resource instanceof DataSource;
+    return (resource instanceof DataSource);
   }
 
 }

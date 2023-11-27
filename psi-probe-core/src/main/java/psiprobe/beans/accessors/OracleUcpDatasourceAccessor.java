@@ -10,6 +10,8 @@
  */
 package psiprobe.beans.accessors;
 
+import oracle.ucp.jdbc.PoolDataSourceImpl;
+import oracle.ucp.jdbc.PoolXADataSourceImpl;
 import psiprobe.model.DataSourceInfo;
 
 import oracle.ucp.jdbc.JDBCConnectionPoolStatistics;
@@ -56,9 +58,8 @@ public class OracleUcpDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return ("oracle.ucp.jdbc.PoolDataSourceImpl".equals(resource.getClass().getName())
-        || "oracle.ucp.jdbc.PoolXADataSourceImpl".equals(resource.getClass().getName()))
-        && resource instanceof PoolDataSource;
+    return (resource instanceof PoolDataSource)
+            && ((resource instanceof PoolDataSourceImpl) || (resource instanceof PoolXADataSourceImpl));
   }
 
 }
