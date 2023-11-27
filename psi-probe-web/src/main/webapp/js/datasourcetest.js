@@ -108,15 +108,7 @@ function testConnction() {
 	$('pagebanner').innerHTML = "";
 	$('pagelinks').innerHTML = "";
 	var params = Form.serialize(formId);
-	new Ajax.Updater(sqlOutputDivId, connectUrl, {
-		method: 'post',
-		postBody: params,
-		onComplete: function(req, obj) {
-			if (ajaxActivityTimer) clearTimeout(ajaxActivityTimer);
-			ajaxActivityTimer = setTimeout('Element.hide("' + ajaxActivityId + '")', 250);
-			$('sqlResultsWrapper').show();
-		}
-	});
+
 }
 
 function executeSql() {
@@ -125,23 +117,6 @@ function executeSql() {
 	Element.hide(metaDataH3Id);
 	Element.show(resultsH3Id);
 	var params = Form.serialize(formId);
-	new Ajax.Updater(sqlOutputDivId, recordsetUrl, {
-		method: 'post',
-		postBody: params,
-		onComplete: function() {
-			setupPaginationLinks();
-			if ($('rs_empty') || $('rs_error')) {
-				$('left_scroller').hide();
-				$('right_scroller').hide();
-				$('separator').hide();
-			} else {
-				$('left_scroller').show();
-				$('right_scroller').show();
-				$('separator').show();
-			}
-			$('sqlResultsWrapper').show();
-		}
-	});
 }
 
 function setupPaginationLinks(req, obj) {
@@ -162,11 +137,6 @@ function setupPaginationLinks(req, obj) {
 			Element.show(ajaxActivityId);
 			Element.show(resultsH3Id);
 			var p = Form.serialize(formId);
-			new Ajax.Updater(sqlOutputDivId, lnk.href, {
-				method: 'post',
-				postBody: p,
-				onComplete: setupPaginationLinks
-			});
 			return false;
 		}
 	});
@@ -180,36 +150,16 @@ function setupPaginationLinks(req, obj) {
 */
 
 function showQueryHistory() {
-	new Ajax.Updater(historyOutputDivId, queryHistoryUrl, {
-		method: 'post',
-		onComplete: function(req, obj) {
-			Element.hide('showHistory');
-			Element.show('hideHistory');
-			Element.setStyle(historyOutputDivId, {
-				height: historyHeight + 'px'
-			});
-			Effect.Appear(historyContainerDivId, {
-				duration:0.20
-			});
-
-			if (historyWrapped) {
-				wrapQueryHistory();
-			} else {
-				nowrapQueryHistory();
-			}
-
-			historyVisible = true;
-		}
+	Element.hide('hideHistory');
+	Element.show('showHistory');
+	Effect.Fade(historyContainerDivId, {
+		duration:0.20
 	});
+	historyVisible = true;
 }
 
 function getQueryHistoryItem(lnk) {
-	new Ajax.Request(lnk.href, {
-		method: 'get',
-		onComplete: function(lnkReq) {
-			$('sql').value = lnkReq.responseText;
-		}
-	});
+
 
 hideQueryHistory();
 $('sql').focus();
