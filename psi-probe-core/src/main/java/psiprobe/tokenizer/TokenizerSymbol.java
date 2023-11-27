@@ -66,7 +66,10 @@ public class TokenizerSymbol implements Comparable<Object> {
     if (obj instanceof Character) {
       return compareTo((Character) obj);
     }
-    return compareTo((TokenizerSymbol) obj);
+    if (obj instanceof TokenizerSymbol) {
+      return compareTo((TokenizerSymbol) obj);
+    }
+    throw new IllegalArgumentException("Invalid argument type");
   }
 
   /**

@@ -50,7 +50,6 @@ public class C3P0DatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "com.mchange.v2.c3p0.ComboPooledDataSource".equals(resource.getClass().getName())
-        && resource instanceof ComboPooledDataSource;
+    return resource instanceof ComboPooledDataSource;
   }
 }
