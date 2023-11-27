@@ -36,10 +36,6 @@ import psiprobe.model.SessionSearchInfo;
 import psiprobe.tools.ApplicationUtils;
 import psiprobe.tools.SecurityUtils;
 
-/**
- * Creates the list of sessions for a particular web application or all web applications if a webapp
- * request parameter is not set.
- */
 @Controller
 public class ListSessionsController extends AbstractContextHandlerController {
 
@@ -93,8 +89,6 @@ public class ListSessionsController extends AbstractContextHandlerController {
       }
     }
 
-    // context is not specified we'll retrieve all sessions of the container
-
     List<Context> ctxs;
     if (context == null) {
       ctxs = getContainerWrapper().getTomcatContainer().findContexts();
@@ -104,6 +98,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
     }
 
     List<ApplicationSession> sessionList = new ArrayList<>();
+
     for (Context ctx : ctxs) {
       if (ctx != null && ctx.getManager() != null
           && (!searchInfo.isApply() || searchInfo.isUseSearch())) {
@@ -140,7 +135,9 @@ public class ListSessionsController extends AbstractContextHandlerController {
    */
   private void populateSearchMessages(SessionSearchInfo searchInfo) {
     MessageSourceAccessor msa = getMessageSourceAccessor();
-
+    if (msa != null) {
+      msa.getMessage("probe.src.dataSourceTest.sql.required");
+    }
     searchInfo.getErrorMessages().clear();
 
     if (searchInfo.isEmpty()) {

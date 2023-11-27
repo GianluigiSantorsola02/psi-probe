@@ -26,7 +26,7 @@ public abstract class AbstractLoggerAccessorVisitor extends DefaultAccessor {
   public void visit() {
     Object logger = Instruments.getField(getTarget(), "logger");
     if (logger != null) {
-      if ("org.apache.log4j.Logger".equals(logger.getClass().getName())) {
+      if (logger.getClass().equals(java.util.logging.Logger.class)) {
         Object level = Instruments.getField(logger, "level");
         if (level == null) {
           // This Logger is part of the slf4j bridge.
@@ -40,7 +40,7 @@ public abstract class AbstractLoggerAccessorVisitor extends DefaultAccessor {
           visit(accessor);
           logger = invokeMethod(logger, "getParent", null, null);
         }
-      } else if ("java.util.logging.Logger".equals(logger.getClass().getName())) {
+      } else if (logger instanceof java.util.logging.Logger) {
         while (logger != null) {
           Jdk14LoggerAccessor accessor = new Jdk14LoggerAccessor();
           accessor.setTarget(logger);
