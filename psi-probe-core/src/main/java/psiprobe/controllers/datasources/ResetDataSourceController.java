@@ -60,15 +60,20 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   @RequestMapping(path = "/app/resetds.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    String resourceName = ServletRequestUtils.getStringParameter(request, "resource", null);
+    // Aggiungi questa parte di codice
+    String resourceName = null;
+    if (request != null) {
+      resourceName = ServletRequestUtils.getStringParameter(request, "resource", null);
+    }
+
     String referer = request.getHeader("Referer");
     String redirectUrl;
     if (referer != null) {
@@ -77,21 +82,20 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
       redirectUrl = request.getContextPath() + getViewName();
     }
 
-    if (resourceName != null && resourceName.length() > 0) {
+    if (resourceName != null) {
       boolean reset = false;
       try {
         reset = getContainerWrapper().getResourceResolver().resetResource(context, resourceName,
-            getContainerWrapper());
+                getContainerWrapper());
       } catch (NamingException e) {
         request.setAttribute("errorMessage", getMessageSourceAccessor()
-            .getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}));
+                .getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}));
         logger.trace("", e);
       }
       if (!reset) {
         request.setAttribute("errorMessage",
-            getMessageSourceAccessor().getMessage("probe.src.reset.datasource"));
+                getMessageSourceAccessor().getMessage("probe.src.reset.datasource"));
       }
-
     }
     logger.debug("Redirected to {}", redirectUrl);
     return new ModelAndView(new RedirectView(redirectUrl));
