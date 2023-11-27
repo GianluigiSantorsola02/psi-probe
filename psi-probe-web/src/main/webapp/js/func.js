@@ -59,7 +59,6 @@ function togglePanel(container, remember_url) {
 	if (Element.getStyle(container, "display") == 'none') {
 		if (remember_url) {
 
-
 		}
 		if (document.getElementById('invisible_' + container)) {
 			Element.hide('invisible_' + container);
