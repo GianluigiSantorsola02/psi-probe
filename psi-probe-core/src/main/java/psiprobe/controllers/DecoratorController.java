@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,13 +59,13 @@ public class DecoratorController extends PostParameterizableViewController {
   @RequestMapping(path = "/decorator.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
 
     try {
       request.setAttribute("hostname", InetAddress.getLocalHost().getHostName());
@@ -73,13 +74,16 @@ public class DecoratorController extends PostParameterizableViewController {
       logger.trace("", e);
     }
 
-    Properties version = (Properties) getApplicationContext().getBean("version");
-    request.setAttribute("version", version.getProperty("probe.version"));
 
-    //
-    // Work out the language of the interface by matching resource files that we have
-    // to the request locale.
-    //
+    if (getApplicationContext() != null) {
+      DataHandler Properties = (DataHandler) (getApplicationContext().getBean("version"));
+      Properties data = (Properties) (getApplicationContext().getBean("version"));
+      request.setAttribute("version", data.getProperty("probe.version"));
+    } else {
+      logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
+      // Puoi gestire il caso in cui getApplicationContext() restituisce null, ad esempio, loggando un messaggio di errore o lanciando un'eccezione
+    }
+
     String lang = "en";
     for (String fileName : getMessageFileNamesForLocale(request.getLocale())) {
       if (getServletContext().getResource(fileName + ".properties") != null) {
