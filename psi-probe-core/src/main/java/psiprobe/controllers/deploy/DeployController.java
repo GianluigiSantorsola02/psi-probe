@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,11 +47,19 @@ public class DeployController extends AbstractTomcatContainerController {
       HttpServletResponse response) throws Exception {
 
     List<Context> apps;
-    try {
+   try {
       apps = getContainerWrapper().getTomcatContainer().findContexts();
+      ServletContext servletContext = getServletContext();
+      if (servletContext == null) {
+        throw new IllegalStateException("No ServletContext found");
+      }
+
+      String serverInfo = servletContext.getServerInfo();
+      if (serverInfo == null) {
+        throw new IllegalStateException("No server information available");
+      }
     } catch (NullPointerException ex) {
-      throw new IllegalStateException(
-          "No container found for your server: " + getServletContext().getServerInfo(), ex);
+      throw new IllegalStateException("No container found for your server", ex);
     }
 
     List<Map<String, String>> applications = new ArrayList<>();
