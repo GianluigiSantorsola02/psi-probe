@@ -63,6 +63,9 @@
 
             <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
                 <tr>
+                    <th>View_servlet_Source.jsp</th>
+                </tr>
+                <tr>
                     <td id="left_scroller" class="scroller">&#160;</td>
                     <td id="separator" width="1%" style="display: none;">&#160;</td>
                     <td>
@@ -74,8 +77,7 @@
                     </td>
                     <td id="right_scroller" class="scroller">&#160;</td>
                 </tr>
-            </table>
-        </div>
+            </table>        </div>
 
         <script>
             setupScrollers('srccontent');
