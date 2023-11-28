@@ -149,7 +149,7 @@ var Effect = {
     var masterDelay = options.delay;
 
     $A(elements).each( function(element, index) {
-      new effect(element, Object.extend(options, { delay: index * options.speed + masterDelay }));
+
     });
   },
   PAIRS: {
@@ -627,16 +627,7 @@ Effect.SwitchOff = function(element) {
     from: 0,
     transition: Effect.Transitions.flicker,
     afterFinishInternal: function(effect) {
-      new Effect.Scale(effect.element, 1, {
-        duration: 0.3, scaleFromCenter: true,
-        scaleX: false, scaleContent: false, restoreAfterFinish: true,
-        beforeSetup: function(effect) {
-          effect.element.makePositioned().makeClipping();
-        },
-        afterFinishInternal: function(effect) {
-          effect.element.hide().undoClipping().undoPositioned().setStyle({opacity: oldOpacity});
-        }
-      });
+
     }
   }, arguments[1] || { }));
 };
@@ -672,20 +663,7 @@ Effect.Shake = function(element) {
   var oldStyle = {
     top: element.getStyle('top'),
     left: element.getStyle('left') };
-    return new Effect.Move(element,
-      { x:  distance, y: 0, duration: split, afterFinishInternal: function(effect) {
-    new Effect.Move(effect.element,
-      { x: -distance*2, y: 0, duration: split*2,  afterFinishInternal: function(effect) {
-    new Effect.Move(effect.element,
-      { x:  distance*2, y: 0, duration: split*2,  afterFinishInternal: function(effect) {
-    new Effect.Move(effect.element,
-      { x: -distance*2, y: 0, duration: split*2,  afterFinishInternal: function(effect) {
-    new Effect.Move(effect.element,
-      { x:  distance*2, y: 0, duration: split*2,  afterFinishInternal: function(effect) {
-    new Effect.Move(effect.element,
-      { x: -distance, y: 0, duration: split, afterFinishInternal: function(effect) {
-        effect.element.undoPositioned().setStyle(oldStyle);
-  }}); }}); }}); }}); }}); }});
+
 };
 
 Effect.SlideDown = function(element) {
@@ -723,7 +701,7 @@ Effect.SlideUp = function(element) {
   return new Effect.Scale(element, window.opera ? 0 : 1,
    Object.extend({ scaleContent: false,
     scaleX: false,
-    scaleMode: 'box',
+    scaleModeBox: 'box',
     scaleFrom: 100,
     scaleMode: {originalHeight: elementDimensions.height, originalWidth: elementDimensions.width},
     restoreAfterFinish: true,
@@ -813,21 +791,7 @@ Effect.Grow = function(element) {
       effect.element.hide().makeClipping().makePositioned();
     },
     afterFinishInternal: function(effect) {
-      new Effect.Parallel(
-        [ new Effect.Opacity(effect.element, { sync: true, to: 1.0, from: 0.0, transition: options.opacityTransition }),
-          new Effect.Move(effect.element, { x: moveX, y: moveY, sync: true, transition: options.moveTransition }),
-          new Effect.Scale(effect.element, 100, {
-            scaleMode: { originalHeight: dims.height, originalWidth: dims.width },
-            sync: true, scaleFrom: window.opera ? 1 : 0, transition: options.scaleTransition, restoreAfterFinish: true})
-        ], Object.extend({
-             beforeSetup: function(effect) {
-               effect.effects[0].element.setStyle({height: '0px'}).show();
-             },
-             afterFinishInternal: function(effect) {
-               effect.effects[0].element.undoClipping().undoPositioned().setStyle(oldStyle);
-             }
-           }, options)
-      );
+
     }
   });
 };
@@ -913,12 +877,6 @@ Effect.Fold = function(element) {
     scaleContent: false,
     scaleX: false,
     afterFinishInternal: function(effect) {
-    new Effect.Scale(element, 1, {
-      scaleContent: false,
-      scaleY: false,
-      afterFinishInternal: function(effect) {
-        effect.element.hide().undoClipping().setStyle(oldStyle);
-      } });
   }}, arguments[1] || { }));
 };
 
@@ -1053,7 +1011,7 @@ Element.CSS_PROPERTIES = $w(
   'outlineWidth paddingBottom paddingLeft paddingRight paddingTop ' +
   'right textIndent top width wordSpacing zIndex');
 
-Element.CSS_LENGTH = /^(([\+\-]?[0-9\.]+)(em|ex|px|in|cm|mm|pt|pc|\%))|0$/;
+Element.CSS_LENGTH = /^(([\+\-]?[0-9\.]+)(em|ex|px|in|cm|mm|pt|pc|\%))|(0)$/;
 
 String.__parseStyleElement = document.createElement('div');
 String.prototype.parseStyle = function(){
@@ -1099,18 +1057,15 @@ if (document.defaultView && document.defaultView.getComputedStyle) {
 Effect.Methods = {
   morph: function(element, style) {
     element = $(element);
-    new Effect.Morph(element, Object.extend({ style: style }, arguments[2] || { }));
     return element;
   },
   visualEffect: function(element, effect, options) {
     element = $(element);
     var s = effect.dasherize().camelize(), klass = s.charAt(0).toUpperCase() + s.substring(1);
-    new Effect[klass](element, options);
     return element;
   },
   highlight: function(element, options) {
     element = $(element);
-    new Effect.Highlight(element, options);
     return element;
   }
 };
