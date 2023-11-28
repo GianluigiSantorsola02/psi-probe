@@ -64,8 +64,7 @@ public class ViburCpDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(final Object resource) {
-    return "org.vibur.dbcp.ViburDBCPDataSource".equals(resource.getClass().getName())
-        && resource instanceof ViburDBCPDataSource;
+    return resource instanceof org.vibur.dbcp.ViburDBCPDataSource;
   }
 
 }
