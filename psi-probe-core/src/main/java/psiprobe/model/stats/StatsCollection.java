@@ -376,7 +376,8 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
     if (wac.getServletContext() != null) {
       contextTempDir = (File) wac.getServletContext().getAttribute("javax.servlet.context.tempdir");
     } else {
-      logger.error("ServletContext is null. Cannot retrieve the 'javax.servlet.context.tempdir' attribute");
+      logger.error(
+          "ServletContext is null. Cannot retrieve the 'javax.servlet.context.tempdir' attribute");
     }
   }
 

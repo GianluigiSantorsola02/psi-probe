@@ -10,9 +10,10 @@
  */
 package psiprobe.tools.logging.log4j;
 
+import java.io.File;
+
 import psiprobe.tools.logging.AbstractLogDestination;
 
-import java.io.File;
 /**
  * The Class Log4JAppenderAccessor.
  */
@@ -67,7 +68,7 @@ public class Log4JAppenderAccessor extends AbstractLogDestination {
   @Override
   public String getConversionPattern() {
     Object layout = getProperty(getTarget(), "layout", null);
-    if (layout instanceof org.apache.log4j.PatternLayout) {
+    if (layout instanceof org.apache.logging.log4j.core.layout.PatternLayout) {
       return (String) getProperty(layout, "conversionPattern", null);
     }
     return null;

@@ -67,7 +67,7 @@ public class ZoomChartController extends ParameterizableViewController {
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-                                               HttpServletResponse response) throws Exception {
+      HttpServletResponse response) throws Exception {
 
     // Call the super method to get the ModelAndView object
     ModelAndView modelAndView = super.handleRequestInternal(request, response);

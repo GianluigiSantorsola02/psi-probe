@@ -282,7 +282,8 @@ public final class Utils {
                     break;
                   }
                 }
-              } if ("contentType".equals(directiveToken.getText())) {
+              }
+              if ("contentType".equals(directiveToken.getText())) {
                 if (directiveTokenizer.hasMore()) {
                   String nextTokenText = directiveTokenizer.nextToken().getText();
                   if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {

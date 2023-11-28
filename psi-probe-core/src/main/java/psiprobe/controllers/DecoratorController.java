@@ -59,13 +59,13 @@ public class DecoratorController extends PostParameterizableViewController {
   @RequestMapping(path = "/decorator.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
+      throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-                                               HttpServletResponse response) throws Exception {
+      HttpServletResponse response) throws Exception {
 
     try {
       request.setAttribute("hostname", InetAddress.getLocalHost().getHostName());

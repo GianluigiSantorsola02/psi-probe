@@ -194,7 +194,9 @@ public class ResourceResolverBean implements ResourceResolver {
       if (ctx != null) {
         obj = ctx.lookup(jndiName);
       } else {
-        System.out.println("Error: Context is null. Unable to perform JNDI lookup."); // Handle the case when ctx is null
+        System.out.println("Error: Context is null. Unable to perform JNDI lookup."); // Handle the
+                                                                                      // case when
+                                                                                      // ctx is null
       }
       try {
         for (String accessorString : datasourceMappers) {

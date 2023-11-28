@@ -68,12 +68,14 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
   @Override
   public String getConversionPattern() {
     Object layout = invokeMethod(getTarget(), "getLayout", null, null);
-    if (layout != null && "org.apache.logging.log4j.core.layout.PatternLayout"
-        .equals(layout.getClass().getName())) {
+    if (layout instanceof org.apache.logging.log4j.core.layout.PatternLayout) {
       return (String) invokeMethod(layout, "getConversionPattern", null, null);
+
     }
     return null;
-  }
+    }
+
+
 
   @Override
   public File getFile() {
@@ -83,8 +85,8 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
     }
     // Check for SMTPAppender information
     File result = null;
-    if ("org.apache.logging.log4j.core.appender.SmtpAppender"
-        .equals(getTarget().getClass().getName())) {
+    if (getTarget() instanceof org.apache.logging.log4j.core.appender.SmtpAppender) {
+      org.apache.logging.log4j.core.appender.SmtpAppender smtpAppender = (org.apache.logging.log4j.core.appender.SmtpAppender) getTarget();
       Object smtpManager = getProperty(getTarget(), "manager", null, true);
       Object factoryData = getProperty(smtpManager, "data", null, true);
       Object cc = getProperty(factoryData, "cc", null, true);

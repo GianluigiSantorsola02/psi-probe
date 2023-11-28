@@ -55,7 +55,7 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
         String name = auth.getName();
         if (getMessageSourceAccessor() != null) {
           logger.info(getMessageSourceAccessor().getMessage("probe.src.log.reload"), name,
-                  contextName);
+              contextName);
         } else {
           // Handle the case when getMessageSourceAccessor() returns null
           logger.error("Error: getMessageSourceAccessor() returned null!");
