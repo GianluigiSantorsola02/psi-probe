@@ -76,22 +76,36 @@ public class DecoratorController extends PostParameterizableViewController {
 
 
     if (getApplicationContext() != null) {
-      DataHandler Properties = (DataHandler) (getApplicationContext().getBean("version"));
-      Properties data = (Properties) (getApplicationContext().getBean("version"));
-      request.setAttribute("version", data.getProperty("probe.version"));
+      DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
+      Properties data = (Properties) getApplicationContext().getBean("version");
+      if (data != null) {
+        request.setAttribute("version", data.getProperty("probe.version"));
+      } else {
+        // Handle the case when 'data' is null
+        logger.error("Error: 'version' bean is null");
+      }
     } else {
       logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
-      // Puoi gestire il caso in cui getApplicationContext() restituisce null, ad esempio, loggando un messaggio di errore o lanciando un'eccezione
     }
 
     String lang = "en";
-    for (String fileName : getMessageFileNamesForLocale(request.getLocale())) {
-      if (getServletContext().getResource(fileName + ".properties") != null) {
-        lang = fileName.substring(messagesBasename.length() + 1);
-        break;
-      }
+    if (getServletContext() != null) {
+      String attributeName = "attributeName";
+      Object attributeValue = getServletContext().getAttribute(attributeName);
+    } else {
+      logger.error("ServletContext is null. Cannot retrieve the servlet context");
     }
 
+    if (getServletContext() != null) {
+      for (String fileName : getMessageFileNamesForLocale(request.getLocale())) {
+        if (getServletContext().getResource(fileName + ".properties") != null) {
+          lang = fileName.substring(messagesBasename.length() + 1);
+          break;
+        }
+      }
+    } else {
+      logger.error("ServletContext is null. Cannot retrieve the servlet context");
+    }
     request.setAttribute("lang", lang);
 
     return super.handleRequestInternal(request, response);
