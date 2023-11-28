@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,11 +37,10 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
     if (context != null || isContextOptional()) {
       return handleContext(contextName, context, request, response);
     }
-    if (contextName != null) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor()
-          .getMessage("probe.src.contextDoesntExist", new Object[] {contextName}));
+    MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+    if (contextName != null && messageSourceAccessor != null) {
+      request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.contextDoesntExist", new Object[] {contextName}));
     }
-
     return new ModelAndView("errors/paramerror");
   }
 
