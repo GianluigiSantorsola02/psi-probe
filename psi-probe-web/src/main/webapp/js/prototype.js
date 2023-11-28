@@ -719,7 +719,7 @@ Object.extend(String.prototype, (function() {
   }
 
   function inspect(useDoubleQuotes) {
-    var escapedString = this.replace(/[\x00-\x1f\\]/g, function(character) {
+    const escapedString = this.replace(/\\/g, function (character) {
       if (character in String.specialChar) {
         return String.specialChar[character];
       }
@@ -734,7 +734,7 @@ Object.extend(String.prototype, (function() {
   }
 
   function isJSON() {
-    var str = this;
+    let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
     str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
@@ -5084,7 +5084,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				rbuggyQSA.push( ":enabled", ":disabled" );
 			}
 
-			div.querySelectorAll("*,:x");
+			div.querySelectorAll("*,:enabled,:disabled");
 			rbuggyQSA.push(",.*:");
 		});
 	}

@@ -83,7 +83,9 @@ Autocompleter.Base = Class.create({
         Effect.Appear(update,{duration:0.15});
       };
     this.options.onHide = this.options.onHide ||
-      function(element, update){ new Effect.Fade(update,{duration:0.15}) };
+      function(element, update){
+        Effect.Fade(update,{duration:0.15});
+      };
 
     if(typeof(this.options.tokens) == 'string')
       this.options.tokens = new Array(this.options.tokens);
@@ -106,10 +108,6 @@ Autocompleter.Base = Class.create({
     if(!this.iefix &&
       (Prototype.Browser.IE) &&
       (Element.getStyle(this.update, 'position')=='absolute')) {
-      new Insertion.After(this.update,
-       '<iframe id="' + this.update.id + '_iefix" '+
-       'style="display:none;position:absolute;filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);" ' +
-       'src="javascript:false;" frameborder="0" scrolling="no"></iframe>');
       this.iefix = $(this.update.id+'_iefix');
     }
     if(this.iefix) setTimeout(this.fixIEOverlapping.bind(this), 50);
@@ -373,7 +371,6 @@ Ajax.Autocompleter = Class.create(Autocompleter.Base, {
     if(this.options.defaultParams)
       this.options.parameters += '&' + this.options.defaultParams;
 
-    new Ajax.Request(this.url, this.options);
   },
 
   onComplete: function(request) {
@@ -644,7 +641,7 @@ Ajax.InPlaceEditor = Class.create({
         onComplete: this._boundWrapperHandler,
         onFailure: this._boundFailureHandler
       });
-      new Ajax.Updater({ success: this.element }, this.url, options);
+
     } else {
       var options = Object.extend({ method: 'get' }, this.options.ajaxOptions);
       Object.extend(options, {
@@ -652,7 +649,7 @@ Ajax.InPlaceEditor = Class.create({
         onComplete: this._boundWrapperHandler,
         onFailure: this._boundFailureHandler
       });
-      new Ajax.Request(this.url, options);
+
     }
     if (e) Event.stop(e);
   },
@@ -693,7 +690,7 @@ Ajax.InPlaceEditor = Class.create({
       }.bind(this),
       onFailure: this._boundFailureHandler
     });
-    new Ajax.Request(this.options.loadTextURL, options);
+
   },
   postProcessEditField: function() {
     var fpc = this.options.fieldPostCreation;
@@ -798,7 +795,7 @@ Ajax.InPlaceCollectionEditor = Class.create(Ajax.InPlaceEditor, {
       }.bind(this),
       onFailure: this.onFailure
     });
-    new Ajax.Request(this.options.loadCollectionURL, options);
+
   },
 
   showLoadingText: function(text) {
@@ -833,7 +830,7 @@ Ajax.InPlaceCollectionEditor = Class.create(Ajax.InPlaceEditor, {
       }.bind(this),
       onFailure: this.onFailure
     });
-    new Ajax.Request(this.options.loadTextURL, options);
+
   },
 
   buildOptionList: function() {
@@ -916,8 +913,7 @@ Object.extend(Ajax.InPlaceEditor, {
     onComplete: function(transport, element) {
       // For backward compatibility, this one is bound to the IPE, and passes
       // the element directly.  It was too often customized, so we don't break it.
-      new Effect.Highlight(element, {
-        startcolor: this.options.highlightColor, keepBackgroundImage: true });
+      this.onSuccess(transport, element);
     },
     onEnterEditMode: null,
     onEnterHover: function(ipe) {
