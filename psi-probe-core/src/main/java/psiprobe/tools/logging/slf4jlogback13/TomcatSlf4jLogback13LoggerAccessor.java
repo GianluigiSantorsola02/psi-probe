@@ -149,8 +149,7 @@ public class TomcatSlf4jLogback13LoggerAccessor extends DefaultAccessor {
    */
   @SuppressWarnings("unchecked")
   private List<Object> getSiftedAppenders(Object appender) throws Exception {
-    if ("org.apache.juli.logging.ch.qos.logback.classic.sift.SiftingAppender"
-        .equals(appender.getClass().getName())) {
+    if (appender instanceof org.apache.tomcat.util.res.StringManager) {
 
       Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
       if (tracker != null) {
