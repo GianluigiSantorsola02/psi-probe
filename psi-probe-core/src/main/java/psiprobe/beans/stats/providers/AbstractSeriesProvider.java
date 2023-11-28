@@ -33,13 +33,18 @@ public abstract class AbstractSeriesProvider implements SeriesProvider {
    *
    * @return the XY series
    */
+  private final Object statsLock = new Object();
+
   protected XYSeries toSeries(String legend, List<XYDataItem> stats) {
     XYSeries xySeries = new XYSeries(legend, true, false);
-    synchronized (stats) {
+    synchronized (statsLock) {
       for (XYDataItem item : stats) {
         xySeries.addOrUpdate(item.getX(), item.getY());
       }
     }
+    // Rest of the code...
+
+
     return xySeries;
   }
 

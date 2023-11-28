@@ -54,13 +54,23 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
         if (context.getState().isAvailable()) {
           logger.info("{} requested STOP of {}", request.getRemoteAddr(), contextName);
           getContainerWrapper().getTomcatContainer().stop(contextName);
-          logger.info(getMessageSourceAccessor().getMessage("probe.src.log.stop"), name,
-              contextName);
+          if (getMessageSourceAccessor() != null) {
+            logger.info(getMessageSourceAccessor().getMessage("probe.src.log.stop"), name,
+                    contextName);
+          } else {
+            logger.error("Error: getMessageSourceAccessor() returned null!");
+            // You can add additional error handling or logging code here
+          }
         } else {
           logger.info("{} requested START of {}", request.getRemoteAddr(), contextName);
           getContainerWrapper().getTomcatContainer().start(contextName);
-          logger.info(getMessageSourceAccessor().getMessage("probe.src.log.start"), name,
-              contextName);
+          if (getMessageSourceAccessor() != null) {
+            logger.info(getMessageSourceAccessor().getMessage("probe.src.log.start"), name,
+                    contextName);
+          } else {
+            logger.error("Error: getMessageSourceAccessor() returned null!");
+            // You can add additional error handling or logging code here
+          }
         }
       } catch (Exception e) {
         logger.error("Error during ajax request to START/STOP of '{}'", contextName, e);

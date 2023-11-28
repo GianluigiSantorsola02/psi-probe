@@ -63,8 +63,8 @@ public class HikariCpDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(final Object resource) {
-    return "com.zaxxer.hikari.HikariDataSource".equals(resource.getClass().getName())
-        && resource instanceof HikariDataSource;
+    return resource instanceof com.zaxxer.hikari.HikariDataSource
+            && resource instanceof HikariDataSource;
+  }
   }
 
-}

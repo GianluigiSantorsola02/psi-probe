@@ -67,9 +67,26 @@ public class ZoomChartController extends ParameterizableViewController {
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
-    return super.handleRequestInternal(request, response).addObject("collectionPeriod",
-        getCollectionPeriod());
+                                               HttpServletResponse response) throws Exception {
+
+    // Call the super method to get the ModelAndView object
+    ModelAndView modelAndView = super.handleRequestInternal(request, response);
+
+    // Check if the modelAndView is not null
+    if (modelAndView != null) {
+      // Add the "collectionPeriod" attribute to the modelAndView object
+      modelAndView.addObject("collectionPeriod", getCollectionPeriod());
+
+      // Return the updated modelAndView object
+      return modelAndView;
+    }
+
+    // Add your error handling or logging code here
+    System.err.println("Error: The super handleRequestInternal returned null!");
+    // You can also throw an exception or perform any other appropriate action
+
+    // Return null or provide an alternative action based on your requirements
+    return null;
   }
 
   @Value("zoomreq")

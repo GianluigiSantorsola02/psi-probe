@@ -44,8 +44,6 @@ public class TomEeJdbcPoolDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "org.apache.tomee.jdbc.TomEEDataSourceCreator$TomEEDataSource"
-        .equals(resource.getClass().getName()) && resource instanceof DataSource;
+    return resource instanceof DataSource;
   }
-
 }
