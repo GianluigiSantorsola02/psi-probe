@@ -189,7 +189,13 @@ public class ResourceResolverBean implements ResourceResolver {
     try {
       javax.naming.Context ctx = context != null ? new InitialContext() : getGlobalNamingContext();
       String jndiName = resolveJndiName(resourceName, context == null);
-      Object obj = ctx.lookup(jndiName);
+      Object obj = null;
+
+      if (ctx != null) {
+        obj = ctx.lookup(jndiName);
+      } else {
+        System.out.println("Error: Context is null. Unable to perform JNDI lookup."); // Handle the case when ctx is null
+      }
       try {
         for (String accessorString : datasourceMappers) {
           logger.debug("Resetting datasource adapter: {}", accessorString);
@@ -221,8 +227,21 @@ public class ResourceResolverBean implements ResourceResolver {
     try {
       javax.naming.Context ctx = context != null ? new InitialContext() : getGlobalNamingContext();
       String jndiName = resolveJndiName(resourceName, context == null);
-      Object obj = ctx.lookup(jndiName);
+      Object obj = null;
 
+      try {
+        if (ctx != null) {
+          obj = ctx.lookup(jndiName);
+        } else {
+          // Handle the case when ctx is null
+          System.out.println("Error: Context is null. Unable to perform JNDI lookup.");
+          // You can add additional error handling or logging code here
+        }
+      } catch (NamingException e) {
+        // Handle the NamingException
+        System.err.println("Error occurred during JNDI lookup: " + e.getMessage());
+        // You can add additional error handling or logging code here
+      }
       if (obj instanceof DataSource) {
         return (DataSource) obj;
       }
