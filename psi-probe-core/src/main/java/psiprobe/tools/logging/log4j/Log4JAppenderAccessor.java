@@ -68,7 +68,7 @@ public class Log4JAppenderAccessor extends AbstractLogDestination {
   @Override
   public String getConversionPattern() {
     Object layout = getProperty(getTarget(), "layout", null);
-    if (layout != null && "org.apache.log4j.PatternLayout".equals(layout.getClass().getName())) {
+    if (layout instanceof org.apache.log4j.PatternLayout) {
       return (String) getProperty(layout, "conversionPattern", null);
     }
     return null;

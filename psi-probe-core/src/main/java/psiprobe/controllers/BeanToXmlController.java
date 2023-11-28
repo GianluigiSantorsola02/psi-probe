@@ -73,10 +73,15 @@ public class BeanToXmlController extends AbstractController {
     Controller controller = (Controller) getApplicationContext().getBean(internalPath);
     if (controller != null) {
       ModelAndView modelAndView = controller.handleRequest(request, response);
-      if (modelAndView.getModel() != null) {
+      if (modelAndView != null && modelAndView.getModel() != null) {
         TransportableModel tm = new TransportableModel();
         tm.putAll(modelAndView.getModel());
         xstream.toXML(tm, response.getWriter());
+      } else {
+        // Handle the case when the model or the ModelAndView is null
+        // Return an error response with an HTTP status of 500
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.getWriter().write("Error occurred while handling the request.");
       }
     }
     return null;
