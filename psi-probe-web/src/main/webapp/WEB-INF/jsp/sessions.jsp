@@ -133,52 +133,60 @@
                 <h3><spring:message code="probe.jsp.sessions.search.h3"/></h3>
                 <table id="searchFormTable">
                     <tr>
-                        <td class="labelCell">
+                        <th>
                             <spring:message code="probe.jsp.sessions.search.sessionId"/>
-                        </td>
+                        </th>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.lastIp"/>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.idleTimeFrom"/>
+                        </th>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.idleTimeTo"/>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.ageFrom"/>
+                        </th>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.ageTo"/>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <spring:message code="probe.jsp.sessions.search.attrName"/>
+                        </th>
+                    </tr>
+                    <tr>
                         <td class="inputCell">
                             <input id="searchSessionId" name="searchSessionId" type="text" value="${searchInfo.sessionId}" class="txtInput" size="40"/>
-                        </td>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.lastIp"/>
                         </td>
                         <td class="inputCell">
                             <input name="searchLastIP" type="text" value="${searchInfo.lastIp}" class="txtInput" size="30"/>
                         </td>
                     </tr>
                     <tr>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.idleTimeFrom"/>
-                        </td>
                         <td class="inputCell">
                             <input name="searchIdleTimeFrom" type="text" value="${searchInfo.idleTimeFrom}" class="txtInput" size="30"/>
-                        </td>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.idleTimeTo"/>
                         </td>
                         <td class="inputCell">
                             <input name="searchIdleTimeTo" type="text" value="${searchInfo.idleTimeTo}" class="txtInput" size="30"/>
                         </td>
                     </tr>
                     <tr>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.ageFrom"/>
-                        </td>
                         <td class="inputCell">
                             <input name="searchAgeFrom" type="text" value="${searchInfo.ageFrom}" class="txtInput" size="30"/>
-                        </td>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.ageTo"/>
                         </td>
                         <td class="inputCell">
                             <input name="searchAgeTo" type="text" value="${searchInfo.ageTo}" class="txtInput" size="30"/>
                         </td>
                     </tr>
                     <tr>
-                        <td class="labelCell">
-                            <spring:message code="probe.jsp.sessions.search.attrName"/>
-                        </td>
-                        <td class="inputCell">
+                        <td class="inputCell" colspan="2">
                             <input name="searchAttrName" type="text" value="${searchInfo.attrName}" class="txtInput" size="40"/>
                         </td>
                     </tr>
