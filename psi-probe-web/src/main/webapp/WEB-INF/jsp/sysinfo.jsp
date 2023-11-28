@@ -38,11 +38,15 @@
 
             <table style="border-spacing:0;border-collapse:separate;">
                 <tr>
+                    <th>Sysinfo.jsp</th>
+
+                </tr>
+                <tr>
                     <td><span class="name"><spring:message code="probe.jsp.sysinfo.memory.usage"/></span>&#160;</td>
                     <td style="padding:0; margin:0">
                         <probe:score value="${memUsed}" partialBlocks="5" fullBlocks="10" showEmptyBlocks="true" showA="true" showB="true">
                             <img src="<c:url value='/css/classic/gifs/rb_{0}.gif'/>" alt="+"
-                                title="<spring:message code='probe.jsp.sysinfo.memory.usage.alt'/>"/>
+                                 title="<spring:message code='probe.jsp.sysinfo.memory.usage.alt'/>"/>
                         </probe:score>
                     </td>
                     <td>&#160;<fmt:formatNumber maxFractionDigits="1" value="${memUsed}"/>%</td>

@@ -62,6 +62,9 @@
                     <h3><spring:message code="probe.jsp.app.viewXMLConf.h3.scr" arguments="${fileName}"/></h3>
                     <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
                         <tr>
+                            <th>View_xml_Conf.jsp</th>
+                        </tr>
+                        <tr>
                             <td id="left_scroller" class="scroller">&#160;</td>
                             <td width="1%">&#160;</td>
                             <td>
@@ -73,8 +76,7 @@
                             </td>
                             <td id="right_scroller" class="scroller">&#160;</td>
                         </tr>
-                    </table>
-                    <script>
+                    </table>                    <script>
                         setupScrollers('srccontent');
                     </script>
                 </div>
