@@ -275,18 +275,23 @@ public final class Utils {
             while (directiveTokenizer.hasMore()) {
               Token directiveToken = directiveTokenizer.nextToken();
               if ("pageEncoding".equals(directiveToken.getText())) {
-                if (directiveTokenizer.hasMore()
-                    && "=".equals(directiveTokenizer.nextToken().getText())
-                    && directiveTokenizer.hasMore()) {
-                  encoding = directiveTokenizer.nextToken().getInnerText();
-                  break;
+                if (directiveTokenizer.hasMore()) {
+                  String nextTokenText = directiveTokenizer.nextToken().getText();
+                  if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
+                    encoding = directiveTokenizer.nextToken().getInnerText();
+                    break;
+                  }
                 }
-              } else if ("contentType".equals(directiveToken.getText())
-                  && directiveTokenizer.hasMore()
-                  && "=".equals(directiveTokenizer.nextToken().getText())
-                  && directiveTokenizer.hasMore()) {
-                contentType = directiveTokenizer.nextToken().getInnerText();
+              } if ("contentType".equals(directiveToken.getText())) {
+                if (directiveTokenizer.hasMore()) {
+                  String nextTokenText = directiveTokenizer.nextToken().getText();
+                  if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
+                    contentType = directiveTokenizer.nextToken().getInnerText();
+                  }
+                }
               }
+
+
             }
           }
         }
