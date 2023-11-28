@@ -43,7 +43,6 @@ public class Dbcp2DatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "org.apache.commons.dbcp2.BasicDataSource".equals(resource.getClass().getName())
-        && resource instanceof BasicDataSource;
+    return resource instanceof BasicDataSource;
   }
 }
