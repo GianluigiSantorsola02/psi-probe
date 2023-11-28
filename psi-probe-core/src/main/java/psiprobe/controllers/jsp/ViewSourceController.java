@@ -112,8 +112,8 @@ public class ViewSourceController extends AbstractContextHandlerController {
         logger.error("jsp name passed is not in the summary, ignored");
       }
     } else {
-      if (jspName == null) {
-        logger.error("Passed empty 'source' parameter");
+      if (jspName == null && jspName.isEmpty()) {
+        logger.error("Passed empty or null 'source' parameter");
       }
       if (summary == null) {
         logger.error("Session has expired or there is no summary");
