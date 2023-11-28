@@ -22,6 +22,7 @@ import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Wrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import psiprobe.beans.ContainerWrapperBean;
@@ -102,9 +103,10 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    */
   protected ContainerWrapperBean getContainerWrapperBean() {
     // Verifica se getWebApplicationContext() restituisce un valore non nullo
-    if (getWebApplicationContext() != null) {
-      return (ContainerWrapperBean) getWebApplicationContext().getBean("containerWrapper");
-    } else {
+    WebApplicationContext webApplicationContext = getWebApplicationContext();
+    if (webApplicationContext != null) {
+      return (ContainerWrapperBean) webApplicationContext.getBean("containerWrapper");
+    }   else {
       // Gestisci il caso in cui getWebApplicationContext() restituisce null
       throw new IllegalStateException("WebApplicationContext is null");
     }
