@@ -23,6 +23,7 @@
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
+        <title>Probe - Tomcat management</title>
         <title>Probe - <decorator:title default="Tomcat management"/></title>
         <link type="image/gif" rel="shortcut icon" href="<c:url value='/css/favicon.gif'/>"/>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='tables.css'/>"/>
