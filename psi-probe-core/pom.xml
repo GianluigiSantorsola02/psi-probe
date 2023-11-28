@@ -259,6 +259,11 @@
             <artifactId>spring-security-web</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <artifactId>commons-dbcp2</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
 
     <build>

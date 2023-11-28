@@ -52,9 +52,12 @@
                 <c:otherwise>
                     <table id="resultsTable" style="padding:0;border-spacing:0;border-collapse:separate;">
                         <tr>
+                            <th>Header 1</th> <!-- Add your <th> content here -->
                             <td id="left_scroller" class="scroller">&#160;</td>
                             <td id="separator" width="1%">&#160;</td>
-                            <td>
+                            <td>Cell 1</td>
+                        </tr>
+                    </table>
                                 <div id="appAttrTblContainer" class="scrollable_content">
                                     <display:table htmlId="appAttrTbl" name="appAttributes" uid="attribute"
                                             class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
