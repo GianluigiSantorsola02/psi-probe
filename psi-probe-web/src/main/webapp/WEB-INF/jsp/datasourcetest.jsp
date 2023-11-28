@@ -145,13 +145,15 @@
                 </div>
                 <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
                     <tr>
+                        <th>DataSourceTest.jsp</th>
+                    </tr>
+                    <tr>
                         <td id="left_scroller" class="scroller" style="display: none;">&#160;</td>
                         <td id="separator" width="1%" style="display: none;">&#160;</td>
                         <td><div id="outputHolder"></div></td>
                         <td id="right_scroller" class="scroller" style="display: none;">&#160;</td>
                     </tr>
-                </table>
-            </div>
+                </table>            </div>
 
         </div>
 

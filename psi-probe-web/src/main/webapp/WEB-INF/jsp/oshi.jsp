@@ -29,6 +29,10 @@
         <div id="oshi">
             <h3><spring:message code="probe.jsp.sysinfo.oshi.title"/></h3>
             <table>
+                <tr>
+                    <th>Oshi.jsp</th>
+
+                </tr>
                 <c:forEach items="${oshi}" var="oshi">
                     <tr>
                         <td style="white-space: pre"><c:out value="${oshi}" /></td>
