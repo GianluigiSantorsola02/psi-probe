@@ -32,10 +32,14 @@ import psiprobe.controllers.AbstractContextHandlerController;
 @Controller
 public class ResetDataSourceController extends AbstractContextHandlerController {
 
-  /** The Constant logger. */
+  /**
+   * The Constant logger.
+   */
   private static final Logger logger = LoggerFactory.getLogger(ResetDataSourceController.class);
 
-  /** The replace pattern. */
+  /**
+   * The replace pattern.
+   */
   private String replacePattern;
 
   /**
@@ -60,13 +64,13 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   @RequestMapping(path = "/app/resetds.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     // Aggiungi questa parte di codice
     String resourceName = null;
@@ -82,34 +86,41 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
       redirectUrl = request.getContextPath() + getViewName();
     }
 
-    if (resourceName != null) {
+    if (resourceName != null && context != null && getContainerWrapper() != null) {
       boolean reset = false;
       try {
         reset = getContainerWrapper().getResourceResolver().resetResource(context, resourceName,
-            getContainerWrapper());
+                getContainerWrapper());
       } catch (NamingException e) {
-        request.setAttribute("errorMessage", getMessageSourceAccessor()
-            .getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}));
+        if (getMessageSourceAccessor() != null) {
+          String message = getMessageSourceAccessor().getMessage("probe.src.reset.datasource.notfound", new Object[]{resourceName});
+          request.setAttribute("errorMessage", message);
+        } else {
+          request.setAttribute("errorMessage", "Default error message");
+        }
         logger.trace("", e);
       }
       if (!reset) {
-        request.setAttribute("errorMessage",
-            getMessageSourceAccessor().getMessage("probe.src.reset.datasource"));
+        if (getMessageSourceAccessor() != null) {
+          request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage("probe.src.reset.datasource"));
+        } else {
+          request.setAttribute("errorMessage", "Default error message");
+        }
       }
     }
     logger.debug("Redirected to {}", redirectUrl);
     return new ModelAndView(new RedirectView(redirectUrl));
-  }
 
-  @Override
-  protected boolean isContextOptional() {
-    return !getContainerWrapper().getResourceResolver().supportsPrivateResources();
-  }
+//  @Override
+//  protected boolean isContextOptional() {
+//    return !getContainerWrapper().getResourceResolver().supportsPrivateResources();
+//  }
+//
+//  @Value("/resources.htm")
+//  @Override
+//  public void setViewName(String viewName) {
+//    super.setViewName(viewName);
+//  }
 
-  @Value("/resources.htm")
-  @Override
-  public void setViewName(String viewName) {
-    super.setViewName(viewName);
   }
-
 }
