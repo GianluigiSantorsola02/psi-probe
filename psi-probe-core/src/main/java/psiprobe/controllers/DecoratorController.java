@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -100,7 +101,15 @@ public class DecoratorController extends PostParameterizableViewController {
     String lang = "en";
     if (getServletContext() != null) {
       String attributeName = "attributeName";
-      Object attributeValue = getServletContext().getAttribute(attributeName);
+      ServletContext servletContext = getServletContext();
+      if (servletContext != null) {
+        Object attributeValue = servletContext.getAttribute(attributeName);
+        if (attributeValue != null) {
+          request.setAttribute(attributeName, attributeValue);
+        }
+      } else {
+        System.out.println( "ServletContext is null. Cannot retrieve the servlet context");
+      }
     } else {
       logger.error("ServletContext is null. Cannot retrieve the servlet context");
     }
