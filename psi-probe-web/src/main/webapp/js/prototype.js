@@ -4672,7 +4672,8 @@ try {
 		(arr = slice.call( preferredDoc.childNodes )),
 		preferredDoc.childNodes
 	);
-	arr[ preferredDoc.childNodes.length ].nodeType;
+  var index = preferredDoc.childNodes.length;
+  var nodeType = arr[index].nodeType;
 } catch ( e ) {
 	push = { apply: arr.length ?
 
