@@ -30,20 +30,14 @@ public class ConnectorSeriesProvider extends AbstractSeriesProvider {
       HttpServletRequest request) {
 
     // get Connector name from the request
-    String connectorName = ServletRequestUtils.getStringParameter(request, "cn", null);
-
-    // type of statistic to be displayed
-    String statType = ServletRequestUtils.getStringParameter(request, "st", null);
-
-    // Series legend
+    String connectorName = ServletRequestUtils.getStringParameter(request, "cn", "");    // type of statistic to be displayed
+    String statType = ServletRequestUtils.getStringParameter(request, "st", "defaultStatType");    // Series legend
     String series1Legend = ServletRequestUtils.getStringParameter(request, "sl", "");
 
-    if (connectorName != null && statType != null) {
       List<XYDataItem> stats =
-          statsCollection.getStats("stat.connector." + connectorName + "." + statType);
+              statsCollection.getStats("stat.connector." + connectorName + "." + statType);
       if (stats != null) {
         dataset.addSeries(toSeries(series1Legend, stats));
       }
-    }
   }
 }
