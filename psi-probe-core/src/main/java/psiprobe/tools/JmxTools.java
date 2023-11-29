@@ -50,7 +50,8 @@ public final class JmxTools {
       logger.trace("", e);
       throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
     } catch (ReflectionException | InstanceNotFoundException | MBeanException e) {
-        throw new RuntimeException(e);
+      logger.error("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
     }
   }
 
