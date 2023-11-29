@@ -76,7 +76,6 @@ public class DecoratorController extends PostParameterizableViewController {
       logger.trace("", e);
     }
 
-
     if (getApplicationContext() != null) {
         DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
         ApplicationContext context = getApplicationContext();
@@ -95,7 +94,7 @@ public class DecoratorController extends PostParameterizableViewController {
             logger.error("Error: 'version' bean is null");
         }
     } else {
-      logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
+        logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
     }
 
     String lang = "en";

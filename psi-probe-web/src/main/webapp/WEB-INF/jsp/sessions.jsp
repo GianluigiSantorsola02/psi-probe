@@ -133,31 +133,31 @@
                 <h3><spring:message code="probe.jsp.sessions.search.h3"/></h3>
                 <table id="searchFormTable">
                     <tr>
-                        <th>
+                        <th id="sessionId">
                             <spring:message code="probe.jsp.sessions.search.sessionId"/>
                         </th>
-                        <th>
+                        <th id="lastIp">
                             <spring:message code="probe.jsp.sessions.search.lastIp"/>
                         </th>
                     </tr>
                     <tr>
-                        <th>
+                        <th id="idleTimeFrom">
                             <spring:message code="probe.jsp.sessions.search.idleTimeFrom"/>
                         </th>
-                        <th>
+                        <th id="idleTimeTo">
                             <spring:message code="probe.jsp.sessions.search.idleTimeTo"/>
                         </th>
                     </tr>
                     <tr>
-                        <th>
+                        <th id="ageFrom">
                             <spring:message code="probe.jsp.sessions.search.ageFrom"/>
                         </th>
-                        <th>
+                        <th id="ageTo">
                             <spring:message code="probe.jsp.sessions.search.ageTo"/>
                         </th>
                     </tr>
                     <tr>
-                        <th>
+                        <th id="attrName">
                             <spring:message code="probe.jsp.sessions.search.attrName"/>
                         </th>
                     </tr>
