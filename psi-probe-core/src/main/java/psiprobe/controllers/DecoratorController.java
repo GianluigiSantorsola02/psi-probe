@@ -40,15 +40,6 @@ public class DecoratorController extends PostParameterizableViewController {
   private String messagesBasename;
 
   /**
-   * Gets the messages basename.
-   *
-   * @return the messages basename
-   */
-  public String getMessagesBasename() {
-    return messagesBasename;
-  }
-
-  /**
    * Sets the messages basename.
    *
    * @param messagesBasename the new messages basename
@@ -75,21 +66,11 @@ public class DecoratorController extends PostParameterizableViewController {
       request.setAttribute("hostname", "unknown");
       logger.trace("", e);
     }
-    ApplicationContext applicationContext = getApplicationContext();
-    if (applicationContext != null) {
-      Object versionBean = applicationContext.getBean("version");
-      if (versionBean != null && versionBean instanceof DataHandler) {
-        DataHandler properties = (DataHandler) versionBean;
-        request.setAttribute("version", properties.getContent());
-      }
-    } else {
-      logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
-    }
 
     if (getApplicationContext() != null) {
       Object versionBean = getApplicationContext().getBean("version");
 
-      if (versionBean != null && versionBean instanceof DataHandler) {
+      if (versionBean instanceof DataHandler) {
         DataHandler properties = (DataHandler) versionBean;
         request.setAttribute("version", properties.getContent());
       } else {
