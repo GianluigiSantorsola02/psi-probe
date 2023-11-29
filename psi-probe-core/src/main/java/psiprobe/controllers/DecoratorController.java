@@ -77,7 +77,15 @@ public class DecoratorController extends PostParameterizableViewController {
     }
 
     if (getApplicationContext() != null) {
-        DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
+      Object versionBean = getApplicationContext().getBean("version");
+      if (versionBean != null && versionBean instanceof DataHandler) {
+        DataHandler properties = (DataHandler) versionBean;
+        request.setAttribute("version", properties.getContent());
+      } else {
+        System.out.println(
+            "ApplicationContext is null. Cannot retrieve the 'version' bean"
+        );
+      }
         ApplicationContext context = getApplicationContext();
         Properties data = null;
         if (context != null) {
