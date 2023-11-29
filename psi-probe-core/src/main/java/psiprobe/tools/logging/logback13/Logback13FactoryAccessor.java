@@ -19,17 +19,6 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 
 import psiprobe.tools.logging.DefaultAccessor;
 
-/**
- * Wraps a Logback logger factory from a given web application class loader.
- *
- * <p>
- * All Logback classes are loaded via the given class loader and not via psi-probe's own class
- * loader. For this reasons, all methods on Logback objects are invoked via reflection.
- * </p>
- * <p>
- * This way, we can even handle different versions of Logback embedded in different WARs.
- * </p>
- */
 public class Logback13FactoryAccessor extends DefaultAccessor {
 
   /**
@@ -45,13 +34,14 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
    * @throws IllegalArgumentException the illegal argument exception
    */
   public Logback13FactoryAccessor(ClassLoader cl)
-      throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
-      NoSuchMethodException, SecurityException, IllegalArgumentException {
+          throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
+          NoSuchMethodException, SecurityException, IllegalArgumentException, SLF4JProviderBindingException {
 
     // Get the SLF4J provider binding, which may or may not be Logback, depending on the binding.
     final List<?> providers = findServiceProviders(cl);
+
     if (providers.isEmpty()) {
-      throw new RuntimeException("The SLF4J provider binding was not Logback");
+        throw new SLF4JProviderBindingException("The SLF4J provider binding was not Logback");
     }
 
     // Get the service provider
@@ -69,7 +59,7 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
     // Check if the binding is indeed Logback
     Class<?> loggerFactoryClass = cl.loadClass("ch.qos.logback.classic.LoggerContext");
     if (!loggerFactoryClass.isInstance(loggerFactory)) {
-      throw new RuntimeException("The SLF4J provider binding was not Logback");
+      throw new SLF4JProviderBindingException("The SLF4J provider binding was not Logback");
     }
     setTarget(loggerFactory);
   }
