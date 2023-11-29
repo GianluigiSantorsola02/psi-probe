@@ -1011,7 +1011,8 @@ Element.CSS_PROPERTIES = $w(
   'outlineWidth paddingBottom paddingLeft paddingRight paddingTop ' +
   'right textIndent top width wordSpacing zIndex');
 
-Element.CSS_LENGTH = /^(([+\-]?[0-9]+)(em|ex|px|in|cm|mm|pt|pc|))|(0)$/;
+Element.CSS_LENGTH = /^([+\-]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
+
 
 String.__parseStyleElement = document.createElement('div');
 String.prototype.parseStyle = function(){
