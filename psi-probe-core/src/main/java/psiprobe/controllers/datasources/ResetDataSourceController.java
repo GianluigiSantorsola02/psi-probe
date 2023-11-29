@@ -27,6 +27,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import psiprobe.controllers.AbstractContextHandlerController;
 
+import java.util.Objects;
+
 /**
  * Resets datasource if the datasource supports it.
  */
@@ -42,15 +44,6 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
    * The replace pattern.
    */
   private String replacePattern;
-
-  /**
-   * Gets the replace pattern.
-   *
-   * @return the replace pattern
-   */
-  public String getReplacePattern() {
-    return replacePattern;
-  }
 
   /**
    * Sets the replace pattern.
@@ -79,7 +72,8 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
       resourceName = ServletRequestUtils.getStringParameter(request, "resource", null);
     }
 
-    String referer = request.getHeader("Referer");
+      assert request != null;
+      String referer = Objects.requireNonNull(request).getHeader("Referer");
     String redirectUrl;
     if (referer != null) {
       redirectUrl = referer.replaceAll(replacePattern, "");
@@ -106,10 +100,14 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
       }
       if (!reset) {
         if (getMessageSourceAccessor() != null) {
-          request.setAttribute("errorMessage",
-              getMessageSourceAccessor().getMessage("probe.src.reset.datasource"));
-        } else {
-          request.setAttribute("errorMessage", "Default error message");
+          MessageSourceAccessor accessor = getMessageSourceAccessor();
+          if (accessor != null) {
+            String message = accessor.getMessage("probe.src.reset.datasource");
+            request.setAttribute("errorMessage", message);
+          } else {
+            request.setAttribute("errorMessage", "Default error message");
+
+          }
         }
       }
     }
