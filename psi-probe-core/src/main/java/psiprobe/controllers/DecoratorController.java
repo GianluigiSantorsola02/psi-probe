@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -76,17 +77,24 @@ public class DecoratorController extends PostParameterizableViewController {
 
 
     if (getApplicationContext() != null) {
-      DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
-      Properties data = (Properties) getApplicationContext().getBean("version");
-      if (data != null) {
-        request.setAttribute("version", data.getProperty("probe.version"));
-      } else {
+        DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
+        ApplicationContext context = getApplicationContext();
+        Properties data = null;
+        if (context != null) {
+            data = (Properties) context.getBean("version");
 
-        logger.error("Error: 'version' bean is null");
-      }
+        } else {
+          System.out.println("ApplicationContext is null. Cannot retrieve the 'version' bean");
+        }
+        assert data != null;
+        if (data.getProperty("probe.version") != null) {
+            request.setAttribute("version", data.getProperty("probe.version"));
+        } else {
+            // Handle the case when 'data' is null
+            logger.error("Error: 'version' bean is null");
+        }
     } else {
       logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
-      return null;
     }
 
     String lang = "en";
