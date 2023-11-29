@@ -2881,9 +2881,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     return hasAttribute(element, attribute);
   }
 
-  GLOBAL.Element.Methods.Simulated.hasAttribute =
-   PROBLEMATIC_HAS_ATTRIBUTE_WITH_CHECKBOXES ?
-   hasAttribute_IE : hasAttribute;
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element && GLOBAL.Element.Methods && GLOBAL.Element.Methods.Simulated) {
+    GLOBAL.Element.Methods.Simulated.hasAttribute = PROBLEMATIC_HAS_ATTRIBUTE_WITH_CHECKBOXES ? hasAttribute_IE : hasAttribute;
+  }
 
   function classNames(element) {
     return new Element.ClassNames(element);
@@ -3265,7 +3265,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
   var UID = 0;
 
-  GLOBAL.Element.Storage = { UID: 1 };
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+    GLOBAL.Element.Storage = { UID: 1 };
+  }
 
   function getUniqueElementID(element) {
     if (element === window) return 0;
@@ -3331,8 +3333,12 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
    F = Prototype.BrowserFeatures;
 
   if (!F.ElementExtensions && ('__proto__' in DIV)) {
-    GLOBAL.HTMLElement = {};
-    GLOBAL.HTMLElement.prototype = DIV['__proto__'];
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+      GLOBAL.HTMLElement = {};
+    }
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+      GLOBAL.HTMLElement.prototype = DIV['__proto__'];
+    }
     F.ElementExtensions = true;
   }
 
@@ -3496,15 +3502,19 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   });
 
   if (extend === Prototype.K) {
-    GLOBAL.Element.extend.refresh = Prototype.emptyFunction;
+    if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
+      GLOBAL.Element.extend.refresh = Prototype.emptyFunction;
+    }
   } else {
-    GLOBAL.Element.extend.refresh = function() {
-      if (Prototype.BrowserFeatures.ElementExtensions) return;
-      Object.extend(Methods, Element.Methods);
-      Object.extend(Methods, Element.Methods.Simulated);
+    if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
+      GLOBAL.Element.extend.refresh = function() {
+        if (Prototype.BrowserFeatures.ElementExtensions) return;
+        Object.extend(Methods, Element.Methods);
+        Object.extend(Methods, Element.Methods.Simulated);
 
-      EXTENDED = {};
-    };
+        EXTENDED = {};
+      };
+    }
   }
 
   function addFormMethods() {
