@@ -55,7 +55,10 @@ public class ConnectionTestController extends AbstractContextHandlerController {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
     // Validate the input (example: allow only alphanumeric characters and underscores)
-    if (!resourceName.matches("^[a-zA-Z0-9_]+$")) {
+      if (resourceName == null) {
+          throw new AssertionError();
+      }
+      if (!Objects.requireNonNull(resourceName).matches("^[a-zA-Z0-9_]+$")) {
       // Handle invalid input, e.g., throw an exception or provide a default value
       throw new IllegalArgumentException("Invalid resource name");
     }
