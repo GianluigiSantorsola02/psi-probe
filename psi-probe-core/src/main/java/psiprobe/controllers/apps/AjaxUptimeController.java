@@ -11,6 +11,7 @@
 package psiprobe.controllers.apps;
 
 import java.lang.management.ManagementFactory;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +49,24 @@ public class AjaxUptimeController extends ParameterizableViewController {
     uptime = uptime % (1000 * 60 * 60);
     long uptimeMins = uptime / (1000 * 60);
 
-    request.setAttribute("uptime_days", uptimeDays);
-    request.setAttribute("uptime_hours", uptimeHours);
-    request.setAttribute("uptime_mins", uptimeMins);
+    if (request != null) {
+      request.setAttribute("uptime_days", uptimeDays);
+    } else {
+      System.out.println( "request is null");
+    }
+    if (request != null) {
+        request.setAttribute("uptime_hours", uptimeHours);
+      }
+     else {
+      System.out.println( "request is null");
+    }
+     if (request!=null) {
+       request.setAttribute("uptime_mins", uptimeMins);
+     } else {
+       System.out.println( "request is null");
+     }
 
-    return new ModelAndView(getViewName());
+    return new ModelAndView(Objects.requireNonNull(getViewName()));
   }
 
   @Value("ajax/uptime")
