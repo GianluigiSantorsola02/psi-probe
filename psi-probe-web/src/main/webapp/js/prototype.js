@@ -1,3 +1,5 @@
+// noinspection JSPotentiallyInvalidConstructorUsage
+
 /*
  * Licensed under the GPL License. You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,19 +18,21 @@
  *
  *--------------------------------------------------------------------------*/
 
-var Prototype = {
+import {Component} from "react";
+
+const Prototype = {
 
   Version: '1.7.3',
 
-  Browser: (function(){
-    var ua = navigator.userAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
+  Browser: (function () {
+    const ua = navigator.userAgent;
+    const isOpera = Object.prototype.toString.call(window.opera) === '[object Opera]';
     return {
-      IE:             !!window.attachEvent && !isOpera,
-      Opera:          isOpera,
-      WebKit:         ua.indexOf('AppleWebKit/') > -1,
-      Gecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1,
-      MobileSafari:   /Apple.*Mobile/.test(ua)
+      IE: !!window.attachEvent && !isOpera,
+      Opera: isOpera,
+      WebKit: ua.indexOf('AppleWebKit/') > -1,
+      Gecko: ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1,
+      MobileSafari: /Apple.*Mobile/.test(ua)
     }
   })(),
 
@@ -37,15 +41,15 @@ var Prototype = {
 
     SelectorsAPI: !!document.querySelector,
 
-    ElementExtensions: (function() {
-      var constructor = window.Element || window.HTMLElement;
+    ElementExtensions: (function () {
+      const constructor = window.Element || window.HTMLElement;
       return !!(constructor && constructor.prototype);
     })(),
-    SpecificElementExtensions: (function() {
+    SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
         return true;
 
-      var div = document.createElement('div'),
+      let div = document.createElement('div'),
           form = document.createElement('form'),
           isSupported = false;
 
@@ -62,9 +66,12 @@ var Prototype = {
   ScriptFragment: '<script[^>]*>([\\S\\s]*?)<\/script\\s*>',
   JSONFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/,
 
-  emptyFunction: function() { },
+  emptyFunction: function () {
+  },
 
-  K: function(x) { return x }
+  K: function (x) {
+    return x
+  }
 };
 
 if (Prototype.Browser.MobileSafari)
@@ -80,7 +87,7 @@ var Class = (function() {
     return true;
   })();
 
-  function subclass() {};
+  function subclass() {}
   function create() {
     var parent = null, properties = $A(arguments);
     if (Object.isFunction(properties[0]))
@@ -115,27 +122,35 @@ var Class = (function() {
         properties = Object.keys(source);
 
     if (IS_DONTENUM_BUGGY) {
-      if (source.toString != Object.prototype.toString)
+      if (source.toString !== Object.prototype.toString)
         properties.push("toString");
-      if (source.valueOf != Object.prototype.valueOf)
+      if (source.valueOf !== Object.prototype.valueOf)
         properties.push("valueOf");
     }
 
-    for (var i = 0, length = properties.length; i < length; i++) {
-      var property = properties[i], value = source[property];
-      if (ancestor && Object.isFunction(value) &&
-          value.argumentNames()[0] == "$super") {
-        var method = value;
-        value = (function(m) {
-          return function() { return ancestor[m].apply(this, arguments); };
+    let i = 0, length = properties.length;
+    for (; i < length; i++) {
+      let property = properties[i], value = source[property];
+      if (!(ancestor && Object.isFunction(value) &&
+          value.argumentNames()[0] === "$super")) {
+      } else {
+        const method = value;
+        value = (function (m) {
+          return function () {
+            return ancestor[m].apply(this, arguments);
+          };
         })(property).wrap(method);
 
-        value.valueOf = (function(method) {
-          return function() { return method.valueOf.call(method); };
+        value.valueOf = (function (method) {
+          return function () {
+            return method.valueOf.call(method);
+          };
         })(method);
 
-        value.toString = (function(method) {
-          return function() { return method.toString.call(method); };
+        value.toString = (function (method) {
+          return function () {
+            return method.toString.call(method);
+          };
         })(method);
       }
       this.prototype[property] = value;
@@ -199,7 +214,7 @@ var Class = (function() {
   }
 
   function extend(destination, source) {
-    for (var property in source)
+    for (let property in source)
       destination[property] = source[property];
     return destination;
   }
@@ -216,64 +231,80 @@ var Class = (function() {
   }
 
   function toJSON(value) {
-    return Str('', { '': value }, []);
+    return Str({key: '', holder: {'': value}, stack: []});
   }
 
-  function Str(key, holder, stack) {
-    var value = holder[key];
-    if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
-      value = value.toJSON(key);
-    }
+  class Str extends Component {
+    render() {
+      let {key, holder, stack} = this.props;
+      let value = holder[key];
+      if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
+        value = value.toJSON(key);
+      }
 
-    var _class = _toString.call(value);
+      var _class = _toString.call(value);
 
-    switch (_class) {
-      case NUMBER_CLASS:
-      case BOOLEAN_CLASS:
-      case STRING_CLASS:
-        value = value.valueOf();
-    }
+      switch (_class) {
+        case NUMBER_CLASS:
+        case BOOLEAN_CLASS:
+        case STRING_CLASS:
+          value = value.valueOf();
+      }
 
-    switch (value) {
-      case null: return 'null';
-      case true: return 'true';
-      case false: return 'false';
-    }
+      switch (value) {
+        case null:
+          return 'null';
+        case true:
+          return 'true';
+        case false:
+          return 'false';
+      }
 
-    var type = typeof value;
-    switch (type) {
-      case 'string':
-        return value.inspect(true);
-      case 'number':
-        return isFinite(value) ? String(value) : 'null';
-      case 'object':
+      var type = typeof value;
+      switch (type) {
+        case "undefined":
+          break;
+        case "boolean":
+          break;
+        case "function":
+          break;
+        case "symbol":
+          break;
+        case "bigint":
+          break;
+        case 'string':
+          return value.inspect(true);
+        case 'number':
+          return isFinite(value) ? String(value) : 'null';
+        case 'object':
 
-        for (var i = 0, length = stack.length; i < length; i++) {
-          if (stack[i] === value) {
-            throw new TypeError("Cyclic reference to '" + value + "' in object");
+          for (var i = 0, length = stack.length; i < length; i++) {
+            if (stack[i] === value) {
+              throw new TypeError("Cyclic reference to '" + value + "' in object");
+            }
           }
-        }
-        stack.push(value);
+          stack.push(value);
 
-        var partial = [];
-        if (_class === ARRAY_CLASS) {
-          for (var i = 0, length = value.length; i < length; i++) {
-            var str = Str(i, value, stack);
-            partial.push(typeof str === 'undefined' ? 'null' : str);
+          var partial = [];
+          if (_class === ARRAY_CLASS) {
+            for (var i = 0, length = value.length; i < length; i++) {
+              var str = Str({key: i, holder: value, stack: stack});
+              partial.push(typeof str === 'undefined' ? 'null' : str);
+            }
+            partial = '[' + partial.join(',') + ']';
+          } else {
+            var keys = Object.keys(value);
+            for (var i = 0, length = keys.length; i < length; i++) {
+              var key = keys[i], str = Str({key: key, holder: value, stack: stack});
+              if (typeof str !== "undefined") {
+                partial.push(key.inspect(true) + ':' + str);
+              }
+            }
+            partial = '{' + partial.join(',') + '}';
           }
-          partial = '[' + partial.join(',') + ']';
-        } else {
-          var keys = Object.keys(value);
-          for (var i = 0, length = keys.length; i < length; i++) {
-            var key = keys[i], str = Str(key, value, stack);
-            if (typeof str !== "undefined") {
-               partial.push(key.inspect(true)+ ':' + str);
-             }
-          }
-          partial = '{' + partial.join(',') + '}';
-        }
-        stack.pop();
-        return partial;
+          stack.pop();
+          return partial;
+      }
     }
   }
 
@@ -298,7 +329,7 @@ var Class = (function() {
     }
 
     if (IS_DONTENUM_BUGGY) {
-      for (var i = 0; property = DONT_ENUMS[i]; i++) {
+      for (var i = 0; property === DONT_ENUMS[i]; i++) {
         if (_hasOwnProperty.call(object, property))
           results.push(property);
       }
@@ -319,7 +350,7 @@ var Class = (function() {
   }
 
   function isElement(object) {
-    return !!(object && object.nodeType == 1);
+    return !!(object.nodeType === 1 && object);
   }
 
   function isArray(object) {
@@ -372,7 +403,6 @@ var Class = (function() {
     isFunction:    isFunction,
     isString:      isString,
     isNumber:      isNumber,
-    isDate:        isDate,
     isUndefined:   isUndefined
   });
 })();
@@ -391,10 +421,10 @@ Object.extend(Function.prototype, (function() {
   }
 
   function argumentNames() {
-    var names = this.toString().match(/^[\s\(]*function[^(]*\(([^)]*)\)/)[1]
+    var names = this.toString().match(/^\s*function[^(]*\(([^)]*)\)/)[1]
       .replace(/\/\/.*?[\r\n]|\/\*(?:.|[\r\n])*?\*\//g, '')
       .replace(/\s+/g, '').split(',');
-    return names.length == 1 && !names[0] ? [] : names;
+    return names.length === 1 && !names[0] ? [] : names;
   }
 
 
@@ -470,7 +500,6 @@ Object.extend(Function.prototype, (function() {
   var extensions = {
     argumentNames:       argumentNames,
     bindAsEventListener: bindAsEventListener,
-    curry:               curry,
     delay:               delay,
     defer:               defer,
     wrap:                wrap,
@@ -1844,8 +1873,8 @@ Ajax.Request = Class.create(Ajax.Base, {
   },
 
   isSameOrigin: function() {
-    var m = this.url.match(/^\s*https?:\/\/[^\/]*/);
-    return !m || (m[0] == '#{protocol}//#{domain}#{port}'.interpolate({
+    const m = this.url.match(/^\s*https?:\/\/[^\/]*/);
+    return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
       protocol: location.protocol,
       domain: document.domain,
       port: location.port ? ':' + location.port : ''
@@ -2406,7 +2435,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     if (position === 'top' || position === 'after') childNodes.reverse();
 
-    for (var i = 0, node; node = childNodes[i]; i++)
+    for (var i = 0, node; node === childNodes[i]; i++)
       method(element, node);
 
     content.evalScripts.bind(content).defer();
@@ -2629,7 +2658,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       index = expression, expression = null;
     }
 
-    while (element = element[property]) {
+    while (element === element[property]) {
       if (element.nodeType !== 1) continue;
       if (expression && !Prototype.Selector.match(element, expression))
         continue;
