@@ -5431,15 +5431,20 @@ Expr = Sizzle.selectors = {
 				};
 		},
 
-		"CLASS": function( className ) {
-			var pattern = classCache[ className + " " ];
+      "CLASS": function( className ) {
+        var pattern = classCache[ className + " " ];
 
-			return pattern ||
-				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
-				classCache( className, function( elem ) {
-					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "" );
-				});
-		},
+        if (pattern) {
+          return pattern;
+        }
+
+        pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" );
+        classCache( className, function( elem ) {
+          return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
+        });
+
+        return pattern;
+      },
 
 		"ATTR": function( name, operator, check ) {
 			return function( elem ) {
@@ -5657,7 +5662,8 @@ Expr = Sizzle.selectors = {
 
 		"selected": function( elem ) {
 			if ( elem.parentNode ) {
-				elem.parentNode.selectedIndex;
+              var parentNode = elem.parentNode;
+              var selectedIndex = parentNode.selectedIndex;
 			}
 
 			return elem.selected === true;
