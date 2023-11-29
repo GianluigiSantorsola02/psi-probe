@@ -78,7 +78,7 @@ public class DecoratorController extends PostParameterizableViewController {
     if (getApplicationContext() != null) {
       DataHandler properties = (DataHandler) getApplicationContext().getBean("version");
       Properties data = (Properties) getApplicationContext().getBean("version");
-      if (data != null) {
+      if (data.getProperty("probe.version") != null) {
         request.setAttribute("version", data.getProperty("probe.version"));
       } else {
         // Handle the case when 'data' is null
