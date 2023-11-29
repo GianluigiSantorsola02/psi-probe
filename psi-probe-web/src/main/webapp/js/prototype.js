@@ -2134,7 +2134,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   })();
 
 
-  var oldElement = GLOBAL.Element;
+  var oldElement = typeof GLOBAL !== 'undefined' && GLOBAL !== null ? GLOBAL.Element : undefined;
   function Element(tagName, attributes) {
     attributes = attributes || {};
     tagName = tagName.toLowerCase();
@@ -2154,11 +2154,16 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     return Element.writeAttribute(node, attributes);
   }
 
-  GLOBAL.Element = Element;
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+    GLOBAL.Element = Element;
+  }
 
-  Object.extend(GLOBAL.Element, oldElement || {});
-  if (oldElement) GLOBAL.Element.prototype = oldElement.prototype;
-
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+    Object.extend(GLOBAL.Element, oldElement || {});
+    if (oldElement) {
+      GLOBAL.Element.prototype = oldElement.prototype;
+    }
+  }
   Element.Methods = { ByTag: {}, Simulated: {} };
 
   var methods = {};
