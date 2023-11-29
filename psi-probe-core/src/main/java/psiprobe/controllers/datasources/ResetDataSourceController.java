@@ -18,6 +18,7 @@ import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,9 +94,11 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
             getContainerWrapper());
       } catch (NamingException e) {
         if (getMessageSourceAccessor() != null) {
-          String message = getMessageSourceAccessor()
-              .getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName});
-          request.setAttribute("errorMessage", message);
+          MessageSourceAccessor accessor = getMessageSourceAccessor();
+          String message = null;
+          if (accessor != null) {
+            message = accessor.getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName});
+          }          request.setAttribute("errorMessage", message);
         } else {
           request.setAttribute("errorMessage", "Default error message");
         }
