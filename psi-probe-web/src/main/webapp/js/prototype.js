@@ -4661,8 +4661,8 @@ var i,
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
 	matchExpr = {
-      "ID": new RegExp("^#(" + characterEncoding.replace(/[\x00-\x7F-\x9F]/g, "") + ")"),
-      "CLASS": new RegExp("^\\.(" + characterEncoding.replace(/[\x00-\x7F-\x9F]/g, "") + ")"),
+      "ID": new RegExp("^#(" + characterEncoding.replace(/[\x7F-\x9F]/g, "") + ")"),
+      "CLASS": new RegExp("^\\.(" + characterEncoding.replace(/[\x7F-\x9F]/g, "") + ")"),
 		"TAG": new RegExp( "^(" + characterEncoding.replace( "w", "w*" ) + ")" ),
 		"ATTR": new RegExp( "^" + attributes ),
 		"PSEUDO": new RegExp( "^" + pseudos ),
