@@ -3496,10 +3496,12 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     ELEMENT_CACHE = {};
   }
 
-  Object.extend(GLOBAL.Element, {
-    extend:     extend,
-    addMethods: addMethods
-  });
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element) {
+    Object.extend(GLOBAL.Element, {
+      extend: extend,
+      addMethods: addMethods
+    });
+  }
 
   if (extend === Prototype.K) {
     if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
