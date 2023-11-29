@@ -10,11 +10,7 @@
  */
 package psiprobe.tools;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
@@ -44,17 +40,17 @@ public final class JmxTools {
    *
    * @return the attribute
    *
-   * @throws Exception the exception
    */
   public static Object getAttribute(MBeanServer mbeanServer, ObjectName objName, String attrName)
-      throws Exception {
-
+          throws AttributeNotFoundException {
     try {
       return mbeanServer.getAttribute(objName, attrName);
-    } catch (AttributeNotFoundException e) {
+    } catch (javax.management.AttributeNotFoundException e) {
       logger.error("{} does not have '{}' attribute", objName, attrName);
       logger.trace("", e);
-      return null;
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+    } catch (ReflectionException | InstanceNotFoundException | MBeanException e) {
+        throw new RuntimeException(e);
     }
   }
 
