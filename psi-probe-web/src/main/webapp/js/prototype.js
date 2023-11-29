@@ -18,6 +18,8 @@
  *
  *--------------------------------------------------------------------------*/
 
+import {Component} from "react";
+
 const Prototype = {
 
   Version: '1.7.3',
@@ -229,74 +231,80 @@ var Class = (function() {
   }
 
   function toJSON(value) {
-    return Str('', { '': value }, []);
+    return Str({key: '', holder: {'': value}, stack: []});
   }
 
-  function Str(key, holder, stack) {
-    var value = holder[key];
-    if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
-      value = value.toJSON(key);
-    }
+  class Str extends Component {
+    render() {
+      let {key, holder, stack} = this.props;
+      let value = holder[key];
+      if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
+        value = value.toJSON(key);
+      }
 
-    var _class = _toString.call(value);
+      var _class = _toString.call(value);
 
-    switch (_class) {
-      case NUMBER_CLASS:
-      case BOOLEAN_CLASS:
-      case STRING_CLASS:
-        value = value.valueOf();
-    }
+      switch (_class) {
+        case NUMBER_CLASS:
+        case BOOLEAN_CLASS:
+        case STRING_CLASS:
+          value = value.valueOf();
+      }
 
-    switch (value) {
-      case null: return 'null';
-      case true: return 'true';
-      case false: return 'false';
-    }
+      switch (value) {
+        case null:
+          return 'null';
+        case true:
+          return 'true';
+        case false:
+          return 'false';
+      }
 
-    var type = typeof value;
-    switch (type) {
-      case "undefined":
-        break;
-      case "boolean":
-        break;
-      case "function":
-        break;
-      case "symbol":
-        break;
-      case "bigint":
-        break;
-      case 'string':
-        return value.inspect(true);
-      case 'number':
-        return isFinite(value) ? String(value) : 'null';
-      case 'object':
+      var type = typeof value;
+      switch (type) {
+        case "undefined":
+          break;
+        case "boolean":
+          break;
+        case "function":
+          break;
+        case "symbol":
+          break;
+        case "bigint":
+          break;
+        case 'string':
+          return value.inspect(true);
+        case 'number':
+          return isFinite(value) ? String(value) : 'null';
+        case 'object':
 
-        for (var i = 0, length = stack.length; i < length; i++) {
-          if (stack[i] === value) {
-            throw new TypeError("Cyclic reference to '" + value + "' in object");
+          for (var i = 0, length = stack.length; i < length; i++) {
+            if (stack[i] === value) {
+              throw new TypeError("Cyclic reference to '" + value + "' in object");
+            }
           }
-        }
-        stack.push(value);
+          stack.push(value);
 
-        var partial = [];
-        if (_class === ARRAY_CLASS) {
-          for (var i = 0, length = value.length; i < length; i++) {
-            var str = Str(i, value, stack);
-            partial.push(typeof str === 'undefined' ? 'null' : str);
+          var partial = [];
+          if (_class === ARRAY_CLASS) {
+            for (var i = 0, length = value.length; i < length; i++) {
+              var str = Str({key: i, holder: value, stack: stack});
+              partial.push(typeof str === 'undefined' ? 'null' : str);
+            }
+            partial = '[' + partial.join(',') + ']';
+          } else {
+            var keys = Object.keys(value);
+            for (var i = 0, length = keys.length; i < length; i++) {
+              var key = keys[i], str = Str({key: key, holder: value, stack: stack});
+              if (typeof str !== "undefined") {
+                partial.push(key.inspect(true) + ':' + str);
+              }
+            }
+            partial = '{' + partial.join(',') + '}';
           }
-          partial = '[' + partial.join(',') + ']';
-        } else {
-          var keys = Object.keys(value);
-          for (var i = 0, length = keys.length; i < length; i++) {
-            var key = keys[i], str = Str(key, value, stack);
-            if (typeof str !== "undefined") {
-               partial.push(key.inspect(true)+ ':' + str);
-             }
-          }
-          partial = '{' + partial.join(',') + '}';
-        }
-        stack.pop();
-        return partial;
+          stack.pop();
+          return partial;
+      }
     }
   }
 
@@ -321,7 +329,7 @@ var Class = (function() {
     }
 
     if (IS_DONTENUM_BUGGY) {
-      for (var i = 0; property = DONT_ENUMS[i]; i++) {
+      for (var i = 0; property === DONT_ENUMS[i]; i++) {
         if (_hasOwnProperty.call(object, property))
           results.push(property);
       }
@@ -342,7 +350,7 @@ var Class = (function() {
   }
 
   function isElement(object) {
-    return !!(object && object.nodeType == 1);
+    return !!(object.nodeType === 1 && object);
   }
 
   function isArray(object) {
@@ -395,7 +403,6 @@ var Class = (function() {
     isFunction:    isFunction,
     isString:      isString,
     isNumber:      isNumber,
-    isDate:        isDate,
     isUndefined:   isUndefined
   });
 })();
@@ -414,10 +421,10 @@ Object.extend(Function.prototype, (function() {
   }
 
   function argumentNames() {
-    var names = this.toString().match(/^[\s\(]*function[^(]*\(([^)]*)\)/)[1]
+    var names = this.toString().match(/^\s*function[^(]*\(([^)]*)\)/)[1]
       .replace(/\/\/.*?[\r\n]|\/\*(?:.|[\r\n])*?\*\//g, '')
       .replace(/\s+/g, '').split(',');
-    return names.length == 1 && !names[0] ? [] : names;
+    return names.length === 1 && !names[0] ? [] : names;
   }
 
 
@@ -493,7 +500,6 @@ Object.extend(Function.prototype, (function() {
   var extensions = {
     argumentNames:       argumentNames,
     bindAsEventListener: bindAsEventListener,
-    curry:               curry,
     delay:               delay,
     defer:               defer,
     wrap:                wrap,
@@ -1867,8 +1873,8 @@ Ajax.Request = Class.create(Ajax.Base, {
   },
 
   isSameOrigin: function() {
-    var m = this.url.match(/^\s*https?:\/\/[^\/]*/);
-    return !m || (m[0] == '#{protocol}//#{domain}#{port}'.interpolate({
+    const m = this.url.match(/^\s*https?:\/\/[^\/]*/);
+    return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
       protocol: location.protocol,
       domain: document.domain,
       port: location.port ? ':' + location.port : ''
@@ -2429,7 +2435,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     if (position === 'top' || position === 'after') childNodes.reverse();
 
-    for (var i = 0, node; node = childNodes[i]; i++)
+    for (var i = 0, node; node === childNodes[i]; i++)
       method(element, node);
 
     content.evalScripts.bind(content).defer();
@@ -2652,7 +2658,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       index = expression, expression = null;
     }
 
-    while (element = element[property]) {
+    while (element === element[property]) {
       if (element.nodeType !== 1) continue;
       if (expression && !Prototype.Selector.match(element, expression))
         continue;

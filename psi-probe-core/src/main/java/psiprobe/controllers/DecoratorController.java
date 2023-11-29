@@ -81,11 +81,12 @@ public class DecoratorController extends PostParameterizableViewController {
       if (data != null) {
         request.setAttribute("version", data.getProperty("probe.version"));
       } else {
-        // Handle the case when 'data' is null
+
         logger.error("Error: 'version' bean is null");
       }
     } else {
       logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
+      return null;
     }
 
     String lang = "en";
