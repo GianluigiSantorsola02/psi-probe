@@ -36,14 +36,15 @@ public class TomcatSlf4jLogbackFactoryAccessor extends DefaultAccessor {
   /**
    * Attempts to initialize a TomcatSlf4jLogback logger factory via the given class loader.
    *
-   * @param cl the ClassLoader to use when fetching the factory
-   *
-   * @throws ClassNotFoundException the class not found exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws InvocationTargetException the invocation target exception
    */
+
+  public static class SLF4JBindingException extends Throwable {
+    public SLF4JBindingException(String s) {
+      super(s);
+    }
+  }
   public TomcatSlf4jLogbackFactoryAccessor(ClassLoader cl)
-      throws ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+          throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, SLF4JBindingException {
 
     // Get the singleton SLF4J binding, which may or may not be Logback, depending on the binding.
     Class<?> clazz = cl.loadClass("org.apache.juli.logging.org.slf4j.impl.StaticLoggerBinder");
@@ -57,8 +58,7 @@ public class TomcatSlf4jLogbackFactoryAccessor extends DefaultAccessor {
     Class<?> loggerFactoryClass =
         cl.loadClass("org.apache.juli.logging.ch.qos.logback.classic.LoggerContext");
     if (!loggerFactoryClass.isInstance(loggerFactory)) {
-      throw new RuntimeException("The singleton SLF4J binding was not Logback");
-    }
+      throw new SLF4JBindingException("The singleton SLF4J binding was not Logback");    }
     setTarget(loggerFactory);
   }
 
@@ -84,7 +84,7 @@ public class TomcatSlf4jLogbackFactoryAccessor extends DefaultAccessor {
    */
   public TomcatSlf4jLogbackLoggerAccessor getLogger(String name) {
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
+      Class<?> clazz = getTarget().getClass();
       Method getLogger = MethodUtils.getAccessibleMethod(clazz, "getLogger", String.class);
 
       Object logger = getLogger.invoke(getTarget(), name);
@@ -112,7 +112,7 @@ public class TomcatSlf4jLogbackFactoryAccessor extends DefaultAccessor {
   public List<TomcatSlf4jLogbackAppenderAccessor> getAppenders() {
     List<TomcatSlf4jLogbackAppenderAccessor> appenders = new ArrayList<>();
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
+      Class<?> clazz = getTarget().getClass();
       Method getLoggerList = MethodUtils.getAccessibleMethod(clazz, "getLoggerList");
 
       List<Object> loggers = (List<Object>) getLoggerList.invoke(getTarget());

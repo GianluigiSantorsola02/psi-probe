@@ -91,15 +91,6 @@ public class LogResolverBean {
   }
 
   /**
-   * Gets the stdout files.
-   *
-   * @return the stdout files
-   */
-  public List<String> getStdoutFiles() {
-    return stdoutFiles;
-  }
-
-  /**
    * Sets the stdout files.
    *
    * @param stdoutFiles the new stdout files
@@ -130,7 +121,7 @@ public class LogResolverBean {
     List<LogDestination> uniqueList = new LinkedList<>();
     AbstractLogComparator cmp = new LogDestinationComparator(all);
 
-    Collections.sort(allAppenders, cmp);
+    allAppenders.sort(cmp);
     for (LogDestination dest : allAppenders) {
       if (Collections.binarySearch(uniqueList, dest, cmp) < 0
           && (all || dest.getFile() == null || dest.getFile().exists())) {
@@ -170,7 +161,7 @@ public class LogResolverBean {
     if (!allAppenders.isEmpty()) {
       AbstractLogComparator cmp = new LogSourceComparator();
 
-      Collections.sort(allAppenders, cmp);
+      allAppenders.sort(cmp);
       for (LogDestination dest : allAppenders) {
         if (Collections.binarySearch(sources, dest, cmp) < 0) {
           sources.add(new DisconnectedLogDestination().builder(dest));
@@ -431,9 +422,11 @@ public class LogResolverBean {
       appenders.addAll(tomcatSlf4jLogbackAccessor.getAppenders());
     } catch (Exception e) {
       logger.debug("Could not resolve tomcat-slf4j-logback loggers for '{}'", applicationName, e);
+    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
+        throw new RuntimeException(e);
     }
 
-    // check for tomcat-slf4j-logback 1.3 loggers
+      // check for tomcat-slf4j-logback 1.3 loggers
     try {
       TomcatSlf4jLogback13FactoryAccessor tomcatSlf4jLogback13Accessor =
           new TomcatSlf4jLogback13FactoryAccessor(cl);
@@ -759,8 +752,10 @@ public class LogResolverBean {
       }
     } catch (Exception e) {
       logger.debug("getTomcatSlf4jLogbackLogDestination failed", e);
+    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
+        throw new RuntimeException(e);
     }
-    return null;
+      return null;
   }
 
   /**
