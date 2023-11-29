@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.Utils;
@@ -67,15 +68,6 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
   }
 
   /**
-   * Gets the download url.
-   *
-   * @return the download url
-   */
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
-
-  /**
    * Sets the download url.
    *
    * @param downloadUrl the new download url
@@ -93,7 +85,7 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
     }
 
     String xmlPath;
-    File xmlFile = null;
+    File xmlFile;
     ModelAndView mv = new ModelAndView(getViewName());
 
     if (TARGET_WEB_XML.equals(displayTarget)) {
@@ -119,11 +111,10 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
       } else {
         xmlPath = null;
       }
-      mv.addObject("fileDesc",
-          getMessageSourceAccessor() != null
-              ? getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.contextxml.desc")
-              : ""); // gestisci il caso in cui getMessageSourceAccessor() restituisce null
-        if (getMessageSourceAccessor() == null) logger.debug("MessageSourceAccessor is null");
+      MessageSourceAccessor accessor = getMessageSourceAccessor();
+      String message = (accessor != null) ? accessor.getMessage("probe.src.app.viewxmlconf.contextxml.desc") : "";
+      mv.addObject("fileDesc", message);
+
     } else {
       throw new RuntimeException("Unknown display target " + getDisplayTarget());
     }
