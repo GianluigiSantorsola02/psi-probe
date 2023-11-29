@@ -11,6 +11,7 @@
 package psiprobe.controllers.logs;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -38,15 +39,6 @@ public class ListLogsController extends ParameterizableViewController {
   /** The log resolver. */
   @Inject
   private LogResolverBean logResolver;
-
-  /**
-   * Gets the error view.
-   *
-   * @return the error view
-   */
-  public String getErrorView() {
-    return errorView;
-  }
 
   /**
    * Sets the error view.
@@ -90,7 +82,7 @@ public class ListLogsController extends ParameterizableViewController {
     boolean showAll = ServletRequestUtils.getBooleanParameter(request, "apps", false);
     List<LogDestination> uniqueList = logResolver.getLogDestinations(showAll);
     if (!uniqueList.isEmpty()) {
-      return new ModelAndView(getViewName()).addObject("logs", uniqueList);
+      return new ModelAndView(Objects.requireNonNull(getViewName())).addObject("logs", uniqueList);
     }
     return new ModelAndView(errorView);
   }

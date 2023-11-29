@@ -12,6 +12,7 @@ package psiprobe.controllers.logs;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +43,7 @@ public class SetupFollowController extends AbstractLogHandlerController {
 
     File logFile = logDest.getFile();
     List<LogDestination> sources = getLogResolver().getLogSources(logFile);
-    return new ModelAndView(getViewName()).addObject("log", logDest).addObject("sources", sources);
+    return new ModelAndView(Objects.requireNonNull(getViewName())).addObject("log", logDest).addObject("sources", sources);
   }
 
   @Value("follow")
