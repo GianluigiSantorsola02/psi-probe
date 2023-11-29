@@ -67,7 +67,6 @@ public final class JmxTools {
    *
    * @return the object
    *
-   * @throws Exception the exception
    */
   public static Object invoke(MBeanServer mbeanServer, ObjectName objName, String method,
                               Object[] o, String[] s) throws MethodNotFoundException {
@@ -128,12 +127,16 @@ public final class JmxTools {
    *
    * @return the long attr
    *
-   * @throws Exception the exception
    */
   public static long getLongAttr(MBeanServer mbeanServer, ObjectName objName, String attrName)
-      throws Exception {
+          throws AttributeNotFoundException {
 
-    return (Long) mbeanServer.getAttribute(objName, attrName);
+    try {
+      return (Long) mbeanServer.getAttribute(objName, attrName);
+    } catch (Exception e) {
+      logger.trace("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+    }
   }
 
   /**
@@ -145,12 +148,16 @@ public final class JmxTools {
    *
    * @return the int attr
    *
-   * @throws Exception the exception
    */
   public static int getIntAttr(MBeanServer mbeanServer, ObjectName objName, String attrName)
-      throws Exception {
+          throws AttributeNotFoundException {
 
-    return (Integer) mbeanServer.getAttribute(objName, attrName);
+    try {
+      return (Integer) mbeanServer.getAttribute(objName, attrName);
+    } catch (Exception e) {
+      logger.trace("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+    }
   }
 
   /**
@@ -180,15 +187,18 @@ public final class JmxTools {
    *
    * @return the string attr
    *
-   * @throws Exception the exception
    */
   public static String getStringAttr(MBeanServer mbeanServer, ObjectName objName, String attrName)
-      throws Exception {
+          throws AttributeNotFoundException {
 
-    Object obj = getAttribute(mbeanServer, objName, attrName);
-    return obj == null ? null : obj.toString();
+    try {
+      Object obj = getAttribute(mbeanServer, objName, attrName);
+      return obj == null ? null : obj.toString();
+    } catch (Exception e) {
+      logger.trace("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+    }
   }
-
   /**
    * Gets the string attr.
    *
@@ -224,19 +234,23 @@ public final class JmxTools {
    *
    * @return true, if successful
    *
-   * @throws Exception the exception
    */
   public static boolean hasAttribute(MBeanServer server, ObjectName mbean, String attrName)
-      throws Exception {
+          throws AttributeNotFoundException {
 
-    MBeanInfo info = server.getMBeanInfo(mbean);
-    MBeanAttributeInfo[] ai = info.getAttributes();
-    for (MBeanAttributeInfo attribInfo : ai) {
-      if (attribInfo.getName().equals(attrName)) {
-        return true;
+    try {
+      MBeanInfo info = server.getMBeanInfo(mbean);
+      MBeanAttributeInfo[] ai = info.getAttributes();
+      for (MBeanAttributeInfo attribInfo : ai) {
+        if (attribInfo.getName().equals(attrName)) {
+          return true;
+        }
       }
+      return false;
+    } catch (Exception e) {
+      logger.trace("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + mbean + "'");
     }
-    return false;
   }
 
 }
