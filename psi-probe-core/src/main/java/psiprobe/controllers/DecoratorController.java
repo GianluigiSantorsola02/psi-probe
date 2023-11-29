@@ -67,26 +67,19 @@ public class DecoratorController extends PostParameterizableViewController {
       logger.trace("", e);
     }
 
-    if (getApplicationContext() != null) {
-      Object versionBean = getApplicationContext().getBean("version");
+    ApplicationContext context = getApplicationContext();
+
+    if (context != null) {
+      Object versionBean = context.getBean("version");
 
       if (versionBean instanceof DataHandler) {
         DataHandler properties = (DataHandler) versionBean;
         request.setAttribute("version", properties.getContent());
       } else {
-        System.out.println(
-            "ApplicationContext is null. Cannot retrieve the 'version' bean"
-        );
+        System.out.println("ApplicationContext is null. Cannot retrieve the 'version' bean");
       }
-        ApplicationContext context = getApplicationContext();
-        Properties data = null;
-        if (context != null) {
-            data = (Properties) context.getBean("version");
 
-        } else {
-          System.out.println("ApplicationContext is null. Cannot retrieve the 'version' bean");
-        }
-        assert data != null;
+      Properties data = (Properties) context.getBean("version");
         if (data.getProperty("probe.version") != null) {
             request.setAttribute("version", data.getProperty("probe.version"));
         } else {
@@ -94,7 +87,7 @@ public class DecoratorController extends PostParameterizableViewController {
             logger.error("Error: 'version' bean is null");
         }
     } else {
-        logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
+      logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
     }
 
     String lang = "en";
