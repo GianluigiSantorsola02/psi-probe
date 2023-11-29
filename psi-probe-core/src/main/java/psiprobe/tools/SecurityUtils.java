@@ -13,7 +13,6 @@ package psiprobe.tools;
 import java.util.Collection;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,12 +33,9 @@ public final class SecurityUtils {
    * Checks for attribute value role.
    *
    * @param servletContext the servlet context
-   * @param request the request
-   *
    * @return true, if successful
    */
-  public static boolean hasAttributeValueRole(ServletContext servletContext,
-      HttpServletRequest request) {
+  public static boolean hasAttributeValueRole(ServletContext servletContext) {
 
     String[] privilegedRoles = getPrivilegedRoles(servletContext).split(",", -1);
     for (String privilegedRole : privilegedRoles) {
