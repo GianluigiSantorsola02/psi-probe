@@ -105,7 +105,9 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
         String message =
             getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.webxml.desc");
         mv.addObject("message", message);
-      } // gestisci il caso in cui getMessageSourceAccessor() restituisce null
+      } else {
+       logger.debug("MessageSourceAccessor is null");
+      }
     } else if (TARGET_CONTEXT_XML.equals(displayTarget)) {
       xmlFile = getContainerWrapper().getTomcatContainer().getConfigFile(context);
       if (xmlFile != null) {
@@ -117,6 +119,7 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
           getMessageSourceAccessor() != null
               ? getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.contextxml.desc")
               : ""); // gestisci il caso in cui getMessageSourceAccessor() restituisce null
+        if (getMessageSourceAccessor() == null) logger.debug("MessageSourceAccessor is null");
     } else {
       throw new RuntimeException("Unknown display target " + getDisplayTarget());
     }
