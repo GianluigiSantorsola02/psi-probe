@@ -102,8 +102,12 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
       xmlFile = new File(xmlPath);
       mv.addObject("fileDesc", 104);
       if (getMessageSourceAccessor() != null) {
-        String message =
-            getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.webxml.desc");
+        String message = getMessageSourceAccessor().getMessage("probe.src.app.viewxmlconf.webxml.desc");
+        if (getMessageSourceAccessor() != null) {
+          mv.addObject("message", message);
+        } else {
+          logger.debug("MessageSourceAccessor is null");
+        }
         mv.addObject("message", message);
       } else {
        logger.debug("MessageSourceAccessor is null");
