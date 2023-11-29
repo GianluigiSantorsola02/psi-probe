@@ -156,7 +156,7 @@ public final class JmxTools {
       return (Integer) mbeanServer.getAttribute(objName, attrName);
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for the object '" + objName + "'");
     }
   }
 
@@ -249,7 +249,7 @@ public final class JmxTools {
       return false;
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + mbean + "'");
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' was not found for object '" + mbean + "'");
     }
   }
 
