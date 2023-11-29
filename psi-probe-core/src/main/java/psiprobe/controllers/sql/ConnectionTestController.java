@@ -13,10 +13,7 @@ package psiprobe.controllers.sql;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -132,7 +129,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
    */
   private void addDbMetaDataEntry(List<Map<String, String>> list, String name, String value) {
     Map<String, String> entry = new LinkedHashMap<>();
-    entry.put("propertyName", getMessageSourceAccessor().getMessage(name));
+    entry.put("propertyName", Objects.requireNonNull(Objects.requireNonNull(getMessageSourceAccessor())).getMessage(name));
     entry.put("propertyValue", value);
     list.add(entry);
   }
