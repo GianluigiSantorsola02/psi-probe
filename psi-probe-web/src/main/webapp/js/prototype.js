@@ -2094,9 +2094,11 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
 
-  if (!GLOBAL.Node) GLOBAL.Node = {};
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && !GLOBAL.Node) {
+    GLOBAL.Node = {};
+  }
 
-  if (!GLOBAL.Node.ELEMENT_NODE) {
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Node && !GLOBAL.Node.ELEMENT_NODE) {
     Object.extend(GLOBAL.Node, {
       ELEMENT_NODE:                1,
       ATTRIBUTE_NODE:              2,
