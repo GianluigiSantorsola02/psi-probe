@@ -32,12 +32,11 @@ public class Log4JManagerAccessor extends DefaultAccessor {
    *
    * @throws ClassNotFoundException the class not found exception
    */
-  public Log4JManagerAccessor(ClassLoader cl) throws ClassNotFoundException {
+  public Log4JManagerAccessor(ClassLoader cl) throws ClassNotFoundException, SLF4JBridgeException {
     Class<?> clazz = cl.loadClass("org.apache.log4j.LogManager");
     Method exists = MethodUtils.getAccessibleMethod(clazz, "exists", String.class);
     if (exists == null) {
-      throw new RuntimeException("The LogManager is part of the slf4j bridge.");
-    }
+      throw new SLF4JBridgeException("The LogManager is part of the slf4j bridge.");    }
     setTarget(clazz);
   }
 

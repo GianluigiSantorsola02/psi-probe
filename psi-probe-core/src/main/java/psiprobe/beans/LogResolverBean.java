@@ -44,6 +44,7 @@ import psiprobe.tools.logging.jdk.Jdk14LoggerAccessor;
 import psiprobe.tools.logging.jdk.Jdk14ManagerAccessor;
 import psiprobe.tools.logging.log4j.Log4JLoggerAccessor;
 import psiprobe.tools.logging.log4j.Log4JManagerAccessor;
+import psiprobe.tools.logging.log4j.SLF4JBridgeException;
 import psiprobe.tools.logging.log4j2.Log4J2AppenderAccessor;
 import psiprobe.tools.logging.log4j2.Log4J2LoggerConfigAccessor;
 import psiprobe.tools.logging.log4j2.Log4J2LoggerContextAccessor;
@@ -394,9 +395,11 @@ public class LogResolverBean {
       appenders.addAll(log4JAccessor.getAppenders());
     } catch (Exception e) {
       logger.debug("Could not resolve log4j loggers for '{}'", applicationName, e);
+    } catch (SLF4JBridgeException e) {
+        throw new RuntimeException(e);
     }
 
-    // check for Logback loggers
+      // check for Logback loggers
     try {
       LogbackFactoryAccessor logbackAccessor = new LogbackFactoryAccessor(cl);
       logbackAccessor.setApplication(application);
@@ -578,8 +581,10 @@ public class LogResolverBean {
       }
     } catch (Exception e) {
       logger.debug("getLog4JLogDestination failed", e);
+    } catch (SLF4JBridgeException e) {
+        throw new RuntimeException(e);
     }
-    return null;
+      return null;
   }
 
   /**
@@ -671,7 +676,7 @@ public class LogResolverBean {
         cl.loadClass("org.apache.logging.log4j.core.selector.ClassLoaderContextSelector");
     Object classLoaderContextSelector = clazz.getDeclaredConstructor().newInstance();
     Method getLoggerContexts = MethodUtils.getAccessibleMethod(clazz, "getLoggerContexts");
-    return (List<Object>) getLoggerContexts.invoke(classLoaderContextSelector);
+      return (List<Object>) getLoggerContexts.invoke(classLoaderContextSelector);
   }
 
   /**
