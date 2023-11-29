@@ -20,6 +20,7 @@ fgetSchedulerFactoryBean * Licensed under the GPL License. You may not use this 
  */
 package psiprobe;
 
+import java.util.Objects;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -139,7 +140,7 @@ public class ProbeConfigScheduler {
   public ConnectorStatsTrigger getConnectorStatsTrigger() {
     logger.debug("Instantiated connectorStatsTrigger");
     ConnectorStatsTrigger trigger = new ConnectorStatsTrigger();
-    trigger.setJobDetail(getConnectorStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getConnectorStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -152,7 +153,7 @@ public class ProbeConfigScheduler {
   public ClusterStatsTrigger getClusterStatsTrigger() {
     logger.debug("Instantiated clusterStatsTrigger");
     ClusterStatsTrigger trigger = new ClusterStatsTrigger();
-    trigger.setJobDetail(getClusterStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getClusterStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -165,7 +166,7 @@ public class ProbeConfigScheduler {
   public MemoryStatsTrigger getMemoryStatsTrigger() {
     logger.debug("Instantiated memoryStatsTrigger");
     MemoryStatsTrigger trigger = new MemoryStatsTrigger();
-    trigger.setJobDetail(getMemoryStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getMemoryStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -178,7 +179,7 @@ public class ProbeConfigScheduler {
   public RuntimeStatsTrigger getRuntimeStatsTrigger() {
     logger.debug("Instantiated runtimeStatsTrigger");
     RuntimeStatsTrigger trigger = new RuntimeStatsTrigger();
-    trigger.setJobDetail(getRuntimeStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getRuntimeStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -191,7 +192,7 @@ public class ProbeConfigScheduler {
   public AppStatsTrigger getAppStatsTrigger() {
     logger.debug("Instantiated appStatsTrigger");
     AppStatsTrigger trigger = new AppStatsTrigger();
-    trigger.setJobDetail(getAppStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getAppStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -204,7 +205,7 @@ public class ProbeConfigScheduler {
   public DatasourceStatsTrigger getDatasourceStatsTrigger() {
     logger.debug("Instantiated datasourceStatsTrigger");
     DatasourceStatsTrigger trigger = new DatasourceStatsTrigger();
-    trigger.setJobDetail(getDatasourceStatsJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getDatasourceStatsJobDetail().getObject()));
     return trigger;
   }
 
@@ -217,7 +218,7 @@ public class ProbeConfigScheduler {
   public StatsSerializerTrigger getStatsSerializerTrigger() {
     logger.debug("Instantiated statsSerializerTrigger");
     StatsSerializerTrigger trigger = new StatsSerializerTrigger();
-    trigger.setJobDetail(getStatsSerializerJobDetail().getObject());
+    trigger.setJobDetail(Objects.requireNonNull(getStatsSerializerJobDetail().getObject()));
     return trigger;
   }
 
