@@ -67,7 +67,7 @@
                 </tr>
                 <tr>
                     <td id="left_scroller" class="scroller">&#160;</td>
-                    <td id="separator" width="1%" style="display: none;">&#160;</td>
+                    <td id="separator" style="display: none;">&#160;</td>
                     <td>
                         <div class="scrollable_content" id="srccontent">
                             <code>

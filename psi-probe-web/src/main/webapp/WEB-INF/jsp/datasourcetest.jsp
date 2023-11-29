@@ -149,7 +149,7 @@
                     </tr>
                     <tr>
                         <td id="left_scroller" class="scroller" style="display: none;">&#160;</td>
-                        <td id="separator" width="1%" style="display: none;">&#160;</td>
+                        <td id="separator" style="display: none;">&#160;</td>
                         <td><div id="outputHolder"></div></td>
                         <td id="right_scroller" class="scroller" style="display: none;">&#160;</td>
                     </tr>
