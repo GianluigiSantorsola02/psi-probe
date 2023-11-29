@@ -43,7 +43,7 @@ const Prototype = {
 
     ElementExtensions: (function () {
       const constructor = window.Element || window.HTMLElement;
-      return !!(constructor && constructor.prototype);
+      return constructor?.prototype ?? false;
     })(),
     SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
@@ -261,49 +261,42 @@ var Class = (function() {
       }
 
       var type = typeof value;
-      switch (type) {
-        case "undefined":
-          break;
-        case "boolean":
-          break;
-        case "function":
-          break;
-        case "symbol":
-          break;
-        case "bigint":
-          break;
-        case 'string':
-          return value.inspect(true);
-        case 'number':
-          return isFinite(value) ? String(value) : 'null';
-        case 'object':
+      if (type === "undefined") {
+      } else if (type === "boolean") {
+      } else if (type === "function") {
+      } else if (type === "symbol") {
+      } else if (type === "bigint") {
+      } else if (type === 'string') {
+        return value.inspect(true);
+      } else if (type === 'number') {
+        return isFinite(value) ? String(value) : 'null';
+      } else if (type === 'object') {
+        for (var i = 0, length = stack.length; i < length; i++) {
+          if (stack[i] === value) {
+            throw new TypeError("Cyclic reference to '" + value + "' in object");
+          }
+        }
+        stack.push(value);
 
-          for (var i = 0, length = stack.length; i < length; i++) {
-            if (stack[i] === value) {
-              throw new TypeError("Cyclic reference to '" + value + "' in object");
+        var partial = [];
+        if (_class === ARRAY_CLASS) {
+          for (var i = 0, length = value.length; i < length; i++) {
+            var str = Str({key: i, holder: value, stack: stack});
+            partial.push(typeof str === 'undefined' ? 'null' : str);
+          }
+          partial = '[' + partial.join(',') + ']';
+        } else {
+          var keys = Object.keys(value);
+          for (var i = 0, length = keys.length; i < length; i++) {
+            var key = keys[i], str = Str({key: key, holder: value, stack: stack});
+            if (typeof str !== "undefined") {
+              partial.push(key.inspect(true) + ':' + str);
             }
           }
-          stack.push(value);
-
-          var partial = [];
-          if (_class === ARRAY_CLASS) {
-            for (var i = 0, length = value.length; i < length; i++) {
-              var str = Str({key: i, holder: value, stack: stack});
-              partial.push(typeof str === 'undefined' ? 'null' : str);
-            }
-            partial = '[' + partial.join(',') + ']';
-          } else {
-            var keys = Object.keys(value);
-            for (var i = 0, length = keys.length; i < length; i++) {
-              var key = keys[i], str = Str({key: key, holder: value, stack: stack});
-              if (typeof str !== "undefined") {
-                partial.push(key.inspect(true) + ':' + str);
-              }
-            }
-            partial = '{' + partial.join(',') + '}';
-          }
-          stack.pop();
-          return partial;
+          partial = '{' + partial.join(',') + '}';
+        }
+        stack.pop();
+        return partial;
       }
     }
   }
