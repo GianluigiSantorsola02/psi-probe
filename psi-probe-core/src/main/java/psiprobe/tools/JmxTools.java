@@ -10,11 +10,8 @@
  */
 package psiprobe.tools;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
+import javax.el.MethodNotFoundException;
+import javax.management.*;
 import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
@@ -44,17 +41,18 @@ public final class JmxTools {
    *
    * @return the attribute
    *
-   * @throws Exception the exception
    */
   public static Object getAttribute(MBeanServer mbeanServer, ObjectName objName, String attrName)
-      throws Exception {
-
+          throws AttributeNotFoundException {
     try {
       return mbeanServer.getAttribute(objName, attrName);
-    } catch (AttributeNotFoundException e) {
+    } catch (javax.management.AttributeNotFoundException e) {
       logger.error("{} does not have '{}' attribute", objName, attrName);
       logger.trace("", e);
-      return null;
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
+    } catch (ReflectionException | InstanceNotFoundException | MBeanException e) {
+      logger.error("", e);
+      throw new AttributeNotFoundException("Attribute '" + attrName + "' not found for object '" + objName + "'");
     }
   }
 
@@ -72,7 +70,7 @@ public final class JmxTools {
    * @throws Exception the exception
    */
   public static Object invoke(MBeanServer mbeanServer, ObjectName objName, String method,
-      Object[] o, String[] s) throws Exception {
+                              Object[] o, String[] s) throws MethodNotFoundException {
 
     try {
       return mbeanServer.invoke(objName, method, o, s);
@@ -80,10 +78,9 @@ public final class JmxTools {
     } catch (Exception e) {
       logger.error("{} does not have '{}' attribute", objName, method);
       logger.trace("", e);
-      return null;
+      throw new MethodNotFoundException("Method '" + method + "' not found for object '" + objName + "'");
     }
   }
-
   /**
    * Gets the long attr.
    *
