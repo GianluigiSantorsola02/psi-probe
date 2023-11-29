@@ -10,6 +10,7 @@
  */
 package psiprobe.tools;
 
+import javax.el.MethodNotFoundException;
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
 
@@ -69,7 +70,7 @@ public final class JmxTools {
    * @throws Exception the exception
    */
   public static Object invoke(MBeanServer mbeanServer, ObjectName objName, String method,
-      Object[] o, String[] s) throws Exception {
+                              Object[] o, String[] s) throws MethodNotFoundException {
 
     try {
       return mbeanServer.invoke(objName, method, o, s);
@@ -77,10 +78,9 @@ public final class JmxTools {
     } catch (Exception e) {
       logger.error("{} does not have '{}' attribute", objName, method);
       logger.trace("", e);
-      return null;
+      throw new MethodNotFoundException("Method '" + method + "' not found for object '" + objName + "'");
     }
   }
-
   /**
    * Gets the long attr.
    *
