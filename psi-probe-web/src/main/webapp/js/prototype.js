@@ -1,3 +1,5 @@
+// noinspection JSPotentiallyInvalidConstructorUsage
+
 /*
  * Licensed under the GPL License. You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,19 +18,19 @@
  *
  *--------------------------------------------------------------------------*/
 
-var Prototype = {
+const Prototype = {
 
   Version: '1.7.3',
 
-  Browser: (function(){
-    var ua = navigator.userAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
+  Browser: (function () {
+    const ua = navigator.userAgent;
+    const isOpera = Object.prototype.toString.call(window.opera) === '[object Opera]';
     return {
-      IE:             !!window.attachEvent && !isOpera,
-      Opera:          isOpera,
-      WebKit:         ua.indexOf('AppleWebKit/') > -1,
-      Gecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1,
-      MobileSafari:   /Apple.*Mobile/.test(ua)
+      IE: !!window.attachEvent && !isOpera,
+      Opera: isOpera,
+      WebKit: ua.indexOf('AppleWebKit/') > -1,
+      Gecko: ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1,
+      MobileSafari: /Apple.*Mobile/.test(ua)
     }
   })(),
 
@@ -37,15 +39,15 @@ var Prototype = {
 
     SelectorsAPI: !!document.querySelector,
 
-    ElementExtensions: (function() {
-      var constructor = window.Element || window.HTMLElement;
+    ElementExtensions: (function () {
+      const constructor = window.Element || window.HTMLElement;
       return !!(constructor && constructor.prototype);
     })(),
-    SpecificElementExtensions: (function() {
+    SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
         return true;
 
-      var div = document.createElement('div'),
+      let div = document.createElement('div'),
           form = document.createElement('form'),
           isSupported = false;
 
@@ -62,9 +64,12 @@ var Prototype = {
   ScriptFragment: '<script[^>]*>([\\S\\s]*?)<\/script\\s*>',
   JSONFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/,
 
-  emptyFunction: function() { },
+  emptyFunction: function () {
+  },
 
-  K: function(x) { return x }
+  K: function (x) {
+    return x
+  }
 };
 
 if (Prototype.Browser.MobileSafari)
@@ -80,7 +85,7 @@ var Class = (function() {
     return true;
   })();
 
-  function subclass() {};
+  function subclass() {}
   function create() {
     var parent = null, properties = $A(arguments);
     if (Object.isFunction(properties[0]))
@@ -115,27 +120,35 @@ var Class = (function() {
         properties = Object.keys(source);
 
     if (IS_DONTENUM_BUGGY) {
-      if (source.toString != Object.prototype.toString)
+      if (source.toString !== Object.prototype.toString)
         properties.push("toString");
-      if (source.valueOf != Object.prototype.valueOf)
+      if (source.valueOf !== Object.prototype.valueOf)
         properties.push("valueOf");
     }
 
-    for (var i = 0, length = properties.length; i < length; i++) {
-      var property = properties[i], value = source[property];
-      if (ancestor && Object.isFunction(value) &&
-          value.argumentNames()[0] == "$super") {
-        var method = value;
-        value = (function(m) {
-          return function() { return ancestor[m].apply(this, arguments); };
+    let i = 0, length = properties.length;
+    for (; i < length; i++) {
+      let property = properties[i], value = source[property];
+      if (!(ancestor && Object.isFunction(value) &&
+          value.argumentNames()[0] === "$super")) {
+      } else {
+        const method = value;
+        value = (function (m) {
+          return function () {
+            return ancestor[m].apply(this, arguments);
+          };
         })(property).wrap(method);
 
-        value.valueOf = (function(method) {
-          return function() { return method.valueOf.call(method); };
+        value.valueOf = (function (method) {
+          return function () {
+            return method.valueOf.call(method);
+          };
         })(method);
 
-        value.toString = (function(method) {
-          return function() { return method.toString.call(method); };
+        value.toString = (function (method) {
+          return function () {
+            return method.toString.call(method);
+          };
         })(method);
       }
       this.prototype[property] = value;
@@ -199,7 +212,7 @@ var Class = (function() {
   }
 
   function extend(destination, source) {
-    for (var property in source)
+    for (let property in source)
       destination[property] = source[property];
     return destination;
   }
@@ -242,6 +255,16 @@ var Class = (function() {
 
     var type = typeof value;
     switch (type) {
+      case "undefined":
+        break;
+      case "boolean":
+        break;
+      case "function":
+        break;
+      case "symbol":
+        break;
+      case "bigint":
+        break;
       case 'string':
         return value.inspect(true);
       case 'number':

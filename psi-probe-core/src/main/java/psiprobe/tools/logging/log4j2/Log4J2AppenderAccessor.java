@@ -73,7 +73,7 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
 
     }
     return null;
-    }
+  }
 
 
 
@@ -86,7 +86,8 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
     // Check for SMTPAppender information
     File result = null;
     if (getTarget() instanceof org.apache.logging.log4j.core.appender.SmtpAppender) {
-      org.apache.logging.log4j.core.appender.SmtpAppender smtpAppender = (org.apache.logging.log4j.core.appender.SmtpAppender) getTarget();
+      org.apache.logging.log4j.core.appender.SmtpAppender smtpAppender =
+          (org.apache.logging.log4j.core.appender.SmtpAppender) getTarget();
       Object smtpManager = getProperty(getTarget(), "manager", null, true);
       Object factoryData = getProperty(smtpManager, "data", null, true);
       Object cc = getProperty(factoryData, "cc", null, true);
