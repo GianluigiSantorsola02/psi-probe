@@ -7000,7 +7000,12 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   Event._isCustomEvent = isCustomEvent;
 
   function getOrCreateRegistryFor(element, uid) {
-    var CACHE = GLOBAL.Event.cache;
+    var CACHE;
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
+      CACHE = GLOBAL.Event.cache;
+    } else {
+
+      CACHE = {};}
     if (Object.isUndefined(uid))
       uid = getUniqueElementID(element);
     if (!CACHE[uid]) CACHE[uid] = { element: element };
@@ -7010,7 +7015,9 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   function destroyRegistryForElement(element, uid) {
     if (Object.isUndefined(uid))
       uid = getUniqueElementID(element);
-    delete GLOBAL.Event.cache[uid];
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event && GLOBAL.Event.cache) {
+      delete GLOBAL.Event.cache[uid];
+    }
   }
 
 
@@ -7024,7 +7031,15 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
       if (entries[i].handler === handler) return null;
 
     var uid = getUniqueElementID(element);
-    var responder = GLOBAL.Event._createResponder(uid, eventName, handler);
+    var responder;
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event && GLOBAL.Event._createResponder) {
+      responder = GLOBAL.Event._createResponder(uid, eventName, handler);
+    } else {
+      // Handle the else case if needed
+      responder = function(event) {
+        if (getUniqueElementID(event.element) !== uid) return;
+        handler.call(element, event);
+      }}
     var entry = {
       responder: responder,
       handler:   handler
@@ -7137,7 +7152,13 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
 
 
   function stopObservingElement(element) {
-    var uid = getUniqueElementID(element), registry = GLOBAL.Event.cache[uid];
+    var uid = getUniqueElementID(element);
+    var registry;
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event && GLOBAL.Event.cache) {
+      registry = GLOBAL.Event.cache[uid];
+    } else {
+
+      registry = getOrCreateRegistryForElement(element);}
     if (!registry) return;
 
     destroyRegistryForElement(element, uid);
@@ -7292,13 +7313,29 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
     loaded:        false
   });
 
-  if (GLOBAL.Event) Object.extend(window.Event, Event);
-  else GLOBAL.Event = Event;
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+    if (GLOBAL.Event) {
+      Object.extend(window.Event, Event);
+    } else {
+      GLOBAL.Event = Event;
+    }
+  } else {
+    window.Event = Event;
+  }
 
-  GLOBAL.Event.cache = {};
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
+    GLOBAL.Event = GLOBAL.Event || {};
+    GLOBAL.Event.cache = {};
+  } else {
+
+    window.Event = {};}
 
   function destroyCache_IE() {
-    GLOBAL.Event.cache = null;
+    if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
+      GLOBAL.Event.cache = null;
+    } else {
+      window.Event.cache = null;
+    }
   }
 
   if (window.attachEvent)
@@ -7369,7 +7406,11 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
     }
   }
 
-  GLOBAL.Event._createResponder = createResponder;
+  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
+    GLOBAL.Event._createResponder = createResponder;
+  } else {
+    Event._createResponder = createResponder;
+  }
   docEl = null;
 })(this);
 
