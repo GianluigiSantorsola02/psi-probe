@@ -20,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,17 +56,23 @@ public class CachedRecordSetController extends PostParameterizableViewController
     HttpSession sess = request.getSession(false);
 
     if (sess == null) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor()
-          .getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
-      logger.error("Cannot retrieve a cached result set. Http session is NULL.");
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
+      } else {
+        request.setAttribute("errorMessage", "Failed to get message source accessor. Failure in cached result set test.");
+      }      logger.error("Cannot retrieve a cached result set. Http session is NULL.");
     } else {
       DataSourceTestInfo sessData =
           (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 
       if (sessData == null) {
-        request.setAttribute("errorMessage", getMessageSourceAccessor()
-            .getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
-        logger.error("Cannot retrieve a cached result set. {} session attribute is NULL.",
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
+        } else {
+          request.setAttribute("errorMessage", "Failed to get message source accessor. Failure in cached result set test.");
+        }        logger.error("Cannot retrieve a cached result set. {} session attribute is NULL.",
             DataSourceTestInfo.DS_TEST_SESS_ATTR);
       } else {
         synchronized (sess) {
@@ -75,8 +82,12 @@ public class CachedRecordSetController extends PostParameterizableViewController
         results = sessData.getResults();
 
         if (results == null) {
-          request.setAttribute("errorMessage", getMessageSourceAccessor()
-              .getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor != null) {
+            request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.dataSourceTest.cachedResultSet.failure"));
+          } else {
+            request.setAttribute("errorMessage", "Failed to get message source accessor. Failure in cached result set test.");
+          }
           logger.error("Cached results set is NULL.");
         } else {
           rowsAffected = results.size();

@@ -767,7 +767,7 @@ Object.extend(String.prototype, (function() {
 
   function evalJSON(sanitize) {
     var json = this.unfilterJSON(),
-        cx = /[\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff\u0000]/g;
+        cx = new RegExp("[\u00ad\u0600-\u0604\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
     if (cx.test(json)) {
       json = json.replace(cx, function (a) {
         return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
@@ -4645,8 +4645,7 @@ var i,
 
 	pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + attributes.replace( 3, 8 ) + ")*)|.*)\\)|)",
 
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
-
+    rtrim = new RegExp("^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
@@ -4656,8 +4655,8 @@ var i,
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
 	matchExpr = {
-		"ID": new RegExp( "^#(" + characterEncoding + ")" ),
-		"CLASS": new RegExp( "^\\.(" + characterEncoding + ")" ),
+      "ID": new RegExp("^#(" + characterEncoding.replace(/[\x00-\x1F\x7F-\x9F]/g, "") + ")"),
+      "CLASS": new RegExp("^\\.(" + characterEncoding.replace(/[\x00-\x1F\x7F-\x9F]/g, "") + ")"),
 		"TAG": new RegExp( "^(" + characterEncoding.replace( "w", "w*" ) + ")" ),
 		"ATTR": new RegExp( "^" + attributes ),
 		"PSEUDO": new RegExp( "^" + pseudos ),
@@ -4665,8 +4664,10 @@ var i,
 			"*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
 			"*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
 		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
-		"needsContext": new RegExp( "^" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
-			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
+      "needsContext": new RegExp(
+          "^(?:" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
+          whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$))", "i"
+      )
 	},
 
 	rinputs = /^(?:input|select|textarea|button)$/i,
@@ -4694,7 +4695,8 @@ try {
 		(arr = slice.call( preferredDoc.childNodes )),
 		preferredDoc.childNodes
 	);
-	arr[ preferredDoc.childNodes.length ].nodeType;
+  var index = preferredDoc.childNodes.length;
+  var nodeType = arr[index].nodeType;
 } catch ( e ) {
 	push = { apply: arr.length ?
 
@@ -5452,15 +5454,20 @@ Expr = Sizzle.selectors = {
 				};
 		},
 
-		"CLASS": function( className ) {
-			var pattern = classCache[ className + " " ];
+      "CLASS": function( className ) {
+        var pattern = classCache[ className + " " ];
 
-			return pattern ||
-				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
-				classCache( className, function( elem ) {
-					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "" );
-				});
-		},
+        if (pattern) {
+          return pattern;
+        }
+
+        pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" );
+        classCache( className, function( elem ) {
+          return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
+        });
+
+        return pattern;
+      },
 
 		"ATTR": function( name, operator, check ) {
 			return function( elem ) {
@@ -5678,7 +5685,8 @@ Expr = Sizzle.selectors = {
 
 		"selected": function( elem ) {
 			if ( elem.parentNode ) {
-				elem.parentNode.selectedIndex;
+              var parentNode = elem.parentNode;
+              var selectedIndex = parentNode.selectedIndex;
 			}
 
 			return elem.selected === true;
@@ -6112,7 +6120,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			}
 
 			matchedCount += i;
-			if ( bySet && i !== matchedCount ) {
+			if ( bySet && i != matchedCount ) {
 				j = 0;
 				while ( (matcher = setMatchers[j++]) ) {
 					matcher( unmatched, setMatched, context, xml );

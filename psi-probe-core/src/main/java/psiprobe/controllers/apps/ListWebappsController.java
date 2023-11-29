@@ -13,6 +13,7 @@ package psiprobe.controllers.apps;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,29 +46,34 @@ public class ListWebappsController extends AbstractTomcatContainerController {
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
-        && SecurityUtils.hasAttributeValueRole(getServletContext(), request);
+      boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
+              && SecurityUtils.hasAttributeValueRole(getServletContext(), request);
 
-    List<Context> apps;
-    try {
-      apps = getContainerWrapper().getTomcatContainer().findContexts();
-    } catch (NullPointerException ex) {
-      throw new IllegalStateException(
-          "No container found for your server: " + getServletContext().getServerInfo(), ex);
-    }
-    List<Application> applications = new ArrayList<>(apps.size());
-    boolean showResources = getContainerWrapper().getResourceResolver().supportsPrivateResources();
-    for (Context appContext : apps) {
-      // check if this is not the ROOT webapp
-      if (appContext.getName() != null) {
-        applications.add(ApplicationUtils.getApplication(appContext,
-            getContainerWrapper().getResourceResolver(), calcSize, getContainerWrapper()));
+      List<Context> apps;
+      ServletContext servletContext = null;
+      try {
+          apps = getContainerWrapper().getTomcatContainer().findContexts();
+          servletContext = getServletContext();
+          if (servletContext == null) {
+              throw new IllegalStateException("No servlet context found");
+          }
+
+      } catch (NullPointerException ex) {
+          throw new IllegalStateException("No container found for your server: " + servletContext.getServerInfo(), ex);
       }
-    }
-    if (!applications.isEmpty() && !showResources) {
-      request.setAttribute("no_resources", Boolean.TRUE);
-    }
-    return new ModelAndView(getViewName(), "apps", applications);
+      List<Application> applications = new ArrayList<>(apps.size());
+      boolean showResources = getContainerWrapper().getResourceResolver().supportsPrivateResources();
+      for (Context appContext : apps) {
+          // check if this is not the ROOT webapp
+          if (appContext.getName() != null) {
+              applications.add(ApplicationUtils.getApplication(appContext,
+                      getContainerWrapper().getResourceResolver(), calcSize, getContainerWrapper()));
+          }
+      }
+      if (!applications.isEmpty() && !showResources) {
+          request.setAttribute("no_resources", Boolean.TRUE);
+      }
+      return new ModelAndView(getViewName(), "apps", applications);
   }
 
   @Value("applications")

@@ -13,6 +13,7 @@ package psiprobe.controllers.apps;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -34,7 +35,16 @@ public class BaseReloadContextController extends AbstractNoSelfContextHandlerCon
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
       // get username logger
       String name = auth.getName();
-      logger.info(getMessageSourceAccessor().getMessage("probe.src.log.reload"), name, contextName);
+      try {
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          logger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
+        } else {
+          logger.info("Failed to get message source accessor. Reloading {} context.", contextName);
+        }
+      } catch (NullPointerException ex) {
+        throw new IllegalStateException("Null message source accessor", ex);
+      }
     }
   }
 

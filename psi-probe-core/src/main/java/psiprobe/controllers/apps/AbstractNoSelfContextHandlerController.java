@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -58,9 +59,17 @@ public abstract class AbstractNoSelfContextHandlerController
       HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     try {
-      if (request.getContextPath().equals(contextName)) {
-        throw new IllegalStateException(
-            getMessageSourceAccessor().getMessage("probe.src.contextAction.cannotActOnSelf"));
+      try {
+        if (request.getContextPath().equals(contextName)) {
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor == null) {
+            throw new IllegalStateException("Failed to get message source accessor");
+          }
+
+          throw new IllegalStateException(messageSourceAccessor.getMessage("probe.src.contextAction.cannotActOnSelf"));
+        }
+      } catch (NullPointerException ex) {
+        throw new IllegalStateException("Null context path or context name", ex);
       }
 
       executeAction(contextName);

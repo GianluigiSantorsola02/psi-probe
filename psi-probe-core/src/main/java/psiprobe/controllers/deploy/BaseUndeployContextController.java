@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
@@ -57,19 +58,21 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
   protected ModelAndView handleContext(String contextName, Context context,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     try {
-      if (request.getContextPath().equals(contextName)) {
-        throw new IllegalStateException(
-            getMessageSourceAccessor().getMessage("probe.src.contextAction.cannotActOnSelf"));
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null && request.getContextPath().equals(contextName)) {
+        throw new IllegalStateException(messageSourceAccessor.getMessage("probe.src.contextAction.cannotActOnSelf"));
       }
-
       getContainerWrapper().getTomcatContainer().remove(contextName);
       // Logging action
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
       // get username logger
       String name = auth.getName();
-      logger.info(getMessageSourceAccessor().getMessage("probe.src.log.undeploy"), name,
-          contextName);
-
+        messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        logger.info(messageSourceAccessor.getMessage("probe.src.log.undeploy"), name, contextName);
+      } else {
+        logger.info("Failed to get message source accessor. Undeploying {} context.", contextName);
+      }
     } catch (Exception e) {
       request.setAttribute("errorMessage", e.getMessage());
       logger.error("Error during undeploy of '{}'", contextName, e);

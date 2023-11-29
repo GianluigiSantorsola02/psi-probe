@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -45,19 +46,24 @@ public class DeployContextController extends AbstractTomcatContainerController {
 
     if (contextName != null) {
       try {
-        if (getContainerWrapper().getTomcatContainer().installContext(contextName)) {
-          request.setAttribute("successMessage", getMessageSourceAccessor()
-              .getMessage("probe.src.deploy.context.success", new Object[] {contextName}));
-          // Logging action
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (getContainerWrapper().getTomcatContainer().installContext(contextName) && messageSourceAccessor != null) {
+          request.setAttribute("successMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.success", new Object[] {contextName}));
+        }          // Logging action
           Authentication auth = SecurityContextHolder.getContext().getAuthentication();
           // get username logger
           String name = auth.getName();
-          logger.info(getMessageSourceAccessor().getMessage("probe.src.log.deploycontext"), name,
-              contextName);
-        } else {
-          request.setAttribute("errorMessage", getMessageSourceAccessor()
-              .getMessage("probe.src.deploy.context.failure", new Object[] {contextName}));
+          messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          logger.info(messageSourceAccessor.getMessage("probe.src.log.deploycontext"), name, contextName);
         }
+         else {
+            messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor != null) {
+            request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.failure", new Object[] {contextName}));
+          } else {
+            request.setAttribute("errorMessage", "Error: Failed to get message source accessor.");
+          }        }
       } catch (Exception e) {
         request.setAttribute("errorMessage", e.getMessage());
         logger.trace("", e);
