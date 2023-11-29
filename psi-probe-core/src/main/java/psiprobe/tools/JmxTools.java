@@ -35,13 +35,11 @@ public final class JmxTools {
   /**
    * Gets the attribute.
    *
-   * @param mbeanServer the mbean server
-   * @param objName the obj name
-   * @param attrName the attr name
-   *
-   * @return the attribute
    *
    */
+
+
+   static String notFoundString = " not found for object ";
   public static Object getAttribute(MBeanServer mbeanServer, ObjectName objName, String attrName)
           throws AttributeNotFoundException {
     try {
@@ -49,7 +47,7 @@ public final class JmxTools {
     } catch (javax.management.AttributeNotFoundException e) {
       logger.error("{} does not have '{}' attribute", objName, attrName);
       logger.trace("", e);
-      throw new AttributeNotFoundException("1 Attribute '" + attrName + "' not found for object '" + objName + "'");
+      throw new AttributeNotFoundException("1 Attribute '" + attrName + notFoundString + objName + "'");
     } catch (ReflectionException | InstanceNotFoundException | MBeanException e) {
       logger.error("", e);
       throw new AttributeNotFoundException("2 Attribute '" + attrName + "' not found for object '" + objName + "'");
@@ -77,7 +75,7 @@ public final class JmxTools {
     } catch (Exception e) {
       logger.error("{} does not have '{}' attribute", objName, method);
       logger.trace("", e);
-      throw new MethodNotFoundException("Method '" + method + "' not found for object '" + objName + "'");
+      throw new MethodNotFoundException("Method '" + method + notFoundString + objName + "'");
     }
   }
   /**
@@ -135,7 +133,7 @@ public final class JmxTools {
       return (Long) mbeanServer.getAttribute(objName, attrName);
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("3 Attribute '" + attrName + "' not found for object '" + objName + "'");
+      throw new AttributeNotFoundException("3 Attribute '" + attrName + notFoundString + objName + "'");
     }
   }
 
@@ -156,7 +154,7 @@ public final class JmxTools {
       return (Integer) mbeanServer.getAttribute(objName, attrName);
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("4 Attribute '" + attrName + "' not found for the object '" + objName + "'");
+      throw new AttributeNotFoundException("4 Attribute '" + attrName + notFoundString + objName + "'");
     }
   }
 
@@ -196,7 +194,7 @@ public final class JmxTools {
       return obj == null ? null : obj.toString();
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("5 Attribute '" + attrName + "' not found for object '" + objName + "'");
+      throw new AttributeNotFoundException("5 Attribute '" + attrName + notFoundString+ objName + "'");
     }
   }
   /**
@@ -249,7 +247,7 @@ public final class JmxTools {
       return false;
     } catch (Exception e) {
       logger.trace("", e);
-      throw new AttributeNotFoundException("6 Attribute '" + attrName + "' was not found for object '" + mbean + "'");
+      throw new AttributeNotFoundException("6 Attribute '" + attrName + notFoundString + mbean + "'");
     }
   }
 
