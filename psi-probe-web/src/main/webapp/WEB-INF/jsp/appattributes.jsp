@@ -54,7 +54,7 @@
                         <tr>
                             <th>Header 1</th> <!-- Add your <th> content here -->
                             <td id="left_scroller" class="scroller">&#160;</td>
-                            <td id="separator" width="1%">&#160;</td>
+                            <td id="separator">&#160;</td>
                             <td>Cell 1</td>
                         </tr>
                     </table>
