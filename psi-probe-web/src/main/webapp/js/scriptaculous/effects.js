@@ -48,8 +48,15 @@ function parseColor(input) {
 
 Element.collectTextNodes = function(element) {
   return $A($(element).childNodes).collect( function(node) {
-    return (node.nodeType===3 ? node.nodeValue :
-      (node.hasChildNodes() ? Element.collectTextNodes(node) : ''));
+    function getTextContent(node) {
+      let textContent;
+      if (node.nodeType === 3) {
+        textContent = node.nodeValue;
+      } else {
+        textContent = node.hasChildNodes() ? Element.collectTextNodes(node) : '';
+      }
+      return textContent;
+    }
   }).flatten().join('');
 };
 
@@ -219,8 +226,7 @@ Effect.ScopedQueue = Class.create(Enumerable, {
       this.interval = setInterval(this.loop.bind(this), 15);
   },
   remove: function(effect) {
-    this.effects = this.effects.reject(function(e) { return e===effect });
-    if (this.effects.length === 0) {
+    this.effects = this.effects.filter(e => e !== effect);    if (this.effects.length === 0) {
       clearInterval(this.interval);
       this.interval = null;
     }
