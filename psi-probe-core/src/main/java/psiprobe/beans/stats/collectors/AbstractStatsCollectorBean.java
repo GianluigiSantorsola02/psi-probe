@@ -26,14 +26,15 @@ import java.util.TreeMap;
  */
 public abstract class AbstractStatsCollectorBean {
 
-  /** The stats collection. */
+  /** The stats' collection. */
   private StatsCollection statsCollection;
 
+
+
   @Inject
-  public void YourClassName(StatsCollection statsCollection) {
+  public void statsCollection(StatsCollection statsCollection) {
     this.statsCollection = statsCollection;
   }
-
   /** The max series. */
   private int maxSeries = 240;
 
