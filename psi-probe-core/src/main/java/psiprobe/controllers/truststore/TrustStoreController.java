@@ -10,6 +10,16 @@
  */
 package psiprobe.controllers.truststore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.controllers.AbstractTomcatContainerController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -20,29 +30,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.controllers.AbstractTomcatContainerController;
 
 /**
  * The Class TrustStoreController.
  */
 @Controller
 public class TrustStoreController extends AbstractTomcatContainerController {
+
+  private void loadKeyStore(InputStream fis, char[] password) throws NoSuchAlgorithmException, CertificateException, IOException {
+    KeyStore ks = load(fis, password);
+  }
+
+  private KeyStore load(InputStream fis, char[] password) {
+      return null;
+  }
 
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(TrustStoreController.class);
@@ -70,7 +73,7 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
       if (trustStore != null) {
         try (InputStream fis = Files.newInputStream(Paths.get(trustStore))) {
-          ks.load(fis, trustStorePassword != null ? trustStorePassword.toCharArray() : null);
+          loadKeyStore(fis, trustStorePassword != null ? trustStorePassword.toCharArray() : null);
         } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
           logger.error("", e);
         }
@@ -81,7 +84,7 @@ public class TrustStoreController extends AbstractTomcatContainerController {
             X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
 
             attributes.put("alias", alias);
-            attributes.put("cn", cert.getSubjectDN().toString());
+            attributes.put("cn", cert.getSubjectX500Principal().toString());
             attributes.put("expirationDate",
                 new SimpleDateFormat("yyyy-MM-dd").format(cert.getNotAfter()));
             certificateList.add(attributes);
