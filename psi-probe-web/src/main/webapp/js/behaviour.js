@@ -19,7 +19,7 @@
    	
    Usage:   
    
-	var myrules = {
+	let myrules = {
 		'b.someclass' : function(element){
 			element.onclick = function(){
 				alert(this.innerHTML);
@@ -47,8 +47,8 @@
    
 */   
 
-var Behaviour = {
-	list : new Array,
+let Behaviour = {
+	"list": new Array,
 	
 	register : function(sheet){
 		Behaviour.list.push(sheet);
@@ -77,7 +77,7 @@ var Behaviour = {
 	},
 	
 	addLoadEvent : function(func){
-		var oldonload = window.onload;
+		let oldonload = window.onload;
 		
 		if (typeof window.onload != 'function') {
 			window.onload = func;
@@ -125,16 +125,16 @@ document.getElementsBySelector = function(selector) {
     return new Array();
   }
   // Split selector in to tokens
-  var tokens = selector.split(' ');
-  var currentContext = new Array(document);
-  for (var i = 0; i < tokens.length; i++) {
+  let tokens = selector.split(' ');
+  let currentContext = new Array(document);
+  for (let i = 0; i < tokens.length; i++) {
     token = tokens[i].replace(/^\s+/,'').replace(/\s+$/,'');;
     if (token.indexOf('#') > -1) {
       // Token is an ID selector
-      var bits = token.split('#');
-      var tagName = bits[0];
-      var id = bits[1];
-      var element = document.getElementById(id);
+      let bits = token.split('#');
+      let tagName = bits[0];
+      let id = bits[1];
+      let element = document.getElementById(id);
       if (tagName && element.nodeName.toLowerCase() != tagName) {
         // tag with that ID not found, return false
         return new Array();
@@ -145,29 +145,29 @@ document.getElementsBySelector = function(selector) {
     }
     if (token.indexOf('.') > -1) {
       // Token contains a class selector
-      var bits = token.split('.');
-      var tagName = bits[0];
-      var className = bits[1];
+      let bits = token.split('.');
+      let tagName = bits[0];
+      let className = bits[1];
       if (!tagName) {
         tagName = '*';
       }
       // Get elements matching tag, filter them for class selector
-      var found = new Array;
-      var foundCount = 0;
-      for (var h = 0; h < currentContext.length; h++) {
-        var elements;
+      let found = new Array;
+      let foundCount = 0;
+      for (let h = 0; h < currentContext.length; h++) {
+        let elements;
         if (tagName == '*') {
             elements = getAllChildren(currentContext[h]);
         } else {
             elements = currentContext[h].getElementsByTagName(tagName);
         }
-        for (var j = 0; j < elements.length; j++) {
+        for (let j = 0; j < elements.length; j++) {
           found[foundCount++] = elements[j];
         }
       }
       currentContext = new Array;
-      var currentContextIndex = 0;
-      for (var k = 0; k < found.length; k++) {
+      let currentContextIndex = 0;
+      for (let k = 0; k < found.length; k++) {
         if (found[k].className && found[k].className.match(new RegExp('\\b'+className+'\\b'))) {
           currentContext[currentContextIndex++] = found[k];
         }
@@ -176,30 +176,29 @@ document.getElementsBySelector = function(selector) {
     }
     // Code to deal with attribute selectors
     if (token.match(/^(\w*)\[(\w+)([=~\|\^\$\*]?)=?"?([^\]"]*)"?\]$/)) {
-      var tagName = RegExp.$1;
-      var attrName = RegExp.$2;
-      var attrOperator = RegExp.$3;
-      var attrValue = RegExp.$4;
+      let tagName = RegExp.$1;
+      let attrName = RegExp.$2;
+      let attrOperator = RegExp.$3;
+      let attrValue = RegExp.$4;
       if (!tagName) {
         tagName = '*';
       }
       // Grab all of the tagName elements within current context
-      var found = new Array;
-      var foundCount = 0;
-      for (var h = 0; h < currentContext.length; h++) {
-        var elements;
+      let found = new Array;
+      let foundCount = 0;
+      for (let h = 0; h < currentContext.length; h++) {
+        let elements;
         if (tagName == '*') {
             elements = getAllChildren(currentContext[h]);
         } else {
             elements = currentContext[h].getElementsByTagName(tagName);
         }
-        for (var j = 0; j < elements.length; j++) {
+        for (let j = 0; j < elements.length; j++) {
           found[foundCount++] = elements[j];
         }
       }
       currentContext = new Array;
-      var currentContextIndex = 0;
-      var checkFunction; // This function will be used to filter the elements
+        let checkFunction; // This function will be used to filter the elements
       switch (attrOperator) {
         case '=': // Equality
           checkFunction = function(e) { return (e.getAttribute(attrName) == attrValue); };
@@ -224,8 +223,8 @@ document.getElementsBySelector = function(selector) {
           checkFunction = function(e) { return e.getAttribute(attrName); };
       }
       currentContext = new Array;
-      var currentContextIndex = 0;
-      for (var k = 0; k < found.length; k++) {
+      let currentContextIndex = 0;
+      for (let k = 0; k < found.length; k++) {
         if (checkFunction(found[k])) {
           currentContext[currentContextIndex++] = found[k];
         }
@@ -240,11 +239,11 @@ document.getElementsBySelector = function(selector) {
     
     // If we get here, token is JUST an element (not a class or ID selector)
     tagName = token;
-    var found = new Array;
-    var foundCount = 0;
-    for (var h = 0; h < currentContext.length; h++) {
-      var elements = currentContext[h].getElementsByTagName(tagName);
-      for (var j = 0; j < elements.length; j++) {
+    let found = new Array;
+    let foundCount = 0;
+    for (let h = 0; h < currentContext.length; h++) {
+      let elements = currentContext[h].getElementsByTagName(tagName);
+      for (let j = 0; j < elements.length; j++) {
         found[foundCount++] = elements[j];
       }
     }
