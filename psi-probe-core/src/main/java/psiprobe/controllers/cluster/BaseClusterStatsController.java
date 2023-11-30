@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.TomcatContainer;
 import psiprobe.beans.ClusterWrapperBean;
+import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.jmx.Cluster;
 
@@ -27,9 +28,12 @@ import psiprobe.model.jmx.Cluster;
 public class BaseClusterStatsController extends AbstractTomcatContainerController {
 
   /** The cluster wrapper. */
-  @Inject
-  private ClusterWrapperBean clusterWrapper;
+  private AppStatsCollectorBean statsCollector;
 
+  @Inject
+  public void statsCollector(AppStatsCollectorBean statsCollector) {
+    this.statsCollector = statsCollector;
+  }
   /** The load members. */
   private boolean loadMembers = true;
 
@@ -42,7 +46,7 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
    * @return the cluster wrapper
    */
   public ClusterWrapperBean getClusterWrapper() {
-    return clusterWrapper;
+      return new ClusterWrapperBean();
   }
 
   /**
@@ -51,7 +55,6 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
    * @param clusterWrapper the new cluster wrapper
    */
   public void setClusterWrapper(ClusterWrapperBean clusterWrapper) {
-    this.clusterWrapper = clusterWrapper;
   }
 
   /**
@@ -101,4 +104,11 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
         .addObject("collectionPeriod", getCollectionPeriod());
   }
 
+  public AppStatsCollectorBean getStatsCollector() {
+    return statsCollector;
+  }
+
+  public void setStatsCollector(AppStatsCollectorBean statsCollector) {
+    this.statsCollector = statsCollector;
+  }
 }
