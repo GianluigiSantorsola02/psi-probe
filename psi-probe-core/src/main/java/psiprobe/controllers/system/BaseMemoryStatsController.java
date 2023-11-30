@@ -19,15 +19,20 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 import psiprobe.beans.JvmMemoryInfoAccessorBean;
 
+import java.util.Objects;
+
 /**
  * The Class BaseMemoryStatsController.
  */
 public class BaseMemoryStatsController extends ParameterizableViewController {
 
   /** The jvm memory info accessor bean. */
-  @Inject
   private JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean;
 
+  @Inject
+  public void YourClassName(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean) {
+    this.jvmMemoryInfoAccessorBean = jvmMemoryInfoAccessorBean;
+  }
   /** The collection period. */
   private long collectionPeriod;
 
@@ -71,7 +76,7 @@ public class BaseMemoryStatsController extends ParameterizableViewController {
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    ModelAndView mv = new ModelAndView(getViewName());
+    ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()));
     mv.addObject("pools", getJvmMemoryInfoAccessorBean().getPools());
     mv.addObject("collectionPeriod", getCollectionPeriod());
     return mv;
