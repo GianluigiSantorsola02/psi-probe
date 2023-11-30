@@ -15,10 +15,7 @@ import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +66,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       apps = getContainerWrapper().getTomcatContainer().findContexts();
     } catch (NullPointerException ex) {
       throw new IllegalStateException(
-          "No container found for your server: " + getServletContext().getServerInfo(), ex);
+          "No container found for your server: " + Objects.requireNonNull(getServletContext()).getServerInfo(), ex);
     }
 
     List<Map<String, String>> applications = new ArrayList<>();
@@ -102,7 +99,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
         List<FileItem> fileItems = upload.parseRequest(new ServletRequestContext(request));
         for (FileItem fi : fileItems) {
           if (!fi.isFormField()) {
-            if (fi.getName() != null && fi.getName().length() > 0) {
+            if (fi.getName() != null && !fi.getName().isEmpty()) {
               tmpFile = new File(System.getProperty("java.io.tmpdir"),
                   FilenameUtils.getName(fi.getName()));
               fi.write(tmpFile);
@@ -119,7 +116,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
         }
       } catch (Exception e) {
         logger.error("Could not process file upload", e);
-        request.setAttribute("errorMessage", getMessageSourceAccessor()
+        request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.file.uploadfailure", new Object[] {e.getMessage()}));
         if (tmpFile != null && tmpFile.exists() && !tmpFile.delete()) {
           logger.error("Unable to delete temp upload file");
@@ -155,7 +152,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                   // get username logger
                   String name = auth.getName();
-                  logger.info(getMessageSourceAccessor().getMessage("probe.src.log.copyfile"), name,
+                  logger.info(Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.log.copyfile"), name,
                       contextName);
                   Context context =
                       getContainerWrapper().getTomcatContainer().findContext(contextName);
@@ -174,20 +171,20 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   }
                 } else {
                   errMsg =
-                      getMessageSourceAccessor().getMessage("probe.src.deploy.file.pathNotValid");
+                      Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.pathNotValid");
                 }
               } else {
-                errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.file.notPath");
+                errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notPath");
               }
             } else {
-              errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.file.notExists",
+              errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notExists",
                   new Object[] {visibleContextName});
             }
           } else {
-            errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.file.notFile.failure");
+            errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notFile.failure");
           }
         } catch (IOException e) {
-          errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.file.failure",
+          errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.failure",
               new Object[] {e.getMessage()});
           logger.error("Tomcat throw an exception when trying to deploy", e);
         } finally {
