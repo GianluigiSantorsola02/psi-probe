@@ -10,7 +10,7 @@
  */
 function inverse($f) {
 	for (let $i = 0; $i < $f.elements.length; $i++) {
-		if ($f.elements[$i].type == "checkbox") {
+		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = !$f.elements[$i].checked;
 		}
 	}
@@ -19,7 +19,7 @@ function inverse($f) {
 
 function checkAll($f) {
 	for (let $i = 0; $i < $f.elements.length; $i++) {
-		if ($f.elements[$i].type == "checkbox") {
+		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = true;
 		}
 	}
@@ -56,7 +56,7 @@ Ajax.ImgUpdater.prototype = {
 }
 
 function togglePanel(container, remember_url) {
-	if (Element.getStyle(container, "display") == 'none') {
+	if (Element.getStyle(container, "display") === 'none') {
 		if (remember_url) {
 
 		}
@@ -101,7 +101,7 @@ function scaleImage(v, minX, maxX, minY, maxY) {
 }
 
 function toggleAndReloadPanel(container, url) {
-	if (Element.getStyle(container, "display") == 'none') {
+	if (Element.getStyle(container, "display") === 'none') {
 		Effect.BlindDown(container);
 	} else {
 		Effect.Shrink(container);
@@ -122,11 +122,8 @@ function getWindowHeight() {
 
 function getWindowWidth() {
 	var myWidth = 0;
-	if (typeof( document.body.clientWidth ) == 'number') {
-		//Non-IE
-		myWidth = document.body.clientWidth;
-	} else if (document.body && document.body.clientWidth) {
-		//IE 6+ in 'standards compliant mode'
+	if (typeof document.body.clientWidth === 'number' && document.body) {
+		// Non-IE or IE 6+ in 'standards compliant mode'
 		myWidth = document.body.clientWidth;
 	}
 	return myWidth;
@@ -139,7 +136,7 @@ function setupHelpToggle(url) {
 		'li#abbreviations': function(element) {
 			element.onclick = function() {
 				var help_container = 'help';
-				if (Element.getStyle(help_container, "display") == 'none') {
+				if (Element.getStyle(help_container, "display") === 'none') {
 					Element.show(help_container);
 				} else {
 					Element.hide(help_container);
