@@ -44,8 +44,10 @@ public class StandardSeriesProvider extends AbstractSeriesProvider {
   public void populate(DefaultTableXYDataset dataset, StatsCollection statsCollection,
       HttpServletRequest request) {
 
-    String seriesParam = ServletRequestUtils.getStringParameter(request, "sp", null);
-    Objects.requireNonNull(request, "ServletRequest cannot be null");
+    String seriesParam = ServletRequestUtils.getStringParameter(request, "sp",
+            String.valueOf(Objects.requireNonNull(request, "ServletRequest cannot be null")
+                    ));
+
 
     for (int i = 0; i < statNames.size(); i++) {
       String statName = statNames.get(i);
