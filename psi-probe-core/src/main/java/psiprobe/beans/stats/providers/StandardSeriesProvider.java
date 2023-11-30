@@ -13,6 +13,7 @@ package psiprobe.beans.stats.providers;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,15 +32,6 @@ public class StandardSeriesProvider extends AbstractSeriesProvider {
   private List<String> statNames = new ArrayList<>(2);
 
   /**
-   * Gets the stat names.
-   *
-   * @return the stat names
-   */
-  public List<String> getStatNames() {
-    return statNames;
-  }
-
-  /**
    * Sets the stat names.
    *
    * @param statNames the new stat names
@@ -53,13 +45,14 @@ public class StandardSeriesProvider extends AbstractSeriesProvider {
       HttpServletRequest request) {
 
     String seriesParam = ServletRequestUtils.getStringParameter(request, "sp", null);
+    Objects.requireNonNull(request, "ServletRequest cannot be null");
+
     for (int i = 0; i < statNames.size(); i++) {
       String statName = statNames.get(i);
-      if (seriesParam != null) {
         statName = MessageFormat.format(statName, seriesParam);
-      }
-      List<XYDataItem> stats = statsCollection.getStats(statName);
+        List<XYDataItem> stats = statsCollection.getStats(statName);
       if (stats != null) {
+
         String series =
             ServletRequestUtils.getStringParameter(request, "s" + (i + 1) + "l", "series" + i);
         dataset.addSeries(toSeries(series, stats));
