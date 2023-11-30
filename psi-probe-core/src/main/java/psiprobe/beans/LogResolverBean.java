@@ -289,6 +289,16 @@ public class LogResolverBean {
     return result;
   }
 
+  private Log4J2LoggerContextAccessor getWebLoggerContextAccessor(ClassLoader cl, ServletContext servletContext) {
+    try {
+      Log4J2WebLoggerContextUtilsAccessor webLoggerContextUtilsAccessor =
+              new Log4J2WebLoggerContextUtilsAccessor(cl);
+      return webLoggerContextUtilsAccessor.getWebLoggerContext(servletContext);
+    } catch (Exception e) {
+      logger.debug("Log4J2LoggerContextAccessor instantiation failed", e);
+      return null; // or handle the exception case accordingly
+    }
+  }
   /**
    * Interrogate context.
    *
@@ -314,14 +324,8 @@ public class LogResolverBean {
 
       ServletContext servletContext = ctx.getServletContext();
       try {
-        Log4J2LoggerContextAccessor loggerContextAccessor = null;
-        try {
-          Log4J2WebLoggerContextUtilsAccessor webLoggerContextUtilsAccessor =
-              new Log4J2WebLoggerContextUtilsAccessor(cl);
-          loggerContextAccessor = webLoggerContextUtilsAccessor.getWebLoggerContext(servletContext);
-        } catch (Exception e) {
-          logger.debug("Log4J2LoggerContextAccessor instantiation failed", e);
-        }
+        Log4J2LoggerContextAccessor loggerContextAccessor;
+        loggerContextAccessor = getWebLoggerContextAccessor(cl, servletContext);
         List<Object> loggerContexts = getLoggerContexts(cl);
         for (Object loggerContext : loggerContexts) {
           Map<String, Object> loggerConfigs = getLoggerConfigs(loggerContext);
@@ -678,7 +682,7 @@ public class LogResolverBean {
         cl.loadClass("org.apache.logging.log4j.core.selector.ClassLoaderContextSelector");
     Object classLoaderContextSelector = clazz.getDeclaredConstructor().newInstance();
     Method getLoggerContexts = MethodUtils.getAccessibleMethod(clazz, "getLoggerContexts");
-      return (List<Object>) getLoggerContexts.invoke(classLoaderContextSelector);
+    return (List<Object>) getLoggerContexts.invoke(classLoaderContextSelector);
   }
 
   /**
