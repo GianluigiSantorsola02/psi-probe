@@ -147,10 +147,12 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                   // get username logger
                   String name = auth.getName();
-                  logger.info(Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.log.copyfile"), name,
-                      contextName);
-                  // Checks if DISCARD "work" directory is selected
                   MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+                  if (messageSourceAccessor != null) {
+                    logger.info(messageSourceAccessor.getMessage("probe.src.log.copyfile"), name, contextName);
+                  }
+                  // Checks if DISCARD "work" directory is selected
+                    messageSourceAccessor = getMessageSourceAccessor();
                   if (messageSourceAccessor != null) {
                     String message = messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
                     logger.info(message);
