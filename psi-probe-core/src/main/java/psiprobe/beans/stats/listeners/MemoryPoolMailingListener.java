@@ -38,9 +38,12 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
   private MessageSourceAccessor messageSourceAccessor;
 
   /** The mailer. */
-  @Inject
   private Mailer mailer;
 
+  @Inject
+  public void mailer(Mailer mailer) {
+    this.mailer = mailer;
+  }
   /**
    * Gets the message source accessor.
    *

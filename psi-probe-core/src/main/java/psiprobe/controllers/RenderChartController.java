@@ -12,6 +12,7 @@ package psiprobe.controllers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -61,10 +62,13 @@ public class RenderChartController extends AbstractController {
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(RenderChartController.class);
 
-  /** The stats collection. */
-  @Inject
+  /** The stats' collection. */
   private StatsCollection statsCollection;
 
+  @Inject
+  public void statsCollection(StatsCollection statsCollection) {
+    this.statsCollection = statsCollection;
+  }
   /**
    * Gets the stats collection.
    *
@@ -143,7 +147,7 @@ public class RenderChartController extends AbstractController {
     DefaultTableXYDataset ds = new DefaultTableXYDataset();
 
     if (provider != null) {
-      Object series = getApplicationContext().getBean(provider);
+      Object series = Objects.requireNonNull(getApplicationContext()).getBean(provider);
       if (series instanceof SeriesProvider) {
         ((SeriesProvider) series).populate(ds, statsCollection, request);
       } else {
