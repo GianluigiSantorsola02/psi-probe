@@ -97,7 +97,7 @@ public class OshiController extends AbstractTomcatContainerController {
   private static final Logger logger = LoggerFactory.getLogger(OshiController.class);
 
   /** Oshi Cache. */
-  private static List<String> oshi = new ArrayList<>();
+  private static final List<String> oshi = new ArrayList<>();
 
   @RequestMapping(path = "/adm/oshi.htm")
   @Override
@@ -145,7 +145,7 @@ public class OshiController extends AbstractTomcatContainerController {
    * Code copied and adjusted for Psi Probem from Oshi SystemInfoTest.main at revision
    *
    * <pre>
-   * https://github.com/oshi/oshi/blob/cf45b1f528f99ca353655dea5f154940c76c0bdb/oshi-core/src/test/java/oshi/SystemInfoTest.java
+   * <a href="https://github.com/oshi/oshi/blob/cf45b1f528f99ca353655dea5f154940c76c0bdb/oshi-core/src/test/java/oshi/SystemInfoTest.java">...</a>
    * </pre>
    *
    * <pre>
@@ -499,17 +499,15 @@ public class OshiController extends AbstractTomcatContainerController {
       long usable = fs.getUsableSpace();
       long total = fs.getTotalSpace();
       oshi.add(String.format(
-          " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
-              + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]"
-                  : "%s")
-              + " and is mounted at %s",
-          fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
-          fs.getType(), FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()),
-          100d * usable / total, FormatUtil.formatValue(fs.getFreeInodes(), ""),
-          FormatUtil.formatValue(fs.getTotalInodes(), ""),
-          100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
-          fs.getMount()));
-    }
+              " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s " +
+                      (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s") +
+                      " and is mounted at %s",
+              fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
+              fs.getType(), FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()),
+              100d * usable / total, FormatUtil.formatValue(fs.getFreeInodes(), ""),
+              FormatUtil.formatValue(fs.getTotalInodes(), ""),
+              100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
+              fs.getMount()));    }
   }
 
   /**
