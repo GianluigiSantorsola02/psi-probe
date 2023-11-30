@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.*;
 
 import javax.inject.Inject;
@@ -64,8 +63,16 @@ public class ContainerListenerBean implements NotificationListener {
   private List<ObjectName> executorNames;
 
   /** Used to obtain required {@link MBeanServer} instance. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
+
+  @Inject
+  public void YourClassName(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
+
+  public ContainerListenerBean(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
 
   /**
    * Gets the container wrapper.

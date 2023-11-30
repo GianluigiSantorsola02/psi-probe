@@ -74,7 +74,8 @@ public class ProbeConfig implements WebMvcConfigurer {
   @Bean(name = "containerListener")
   public ContainerListenerBean getContainerListenerBean() {
     logger.debug("Instantiated containerListener");
-    return new ContainerListenerBean();
+    ContainerWrapperBean containerWrapper = new ContainerWrapperBean();
+    return new ContainerListenerBean(containerWrapper);
   }
 
   /**
