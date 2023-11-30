@@ -12,6 +12,7 @@ package psiprobe.tools.logging.slf4jlogback13;
 
 import com.google.common.collect.Iterators;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -81,6 +82,7 @@ public class TomcatSlf4jLogback13LoggerAccessor extends DefaultAccessor {
     return null;
   }
 
+
   /**
    * Checks if is context.
    *
@@ -145,10 +147,10 @@ public class TomcatSlf4jLogback13LoggerAccessor extends DefaultAccessor {
    *
    * @return the sifted appenders
    *
-   * @throws Exception the exception
+   * @throws SiftedAppendersException the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object> getSiftedAppenders(Object appender) throws Exception {
+  private List<Object> getSiftedAppenders(Object appender) throws SiftedAppendersException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
     if (appender instanceof org.apache.tomcat.util.res.StringManager) {
 
       Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
@@ -157,6 +159,11 @@ public class TomcatSlf4jLogback13LoggerAccessor extends DefaultAccessor {
       }
     }
     return Collections.emptyList();
+  }
+  public static class SiftedAppendersException extends Exception {
+    public SiftedAppendersException(String message) {
+      super(message);
+    }
   }
 
   /**
