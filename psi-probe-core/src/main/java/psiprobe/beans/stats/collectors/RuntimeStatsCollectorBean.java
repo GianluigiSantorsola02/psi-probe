@@ -29,7 +29,7 @@ public class RuntimeStatsCollectorBean extends AbstractStatsCollectorBean {
   private RuntimeInfoAccessorBean runtimeInfoAccessorBean;
 
   @Inject
-  public void YourClassName(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor) {
+  public void jvmMemoryInfoAccessor(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor) {
     this.jvmMemoryInfoAccessor = jvmMemoryInfoAccessor;
   }
   /**
