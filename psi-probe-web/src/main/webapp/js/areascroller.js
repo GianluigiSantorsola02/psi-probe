@@ -15,7 +15,7 @@ Object.extend(Object.extend(Effect.Scroll.prototype, Effect.Base.prototype), {
 		this.direction = options && options.direction ? options.direction : 'right';
 		this.pps = options && options.pps ? options.pps : 100;
 
-		var opts = Object.extend({
+		let opts = Object.extend({
 			duration: (this.element.scrollWidth - this.element.scrollLeft) / this.pps
 		}, options || {});
 
@@ -35,12 +35,12 @@ Object.extend(Object.extend(Effect.Scroll.prototype, Effect.Base.prototype), {
 });
 
 
-var rightScroller;
-var leftScroller;
+let rightScroller;
+let leftScroller;
 
 function setupScrollers(container) {
-	var containerID = container;
-	var r = {
+	let containerID = container;
+	let r = {
 		'#right_scroller': function(e) {
 			e.onmouseover = function(e) {
 				if (leftScroller) {

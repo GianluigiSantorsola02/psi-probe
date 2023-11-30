@@ -15,7 +15,7 @@
 // script.aculo.us is freely distributable under the terms of an MIT-style license.
 // For details, see the script.aculo.us web site: https://script.aculo.us/
 
-var Builder = {
+let Builder = {
   NODEMAP: {
     AREA: 'map',
     CAPTION: 'table',
@@ -37,11 +37,11 @@ var Builder = {
   node: function(elementName) {
     elementName = elementName.toUpperCase();
 
-    var element;
+    let element;
 
     // try innerHTML approach
-    var parentTag = this.NODEMAP[elementName] || 'div';
-    var parentElement = document.createElement(parentTag);
+    let parentTag = this.NODEMAP[elementName] || 'div';
+    let parentElement = document.createElement(parentTag);
     try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
       parentElement.innerHTML = "<" + elementName + "></" + elementName + ">";
     } catch(e) {}
@@ -69,7 +69,7 @@ var Builder = {
           arguments[1].tagName) {
         this._children(element, arguments[1]);
       } else {
-        var attrs = this._attributes(arguments[1]);
+        let attrs = this._attributes(arguments[1]);
         if(attrs.length) {
           try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
             parentElement.innerHTML = "<" +elementName + " " +
@@ -106,7 +106,7 @@ var Builder = {
   },
 
   _attributes: function(attributes) {
-    var attrs = [];
+    let attrs = [];
     for(attribute in attributes)
       attrs.push((attribute in this.ATTR_MAP ? this.ATTR_MAP[attribute] : attribute) +
           '="' + attributes[attribute].toString().escapeHTML().gsub(/"/,'&quot;') + '"');
@@ -133,19 +133,19 @@ var Builder = {
     return(typeof param=='string' || typeof param=='number');
   },
   build: function(html) {
-    var element = this.node('div');
+    let element = this.node('div');
     $(element).update(html.strip());
     return element.down();
   },
   dump: function(scope) {
     if(typeof scope != 'object' && typeof scope != 'function') scope = window; //global scope
 
-    var tags = ("A ABBR ACRONYM ADDRESS APPLET AREA B BASE BASEFONT BDO BIG BLOCKQUOTE BODY " +
+    let tags = ("A ABBR ACRONYM ADDRESS APPLET AREA B BASE BASEFONT BDO BIG BLOCKQUOTE BODY " +
       "BR BUTTON CAPTION CENTER CITE CODE COL COLGROUP DD DEL DFN DIR DIV DL DT EM FIELDSET " +
       "FONT FORM FRAME FRAMESET H1 H2 H3 H4 H5 H6 HEAD HR HTML I IFRAME IMG INPUT INS ISINDEX "+
       "KBD LABEL LEGEND LI LINK MAP MENU META NOFRAMES NOSCRIPT OBJECT OL OPTGROUP OPTION P "+
       "PARAM PRE Q S SAMP SCRIPT SELECT SMALL SPAN STRIKE STRONG STYLE SUB SUP TABLE TBODY TD "+
-      "TEXTAREA TFOOT TH THEAD TITLE TR TT U UL VAR").split(/\s+/);
+      "TEXTAREA TFOOT TH THEAD TITLE TR TT U UL let").split(/\s+/);
 
     tags.each( function(tag){
       scope[tag] = function() {

@@ -15,29 +15,29 @@
 	Author: Andy Shapoval, Vlad Ilyushchenko
 */
 
-var connectUrl = '';
-var recordsetUrl = '';
-var queryHistoryUrl = '';
-var sqlOutputDivId = 'outputHolder';
-var formId = 'sqlForm';
-var ajaxActivityId = 'ajaxActivity';
-var metaDataH3Id = 'metaDataH3';
-var resultsH3Id = "resultsH3";
-var historyContainerDivId = "queryHistoryContainer";
-var historyOutputDivId = 'queryHistoryHolder';
-var historyVisible = false;
-var historyWrapped = true;
-var historyHeight = 150;
-var optionsDivId = 'optionsDL';
-var optionsVisible = false;
-var ajaxActivityTimer;
+let connectUrl = '';
+let recordsetUrl = '';
+let queryHistoryUrl = '';
+let sqlOutputDivId = 'outputHolder';
+let formId = 'sqlForm';
+let ajaxActivityId = 'ajaxActivity';
+let metaDataH3Id = 'metaDataH3';
+let resultsH3Id = "resultsH3";
+let historyContainerDivId = "queryHistoryContainer";
+let historyOutputDivId = 'queryHistoryHolder';
+let historyVisible = false;
+let historyWrapped = true;
+let historyHeight = 150;
+let optionsDivId = 'optionsDL';
+let optionsVisible = false;
+let ajaxActivityTimer;
 
 function setupAjaxActions(aConnectUrl, aRecordsetUrl, aQueryHistoryUrl) {
 	connectUrl = aConnectUrl;
 	recordsetUrl = aRecordsetUrl;
 	queryHistoryUrl = aQueryHistoryUrl;
 
-	var rules = {
+	let rules = {
 		'li#connect': function(element) {
 			element.onclick = function() {
 				testConnction();
@@ -107,7 +107,7 @@ function testConnction() {
 	$('rowsAffected').innerHTML = "";
 	$('pagebanner').innerHTML = "";
 	$('pagelinks').innerHTML = "";
-	var params = Form.serialize(formId);
+	let params = Form.serialize(formId);
 
 }
 
@@ -116,7 +116,7 @@ function executeSql() {
 	Element.show(ajaxActivityId);
 	Element.hide(metaDataH3Id);
 	Element.show(resultsH3Id);
-	var params = Form.serialize(formId);
+	let params = Form.serialize(formId);
 }
 
 function setupPaginationLinks(req, obj) {
@@ -130,13 +130,13 @@ function setupPaginationLinks(req, obj) {
 		$('pagelinks').innerHTML = "";
 	}
 
-	var links = $$('#pagelinks a');
+	let links = $$('#pagelinks a');
 
 	links.each(function(lnk) {
 		lnk.onclick = function() {
 			Element.show(ajaxActivityId);
 			Element.show(resultsH3Id);
-			var p = Form.serialize(formId);
+			let p = Form.serialize(formId);
 			return false;
 		}
 	});
@@ -219,12 +219,12 @@ function hideOptions() {
 */
 
 function setupShortcuts() {
-	var rules = {
+	let rules = {
 		'body': function(element) {
 			element.onkeydown = function() {
-				var sUserAgent = navigator.userAgent;
-				var isIE = sUserAgent.indexOf('compatible') > -1 && sUserAgent.indexOf('MSIE') > -1;
-				var e;
+				let sUserAgent = navigator.userAgent;
+				let isIE = sUserAgent.indexOf('compatible') > -1 && sUserAgent.indexOf('MSIE') > -1;
+				let e;
 
 				if (isIE) {
 					e = window.event;
@@ -263,8 +263,8 @@ function setupShortcuts() {
 */
 
 function resizeTextArea(drag) {
-	var deltaY = drag.currentDelta()[1];
-	var h = (Element.getDimensions('sql').height + deltaY);
+	let deltaY = drag.currentDelta()[1];
+	let h = (Element.getDimensions('sql').height + deltaY);
 	h = Math.max(h, 100);
 	Element.setStyle('sql', {
 		height: h + 'px'
@@ -272,8 +272,8 @@ function resizeTextArea(drag) {
 }
 
 function resizeQueryHistory(drag) {
-	var deltaY = drag.currentDelta()[1];
-	var h = (Element.getDimensions(historyOutputDivId).height + deltaY);
+	let deltaY = drag.currentDelta()[1];
+	let h = (Element.getDimensions(historyOutputDivId).height + deltaY);
 	h = Math.max(h, 20);
 	historyHeight = h;
 	Element.setStyle(historyOutputDivId, {

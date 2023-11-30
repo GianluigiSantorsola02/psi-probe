@@ -43,7 +43,7 @@ Ajax.ImgUpdater.prototype = {
 	},
 
 	start: function() {
-		var now = new Date();
+		let now = new Date();
 		this.img.src = this.src + '&t=' + now.getTime();
 		this.timer = setTimeout(this.start.bind(this), this.timeout * 1000);
 	},
@@ -84,9 +84,9 @@ function togglePanel(container, remember_url) {
 }
 
 function scaleImage(v, minX, maxX, minY, maxY) {
-	var images = document.getElementsByClassName('scale-image');
-	var w = (maxX - minX) * v + minX;
-	var h = (maxY - minY) * v + minY;
+	let images = document.getElementsByClassName('scale-image');
+	let w = (maxX - minX) * v + minX;
+	let h = (maxY - minY) * v + minY;
 	if(v > 0.8) {
 		w = w -30;
 		h = h - 100;
@@ -109,7 +109,7 @@ function toggleAndReloadPanel(container, url) {
 }
 
 function getWindowHeight() {
-	var myHeight = 0;
+	let myHeight = 0;
 	if (typeof( window.innerHeight ) == 'number') {
 		//Non-IE
 		myHeight = window.innerHeight;
@@ -121,7 +121,7 @@ function getWindowHeight() {
 }
 
 function getWindowWidth() {
-	var myWidth = 0;
+	let myWidth = 0;
 	if (typeof document.body.clientWidth === 'number' && document.body) {
 		// Non-IE or IE 6+ in 'standards compliant mode'
 		myWidth = document.body.clientWidth;
@@ -129,13 +129,13 @@ function getWindowWidth() {
 	return myWidth;
 }
 
-var helpTimerID;
+let helpTimerID;
 
 function setupHelpToggle(url) {
-	var rules = {
+	let rules = {
 		'li#abbreviations': function(element) {
 			element.onclick = function() {
-				var help_container = 'help';
+				let help_container = 'help';
 				if (Element.getStyle(help_container, "display") === 'none') {
 					Element.show(help_container);
 				} else {
@@ -163,10 +163,10 @@ function addAjaxTooltip(activator, tooltip, url) {
 	}
 
 	Tooltip.add(activator, tooltip);
-	var tt_container = $$('#' + tooltip + ' .tt_content')[0];
+	let tt_container = $$('#' + tooltip + ' .tt_content')[0];
 	Event.observe(activator, 'click', function(e) {
 
-		var t_title = $('tt_title');
+		let t_title = $('tt_title');
 
 		if (t_title) {
 			t_title.hide();
