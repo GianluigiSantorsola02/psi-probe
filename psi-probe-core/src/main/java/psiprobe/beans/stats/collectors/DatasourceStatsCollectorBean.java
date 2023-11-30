@@ -10,16 +10,13 @@
  */
 package psiprobe.beans.stats.collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-
 import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.DataSourceInfo;
-import psiprobe.tools.TimeExpression;
+
+import javax.inject.Inject;
 
 /**
  * The Class DatasourceStatsCollectorBean.
@@ -85,6 +82,7 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
   public void reset() throws Exception {
     if (containerWrapper == null) {
       logger.error("Cannot reset application stats. Container wrapper is not set.");
+      throw new ContainerWrapperNotSetException("Container wrapper is not set.");
     } else {
       for (ApplicationResource ds : getContainerWrapper().getDataSources()) {
         reset(ds.getName());
@@ -104,16 +102,9 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
     resetStats(PREFIX_BUSY + name);
   }
 
-  /**
-   * Sets the max series expression.
-   *
-   * @param period the period
-   * @param span the span
-   */
-  public void setMaxSeries(
-      @Value("${psiprobe.beans.stats.collectors.datasource.period}") long period,
-      @Value("${psiprobe.beans.stats.collectors.datasource.span}") long span) {
-    super.setMaxSeries((int) TimeExpression.dataPoints(period, span));
+  private static class ContainerWrapperNotSetException extends Exception {
+    public ContainerWrapperNotSetException(String s) {
+      super(s);
+    }
   }
-
 }
