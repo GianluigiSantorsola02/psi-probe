@@ -24,6 +24,8 @@ import org.springframework.web.servlet.mvc.Controller;
 
 import psiprobe.model.TransportableModel;
 
+import java.util.Objects;
+
 /**
  * The Class BeanToXmlController.
  */
@@ -34,9 +36,12 @@ public class BeanToXmlController extends AbstractController {
   private String xmlMarker;
 
   /** The xstream. */
-  @Inject
   private XStream xstream;
 
+  @Inject
+  public void xStream(XStream xstream) {
+    this.xstream = xstream;
+  }
   /**
    * Gets the xml marker.
    *
@@ -70,10 +75,10 @@ public class BeanToXmlController extends AbstractController {
     String path = request.getServletPath();
     String internalPath = path.replaceAll(xmlMarker, "");
 
-    Controller controller = (Controller) getApplicationContext().getBean(internalPath);
+    Controller controller = (Controller) Objects.requireNonNull(getApplicationContext()).getBean(internalPath);
     if (controller != null) {
       ModelAndView modelAndView = controller.handleRequest(request, response);
-      if (modelAndView != null && modelAndView.getModel() != null) {
+      if (modelAndView != null) {
         TransportableModel tm = new TransportableModel();
         tm.putAll(modelAndView.getModel());
         xstream.toXML(tm, response.getWriter());

@@ -48,12 +48,16 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(StatsCollection.class);
 
-  /** The stats data. */
+  /** The stats' data. */
   private Map<String, List<XYDataItem>> statsData = new TreeMap<>();
 
   /** The xstream. */
-  @Inject
   private XStream xstream;
+
+  @Inject
+  public void xStream(XStream xstream) {
+    this.xstream = xstream;
+  }
 
   /** The swap file name. */
   private String swapFileName;
@@ -348,14 +352,11 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
     int index = 0;
     Map<String, List<XYDataItem>> stats;
 
-    while (true) {
-      File file = index == 0 ? makeFile() : new File(makeFile().getAbsolutePath() + "." + index);
-      stats = deserialize(file);
-      index += 1;
-      if (stats != null || index >= maxFiles - 1) {
-        break;
-      }
-    }
+      do {
+          File file = index == 0 ? makeFile() : new File(makeFile().getAbsolutePath() + "." + index);
+          stats = deserialize(file);
+          index += 1;
+      } while (stats == null && index < maxFiles - 1);
 
     if (stats != null) {
       statsData = stats;
