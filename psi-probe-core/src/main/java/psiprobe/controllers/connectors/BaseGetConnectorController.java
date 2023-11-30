@@ -31,9 +31,12 @@ import static psiprobe.beans.ContainerListenerBean.*;
 public class BaseGetConnectorController extends AbstractTomcatContainerController {
 
   /** The container listener bean. */
-  @Inject
   private ContainerListenerBean containerListenerBean;
 
+  @Inject
+  public void containerListener(ContainerListenerBean containerListenerBean) {
+    this.containerListenerBean = containerListenerBean;
+  }
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
