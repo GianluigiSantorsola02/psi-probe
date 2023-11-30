@@ -33,10 +33,13 @@ public class BaseGetApplicationController extends AbstractContextHandlerControll
   /** denotes whether extended application information and statistics should be collected. */
   private boolean extendedInfo;
 
-  /** The stats collection. */
-  @Inject
+  /** The stats' collection. */
   private StatsCollection statsCollection;
 
+  @Inject
+  public void statsCollection(StatsCollection statsCollection) {
+    this.statsCollection = statsCollection;
+  }
   /** The collection period. */
   private long collectionPeriod;
 
