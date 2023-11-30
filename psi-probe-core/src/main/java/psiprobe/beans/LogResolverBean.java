@@ -406,9 +406,11 @@ public class LogResolverBean {
       appenders.addAll(logbackAccessor.getAppenders());
     } catch (Exception e) {
       logger.debug("Could not resolve logback loggers for '{}'", applicationName, e);
+    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
+        throw new RuntimeException(e);
     }
 
-    // check for Logback 1.3 loggers
+      // check for Logback 1.3 loggers
     try {
       Logback13FactoryAccessor logback13Accessor = new Logback13FactoryAccessor(cl);
       logback13Accessor.setApplication(application);
@@ -651,7 +653,7 @@ public class LogResolverBean {
     Object configuration = getConfiguration.invoke(loggerContext);
     Method getLoggerConfigs =
         MethodUtils.getAccessibleMethod(configuration.getClass(), "getLoggers");
-    return (Map<String, Object>) getLoggerConfigs.invoke(configuration);
+      return Collections.unmodifiableMap((Map<String, Object>) getLoggerConfigs.invoke(configuration));
   }
 
   /**
@@ -702,8 +704,10 @@ public class LogResolverBean {
       }
     } catch (Exception e) {
       logger.debug("getLogbackLogDestination failed", e);
+    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
+        throw new RuntimeException(e);
     }
-    return null;
+      return null;
   }
 
   /**

@@ -46,7 +46,6 @@ public class TomcatSlf4jLogbackFactoryAccessor extends DefaultAccessor {
   public TomcatSlf4jLogbackFactoryAccessor(ClassLoader cl)
           throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, SLF4JBindingException {
 
-    // Get the singleton SLF4J binding, which may or may not be Logback, depending on the binding.
     Class<?> clazz = cl.loadClass("org.apache.juli.logging.org.slf4j.impl.StaticLoggerBinder");
     Method getSingleton = MethodUtils.getAccessibleMethod(clazz, "getSingleton");
     Object singleton = getSingleton.invoke(null);
