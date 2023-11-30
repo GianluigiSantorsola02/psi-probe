@@ -26,7 +26,7 @@ if (!Control)
 //  onSlide(value)
 
 
-this.allowedValues = undefined;
+allowedValues = undefined;
 let offsets;
 Control.Slider = Class.create({
 
@@ -38,7 +38,7 @@ Control.Slider = Class.create({
       let offset = Math.abs(this.allowedValues[0] - value);
       let newValue = this.allowedValues[0];
       this.allowedValues.each( function(v) {
-        var currentOffset = Math.abs(v - value);
+        let currentOffset = Math.abs(v - value);
         if (currentOffset <= offset){
           newValue = v;
           offset = currentOffset;
@@ -84,7 +84,7 @@ Control.Slider = Class.create({
       (this.range.end-this.range.start)) + this.range.start);
   },
   getRange: function(range) {
-    var v = this.values.sortBy(Prototype.K);
+    let v = this.values.sortBy(Prototype.K);
     range = range || 0;
     return $R(v[range],v[range+1]);
   },
@@ -129,7 +129,7 @@ Control.Slider = Class.create({
    }
   },
   draw: function(event) {
-    var pointer = [Event.pointerX(event), Event.pointerY(event)];
+    let pointer = [Event.pointerX(event), Event.pointerY(event)];
     offsets = this.track.cumulativeOffset();
     pointer[0] -= this.offsetX + offsets[0];
     pointer[1] -= this.offsetY + offsets[1];
