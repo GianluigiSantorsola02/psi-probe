@@ -214,8 +214,7 @@ Effect.ScopedQueue = Class.create(Enumerable, {
   loop: function() {
     let timePos = new Date().getTime();
     for(let i=0, len=this.effects.length;i<len;i++)
-      this.effects[i] && this.effects[i].loop(timePos);
-  }
+      this.effects[i]?.loop(timePos);  }
 });
 
 Effect.Queues = {
@@ -890,25 +889,24 @@ Effect.Morph = Class.create(Effect.Base, {
       style: { }
     }, arguments[1] || { });
 
-    if (!Object.isString(options.style)) this.style = $H(options.style);
-    else {
-      if (options.style.include(':'))
-        this.style = options.style.parseStyle();
-      else {
-        this.element.addClassName(options.style);
-        this.style = $H(this.element.getStyles());
-        this.element.removeClassName(options.style);
-        let css = this.element.getStyles();
-        this.style = this.style.reject(function(style) {
-          return style.value === css[style.key];
+    if (!Object.isString(options.style)) {
+      this.style = $H(options.style);
+    } else if (options.style.include(':')) {
+      this.style = options.style.parseStyle();
+    } else {
+      this.element.addClassName(options.style);
+      this.style = $H(this.element.getStyles());
+      this.element.removeClassName(options.style);
+      let css = this.element.getStyles();
+      this.style = this.style.reject(function(style) {
+        return style.value === css[style.key];
+      });
+      options.afterFinishInternal = function(effect) {
+        effect.element.addClassName(effect.options.style);
+        effect.transforms.each(function(transform) {
+          effect.element.style[transform.style] = '';
         });
-        options.afterFinishInternal = function(effect) {
-          effect.element.addClassName(effect.options.style);
-          effect.transforms.each(function(transform) {
-            effect.element.style[transform.style] = '';
-          });
-        };
-      }
+      };
     }
     this.start(options);
   },
@@ -932,7 +930,7 @@ Effect.Morph = Class.create(Effect.Base, {
         if (Prototype.Browser.IE && (!this.element.currentStyle.hasLayout))
           this.element.setStyle({zoom: 1});
       } else if (Element.CSS_LENGTH.test(value)) {
-          let components = value.match(/^([\-]?[0-9]+)(.*)$/);
+        let components = value.match(/^([0-9]?[0-9]+)(.*)$/);
           value = parseFloat(components[1]);
           unit = (components.length === 3) ? components[2] : null;
       }
@@ -1014,28 +1012,28 @@ Element.CSS_PROPERTIES = $w(
   'outlineWidth paddingBottom paddingLeft paddingRight paddingTop ' +
   'right textIndent top width wordSpacing zIndex');
 
-Element.CSS_LENGTH = /^([+\-]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
+Element.CSS_LENGTH = /^([+]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
 
 
 String.__parseStyleElement = document.createElement('div');
-String.prototype.parseStyle = function(){
+function parseStyleString(styleString) {
   let styleRules = $H();
   let style = Prototype.Browser.WebKit
-      ? new Element('div', { style: this })?.style
-      : (String.__parseStyleElement.innerHTML = '<div style="' + this + '"></div>',
+      ? new Element('div', { style: styleString })?.style
+      : (String.__parseStyleElement.innerHTML = '<div style="' + styleString + '"></div>',
           String.__parseStyleElement.childNodes[0]?.style);
 
   Element.CSS_PROPERTIES.each(function(property){
     if (style[property]) styleRules.set(property, style[property]);
   });
 
-  if (Prototype.Browser.IE && this.include('opacity'))
-    styleRules.set('opacity', this.match(/opacity:\s*((?:0|1)?(?:\.\d*)?)/)[1]);
+  if (Prototype.Browser.IE && styleString.include('opacity'))
+    styleRules.set('opacity', styleString.match(/opacity:\s*([01]?(?:\.\d*)?)/)[1]);
 
   return styleRules;
-};
+}
 
-if (document.defaultView && document.defaultView.getComputedStyle) {
+if (document.defaultView?.getComputedStyle) {
   Element.getStyles = function(element) {
     let css = document.defaultView.getComputedStyle($(element), null);
     return Element.CSS_PROPERTIES.inject({ }, function(styles, property) {
