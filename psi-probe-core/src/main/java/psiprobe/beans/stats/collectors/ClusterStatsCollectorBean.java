@@ -26,13 +26,19 @@ import psiprobe.tools.TimeExpression;
 public class ClusterStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The container wrapper. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
 
-  /** The cluster wrapper. */
   @Inject
+  public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
+  /** The cluster wrapper. */
   private ClusterWrapperBean clusterWrapper;
 
+  @Inject
+  public void clusterWrapper(ClusterWrapperBean clusterWrapper) {
+    this.clusterWrapper = clusterWrapper;
+  }
   /**
    * Gets the container wrapper.
    *
