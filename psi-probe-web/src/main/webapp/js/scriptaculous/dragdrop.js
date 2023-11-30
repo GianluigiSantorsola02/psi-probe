@@ -89,7 +89,7 @@ const Droppables = {
                 function (v) {
                   return drop.accept.include(v)
                 }))) &&
-        Position.within(drop.element, point[0], point[1]));
+        (window.Position && Position.within(drop.element, point[0], point[1])))
   },
 
   deactivate: function (drop) {
@@ -257,8 +257,7 @@ const Draggable = Class.create({
 
       },
       endeffect: function (element) {
-        Object.isNumber(element._opacity) ? element._opacity : 1.0;
-      },
+        const opacity = Object.isNumber(element._opacity) ? element._opacity : 1.0;      },
       zindex: 1000,
       revert: false,
       quiet: false,
@@ -391,9 +390,8 @@ const Draggable = Class.create({
 
       let p;
       if (this.options.scroll === window) {
-        with (this._getWindowScroll(this.options.scroll)) {
-          p = [left, top, left + width, top + height];
-        }
+        const windowScroll = this._getWindowScroll(this.options.scroll);
+        const p = [windowScroll.left, windowScroll.top, windowScroll.left + windowScroll.width, windowScroll.top + windowScroll.height];
       } else {
         p = Position.page(this.options.scroll).toArray();
         p[0] += this.options.scroll.scrollLeft + Position.deltaX;
@@ -445,7 +443,7 @@ const Draggable = Class.create({
 
     const d = this.currentDelta();
     if (revert && this.options.reverteffect) {
-      if (dropped === 0 || revert !== 'failure')
+      if (dropped == 0 || revert !== 'failure')
         this.options.reverteffect(this.element,
             d[1] - this.delta[1], d[0] - this.delta[0]);
     } else {
