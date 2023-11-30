@@ -23,6 +23,8 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import psiprobe.model.sql.DataSourceTestInfo;
 import psiprobe.tools.TimeExpression;
 
+import java.util.Objects;
+
 /**
  * Displays a view that allows for a database connectivity testing. Supplies default values to input
  * fields of the view.
@@ -72,7 +74,7 @@ public class DataSourceTestController extends ParameterizableViewController {
       backUrl = null;
     }
 
-    return new ModelAndView(getViewName())
+    return new ModelAndView(Objects.requireNonNull(getViewName()))
         .addObject("maxRows",
             String.valueOf(sessData == null ? getMaxRows() : sessData.getMaxRows()))
         .addObject("rowsPerPage",
@@ -165,15 +167,6 @@ public class DataSourceTestController extends ParameterizableViewController {
   @Value("30")
   public void setHistorySize(int historySize) {
     this.historySize = historySize;
-  }
-
-  /**
-   * Gets the replace pattern.
-   *
-   * @return the replace pattern
-   */
-  public String getReplacePattern() {
-    return replacePattern;
   }
 
   /**
