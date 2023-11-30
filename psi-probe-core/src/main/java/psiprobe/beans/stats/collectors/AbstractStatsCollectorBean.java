@@ -27,8 +27,12 @@ import java.util.TreeMap;
 public abstract class AbstractStatsCollectorBean {
 
   /** The stats collection. */
-  @Inject
   private StatsCollection statsCollection;
+
+  @Inject
+  public void YourClassName(StatsCollection statsCollection) {
+    this.statsCollection = statsCollection;
+  }
 
   /** The max series. */
   private int maxSeries = 240;
@@ -41,6 +45,9 @@ public abstract class AbstractStatsCollectorBean {
 
   /** The previous data2 d. */
   private final Map<String, Entry> previousData2D = new TreeMap<>();
+
+  protected AbstractStatsCollectorBean() {
+  }
 
   /**
    * Sets the max series.
