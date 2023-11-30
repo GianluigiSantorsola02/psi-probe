@@ -275,22 +275,24 @@ public class ContainerListenerBean implements NotificationListener {
    * @param operation the operation
    * @param port the port
    *
-   * @throws Exception the exception
    */
-  public synchronized void toggleConnectorStatus(String operation, String port) throws Exception {
+  public synchronized void toggleConnectorStatus(String operation, String port) throws ConnectorStatusException {
+    try {
+      if (!allowedOperation.contains(operation)) {
+        logger.error("operation {} not supported", operation);
+        throw new IllegalArgumentException("Not supported operation");
+      }
 
-    if (!allowedOperation.contains(operation)) {
-      logger.error("operation {} not supported", operation);
-      throw new IllegalArgumentException("Not support operation");
+      ObjectName objectName = new ObjectName("Catalina:type=Connector,port=" + port);
+
+      MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
+
+      JmxTools.invoke(server, objectName, operation, null, null);
+
+      logger.info("operation {} on Connector {} invoked successfully", operation, objectName);
+    } catch (Exception e) {
+      throw new ConnectorStatusException("An error occurred while toggling connector status.");
     }
-
-    ObjectName objectName = new ObjectName("Catalina:type=Connector,port=" + port);
-
-    MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
-
-    JmxTools.invoke(server, objectName, operation, null, null);
-
-    logger.info("operation {} on Connector {} invoked success", operation, objectName);
   }
 
   /**
@@ -419,9 +421,15 @@ public class ContainerListenerBean implements NotificationListener {
     }
   }
 
-  private static class ThreadPoolsException extends Throwable {
+  public static class ThreadPoolsException extends Throwable {
     public ThreadPoolsException(String s, Exception e) {
       super(s, e);
+    }
+  }
+
+  public static class ConnectorStatusException extends Exception {
+    public ConnectorStatusException(String message) {
+      super(message);
     }
   }
 }
