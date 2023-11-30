@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -80,7 +82,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
         List<FileItem> fileItems = upload.parseRequest(new ServletRequestContext(request));
         for (FileItem fi : fileItems) {
           if (!fi.isFormField()) {
-            if (fi.getName() != null && fi.getName().length() > 0) {
+            if (fi.getName() != null && !fi.getName().isEmpty()) {
               tmpWar = new File(System.getProperty("java.io.tmpdir"),
                   FilenameUtils.getName(fi.getName()));
               fi.write(tmpWar);
@@ -97,7 +99,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
         }
       } catch (Exception e) {
         logger.error("Could not process file upload", e);
-        request.setAttribute("errorMessage", getMessageSourceAccessor()
+        request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.war.uploadfailure", new Object[] {e.getMessage()}));
         if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
           logger.error("Unable to delete temp war file");
@@ -111,7 +113,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
         try {
           if (tmpWar.getName().endsWith(".war")) {
 
-            if (contextName == null || contextName.length() == 0) {
+            if (contextName == null || contextName.isEmpty()) {
               String warFileName = tmpWar.getName().replaceAll("\\.war$", "");
               contextName = "/" + warFileName;
             }
@@ -147,7 +149,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
               Context ctx = getContainerWrapper().getTomcatContainer().findContext(contextName);
               if (ctx == null) {
-                errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.war.notinstalled",
+                errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.war.notinstalled",
                     new Object[] {visibleContextName});
               } else {
                 request.setAttribute("success", Boolean.TRUE);
@@ -155,12 +157,15 @@ public class UploadWarController extends AbstractTomcatContainerController {
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 // get username logger
                 String name = auth.getName();
-                logger.info(getMessageSourceAccessor().getMessage("probe.src.log.deploywar"), name,
-                    contextName);
+                MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+                if (messageSourceAccessor != null) {
+                  String message = messageSourceAccessor.getMessage("probe.src.log.deploywar");
+                  logger.info(message, name, contextName);
+                }
                 if (discard) {
                   getContainerWrapper().getTomcatContainer().discardWorkDir(ctx);
-                  logger.info(getMessageSourceAccessor().getMessage("probe.src.log.discardwork"),
-                      name, contextName);
+                  String message = getMessageSourceAccessor().getMessage("probe.src.log.discardwork");
+                  logger.info(message, name, contextName);
                 }
                 if (compile) {
                   Summary summary = new Summary();
@@ -173,14 +178,14 @@ public class UploadWarController extends AbstractTomcatContainerController {
               }
 
             } else {
-              errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.war.alreadyExists",
+              errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.war.alreadyExists",
                   new Object[] {visibleContextName});
             }
           } else {
-            errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.war.notWar.failure");
+            errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.war.notWar.failure");
           }
         } catch (IOException e) {
-          errMsg = getMessageSourceAccessor().getMessage("probe.src.deploy.war.failure",
+          errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.war.failure",
               new Object[] {e.getMessage()});
           logger.error("Tomcat throw an exception when trying to deploy", e);
         } finally {

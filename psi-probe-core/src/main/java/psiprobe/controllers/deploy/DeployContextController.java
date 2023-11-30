@@ -55,7 +55,8 @@ public class DeployContextController extends AbstractTomcatContainerController {
           String name = auth.getName();
           messageSourceAccessor = getMessageSourceAccessor();
         if (messageSourceAccessor != null) {
-          logger.info(messageSourceAccessor.getMessage("probe.src.log.deploycontext"), name, contextName);
+          String message = messageSourceAccessor.getMessage("probe.src.log.copyfile");
+          logger.info(message, name, contextName);
         }
          else {
             messageSourceAccessor = getMessageSourceAccessor();
