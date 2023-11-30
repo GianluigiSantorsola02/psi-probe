@@ -21,9 +21,12 @@ import javax.inject.Inject;
 public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The listener bean. */
-  @Inject
   private ContainerListenerBean listenerBean;
 
+  @Inject
+  public void ListenerBean(ContainerListenerBean listenerBean) {
+    this.listenerBean = listenerBean;
+  }
   @Override
   public void collect() throws Throwable {
     for (Connector connector : listenerBean.getConnectors(false)) {
