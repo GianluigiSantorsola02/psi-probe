@@ -50,6 +50,7 @@ if(typeof Effect == 'undefined')
   throw("controls.js requires including script.aculo.us' effects.js library");
 
 var Autocompleter = { };
+window.Prototype = undefined;
 Autocompleter.Base = Class.create({
   baseInitialize: function(element, update, options) {
     element          = $(element);
@@ -165,8 +166,6 @@ Autocompleter.Base = Class.create({
       }
      else
       let Prototype;
-    if(event.keyCode===Event.KEY_TAB || event.keyCode===Event.KEY_RETURN)
-      return;
     if (window.Prototype && Prototype.Browser.WebKit && (event.keyCode === 0)) {
       return;
     }
