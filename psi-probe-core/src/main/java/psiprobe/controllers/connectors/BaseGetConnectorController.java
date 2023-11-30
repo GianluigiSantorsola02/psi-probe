@@ -23,6 +23,8 @@ import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.Connector;
 
+import static psiprobe.beans.ContainerListenerBean.*;
+
 /**
  * The Class BaseGetConnectorController.
  */
@@ -39,8 +41,13 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
     connectorName = ServletRequestUtils.getStringParameter(request, "cn", null);
     Connector connector = null;
 
-      List<Connector> connectors = containerListenerBean.getConnectors(false);
-      for (Connector conn : connectors) {
+    List<Connector> connectors;
+    try {
+      connectors = containerListenerBean.getConnectors(false);
+    } catch (CustomException e) {
+      throw new RuntimeException(e);
+    }
+    for (Connector conn : connectors) {
         if (connectorName.equals(conn.getProtocolHandler())) {
           connector = conn;
           break;

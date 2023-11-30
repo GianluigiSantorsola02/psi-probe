@@ -61,7 +61,7 @@ public class RuntimeStatsCollectorBean extends AbstractStatsCollectorBean {
       // convert from nanoseconds so times use the same units
       long processCpuTimeMs = ri.getProcessCpuTime() / 1000000;
       // divide by the number of processors to reflect shared load (<= 100%)
-      buildTimePercentageStats("os.cpu", processCpuTimeMs / ri.getAvailableProcessors(), time);
+      buildTimePercentageStats(processCpuTimeMs / ri.getAvailableProcessors(), time);
     }
   }
 

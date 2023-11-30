@@ -101,7 +101,7 @@ public class ContainerListenerBean implements NotificationListener {
     }
     return null;
   }
-  private void processCountryResponse() {
+  private void processCountryResponse() throws CustomException {
     try (DatabaseReader reader = new DatabaseReader.Builder(new File(
             Objects.requireNonNull(getClass().getClassLoader().getResource("GeoLite2-Country.mmdb")).toURI()))
             .withCache(new CHMCache()).build()) {
@@ -114,7 +114,9 @@ public class ContainerListenerBean implements NotificationListener {
       logger.debug("Address Not Found: {}", e.getMessage());
       logger.trace("", e);
     } catch (IOException | GeoIp2Exception | URISyntaxException e) {
-        throw new RuntimeException(e);
+
+        throw new CustomException("An error occurred.", e);
+
     }
   }
 
@@ -212,54 +214,59 @@ public class ContainerListenerBean implements NotificationListener {
    *
    * @return the thread pools
    *
-   * @throws Exception the exception
    */
-  public synchronized List<ThreadPool> getThreadPools() throws Exception {
-    if (!isInitialized()) {
-      initialize();
-    }
-
-    List<ThreadPool> threadPools = new ArrayList<>(poolNames.size());
-
-    MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
-
-    for (ObjectName executorName : executorNames) {
-      ThreadPool threadPool = new ThreadPool();
-      threadPool.setName(executorName.getKeyProperty("name"));
-      threadPool.setMaxThreads(JmxTools.getIntAttr(server, executorName, "maxThreads"));
-      threadPool.setMaxSpareThreads(JmxTools.getIntAttr(server, executorName, "largestPoolSize"));
-      threadPool.setMinSpareThreads(JmxTools.getIntAttr(server, executorName, "minSpareThreads"));
-      threadPool.setCurrentThreadsBusy(JmxTools.getIntAttr(server, executorName, "activeCount"));
-      threadPool.setCurrentThreadCount(JmxTools.getIntAttr(server, executorName, "poolSize"));
-      threadPools.add(threadPool);
-    }
-
-    for (ThreadPoolObjectName threadPoolObjectName : poolNames) {
-      ObjectName poolName = threadPoolObjectName.getThreadPoolName();
-
-      ThreadPool threadPool = new ThreadPool();
-      threadPool.setName(poolName.getKeyProperty("name"));
-      threadPool.setMaxThreads(JmxTools.getIntAttr(server, poolName, "maxThreads"));
-
-      if (JmxTools.hasAttribute(server, poolName, "maxSpareThreads")) {
-        threadPool.setMaxSpareThreads(JmxTools.getIntAttr(server, poolName, "maxSpareThreads"));
-        threadPool.setMinSpareThreads(JmxTools.getIntAttr(server, poolName, "minSpareThreads"));
+  public synchronized List<ThreadPool> getThreadPools() throws ThreadPoolsException {
+    List<ThreadPool> result;
+    try {
+      if (!isInitialized()) {
+        initialize();
       }
 
-      threadPool
-          .setCurrentThreadsBusy(JmxTools.getIntAttr(server, poolName, "currentThreadsBusy"));
-      threadPool
-          .setCurrentThreadCount(JmxTools.getIntAttr(server, poolName, "currentThreadCount"));
+      List<ThreadPool> threadPools = new ArrayList<>(poolNames.size());
 
-      /*
-       * Tomcat will return -1 for maxThreads if the connector uses an executor for its threads.
-       * In this case, don't add its ThreadPool to the results.
-       */
-      if (threadPool.getMaxThreads() > -1) {
+      MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
+
+      for (ObjectName executorName : executorNames) {
+        ThreadPool threadPool = new ThreadPool();
+        threadPool.setName(executorName.getKeyProperty("name"));
+        threadPool.setMaxThreads(JmxTools.getIntAttr(server, executorName, "maxThreads"));
+        threadPool.setMaxSpareThreads(JmxTools.getIntAttr(server, executorName, "largestPoolSize"));
+        threadPool.setMinSpareThreads(JmxTools.getIntAttr(server, executorName, "minSpareThreads"));
+        threadPool.setCurrentThreadsBusy(JmxTools.getIntAttr(server, executorName, "activeCount"));
+        threadPool.setCurrentThreadCount(JmxTools.getIntAttr(server, executorName, "poolSize"));
         threadPools.add(threadPool);
       }
+
+      for (ThreadPoolObjectName threadPoolObjectName : poolNames) {
+        ObjectName poolName = threadPoolObjectName.getThreadPoolName();
+
+        ThreadPool threadPool = new ThreadPool();
+        threadPool.setName(poolName.getKeyProperty("name"));
+        threadPool.setMaxThreads(JmxTools.getIntAttr(server, poolName, "maxThreads"));
+
+        if (JmxTools.hasAttribute(server, poolName, "maxSpareThreads")) {
+          threadPool.setMaxSpareThreads(JmxTools.getIntAttr(server, poolName, "maxSpareThreads"));
+          threadPool.setMinSpareThreads(JmxTools.getIntAttr(server, poolName, "minSpareThreads"));
+        }
+
+        threadPool
+                .setCurrentThreadsBusy(JmxTools.getIntAttr(server, poolName, "currentThreadsBusy"));
+        threadPool
+                .setCurrentThreadCount(JmxTools.getIntAttr(server, poolName, "currentThreadCount"));
+
+        /*
+         * Tomcat will return -1 for maxThreads if the connector uses an executor for its threads.
+         * In this case, don't add its ThreadPool to the results.
+         */
+        if (threadPool.getMaxThreads() > -1) {
+          threadPools.add(threadPool);
+        }
+      }
+      result = threadPools;
+    } catch (Exception e) {
+      throw new ThreadPoolsException("An error occurred while retrieving thread pools.", e);
     }
-    return threadPools;
+    return result;
   }
 
   /**
@@ -297,7 +304,7 @@ public class ContainerListenerBean implements NotificationListener {
    */
 
   public synchronized List<Connector> getConnectors(boolean includeRequestProcessors)
-      throws Exception {
+          throws Exception, CustomException {
 
     boolean workerThreadNameSupported = true;
 
@@ -406,4 +413,15 @@ public class ContainerListenerBean implements NotificationListener {
     return connectors;
   }
 
+  public static class CustomException extends Throwable {
+    public CustomException(String s, Exception e) {
+      super(s, e);
+    }
+  }
+
+  private static class ThreadPoolsException extends Throwable {
+    public ThreadPoolsException(String s, Exception e) {
+      super(s, e);
+    }
+  }
 }

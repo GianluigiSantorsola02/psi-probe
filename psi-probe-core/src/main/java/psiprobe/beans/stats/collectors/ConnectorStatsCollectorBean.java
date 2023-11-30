@@ -10,13 +10,10 @@
  */
 package psiprobe.beans.stats.collectors;
 
-import javax.inject.Inject;
-
-import org.springframework.beans.factory.annotation.Value;
-
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.model.Connector;
-import psiprobe.tools.TimeExpression;
+
+import javax.inject.Inject;
 
 /**
  * The Class ConnectorStatsCollectorBean.
@@ -27,26 +24,8 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
   @Inject
   private ContainerListenerBean listenerBean;
 
-  /**
-   * Gets the listener bean.
-   *
-   * @return the listener bean
-   */
-  public ContainerListenerBean getListenerBean() {
-    return listenerBean;
-  }
-
-  /**
-   * Sets the listener bean.
-   *
-   * @param listenerBean the new listener bean
-   */
-  public void setListenerBean(ContainerListenerBean listenerBean) {
-    this.listenerBean = listenerBean;
-  }
-
   @Override
-  public void collect() throws Exception {
+  public void collect() throws Throwable {
     for (Connector connector : listenerBean.getConnectors(false)) {
       String statName = "stat.connector." + connector.getProtocolHandler();
       buildDeltaStats(statName + ".requests", connector.getRequestCount());
@@ -62,7 +41,7 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
    *
    * @throws Exception the exception
    */
-  public void reset() throws Exception {
+  public void reset() throws Throwable {
     for (Connector connector : listenerBean.getConnectors(false)) {
       reset(connector.getProtocolHandler());
     }
@@ -80,18 +59,6 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
     resetStats(statName + ".sent");
     resetStats(statName + ".received");
     resetStats(statName + ".proc_time");
-  }
-
-  /**
-   * Sets the max series expression.
-   *
-   * @param period the period
-   * @param span the span
-   */
-  public void setMaxSeries(
-      @Value("${psiprobe.beans.stats.collectors.connector.period}") long period,
-      @Value("${psiprobe.beans.stats.collectors.connector.span}") long span) {
-    super.setMaxSeries((int) TimeExpression.dataPoints(period, span));
   }
 
 }

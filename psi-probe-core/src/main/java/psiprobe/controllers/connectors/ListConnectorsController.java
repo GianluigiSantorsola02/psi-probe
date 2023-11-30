@@ -10,22 +10,21 @@
  */
 package psiprobe.controllers.connectors;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.Connector;
 import psiprobe.model.RequestProcessor;
 import psiprobe.tools.TimeExpression;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import static psiprobe.beans.ContainerListenerBean.CustomException;
 
 /**
  * The Class ListConnectorsController.
@@ -34,8 +33,7 @@ import psiprobe.tools.TimeExpression;
 public class ListConnectorsController extends AbstractTomcatContainerController {
 
   /** The container listener bean. */
-  @Inject
-  private ContainerListenerBean containerListenerBean;
+  private final ContainerListenerBean containerListenerBean;
 
   /** The include request processors. */
   private boolean includeRequestProcessors;
@@ -43,21 +41,7 @@ public class ListConnectorsController extends AbstractTomcatContainerController 
   /** The collection period. */
   private long collectionPeriod;
 
-  /**
-   * Gets the container listener bean.
-   *
-   * @return the container listener bean
-   */
-  public ContainerListenerBean getContainerListenerBean() {
-    return containerListenerBean;
-  }
-
-  /**
-   * Sets the container listener bean.
-   *
-   * @param containerListenerBean the new container listener bean
-   */
-  public void setContainerListenerBean(ContainerListenerBean containerListenerBean) {
+  public ListConnectorsController(ContainerListenerBean containerListenerBean) {
     this.containerListenerBean = containerListenerBean;
   }
 
@@ -90,15 +74,6 @@ public class ListConnectorsController extends AbstractTomcatContainerController 
   }
 
   /**
-   * Checks if is include request processors.
-   *
-   * @return true, if is include request processors
-   */
-  public boolean isIncludeRequestProcessors() {
-    return includeRequestProcessors;
-  }
-
-  /**
    * Sets the include request processors.
    *
    * @param includeRequestProcessors the new include request processors
@@ -120,7 +95,12 @@ public class ListConnectorsController extends AbstractTomcatContainerController 
       HttpServletResponse response) throws Exception {
 
     boolean workerThreadNameSupported = false;
-    List<Connector> connectors = containerListenerBean.getConnectors(includeRequestProcessors);
+    List<Connector> connectors;
+    try {
+      connectors = containerListenerBean.getConnectors(includeRequestProcessors);
+    } catch (CustomException e) {
+      throw new RuntimeException(e);
+    }
 
     if (!connectors.isEmpty()) {
       List<RequestProcessor> reqProcs = connectors.get(0).getRequestProcessors();

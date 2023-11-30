@@ -10,18 +10,16 @@
  */
 package psiprobe.beans.stats.collectors;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.inject.Inject;
-
 import org.jfree.data.xy.XYDataItem;
-
 import psiprobe.Utils;
 import psiprobe.beans.stats.listeners.StatsCollectionEvent;
 import psiprobe.beans.stats.listeners.StatsCollectionListener;
 import psiprobe.model.stats.StatsCollection;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The Class AbstractStatsCollectorBean.
@@ -43,33 +41,6 @@ public abstract class AbstractStatsCollectorBean {
 
   /** The previous data2 d. */
   private final Map<String, Entry> previousData2D = new TreeMap<>();
-
-  /**
-   * Gets the stats collection.
-   *
-   * @return the stats collection
-   */
-  public StatsCollection getStatsCollection() {
-    return statsCollection;
-  }
-
-  /**
-   * Sets the stats collection.
-   *
-   * @param statsCollection the new stats collection
-   */
-  public void setStatsCollection(StatsCollection statsCollection) {
-    this.statsCollection = statsCollection;
-  }
-
-  /**
-   * Gets the max series.
-   *
-   * @return the max series
-   */
-  public int getMaxSeries() {
-    return maxSeries;
-  }
 
   /**
    * Sets the max series.
@@ -103,7 +74,7 @@ public abstract class AbstractStatsCollectorBean {
    *
    * @throws Exception the exception
    */
-  public abstract void collect() throws Exception;
+  public abstract void collect() throws Throwable;
 
   /**
    * Builds the delta stats.
@@ -140,18 +111,6 @@ public abstract class AbstractStatsCollectorBean {
       previousData.put(name, value);
     }
     return delta;
-  }
-
-  /**
-   * Builds the absolute stats.
-   *
-   * @param name the name
-   * @param value the value
-   *
-   * @throws InterruptedException the interrupted exception
-   */
-  protected void buildAbsoluteStats(String name, long value) throws InterruptedException {
-    buildAbsoluteStats(name, value, System.currentTimeMillis());
   }
 
   /**
@@ -224,30 +183,28 @@ public abstract class AbstractStatsCollectorBean {
    * - T1) * 100 is the percentage of all time the system spent being busy.
    * </p>
    *
-   * @param name the name of the value, which allows the collector to be used for multiple values
    * @param value time spent on the task in milliseconds (A or B in the example above)
-   * @param time system time in milliseconds (T1 or T2 in the example above)
-   *
+   * @param time  system time in milliseconds (T1 or T2 in the example above)
    * @throws InterruptedException if a lock could not be obtained
    */
-  protected void buildTimePercentageStats(String name, long value, long time)
+  protected void buildTimePercentageStats(long value, long time)
       throws InterruptedException {
 
-    Entry entry = previousData2D.get(name);
+    Entry entry = previousData2D.get("os.cpu");
     if (entry == null) {
       entry = new Entry();
       entry.value = value;
       entry.time = time;
-      previousData2D.put(name, entry);
+      previousData2D.put("os.cpu", entry);
     } else {
       double valueDelta = (double) value - entry.value;
       double timeDelta = (double) time - entry.time;
       double statValue = valueDelta * 100 / timeDelta;
       statsCollection.lockForUpdate();
       try {
-        List<XYDataItem> stats = statsCollection.getStats(name);
+        List<XYDataItem> stats = statsCollection.getStats("os.cpu");
         if (stats == null) {
-          stats = statsCollection.newStats(name, maxSeries);
+          stats = statsCollection.newStats("os.cpu", maxSeries);
         }
         stats.add(stats.size(), new XYDataItem(time, statValue));
         houseKeepStats(stats);
