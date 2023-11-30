@@ -38,13 +38,20 @@ public class ToggleConnectorStatusController extends ParameterizableViewControll
       LoggerFactory.getLogger(ToggleConnectorStatusController.class);
 
   /** The collector bean. */
-  @Inject
   private ConnectorStatsCollectorBean collectorBean;
 
-  /** The container listener. */
   @Inject
+  public void collectorBean(ConnectorStatsCollectorBean collectorBean) {
+    this.collectorBean = collectorBean;
+  }
+
+  /** The container listener. */
   private ContainerListenerBean containerListener;
 
+  @Inject
+  public void cointanerListener(ContainerListenerBean containerListener) {
+    this.containerListener = containerListener;
+  }
   /**
    * Gets the collector bean.
    *
