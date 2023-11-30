@@ -29,7 +29,7 @@
 
 Array.prototype.contains = function (value)
 {
-	for (var i = 0; i < this.length; i++) {
+	for (let i = 0; i < this.length; i++) {
 		if (this[i] == value) {
 			return true;
 		}
@@ -40,45 +40,45 @@ Array.prototype.contains = function (value)
 /**
  * Tooltip Object definition
  */
-var Tooltip = {
+let Tooltip = {
 	/**
-	 * @var string|Array An event name or an array of event names on which to trigger showing the Tooltip
+	 * @let string|Array An event name or an array of event names on which to trigger showing the Tooltip
 	 */
 	showEvent: "click",
 
 	/**
-	 * @var string|Array An event name or an array of event names on which to trigger hiding the Tooltip
+	 * @let string|Array An event name or an array of event names on which to trigger hiding the Tooltip
 	 */
 	hideEvent: "click",
 
 	/**
-	 * @var float Duration of the fade events, in seconds
+	 * @let float Duration of the fade events, in seconds
 	 * @author Idea contributed by Richard Thomas <cyberlot@cyberlot.net>
 	 */
 	fade: 0.5,
 
 	/**
-	 * @var string Close Link Text
+	 * @let string Close Link Text
 	 */
 	closeText: "Close",
 
 	/**
-	 * @var function Set the method which will be called for showing the tooltip
+	 * @let function Set the method which will be called for showing the tooltip
 	 */
 	showMethod: Effect.Appear,
 
 	/**
-	 * @var function Set the method which will be called for hiding the tooltip
+	 * @let function Set the method which will be called for hiding the tooltip
 	 */
 	hideMethod: Effect.Fade,
 
 	/**
-     * @var boolean Whether the Tooltip should follow the mouse or not. Warning: Cheesy!
+     * @let boolean Whether the Tooltip should follow the mouse or not. Warning: Cheesy!
      */
     autoFollowMouse: false,
 
 	/**
-	 * @var integer If set, the Tooltip will automatically hide after X seconds
+	 * @let integer If set, the Tooltip will automatically hide after X seconds
      *
      * When followMouse is true, the mouseout event does not trigger the hide callback
      * till X has passed. This is to allow the user to move a little off the element -
@@ -87,12 +87,12 @@ var Tooltip = {
     autoHideTimeout: 40,
 
 	/**
-	 * @var boolean Allow user to click anywhere to hide current tooltip
+	 * @let boolean Allow user to click anywhere to hide current tooltip
 	 */
 	autoHideClick: true,
 
 	/**
-	 * @var boolean If set to true, the Tooltip will be displayed (static) at the current Mouse Cursor location.
+	 * @let boolean If set to true, the Tooltip will be displayed (static) at the current Mouse Cursor location.
 	 */
 	autoMoveToCursor: true,
 
@@ -102,7 +102,7 @@ var Tooltip = {
 	CURRENT_TOOLTIP: 1,
 
 	/**
-	 * @var object Currently shown Tooltip
+	 * @let object Currently shown Tooltip
 	 */
 	_current: false,
 
@@ -117,8 +117,8 @@ var Tooltip = {
 	{
 		match_class = new RegExp("^(.*)\s?tooltip\s?(.*)$", 'i');
 		match_for = new RegExp("^.*\s?for_(.*)\s?.*$", 'i');
-		var divs = document.getElementsByTagName('div');
-		var for_result;
+		let divs = document.getElementsByTagName('div');
+		let for_result;
 		if (divs.length > 0) {
             // Automatically register the mouseout event if followMouse = true and autoHideTimeout is being used
             if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
@@ -129,16 +129,16 @@ var Tooltip = {
 				Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
 			}
 
-			for (var i = 0; i < divs.length; i++) {
+			for (let i = 0; i < divs.length; i++) {
 				if (divs.item(i).className.match(match_class)) {
 					for_result = divs.item(i).className.match(match_for);
 					if (for_result && for_result.length > 0) {
 						if (document.getElementById(for_result[1])) {
-							var activator = document.getElementById(for_result[1]);
+							let activator = document.getElementById(for_result[1]);
 						}
 					} else {
-						var foundPrevious = false;
-						var activator = divs.item(i);
+						let foundPrevious = false;
+						let activator = divs.item(i);
 						while (foundPrevious == false && activator) {
 							activator = activator.previousSibling;
                             if (activator && activator.tagName) {
@@ -173,7 +173,7 @@ var Tooltip = {
 	 */
 	init: function (activator)
 	{
-		var tooltip = activator.Tooltip;
+		let tooltip = activator.Tooltip;
 		activator.Tooltip.style.visibility = "hidden";
 
 		Tooltip._attachEvent(activator, "toggle");
@@ -197,7 +197,7 @@ var Tooltip = {
 			// Create the <p><a href="#">Close</a></p> and add it to the Tooltip
 
 			// <p> element
-			var p = document.createElement('p');
+			let p = document.createElement('p');
 
 			// <p> styles
 			p.style.textAlign = "right";
@@ -208,9 +208,9 @@ var Tooltip = {
 			p.className = "close";
 
 			// <a> element
-			var link = document.createElement('a');
+			let link = document.createElement('a');
 
-			// Set the Tooltip var to the tooltip element
+			// Set the Tooltip let to the tooltip element
 			link.Tooltip = tooltip;
 
 			link.style.cursor = "pointer";
@@ -219,7 +219,7 @@ var Tooltip = {
 			Tooltip._attachEvent(link, "click");
 
 			// "Close" text node
-			var close = document.createTextNode(Tooltip.closeText);
+			let close = document.createTextNode(Tooltip.closeText);
 
 			// Append the text to the <a> element
 			link.appendChild(close);
@@ -272,17 +272,17 @@ var Tooltip = {
 		catch (e) { }
 
 		if (Tooltip.autoHideClick && event.type == "click") {
-			var close_class = new RegExp("^(.*)\s?close\s?(.*)$", 'i');
-			var tooltip_class = new RegExp("^(.*)\s?tooltip\s?(.*)$", 'i');
+			let close_class = new RegExp("^(.*)\s?close\s?(.*)$", 'i');
+			let tooltip_class = new RegExp("^(.*)\s?tooltip\s?(.*)$", 'i');
 			if (event.srcElement) {
-				var node = event.srcElement;
+				let node = event.srcElement;
 			} else if (event.fromElement) {
-				var node = event.fromElement;
+				let node = event.fromElement;
 			} else if (event.target) {
-				var node = event.target;
+				let node = event.target;
 			}
 			if (node.className == null  || !node.className.match(close_class)) {
-				var isWithinTooltip = false;
+				let isWithinTooltip = false;
 				while (!isWithinTooltip && node.parentNode) {
 					// Check if the parent is a close element first, if so, we can break
 					// and we still want to close the tooltip
@@ -398,7 +398,7 @@ var Tooltip = {
 
 		event = event.type;
 
-		var tooltip = activator.Tooltip;
+		let tooltip = activator.Tooltip;
         // We need to defer this
         if (event == "mouseout" && Tooltip.autoFollowMouse) {
             activator.timer = setTimeout(function () {
@@ -441,7 +441,7 @@ var Tooltip = {
          catch (e) { }
       }
 
-		var winWidth, winHeight, d=document;
+		let winWidth, winHeight, d=document;
 		if (typeof window.innerWidth!='undefined') {
 			winWidth = window.innerWidth;
 			winHeight = window.innerHeight;
@@ -457,7 +457,7 @@ var Tooltip = {
 			}
 		}
 
-		var tooltipWidth, tooltipHeight;
+		let tooltipWidth, tooltipHeight;
 		if (activator.Tooltip.currentStyle) {
 			tooltipWidth = activator.Tooltip.currentStyle.width;
 			tooltipHeight = activator.Tooltip.currentStyle.height;
@@ -469,20 +469,20 @@ var Tooltip = {
       activator.Tooltip.style.position = "absolute";
 
 		if (event.pageY) {
-			var top = event.pageY;
-			var left = event.pageX;
+			let top = event.pageY;
+			let left = event.pageX;
 		} else if (event.clientY) {
 			// put an If here instead, ?: doesn't seem to work
 			if (document.body.scrollTop > document.documentElement.scrollTop) {
-				var top = event.clientY + document.body.scrollTop;
+				let top = event.clientY + document.body.scrollTop;
 			} else {
-				var top = event.clientY + document.documentElement.scrollTop;
+				let top = event.clientY + document.documentElement.scrollTop;
 			}
 
 			if (document.body.scrollLeft > document.documentElement.scrollLeft) {
-				var left = event.clientX + document.body.scrollLeft;
+				let left = event.clientX + document.body.scrollLeft;
 			} else {
-				var left = event.clientX + document.documentElement.scrollLeft;
+				let left = event.clientX + document.documentElement.scrollLeft;
 			}
 		}
 
@@ -508,8 +508,8 @@ var Tooltip = {
 
 	_attachEvent: function (element, event)
 	{
-		var i;
-		var events = new Array();
+		let i;
+		let events = new Array();
         if (event == "toggle") {
 			if (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor == Array) {
                 for (i = 0; i < Tooltip.showEvent.length; i++) {
