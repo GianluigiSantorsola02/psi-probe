@@ -167,6 +167,9 @@ Autocompleter.Base = Class.create({
       let Prototype;
     if(event.keyCode===Event.KEY_TAB || event.keyCode===Event.KEY_RETURN ||
          (Prototype.Browser.WebKit > 0 && event.keyCode === 0)) return;
+    if (window.Prototype && Prototype.Browser.WebKit && (event.keyCode === 0)) {
+      return;
+    }
 
     this.changed = true;
     this.hasFocus = true;
