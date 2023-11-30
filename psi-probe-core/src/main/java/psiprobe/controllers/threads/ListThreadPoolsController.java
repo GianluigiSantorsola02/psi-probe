@@ -10,20 +10,17 @@
  */
 package psiprobe.controllers.threads;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.ThreadPool;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Creates the list of http connection thread pools.
@@ -32,24 +29,9 @@ import psiprobe.model.ThreadPool;
 public class ListThreadPoolsController extends AbstractTomcatContainerController {
 
   /** The container listener bean. */
-  @Inject
-  private ContainerListenerBean containerListenerBean;
+  private final ContainerListenerBean containerListenerBean;
 
-  /**
-   * Gets the container listener bean.
-   *
-   * @return the container listener bean
-   */
-  public ContainerListenerBean getContainerListenerBean() {
-    return containerListenerBean;
-  }
-
-  /**
-   * Sets the container listener bean.
-   *
-   * @param containerListenerBean the new container listener bean
-   */
-  public void setContainerListenerBean(ContainerListenerBean containerListenerBean) {
+  public ListThreadPoolsController(ContainerListenerBean containerListenerBean) {
     this.containerListenerBean = containerListenerBean;
   }
 
@@ -64,7 +46,12 @@ public class ListThreadPoolsController extends AbstractTomcatContainerController
   public ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    List<ThreadPool> pools = containerListenerBean.getThreadPools();
+    List<ThreadPool> pools;
+    try {
+      pools = containerListenerBean.getThreadPools();
+    } catch (ContainerListenerBean.ThreadPoolsException e) {
+      throw new RuntimeException(e);
+    }
     return new ModelAndView(getViewName()).addObject("pools", pools);
   }
 
