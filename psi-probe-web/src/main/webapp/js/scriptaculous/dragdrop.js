@@ -255,7 +255,7 @@ const Draggable = Class.create({
 
       },
       endeffect: function (element) {
-        const opacity = Object.isNumber(element._opacity) ? element._opacity : 1.0;      },
+        const opacity = Element.getOpacity(element); },
       zindex: 1000,
       revert: false,
       quiet: false,
@@ -389,7 +389,6 @@ const Draggable = Class.create({
       let p;
       if (this.options.scroll === window) {
         const windowScroll = this._getWindowScroll(this.options.scroll);
-        const p = [windowScroll.left, windowScroll.top, windowScroll.left + windowScroll.width, windowScroll.top + windowScroll.height];
       } else {
         p = Position.page(this.options.scroll).toArray();
         p[0] += this.options.scroll.scrollLeft + Position.deltaX;
@@ -717,7 +716,7 @@ const Sortable = {
       let handle = options.handles ? $(options.handles[i]) : selectedElement;
 
       if (options.handle) {
-        selectedElement = $(e).select('.' + options.handle)[0];
+        let selectedElement = $(e).select('.' + options.handle)[0];
       } else {
         selectedElement = e;
       }
@@ -762,6 +761,15 @@ const Sortable = {
     if(Element.isParent(dropon, element)) return;
 
     if(overlap > .33 && overlap < .66 && Sortable.options(dropon).tree) {
+      Sortable.mark(dropon, 'after');
+      if(dropon.nextSibling !== element) {
+       let oldParentNode = element.parentNode;
+        element.style.visibility = "hidden"; // fix gecko rendering
+        dropon.parentNode.insertBefore(element, dropon.nextSibling);
+        if(dropon.parentNode!==oldParentNode)
+          Sortable.options(oldParentNode).onChange(element);
+        Sortable.options(dropon.parentNode).onChange(element);
+      }
 
     } else if(overlap>0.5) {
       Sortable.mark(dropon, 'before');
@@ -849,7 +857,7 @@ const Sortable = {
   _tree: function(element, options, parent) {
     let children = Sortable.findElements(element, options) || [];
 
-    for (let i = 0; i < children.length; ++i) {
+    for(let i = 0; i < children.length; ++i) {
       let match = children[i].id.match(options.format);
 
       if (!match) continue;
