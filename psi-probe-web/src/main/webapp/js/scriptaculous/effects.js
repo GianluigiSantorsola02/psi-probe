@@ -37,9 +37,15 @@ Element.collectTextNodes = function(element) {
 
 Element.collectTextNodesIgnoreClass = function(element, className) {
   return $A($(element).childNodes).collect( function(node) {
-    return (node.nodeType===3 ? node.nodeValue :
-      ((node.hasChildNodes() && !Element.hasClassName(node,className)) ?
-        Element.collectTextNodesIgnoreClass(node, className) : ''));
+    let textContent;
+    if (node.nodeType === 3) {
+      textContent = node.nodeValue;
+    } else if (node.hasChildNodes() && !Element.hasClassName(node, className)) {
+      textContent = Element.collectTextNodesIgnoreClass(node, className);
+    } else {
+      textContent = '';
+    }
+    return textContent;
   }).flatten().join('');
 };
 
@@ -329,9 +335,14 @@ Effect.Tween = Class.create(Effect.Base, {
     object = Object.isString(object) ? $(object) : object;
     let args = $A(arguments), method = args.last(),
       options = args.length === 5 ? args[3] : null;
-    this.method = Object.isFunction(method) ? method.bind(object) :
-      Object.isFunction(object[method]) ? object[method].bind(object) :
-      function(value) { object[method] = value };
+        let boundMethod;
+    if (Object.isFunction(object[method])) {
+      boundMethod = object[method].bind(object);
+    } else {
+      boundMethod = function(value) {
+        object[method] = value;
+      };
+    }
     this.start(Object.extend({ from: from, to: to }, options || { }));
   },
   update: function(position) {
@@ -946,17 +957,18 @@ Effect.Morph = Class.create(Effect.Base, {
   update: function(position) {
     let style = { }, transform, i = this.transforms.length;
     while(i--)
-      style[(transform = this.transforms[i]).style] =
-        transform.unit==='color' ? '#'+
-          (Math.round(transform.originalValue[0]+
-            (transform.targetValue[0]-transform.originalValue[0])*position)).toColorPart() +
-          (Math.round(transform.originalValue[1]+
-            (transform.targetValue[1]-transform.originalValue[1])*position)).toColorPart() +
-          (Math.round(transform.originalValue[2]+
-            (transform.targetValue[2]-transform.originalValue[2])*position)).toColorPart() :
-        (transform.originalValue +
-          (transform.targetValue - transform.originalValue) * position).toFixed(3) +
-            (transform.unit === null ? '' : transform.unit);
+      const transform = this.transforms[i];
+    let value;
+    if (transform.unit === 'color') {
+      const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
+      const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
+      const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
+      value = '#' + r + g + b;
+    } else {
+      value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3) + (transform.unit === null ? '' : transform.unit);
+    }
+
+    style[transform.style] = value;
     this.element.setStyle(style, true);
   }
 });
