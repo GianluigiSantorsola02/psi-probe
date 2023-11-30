@@ -23,10 +23,13 @@ import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 @Controller
 public class ResetAppStatsController extends AbstractNoSelfContextHandlerController {
 
-  /** The stats collector. */
-  @Inject
+  /** The stats' collector. */
   private AppStatsCollectorBean statsCollector;
 
+  @Inject
+  public void statsCollector(AppStatsCollectorBean statsCollector) {
+    this.statsCollector = statsCollector;
+  }
   /**
    * Gets the stats collector.
    *
