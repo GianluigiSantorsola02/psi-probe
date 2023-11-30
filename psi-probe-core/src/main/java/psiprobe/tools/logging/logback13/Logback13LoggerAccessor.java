@@ -12,6 +12,7 @@ package psiprobe.tools.logging.logback13;
 
 import com.google.common.collect.Iterators;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ public class Logback13LoggerAccessor extends DefaultAccessor {
     }
     return appenders;
   }
+
 
   /**
    * Returns the appender of this logger with the given name.
@@ -109,6 +111,7 @@ public class Logback13LoggerAccessor extends DefaultAccessor {
    *
    * @return the level of this logger
    */
+
   public String getLevel() {
     try {
       Object level = MethodUtils.invokeMethod(getTarget(), "getLevel");
@@ -141,10 +144,10 @@ public class Logback13LoggerAccessor extends DefaultAccessor {
    *
    * @return the sifted appenders
    *
-   * @throws Exception the exception
+   * @throws SiftedAppendersException the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object> getSiftedAppenders(Object appender) throws Exception {
+  private List<Object> getSiftedAppenders(Object appender) throws SiftedAppendersException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
     if (appender instanceof ch.qos.logback.classic.sift.SiftingAppender) {
       Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
       if (tracker != null) {
@@ -152,6 +155,11 @@ public class Logback13LoggerAccessor extends DefaultAccessor {
       }
     }
     return Collections.emptyList();
+  }
+  public static class SiftedAppendersException extends Exception {
+    public SiftedAppendersException(String message) {
+      super(message);
+    }
   }
 
   /**
