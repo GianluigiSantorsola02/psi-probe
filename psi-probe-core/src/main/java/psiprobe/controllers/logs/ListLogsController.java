@@ -37,9 +37,12 @@ public class ListLogsController extends ParameterizableViewController {
   private String errorView;
 
   /** The log resolver. */
-  @Inject
   private LogResolverBean logResolver;
 
+  @Inject
+  public void logResolver(LogResolverBean logResolver) {
+    this.logResolver = logResolver;
+  }
   /**
    * Sets the error view.
    *
