@@ -254,8 +254,6 @@ const Draggable = Class.create({
       reverteffect: function (element, top_offset, left_offset) {
 
       },
-      endeffect: function (element) {
-        const opacity = Element.getOpacity(element); },
       zindex: 1000,
       revert: false,
       quiet: false,
@@ -387,9 +385,7 @@ const Draggable = Class.create({
       this.stopScrolling();
 
       let p;
-      if (this.options.scroll === window) {
-        const windowScroll = this._getWindowScroll(this.options.scroll);
-      } else {
+      if (!this.options.scroll === window) {
         p = Position.page(this.options.scroll).toArray();
         p[0] += this.options.scroll.scrollLeft + Position.deltaX;
         p[1] += this.options.scroll.scrollTop + Position.deltaY;
@@ -715,9 +711,7 @@ const Sortable = {
     (options.elements || this.findElements(element, options) || []).each( function(e,i) {
       let handle = options.handles ? $(options.handles[i]) : selectedElement;
 
-      if (options.handle) {
-        let selectedElement = $(e).select('.' + options.handle)[0];
-      } else {
+      if (!options.handle) {
         selectedElement = e;
       }
       options.draggables.push(
