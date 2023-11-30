@@ -32,31 +32,13 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
   @Inject
   private ContainerListenerBean containerListenerBean;
 
-  /**
-   * Gets the container listener bean.
-   *
-   * @return the container listener bean
-   */
-  public ContainerListenerBean getContainerListenerBean() {
-    return containerListenerBean;
-  }
-
-  /**
-   * Sets the container listener bean.
-   *
-   * @param containerListenerBean the new container listener bean
-   */
-  public void setContainerListenerBean(ContainerListenerBean containerListenerBean) {
-    this.containerListenerBean = containerListenerBean;
-  }
-
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
-    String connectorName = ServletRequestUtils.getStringParameter(request, "cn", null);
+    String connectorName;
+    connectorName = ServletRequestUtils.getStringParameter(request, "cn", null);
     Connector connector = null;
 
-    if (connectorName != null) {
       List<Connector> connectors = containerListenerBean.getConnectors(false);
       for (Connector conn : connectors) {
         if (connectorName.equals(conn.getProtocolHandler())) {
@@ -64,9 +46,11 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
           break;
         }
       }
-    }
 
-    return new ModelAndView(getViewName(), "connector", connector);
+      assert connector != null;
+
+
+      return new ModelAndView(getViewName(), "connector", connector);
   }
 
 }
