@@ -21,43 +21,18 @@
 
 // converts rgb() and #xxx to #xxxxxx format,
 // returns self (or first argument) if not convertable
-function parseColor(input) {
-  let color = '#';
-  if (input.slice(0, 4) === 'rgb(') {
-    let cols = input.slice(4, input.length - 1).split(',');
-    let i = 0;
-    do {
-      color += parseInt(cols[i]).toColorPart();
-    } while (++i < 3);
-  } else {
-    if (input.slice(0, 1) === '#') {
-      if (input.length === 4) {
-        for (let i = 1; i < 4; i++) {
-          color += (input.charAt(i) + input.charAt(i)).toLowerCase();
-        }
-      }
-      if (input.length === 7) {
-        color = input.toLowerCase();
-      }
-    }
-  }
-  return (color.length === 7 ? color : (arguments[0] || input));
-}
-
 /*--------------------------------------------------------------------------*/
 
 Element.collectTextNodes = function(element) {
-  return $A($(element).childNodes).collect( function(node) {
-    function getTextContent(node) {
-      let textContent;
-      if (node.nodeType === 3) {
-        textContent = node.nodeValue;
-      } else {
-        textContent = node.hasChildNodes() ? Element.collectTextNodes(node) : '';
-      }
-      return textContent;
+  return $A($(element).childNodes).collect(function(node) {
+    let textContent;
+    if (node.nodeType === 3) {
+      textContent = node.nodeValue;
+    } else {
+      textContent = getTextContent(node);
     }
-  }).flatten().join('');
+    return textContent;
+  });
 };
 
 Element.collectTextNodesIgnoreClass = function(element, className) {
@@ -219,8 +194,7 @@ Effect.ScopedQueue = Class.create(Enumerable, {
     effect.startOn  += timestamp;
     effect.finishOn += timestamp;
 
-    if (!effect.options.queue.limit || (this.effects.length < effect.options.queue.limit))
-      this.effects.push(effect);
+    if (!effect.options.queue.limit || this.effects.length < effect.options.queue.limit)      this.effects.push(effect);
 
     if (!this.interval)
       this.interval = setInterval(this.loop.bind(this), 15);
@@ -338,8 +312,11 @@ Effect.Parallel = Class.create(Effect.Base, {
   },
   finish: function(position) {
     this.effects.each( function(effect) {
-      effect.render(1.0);
-      effect.cancel();
+      const duration = 1.0;
+      effect.render(duration);
+      if (duration > 0) {
+        effect.cancel();
+      }
       effect.event('beforeFinish');
       if (effect.finish) effect.finish(position);
       effect.event('afterFinish');
@@ -1030,13 +1007,11 @@ Element.CSS_LENGTH = /^([+\-]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
 
 String.__parseStyleElement = document.createElement('div');
 String.prototype.parseStyle = function(){
-  let style, styleRules = $H();
-  if (Prototype.Browser.WebKit)
-    style = new Element('div',{style:this}).style;
-  else {
-    String.__parseStyleElement.innerHTML = '<div style="' + this + '"></div>';
-    style = String.__parseStyleElement.childNodes[0].style;
-  }
+  let styleRules = $H();
+  let style = Prototype.Browser.WebKit
+      ? new Element('div', { style: this })?.style
+      : (String.__parseStyleElement.innerHTML = '<div style="' + this + '"></div>',
+          String.__parseStyleElement.childNodes[0]?.style);
 
   Element.CSS_PROPERTIES.each(function(property){
     if (style[property]) styleRules.set(property, style[property]);
