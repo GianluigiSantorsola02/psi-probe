@@ -29,9 +29,12 @@ public abstract class AbstractTomcatContainerController extends AbstractControll
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /** The container wrapper. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
 
+  @Inject
+  public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
   /** The view name. */
   private String viewName;
 
