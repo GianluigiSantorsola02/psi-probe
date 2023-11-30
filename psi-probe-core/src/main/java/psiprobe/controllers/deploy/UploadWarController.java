@@ -99,7 +99,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
         }
       } catch (Exception e) {
         logger.error("Could not process file upload", e);
-        request.setAttribute("errorMessage", getMessageSourceAccessor()
+        request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.war.uploadfailure", new Object[] {e.getMessage()}));
         if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
           logger.error("Unable to delete temp war file");
@@ -164,8 +164,8 @@ public class UploadWarController extends AbstractTomcatContainerController {
                 }
                 if (discard) {
                   getContainerWrapper().getTomcatContainer().discardWorkDir(ctx);
-                  logger.info(getMessageSourceAccessor().getMessage("probe.src.log.discardwork"),
-                      name, contextName);
+                  String message = getMessageSourceAccessor().getMessage("probe.src.log.discardwork");
+                  logger.info(message, name, contextName);
                 }
                 if (compile) {
                   Summary summary = new Summary();
