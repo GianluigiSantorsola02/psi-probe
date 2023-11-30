@@ -438,45 +438,54 @@ Autocompleter.Local = Class.create(Autocompleter.Base, {
       partialChars: 2,
       ignoreCase: true,
       fullSearch: false,
-      selector: function(instance) {
-        let ret       = []; // Beginning matches
-        let partial   = []; // Inside matches
-        let entry     = instance.getToken();
-        let count     = 0;
+      selector: function highlightMatch(match, entry) {
+      return "<strong>" + match.substr(0, entry.length) + "</strong>" + match.substr(entry.length);
+    },
 
-        for (let i = 0; i < instance.options.array.length &&
-          ret.length < instance.options.choices ; i++) {
+    function, generateListItem(elem, entry, instance) {
+      let foundPos = instance.options.ignoreCase ?
+          elem.toLowerCase().indexOf(entry.toLowerCase()) :
+          elem.indexOf(entry);
 
-          let elem = instance.options.array[i];
-          let foundPos = instance.options.ignoreCase ?
-            elem.toLowerCase().indexOf(entry.toLowerCase()) :
-            elem.indexOf(entry);
+      if (foundPos === 0 && elem.length !== entry.length) {
+        return "<li>" + highlightMatch(elem, entry) + "</li>";
+      } else if (entry.length >= instance.options.partialChars &&
+          instance.options.partialSearch && foundPos !== -1) {
+        if (instance.options.fullSearch || /\s/.test(elem.substr(foundPos - 1, 1))) {
+          return "<li>" + elem.substr(0, foundPos) + highlightMatch(elem.substr(foundPos, entry.length), entry) +
+              elem.substr(foundPos + entry.length) + "</li>";
+        }
+      }
+      return null;
+    },
 
-          while (foundPos !== -1) {
-            if (foundPos === 0 && elem.length !== entry.length) {
-              ret.push("<li><strong>" + elem.substr(0, entry.length) + "</strong>" +
-                elem.substr(entry.length) + "</li>");
-              break;
-            } else if (entry.length >= instance.options.partialChars &&
-              instance.options.partialSearch && foundPos !== -1) {
-              if (instance.options.fullSearch || /\s/.test(elem.substr(foundPos-1,1))) {
-                partial.push("<li>" + elem.substr(0, foundPos) + "<strong>" +
-                  elem.substr(foundPos, entry.length) + "</strong>" + elem.substr(
-                  foundPos + entry.length) + "</li>");
-                break;
-              }
-            }
+    function, generateSelector(instance) {
+      let ret = []; // Beginning matches
+      let partial = []; // Inside matches
+      let entry = instance.getToken();
+      let count = 0;
 
-            foundPos = instance.options.ignoreCase ?
-              elem.toLowerCase().indexOf(entry.toLowerCase(), foundPos + 1) :
-              elem.indexOf(entry, foundPos + 1);
-
+      for (let i = 0; i < instance.options.array.length && ret.length < instance.options.choices; i++) {
+        let elem = instance.options.array[i];
+        let listItem = generateListItem(elem, entry, instance);
+        if (listItem !== null) {
+          if (listItem.startsWith("<li><strong>")) {
+            ret.push(listItem);
+          } else {
+            partial.push(listItem);
           }
         }
-        if (partial.length)
-          ret = ret.concat(partial.slice(0, instance.options.choices - ret.length));
-        return "<ul>" + ret.join('') + "</ul>";
       }
+
+      if (partial.length) {
+        ret = ret.concat(partial.slice(0, instance.options.choices - ret.length));
+      }
+
+      return "<ul>" + ret.join('') + "</ul>";
+    },
+
+// Usage
+    let: result = generateSelector(instance),
     }, options || { });
   }
 });
