@@ -31,9 +31,12 @@ import psiprobe.beans.stats.collectors.ConnectorStatsCollectorBean;
 public class ResetConnectorStatsController extends ParameterizableViewController {
 
   /** The collector bean. */
-  @Inject
   private ConnectorStatsCollectorBean collectorBean;
 
+  @Inject
+  public void collectorBean(ConnectorStatsCollectorBean collectorBean) {
+    this.collectorBean = collectorBean;
+  }
   /**
    * Gets the collector bean.
    *

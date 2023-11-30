@@ -32,9 +32,12 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
   private static final Logger logger = LoggerFactory.getLogger(AbstractLogHandlerController.class);
 
   /** The log resolver. */
-  @Inject
   private LogResolverBean logResolver;
 
+  @Inject
+  public void YourClassName(LogResolverBean logResolver) {
+    this.logResolver = logResolver;
+  }
   /**
    * Gets the log resolver.
    *
