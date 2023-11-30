@@ -32,6 +32,7 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -86,8 +87,6 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       File tmpFile = null;
       String contextName = null;
       String where = null;
-      boolean reload = false;
-      boolean discard = false;
 
       // parse multipart request and extract the file
       FileItemFactory factory =
@@ -108,10 +107,6 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
             contextName = fi.getString();
           } else if ("where".equals(fi.getFieldName())) {
             where = fi.getString();
-          } else if ("reload".equals(fi.getFieldName()) && "yes".equals(fi.getString())) {
-            reload = true;
-          } else if ("discard".equals(fi.getFieldName()) && "yes".equals(fi.getString())) {
-            discard = true;
           }
         }
       } catch (Exception e) {
@@ -154,20 +149,16 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   String name = auth.getName();
                   logger.info(Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.log.copyfile"), name,
                       contextName);
-                  Context context =
-                      getContainerWrapper().getTomcatContainer().findContext(contextName);
                   // Checks if DISCARD "work" directory is selected
-                  if (discard) {
-                    getContainerWrapper().getTomcatContainer().discardWorkDir(context);
-                    logger.info(getMessageSourceAccessor().getMessage("probe.src.log.discardwork"),
-                        name, contextName);
+                  MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+                  if (messageSourceAccessor != null) {
+                    String message = messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
+                    logger.info(message);
                   }
                   // Checks if RELOAD option is selected
-                  if (reload && context != null) {
-                    context.reload();
-                    request.setAttribute("reloadContext", Boolean.TRUE);
-                    logger.info(getMessageSourceAccessor().getMessage("probe.src.log.reload"), name,
-                        contextName);
+                  if (messageSourceAccessor != null) {
+                    String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.of(contextName));
+                    logger.info(message);
                   }
                 } else {
                   errMsg =
