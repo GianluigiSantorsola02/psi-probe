@@ -27,14 +27,12 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    String contextName = ServletRequestUtils.getStringParameter(request, "webapp", null);
-    Context context = null;
-    if (contextName != null) {
+    String contextName = ServletRequestUtils.getStringParameter(request, "webapp", "");
+    Context context;
       contextName = getContainerWrapper().getTomcatContainer().formatContextName(contextName);
       context = getContainerWrapper().getTomcatContainer().findContext(contextName);
-    }
 
-    if (context != null || isContextOptional()) {
+      if (context != null || isContextOptional()) {
       return handleContext(contextName, context, request, response);
     }
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
@@ -63,8 +61,27 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
    *
    * @return the model and view
    *
-   * @throws Exception the exception
    */
-  protected abstract ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+
+// ...
+
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws MyCustomException {
+    // Your code logic here
+
+    if (context == null) {
+      throw new MyCustomException("Custom exception message");
+    }
+
+    return null;
+  }
+  public static class MyCustomException extends Exception {
+
+    public MyCustomException(String message) {
+
+
+      super(message);
+    }
+  }
 }
