@@ -1,15 +1,4 @@
-<%--
 
-    Licensed under the GPL License. You may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-
-    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
-    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
-    PURPOSE.
-
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
@@ -74,10 +63,10 @@
                         <dt><label for="war"><spring:message code="probe.jsp.deployment.s1.file.label"/> <em>*</em></label></dt>
                         <dd><input id="war" type="file" name="war" size="90"/></dd>
                         <dt><label for="context"><spring:message code="probe.jsp.deployment.s2.context.label"/>&#160;</label></dt>
-                        <dd><input id="context" type="text" name="context" size="90"/></dd>
+                        <dd><label for="context1"></label><input id="context1" type="text" name="context" size="90"/></dd>
                         <dt><span class="cb"><input id="update" type="checkbox" name="update" value="yes"/><label for="update">&#160;
                                     <spring:message code="probe.jsp.deployment.s1.update.label"/></label></span></dt>
-                        <dt><span class="cb"><input id="discard" type="checkbox" name="discard" value="yes"/><label for="discard">&#160;
+                        <dt><span class="cb"><label for="discard1"></label><input id="discard1" type="checkbox" name="discard" value="yes"/><label for="discard">&#160;
                                     <spring:message code="probe.jsp.deployment.s1.discard.label"/></label></span></dt>
                         <dt><span class="cb"><input id="compile" type="checkbox" name="compile" value="yes"/><label for="compile">&#160;
                                     <spring:message code="probe.jsp.deployment.s1.compile.label"/></label></span></dt>
