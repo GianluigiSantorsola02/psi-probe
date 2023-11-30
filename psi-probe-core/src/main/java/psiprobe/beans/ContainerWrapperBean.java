@@ -47,7 +47,7 @@ public class ContainerWrapperBean {
   private List<String> adapterClasses;
 
   @Inject
-  public void Adapter(List<String> adapterClasses) {
+  public void adapter(List<String> adapterClasses) {
     this.adapterClasses = adapterClasses;
   }
   /** The resource resolver. */
@@ -58,7 +58,7 @@ public class ContainerWrapperBean {
   private Map<String, ResourceResolver> resourceResolvers;
 
   @Inject
-  public void Resolvers(Map<String, ResourceResolver> resourceResolvers) {
+  public void resolvers(Map<String, ResourceResolver> resourceResolvers) {
     this.resourceResolvers = resourceResolvers;
   }
 
