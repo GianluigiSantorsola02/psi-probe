@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.beans.JvmMemoryInfoAccessorBean;
 import psiprobe.beans.stats.listeners.StatsCollectionListener;
 import psiprobe.model.jmx.MemoryPool;
@@ -28,9 +29,13 @@ import psiprobe.tools.TimeExpression;
 public class JvmMemoryStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The jvm memory info accessor. */
-  @Inject
+  private ContainerWrapperBean containerWrapper;
   private JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor;
 
+  @Inject
+  public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
   /**
    * Gets the jvm memory info accessor.
    *
@@ -75,4 +80,11 @@ public class JvmMemoryStatsCollectorBean extends AbstractStatsCollectorBean {
     super.setListeners(listeners);
   }
 
+  public ContainerWrapperBean getContainerWrapper() {
+    return containerWrapper;
+  }
+
+  public void setContainerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
 }

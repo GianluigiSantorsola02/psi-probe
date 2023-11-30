@@ -33,9 +33,12 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
   private static final Logger logger = LoggerFactory.getLogger(DatasourceStatsCollectorBean.class);
 
   /** The container wrapper. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
 
+  @Inject
+  public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
   /**
    * Gets the container wrapper.
    *
