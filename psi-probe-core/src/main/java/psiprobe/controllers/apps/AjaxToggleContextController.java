@@ -17,6 +17,7 @@ import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.controllers.AbstractContextHandlerController;
+
+import java.util.Locale;
 
 /**
  * Stops a web application.
@@ -54,9 +57,9 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
         if (context.getState().isAvailable()) {
           logger.info("{} requested STOP of {}", request.getRemoteAddr(), contextName);
           getContainerWrapper().getTomcatContainer().stop(contextName);
-          if (getMessageSourceAccessor() != null) {
-            logger.info(getMessageSourceAccessor().getMessage("probe.src.log.stop"), name,
-                contextName);
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor != null) {
+            messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
           } else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
@@ -64,10 +67,10 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
         } else {
           logger.info("{} requested START of {}", request.getRemoteAddr(), contextName);
           getContainerWrapper().getTomcatContainer().start(contextName);
-          if (getMessageSourceAccessor() != null) {
-            logger.info(getMessageSourceAccessor().getMessage("probe.src.log.start"), name,
-                contextName);
-          } else {
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor != null) {
+            messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
+          }  else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
           }

@@ -17,6 +17,7 @@ import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -53,9 +54,9 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         // get username logger
         String name = auth.getName();
-        if (getMessageSourceAccessor() != null) {
-          logger.info(getMessageSourceAccessor().getMessage("probe.src.log.reload"), name,
-              contextName);
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          logger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
         } else {
           // Handle the case when getMessageSourceAccessor() returns null
           logger.error("Error: getMessageSourceAccessor() returned null!");

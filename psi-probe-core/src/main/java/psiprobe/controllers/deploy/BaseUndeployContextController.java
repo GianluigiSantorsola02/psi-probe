@@ -25,6 +25,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import psiprobe.controllers.AbstractContextHandlerController;
 
+import java.util.Locale;
+
 /**
  * Undeploys a web application.
  */
@@ -69,8 +71,9 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
       String name = auth.getName();
         messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        logger.info(messageSourceAccessor.getMessage("probe.src.log.undeploy"), name, contextName);
-      } else {
+        String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.of(contextName));
+        logger.info(message);
+      }else {
         logger.info("Failed to get message source accessor. Undeploying {} context.", contextName);
       }
     } catch (Exception e) {
@@ -82,15 +85,5 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
     return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));
   }
 
-  /**
-   * Execute action.
-   *
-   * @param contextName the context name
-   *
-   * @throws Exception the exception
-   */
-  protected void executeAction(String contextName) throws Exception {
-    // Not Implemented
-  }
 
 }
