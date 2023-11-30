@@ -12,6 +12,7 @@ package psiprobe.tools.logging.logback;
 
 import com.google.common.collect.Iterators;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import java.util.List;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import psiprobe.tools.logging.DefaultAccessor;
+import psiprobe.tools.logging.logback13.Logback13LoggerAccessor;
 
 /**
  * A wrapper for a Logback logger.
@@ -51,8 +53,10 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
           getTarget().getClass().getName(), e);
     } catch (Exception e) {
       logger.error("{}#getAppenders() failed", getTarget().getClass().getName(), e);
+    } catch (InvalidAppenderTypeException e) {
+        throw new RuntimeException(e);
     }
-    return appenders;
+      return appenders;
   }
 
   /**
@@ -144,19 +148,22 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
    *
    * @return the sifted appenders
    *
-   * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object> getSiftedAppenders(Object appender) throws Exception {
+  private List<Object> getSiftedAppenders(Object appender) throws Logback13LoggerAccessor.SiftedAppendersException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InvalidAppenderTypeException {
     if (appender instanceof ch.qos.logback.classic.sift.SiftingAppender) {
       Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
       if (tracker != null) {
-        return (List<Object>) MethodUtils.invokeMethod(tracker, "allComponents");
+        try {
+          return (List<Object>) MethodUtils.invokeMethod(tracker, "allComponents");
+        } catch (Exception e) {
+          throw new Logback13LoggerAccessor.SiftedAppendersException("Error retrieving sifted appenders");
+        }
       }
     }
-    return Collections.emptyList();
+    // Handling the case when the appender is not an instance of SiftingAppender
+    throw new InvalidAppenderTypeException("Invalid appender type");
   }
-
   /**
    * Wrap and add appender.
    *
@@ -193,4 +200,8 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
     return null;
   }
 
+  private static class InvalidAppenderTypeException extends Throwable {
+    public InvalidAppenderTypeException(String invalidAppenderType) {
+    }
+  }
 }
