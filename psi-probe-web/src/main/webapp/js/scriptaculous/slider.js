@@ -13,9 +13,10 @@
 // Copyright (c) 2005-2010 Marty Haught, Thomas Fuchs
 //
 // script.aculo.us is freely distributable under the terms of an MIT-style license.
+const Control = { };
 // For details, see the script.aculo.us web site: https://script.aculo.us/
 
-if (!Control) var Control = { };
+if (!Control)
 
 // options:
 //  axis: 'vertical', or 'horizontal' (default)
@@ -23,102 +24,17 @@ if (!Control) var Control = { };
 // callbacks:
 //  onChange(value)
 //  onSlide(value)
+
+
+this.allowedValues = undefined;
 Control.Slider = Class.create({
-  initialize: function(handle, track, options) {
-    var slider = this;
-
-    if (Object.isArray(handle)) {
-      this.handles = handle.collect( function(e) { return $(e) });
-    } else {
-      this.handles = [$(handle)];
-    }
-
-    this.track   = $(track);
-    this.options = options || { };
-
-    this.axis      = this.options.axis || 'horizontal';
-    this.increment = this.options.increment || 1;
-    this.step      = parseInt(this.options.step || '1');
-    this.range     = this.options.range || $R(0,1);
-
-    this.value     = 0; // assure backwards compat
-    this.values    = this.handles.map( function() { return 0 });
-    this.spans     = this.options.spans ? this.options.spans.map(function(s){ return $(s) }) : false;
-    this.options.startSpan = $(this.options.startSpan || null);
-    this.options.endSpan   = $(this.options.endSpan || null);
-
-    this.restricted = this.options.restricted || false;
-
-    this.maximum   = this.options.maximum || this.range.end;
-    this.minimum   = this.options.minimum || this.range.start;
-
-    // Will be used to align the handle onto the track, if necessary
-    this.alignX = parseInt(this.options.alignX || '0');
-    this.alignY = parseInt(this.options.alignY || '0');
-
-    this.trackLength = this.maximumOffset() - this.minimumOffset();
-
-    this.handleLength = this.isVertical() ?
-      (this.handles[0].offsetHeight != 0 ?
-        this.handles[0].offsetHeight : this.handles[0].style.height.replace(/px$/,"")) :
-      (this.handles[0].offsetWidth != 0 ? this.handles[0].offsetWidth :
-        this.handles[0].style.width.replace(/px$/,""));
-
-    this.active   = false;
-    this.dragging = false;
-    this.disabled = false;
-
-    if (this.options.disabled) this.setDisabled();
-
-    // Allowed values array
-    this.allowedValues = this.options.values ? this.options.values.sortBy(Prototype.K) : false;
-    if (this.allowedValues) {
-      this.minimum = this.allowedValues.min();
-      this.maximum = this.allowedValues.max();
-    }
-
-    this.eventMouseDown = this.startDrag.bindAsEventListener(this);
-    this.eventMouseUp   = this.endDrag.bindAsEventListener(this);
-    this.eventMouseMove = this.update.bindAsEventListener(this);
-
-    // Initialize handles in reverse (make sure first handle is active)
-    this.handles.each( function(h,i) {
-      i = slider.handles.length-1-i;
-      slider.setValue(parseFloat(
-        (Object.isArray(slider.options.sliderValue) ?
-          slider.options.sliderValue[i] : slider.options.sliderValue) ||
-         slider.range.start), i);
-      h.makePositioned().observe("mousedown", slider.eventMouseDown);
-    });
-
-    this.track.observe("mousedown", this.eventMouseDown);
-    document.observe("mouseup", this.eventMouseUp);
-    document.observe("mousemove", this.eventMouseMove);
-
-    this.initialized = true;
-  },
-  dispose: function() {
-    var slider = this;
-    Event.stopObserving(this.track, "mousedown", this.eventMouseDown);
-    Event.stopObserving(document, "mouseup", this.eventMouseUp);
-    Event.stopObserving(document, "mousemove", this.eventMouseMove);
-    this.handles.each( function(h) {
-      Event.stopObserving(h, "mousedown", slider.eventMouseDown);
-    });
-  },
-  setDisabled: function(){
-    this.disabled = true;
-  },
-  setEnabled: function(){
-    this.disabled = false;
-  },
   getNearestValue: function(value){
     if (this.allowedValues){
       if (value >= this.allowedValues.max()) return(this.allowedValues.max());
       if (value <= this.allowedValues.min()) return(this.allowedValues.min());
 
-      var offset = Math.abs(this.allowedValues[0] - value);
-      var newValue = this.allowedValues[0];
+      let offset = Math.abs(this.allowedValues[0] - value);
+      let newValue = this.allowedValues[0];
       this.allowedValues.each( function(v) {
         var currentOffset = Math.abs(v - value);
         if (currentOffset <= offset){
@@ -178,16 +94,16 @@ Control.Slider = Class.create({
   },
   maximumOffset: function(){
     return(this.isVertical() ?
-      (this.track.offsetHeight != 0 ? this.track.offsetHeight :
+      (this.track.offsetHeight !== 0 ? this.track.offsetHeight :
         this.track.style.height.replace(/px$/,"")) - this.alignY :
-      (this.track.offsetWidth != 0 ? this.track.offsetWidth :
+      (this.track.offsetWidth !== 0 ? this.track.offsetWidth :
         this.track.style.width.replace(/px$/,"")) - this.alignX);
   },
   isVertical:  function(){
-    return (this.axis == 'vertical');
+    return (this.axis === 'vertical');
   },
   drawSpans: function() {
-    var slider = this;
+    const slider = this;
     if (this.spans)
       $R(0, this.spans.length-1).each(function(r) { slider.setSpan(slider.spans[r], slider.getRange(r)) });
     if (this.options.startSpan)
@@ -211,6 +127,8 @@ Control.Slider = Class.create({
     Element.addClassName(this.activeHandle, 'selected');
   },
   startDrag: function(event) {
+    var offsets  = this.track.cumulativeOffset();
+
     if (Event.isLeftClick(event)) {
       if (!this.disabled){
         this.active = true;
@@ -218,21 +136,19 @@ Control.Slider = Class.create({
         var handle = Event.element(event);
         var pointer  = [Event.pointerX(event), Event.pointerY(event)];
         var track = handle;
-        if (track==this.track) {
-          var offsets  = this.track.cumulativeOffset();
+        if (track===this.track) {
           this.event = event;
           this.setValue(this.translateToValue(
            (this.isVertical() ? pointer[1]-offsets[1] : pointer[0]-offsets[0])-(this.handleLength/2)
           ));
-          var offsets  = this.activeHandle.cumulativeOffset();
           this.offsetX = (pointer[0] - offsets[0]);
           this.offsetY = (pointer[1] - offsets[1]);
         } else {
           // find the handle (prevents issues with Safari)
-          while((this.handles.indexOf(handle) == -1) && handle.parentNode)
+          while((this.handles.indexOf(handle) === -1) && handle.parentNode)
             handle = handle.parentNode;
 
-          if (this.handles.indexOf(handle)!=-1) {
+          if (this.handles.indexOf(handle)!==-1) {
             this.activeHandle    = handle;
             this.activeHandleIdx = this.handles.indexOf(this.activeHandle);
             this.updateStyles();
@@ -266,13 +182,13 @@ Control.Slider = Class.create({
   },
   endDrag: function(event) {
     if (this.active && this.dragging) {
-      this.finishDrag(event, true);
+      this.finishDrag(event);
       Event.stop(event);
     }
     this.active = false;
     this.dragging = false;
   },
-  finishDrag: function(event, success) {
+  finishDrag: function(event) {
     this.active = false;
     this.dragging = false;
     this.updateFinished();
