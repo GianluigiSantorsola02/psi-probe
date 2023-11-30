@@ -21,19 +21,28 @@
 
 // converts rgb() and #xxx to #xxxxxx format,
 // returns self (or first argument) if not convertable
-String.prototype.parseColor = function() {
+function parseColor(input) {
   let color = '#';
-  if (this.slice(0,4) === 'rgb(') {
-    let cols = this.slice(4,this.length-1).split(',');
-    let i=0; do { color += parseInt(cols[i]).toColorPart() } while (++i<3);
+  if (input.slice(0, 4) === 'rgb(') {
+    let cols = input.slice(4, input.length - 1).split(',');
+    let i = 0;
+    do {
+      color += parseInt(cols[i]).toColorPart();
+    } while (++i < 3);
   } else {
-    if (this.slice(0,1) === '#') {
-      if (this.length===4) for(let i=1; i<4; i++) color += (this.charAt(i) + this.charAt(i)).toLowerCase();
-      if (this.length===7) color = this.toLowerCase();
+    if (input.slice(0, 1) === '#') {
+      if (input.length === 4) {
+        for (let i = 1; i < 4; i++) {
+          color += (input.charAt(i) + input.charAt(i)).toLowerCase();
+        }
+      }
+      if (input.length === 7) {
+        color = input.toLowerCase();
+      }
     }
   }
-  return (color.length===7 ? color : (arguments[0] || this));
-};
+  return (color.length === 7 ? color : (arguments[0] || input));
+}
 
 /*--------------------------------------------------------------------------*/
 
