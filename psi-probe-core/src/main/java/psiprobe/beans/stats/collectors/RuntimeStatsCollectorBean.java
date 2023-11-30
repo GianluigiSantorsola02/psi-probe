@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import psiprobe.beans.JvmMemoryInfoAccessorBean;
 import psiprobe.beans.RuntimeInfoAccessorBean;
 import psiprobe.model.jmx.RuntimeInformation;
 import psiprobe.tools.TimeExpression;
@@ -24,9 +25,13 @@ import psiprobe.tools.TimeExpression;
 public class RuntimeStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The runtime info accessor bean. */
-  @Inject
+  private JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor;
   private RuntimeInfoAccessorBean runtimeInfoAccessorBean;
 
+  @Inject
+  public void YourClassName(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor) {
+    this.jvmMemoryInfoAccessor = jvmMemoryInfoAccessor;
+  }
   /**
    * Gets the runtime info accessor bean.
    *
@@ -76,4 +81,11 @@ public class RuntimeStatsCollectorBean extends AbstractStatsCollectorBean {
     super.setMaxSeries((int) TimeExpression.dataPoints(period, span));
   }
 
+  public JvmMemoryInfoAccessorBean getJvmMemoryInfoAccessor() {
+    return jvmMemoryInfoAccessor;
+  }
+
+  public void setJvmMemoryInfoAccessor(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessor) {
+    this.jvmMemoryInfoAccessor = jvmMemoryInfoAccessor;
+  }
 }
