@@ -35,12 +35,20 @@ public class AppStatsCollectorBean extends AbstractStatsCollectorBean
   private static final Logger logger = LoggerFactory.getLogger(AppStatsCollectorBean.class);
 
   /** The container wrapper. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
 
-  /** The servlet context. */
   @Inject
+  public void CointanerWrapper(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
+
+  /** The servlet context. */
   private ServletContext servletContext;
+
+  @Inject
+  public void servletContext(ServletContext servletContext) {
+    this.servletContext = servletContext;
+  }
 
   /** The self ignored. */
   private boolean selfIgnored;
