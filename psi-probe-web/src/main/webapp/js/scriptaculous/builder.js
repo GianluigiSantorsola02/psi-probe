@@ -37,54 +37,64 @@ var Builder = {
   node: function(elementName) {
     elementName = elementName.toUpperCase();
 
+    var element;
+
     // try innerHTML approach
     var parentTag = this.NODEMAP[elementName] || 'div';
     var parentElement = document.createElement(parentTag);
     try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
       parentElement.innerHTML = "<" + elementName + "></" + elementName + ">";
     } catch(e) {}
-    var element = parentElement.firstChild || null;
+    element = parentElement.firstChild || null;
 
     // see if browser added wrapping tags
-    if(element && (element.tagName.toUpperCase() != elementName))
+    if(element && (element.tagName.toUpperCase() !== elementName)) {
       element = element.getElementsByTagName(elementName)[0];
+    }
 
     // fallback to createElement approach
-    if(!element) element = document.createElement(elementName);
+    if(!element) {
+      element = document.createElement(elementName);
+    }
 
     // abort if nothing could be created
-    if(!element) return;
+    if(!element) {
+      return;
+    }
 
     // attributes (or text)
-    if(arguments[1])
+    if(arguments[1]) {
       if(this._isStringOrNumber(arguments[1]) ||
-        (arguments[1] instanceof Array) ||
-        arguments[1].tagName) {
-          this._children(element, arguments[1]);
-        } else {
-          var attrs = this._attributes(arguments[1]);
-          if(attrs.length) {
-            try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
-              parentElement.innerHTML = "<" +elementName + " " +
+          (arguments[1] instanceof Array) ||
+          arguments[1].tagName) {
+        this._children(element, arguments[1]);
+      } else {
+        var attrs = this._attributes(arguments[1]);
+        if(attrs.length) {
+          try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
+            parentElement.innerHTML = "<" +elementName + " " +
                 attrs + "></" + elementName + ">";
-            } catch(e) {}
-            element = parentElement.firstChild || null;
-            // workaround firefox 1.0.X bug
-            if(!element) {
-              element = document.createElement(elementName);
-              for(attr in arguments[1])
-                element[attr == 'class' ? 'className' : attr] = arguments[1][attr];
-            }
-            if(element.tagName.toUpperCase() != elementName)
-              element = parentElement.getElementsByTagName(elementName)[0];
+          } catch(e) {}
+          element = parentElement.firstChild || null;
+          // workaround firefox 1.0.X bug
+          if(!element) {
+            element = document.createElement(elementName);
+            for(let attr in arguments[1])
+              element[attr === 'class' ? 'className' : attr] = arguments[1][attr];
+          }
+          if(element.tagName.toUpperCase() !== elementName) {
+            element = parentElement.getElementsByTagName(elementName)[0];
           }
         }
+      }
+    }
 
     // text, or array of children
-    if(arguments[2])
+    if(arguments[2]) {
       this._children(element, arguments[2]);
+    }
 
-     return $(element);
+    return $(element);
   },
   _text: function(text) {
      return document.createTextNode(text);
