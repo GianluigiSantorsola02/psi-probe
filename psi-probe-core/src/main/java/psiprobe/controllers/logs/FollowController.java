@@ -12,6 +12,7 @@ package psiprobe.controllers.logs;
 
 import java.io.File;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,7 +44,7 @@ public class FollowController extends AbstractLogHandlerController {
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
       LogDestination logDest) throws Exception {
 
-    ModelAndView mv = new ModelAndView(getViewName());
+    ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()));
     File file = logDest.getFile();
 
     if (file.exists()) {
