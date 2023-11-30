@@ -441,7 +441,7 @@ const Draggable = Class.create({
 
     const d = this.currentDelta();
     if (revert && this.options.reverteffect) {
-      if (dropped == 0 || revert !== 'failure')
+      if (dropped == 0 || revert !== 'failure') //NON CAMBIARE dropped==0 CON dropped===0
         this.options.reverteffect(this.element,
             d[1] - this.delta[1], d[0] - this.delta[0]);
     } else {
@@ -495,8 +495,7 @@ const Draggable = Class.create({
     if (this.options.snap) {
       if (Object.isFunction(this.options.snap)) {
         p = this.options.snap(p[0], p[1], this);
-      } else {
-        if (Object.isArray(this.options.snap)) {
+      } else if (Object.isArray(this.options.snap)) {
           p = p.map(function (v, i) {
             return (v / this.options.snap[i]).round() * this.options.snap[i]
           }.bind(this));
@@ -506,7 +505,7 @@ const Draggable = Class.create({
           }.bind(this));
         }
       }
-    }
+
 
     const style = this.element.style;
     if ((!this.options.constraint) || (this.options.constraint === 'horizontal'))
@@ -593,7 +592,7 @@ const Draggable = Class.create({
 Draggable._dragging = { };
 
 const Sortable = {
-  SERIALIZE_RULE: /^[^_\-]([A-Za-z0-9\-_]*)(.*)$/,
+  SERIALIZE_RULE: /^[^_]([A-Za-z0-9_]*)(.*)$/,
 
   sortables: { },
 
@@ -715,8 +714,13 @@ const Sortable = {
     }
 
     (options.elements || this.findElements(element, options) || []).each( function(e,i) {
-      let handle = options.handles ? $(options.handles[i]) :
-        (options.handle ? $(e).select('.' + options.handle)[0] : e);
+      let handle = options.handles ? $(options.handles[i]) : selectedElement;
+
+      if (options.handle) {
+        selectedElement = $(e).select('.' + options.handle)[0];
+      } else {
+        selectedElement = e;
+      }
       options.draggables.push(
         new Draggable(e, Object.extend(options_for_draggable, { handle: handle })));
       Droppables.add(e, options_for_droppable);
@@ -751,8 +755,10 @@ const Sortable = {
       element, options.only, !!options.tree, options.treeTag);
   },
 
+  let: oldParentNode,
+
   onHover: function(element, dropon, overlap) {
-    let oldParentNode;
+
     if(Element.isParent(dropon, element)) return;
 
     if(overlap > .33 && overlap < .66 && Sortable.options(dropon).tree) {
@@ -771,7 +777,6 @@ const Sortable = {
       Sortable.mark(dropon, 'after');
       let nextElement = dropon.nextSibling || null;
       if(nextElement !== element) {
-        oldParentNode = element.parentNode;
         element.style.visibility = "hidden"; // fix gecko rendering
         dropon.parentNode.insertBefore(element, nextElement);
         if(dropon.parentNode!==oldParentNode)
@@ -932,12 +937,12 @@ const Sortable = {
     element = $(element);
     let options = Object.extend(Sortable.options(element), arguments[1] || { });
     let name = encodeURIComponent(
-      (arguments[1] && arguments[1].name) ? arguments[1].name : element.id);
+        (arguments[1]?.name) ? arguments[1].name : element.id);
 
     if (options.tree) {
       return Sortable.tree(element, arguments[1]).children.map( function (item) {
         return [name + Sortable._constructIndex(item) + "[id]=" +
-                encodeURIComponent(item.id)].concat(item.children.map(arguments.callee));
+        encodeURIComponent(item.id)].concat(item.children.map(this));
       }).flatten().join('&');
     } else {
       return Sortable.sequence(element, arguments[1]).map( function(item) {
