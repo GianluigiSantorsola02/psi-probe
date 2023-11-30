@@ -35,9 +35,12 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   private List<String> filterOutKeys = new ArrayList<>();
 
   /** The runtime info accessor. */
-  @Inject
   private RuntimeInfoAccessorBean runtimeInfoAccessor;
 
+  @Inject
+  public void runtimeInfoAccessor(RuntimeInfoAccessorBean runtimeInfoAccessor) {
+    this.runtimeInfoAccessor = runtimeInfoAccessor;
+  }
   /** The collection period. */
   private long collectionPeriod;
 
