@@ -16,8 +16,7 @@
 // For details, see the script.aculo.us web site: https://script.aculo.us/
 
 if(Object.isUndefined(Effect))
-  throw("dragdrop.js requires including script.aculo.us' effects.js library");
-
+  throw new Error("dragdrop.js requires including script.aculo.us' effects.js library");
 const Droppables = {
   drops: [],
 
@@ -253,7 +252,6 @@ const Draggable = Class.create({
     const defaults = {
       handle: false,
       reverteffect: function (element, top_offset, left_offset) {
-        const dur = Math.sqrt(Math.abs(top_offset ^ 2) + Math.abs(left_offset ^ 2)) * 0.02;
 
       },
       endeffect: function (element) {
