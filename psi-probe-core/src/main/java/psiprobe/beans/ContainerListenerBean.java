@@ -16,32 +16,20 @@ import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.record.Country;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import javax.inject.Inject;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.MalformedObjectNameException;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.management.RuntimeOperationsException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import psiprobe.model.Connector;
 import psiprobe.model.RequestProcessor;
 import psiprobe.model.ThreadPool;
 import psiprobe.model.jmx.ThreadPoolObjectName;
 import psiprobe.tools.JmxTools;
+
+import javax.management.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URISyntaxException;
+import java.util.*;
 
 /**
  * This class interfaces Tomcat JMX functionality to read connection status. The class essentially
@@ -64,11 +52,6 @@ public class ContainerListenerBean implements NotificationListener {
 
   /** Used to obtain required {@link MBeanServer} instance. */
   private ContainerWrapperBean containerWrapper;
-
-  @Inject
-  public void YourClassName(ContainerWrapperBean containerWrapper) {
-    this.containerWrapper = containerWrapper;
-  }
 
   public ContainerListenerBean(ContainerWrapperBean containerWrapper) {
     this.containerWrapper = containerWrapper;
