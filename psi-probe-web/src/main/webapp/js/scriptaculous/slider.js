@@ -24,7 +24,7 @@ if (!Control)
 // callbacks:
 //  onChange(value)
 //  onSlide(value)
-let  allowerValues = undefined;
+let  allowerValues ;
 
 let offsets;
 Control.Slider = Class.create({
