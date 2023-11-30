@@ -1,56 +1,4 @@
-/*
- * Licensed under the GPL License. You may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE.
- */
 
-/* ===========================================================
- * JFreeChart : a free chart library for the Java(tm) platform
- * ===========================================================
- *
- * (C) Copyright 2000-2016, by Object Refinery Limited and Contributors.
- *
- * Project Info:  http://www.jfree.org/jfreechart/index.html
- *
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- * [Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.]
- *
- * ---------------------
- * XYLine3DRenderer.java
- * ---------------------
- * (C) Copyright 2005-2008, by Object Refinery Limited.
- *
- * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Object Refinery Limited);
- *
- * Changes
- * -------
- * 14-Jan-2005 : Added standard header (DG);
- * 01-May-2007 : Fixed equals() and serialization bugs (DG);
- * 15-Sep-2019 : Copied from original Jfreechart as code obsoleted and necessary for visuals
- *               in Psi Probe without extra rework (JWL);
- *
- */
 package psiprobe.jfreechart;
 
 import java.awt.Color;
@@ -149,17 +97,6 @@ public class XYLine3DRenderer extends XYLineAndShapeRenderer implements Effect3D
    */
   public Paint getWallPaint() {
     return this.wallPaint;
-  }
-
-  /**
-   * Sets the paint used to hightlight the left and bottom walls in the plot background and sends a
-   * {@link RendererChangeEvent} to all registered listeners.
-   *
-   * @param paint the paint.
-   */
-  public void setWallPaint(Paint paint) {
-    this.wallPaint = paint;
-    fireChangeEvent();
   }
 
   /**

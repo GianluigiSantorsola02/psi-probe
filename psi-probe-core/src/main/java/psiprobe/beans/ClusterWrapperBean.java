@@ -88,10 +88,6 @@ public class ClusterWrapperBean {
           JmxTools.getLongAttr(mbeanServer, receiverOName, "nrOfMsgsReceived"));
       cluster.setTotalReceivedBytes(
           JmxTools.getLongAttr(mbeanServer, receiverOName, "totalReceivedBytes"));
-      // cluster.setTcpSelectorTimeout(
-      // JmxTools.getLongAttr(mbeanServer, receiverOName, "tcpSelectorTimeout"));
-      // cluster.setTcpThreadCount(
-      // JmxTools.getIntAttr(mbeanServer, receiverOName, "tcpThreadCount"));
 
       cluster.setSenderAckTimeout(JmxTools.getLongAttr(mbeanServer, senderOName, "ackTimeout"));
       cluster.setSenderAutoConnect((Boolean) mbeanServer.getAttribute(senderOName, "autoConnect"));
@@ -106,18 +102,7 @@ public class ClusterWrapperBean {
         ObjectName[] senders =
             (ObjectName[]) mbeanServer.getAttribute(senderOName, "senderObjectNames");
         for (ObjectName localSenderOName : senders) {
-          ClusterSender sender;
-
-          if ("pooled".equals(cluster.getSenderReplicationMode())) {
-            sender = new PooledClusterSender();
-          } else if ("synchronous".equals(cluster.getSenderReplicationMode())) {
-            sender = new SyncClusterSender();
-          } else if ("asynchronous".equals(cluster.getSenderReplicationMode())
-              || "fastasyncqueue".equals(cluster.getSenderReplicationMode())) {
-            sender = new AsyncClusterSender();
-          } else {
-            sender = new ClusterSender();
-          }
+          ClusterSender sender = getClusterSender(cluster);
 
           sender.setAddress(JmxTools.getStringAttr(mbeanServer, localSenderOName, "address"));
           sender.setPort(JmxTools.getIntAttr(mbeanServer, localSenderOName, "port"));
@@ -175,6 +160,22 @@ public class ClusterWrapperBean {
       }
     }
     return cluster;
+  }
+
+  private static ClusterSender getClusterSender(Cluster cluster) {
+    ClusterSender sender;
+
+    if ("pooled".equals(cluster.getSenderReplicationMode())) {
+      sender = new PooledClusterSender();
+    } else if ("synchronous".equals(cluster.getSenderReplicationMode())) {
+      sender = new SyncClusterSender();
+    } else if ("asynchronous".equals(cluster.getSenderReplicationMode())
+        || "fastasyncqueue".equals(cluster.getSenderReplicationMode())) {
+      sender = new AsyncClusterSender();
+    } else {
+      sender = new ClusterSender();
+    }
+    return sender;
   }
 
 }

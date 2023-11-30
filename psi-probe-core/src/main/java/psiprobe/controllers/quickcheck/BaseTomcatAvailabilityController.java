@@ -19,14 +19,12 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
 import org.springframework.web.servlet.ModelAndView;
 
-import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.DataSourceInfo;
@@ -36,28 +34,6 @@ import psiprobe.model.TomcatTestReport;
  * "Quick check" base controller.
  */
 public class BaseTomcatAvailabilityController extends AbstractTomcatContainerController {
-
-  /** The container listener bean. */
-  @Inject
-  private ContainerListenerBean containerListenerBean;
-
-  /**
-   * Gets the container listener bean.
-   *
-   * @return the container listener bean
-   */
-  public ContainerListenerBean getContainerListenerBean() {
-    return containerListenerBean;
-  }
-
-  /**
-   * Sets the container listener bean.
-   *
-   * @param containerListenerBean the new container listener bean
-   */
-  public void setContainerListenerBean(ContainerListenerBean containerListenerBean) {
-    this.containerListenerBean = containerListenerBean;
-  }
 
   @Override
   public ModelAndView handleRequestInternal(HttpServletRequest request,
@@ -154,21 +130,6 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
     tomcatTestReport.setTestDuration(System.currentTimeMillis() - start);
 
     long maxServiceTime = 0;
-
-    // TODO JWL 12/11/2016 - Why is this commented out? If not needed, delete it.
-    // check the maximum execution time
-    // List<ThreadPool> pools = containerListenerBean.getThreadPools();
-    // for (int iPool = 0; iPool < pools.size(); iPool++) {
-    // ThreadPool threadPool = (ThreadPool) pools.get(iPool);
-    // List<RequestProcessor> threads = threadPool.getRequestProcessors();
-    // for (int iThread = 0; iThread < threads.size(); iThread++) {
-    // RequestProcessor rp = (RequestProcessor) threads.get(iThread);
-    // if (rp.getStage() == 3) {
-    // // the request processor is in SERVICE state
-    // maxServiceTime = Math.max(maxServiceTime, rp.getProcessingTime());
-    // }
-    // }
-    // }
 
     tomcatTestReport.setMaxServiceTime(maxServiceTime);
 
