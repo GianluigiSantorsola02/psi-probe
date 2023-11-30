@@ -58,8 +58,12 @@ public class ResourceResolverBean implements ResourceResolver {
       DEFAULT_GLOBAL_RESOURCE_PREFIX + "java:comp/env/";
 
   /** The datasource mappers. */
-  @Inject
   private List<String> datasourceMappers;
+
+  @Inject
+  public void dataSource(List<String> datasourceMappers) {
+    this.datasourceMappers = datasourceMappers;
+  }
 
   @Override
   public List<ApplicationResource> getApplicationResources() throws NamingException {
@@ -167,8 +171,7 @@ public class ResourceResolverBean implements ResourceResolver {
         }
       } catch (Exception e) {
         resource.setLookedUp(false);
-        dataSourceInfo = null;
-        logger.error("Failed to lookup: '{}'", resource.getName(), e);
+          logger.error("Failed to lookup: '{}'", resource.getName(), e);
       }
     } else {
       resource.setLookedUp(false);

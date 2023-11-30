@@ -67,9 +67,12 @@ public class LogResolverBean {
   private static final Logger logger = LoggerFactory.getLogger(LogResolverBean.class);
 
   /** The container wrapper. */
-  @Inject
   private ContainerWrapperBean containerWrapper;
 
+  @Inject
+  public void cointaner(ContainerWrapperBean containerWrapper) {
+    this.containerWrapper = containerWrapper;
+  }
   /** The stdout files. */
   private List<String> stdoutFiles = new ArrayList<>();
 
