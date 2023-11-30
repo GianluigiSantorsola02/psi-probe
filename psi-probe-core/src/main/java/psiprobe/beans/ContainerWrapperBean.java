@@ -44,20 +44,26 @@ public class ContainerWrapperBean {
   private final Object lock = new Object();
 
   /** List of class names to adapt particular Tomcat implementation to TomcatContainer interface. */
-  @Inject
   private List<String> adapterClasses;
 
+  @Inject
+  public void Adapter(List<String> adapterClasses) {
+    this.adapterClasses = adapterClasses;
+  }
   /** The resource resolver. */
   private ResourceResolver resourceResolver;
 
   /** The force first adapter. */
   private boolean forceFirstAdapter;
-
-  /** The resource resolvers. */
-  @Inject
   private Map<String, ResourceResolver> resourceResolvers;
 
-  /**
+  @Inject
+  public void Resolvers(Map<String, ResourceResolver> resourceResolvers) {
+    this.resourceResolvers = resourceResolvers;
+  }
+
+
+    /**
    * Checks if is force first adapter.
    *
    * @return true, if is force first adapter
@@ -198,14 +204,22 @@ public class ContainerWrapperBean {
   /**
    * Gets the data sources.
    *
-   * @return the data sources
    *
-   * @throws Exception the exception
    */
-  public List<ApplicationResource> getDataSources() throws Exception {
-    List<ApplicationResource> resources = new ArrayList<>(getPrivateDataSources());
-    resources.addAll(getGlobalDataSources());
-    return resources;
+  public static class DataSourceException extends Exception {
+    public DataSourceException(String message) {
+      super(message);
+    }
+
+  }
+  public List<ApplicationResource> getDataSources() throws DataSourceException {
+    try {
+      List<ApplicationResource> resources = new ArrayList<>(getPrivateDataSources());
+      resources.addAll(getGlobalDataSources());
+      return resources;
+    } catch (Exception e) {
+      throw new DataSourceException("Error retrieving data sources: " + e.getMessage());
+    }
   }
 
   /**
@@ -213,19 +227,23 @@ public class ContainerWrapperBean {
    *
    * @return the private data sources
    *
-   * @throws Exception the exception
+   * @throws DataSourceException the exception
    */
-  public List<ApplicationResource> getPrivateDataSources() throws Exception {
-    List<ApplicationResource> resources = new ArrayList<>();
-    if (tomcatContainer != null && getResourceResolver().supportsPrivateResources()) {
-      for (Context app : getTomcatContainer().findContexts()) {
-        List<ApplicationResource> appResources =
-            getResourceResolver().getApplicationResources(app, this);
-        // add only those resources that have data source info
-        filterDataSources(appResources, resources);
+
+  public List<ApplicationResource> getPrivateDataSources() throws DataSourceException {
+    try {
+      List<ApplicationResource> resources = new ArrayList<>();
+      if (tomcatContainer != null && getResourceResolver().supportsPrivateResources()) {
+        for (Context app : getTomcatContainer().findContexts()) {
+          List<ApplicationResource> appResources = getResourceResolver().getApplicationResources(app, this);
+          // add only those resources that have data source info
+          filterDataSources(appResources, resources);
+        }
       }
+      return resources;
+    } catch (Exception e) {
+      throw new DataSourceException("Error retrieving private data sources: " + e.getMessage());
     }
-    return resources;
   }
 
   /**
@@ -233,16 +251,20 @@ public class ContainerWrapperBean {
    *
    * @return the global data sources
    *
-   * @throws Exception the exception
+   * @throws DataSourceException the exception
    */
-  public List<ApplicationResource> getGlobalDataSources() throws Exception {
-    List<ApplicationResource> resources = new ArrayList<>();
-    if (getResourceResolver().supportsGlobalResources()) {
-      List<ApplicationResource> globalResources = getResourceResolver().getApplicationResources();
-      // add only those resources that have data source info
-      filterDataSources(globalResources, resources);
+  public List<ApplicationResource> getGlobalDataSources() throws DataSourceException {
+    try {
+      List<ApplicationResource> resources = new ArrayList<>();
+      if (getResourceResolver().supportsGlobalResources()) {
+        List<ApplicationResource> globalResources = getResourceResolver().getApplicationResources();
+        // add only those resources that have data source info
+        filterDataSources(globalResources, resources);
+      }
+      return resources;
+    } catch (Exception e) {
+      throw new DataSourceException("Error retrieving global data sources: " + e.getMessage());
     }
-    return resources;
   }
 
   /**
