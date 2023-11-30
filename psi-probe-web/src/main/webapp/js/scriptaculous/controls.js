@@ -173,9 +173,11 @@ Autocompleter.Base = Class.create({
     this.changed = true;
     this.hasFocus = true;
 
-    if(this.observer) clearTimeout(this.observer);
+    if(this.observer) clearTimeout(this.observer)
+    {
       this.observer =
-        setTimeout(this.onObserverEvent.bind(this), this.options.frequency*1000);
+          setTimeout(this.onObserverEvent.bind(this), this.options.frequency * 1000);
+    }
   },
 
   activate: function() {
@@ -334,7 +336,7 @@ Autocompleter.Base = Class.create({
     if (null != this.tokenBounds) return this.tokenBounds;
     let value = this.element.value;
     if (value.strip().empty()) return [-1, 0];
-    let diff = arguments.callee.getFirstDifferencePos(value, this.oldElementValue);
+    let diff = this.getFirstDifferencePos(value, this.oldElementValue);
     let offset = (diff === this.oldElementValue.length ? 1 : 0);
     let prevTokenPos = -1, nextTokenPos = value.length;
     let tp;
@@ -344,8 +346,8 @@ Autocompleter.Base = Class.create({
       tp = value.indexOf(this.options.tokens[index], diff + offset);
       if (-1 !== tp && tp < nextTokenPos) nextTokenPos = tp;
     }
-    return (this.tokenBounds = [prevTokenPos + 1, nextTokenPos]);
-  }
+    this.tokenBounds = [prevTokenPos + 1, nextTokenPos];
+    return this.tokenBounds;  }
 });
 
 Autocompleter.Base.prototype.getTokenBounds.getFirstDifferencePos = function(newS, oldS) {
@@ -497,7 +499,7 @@ Ajax.InPlaceEditor = Class.create({
     this.element = $(element);
     this.prepareOptions();
     this._controls = { };
-    arguments.callee.dealWithDeprecatedOptions(options); // DEPRECATION LAYER!!!
+    this._dealWithDeprecatedOptions(options); // DEPRECATION LAYER!!!
     Object.extend(this.options, options || { });
     if (!this.options.formId && this.element.id) {
       this.options.formId = this.element.id + '-inplaceeditor';
@@ -794,9 +796,8 @@ Ajax.InPlaceCollectionEditor = Class.create(Ajax.InPlaceEditor, {
       onComplete: Prototype.emptyFunction,
       onSuccess: function(transport) {
         let js = transport.responseText.strip();
-        if (!/^\[.*]$/.test(js)) // TODO: improve sanity check
-          throw('Server returned an invalid collection representation.');
-        this._collection = eval(js);
+        if (!/^\[.*]$/.test(js))
+          throw new Error('Server returned an invalid collection representation.');        this._collection = eval(js);
         this.checkForExternalText();
       }.bind(this),
       onFailure: this.onFailure
@@ -868,6 +869,7 @@ Ajax.InPlaceCollectionEditor = Class.create(Ajax.InPlaceEditor, {
 //**** API and convert your code to it ASAP!            ****
 
 Ajax.InPlaceEditor.prototype.initialize.dealWithDeprecatedOptions = function(options) {
+  options.okButton = undefined;
   options.cancelButton = undefined;
   options.cancelLink = undefined;
   options.okLink = undefined;
@@ -876,10 +878,25 @@ Ajax.InPlaceEditor.prototype.initialize.dealWithDeprecatedOptions = function(opt
     if (name in options || expr === undefined) return;
     options[name] = expr;
   }
-  fallback('cancelControl', (options.cancelLink ? 'link' : (options.cancelButton ? 'button' :
-    undefined)));
-  fallback('okControl', (options.okLink ? 'link' : (options.okButton ? 'button' :
-    !(options.okLink === options.okButton) ? false : undefined)));
+
+  let cancelControlType;
+  cancelControlType = undefined;
+
+  fallback('cancelControl', cancelControlType);
+
+  let okControlType;
+  if (options.okLink) {
+    okControlType = 'link';
+  } else if (options.okButton) {
+    okControlType = 'button';
+  } else if (options.okLink === options.okButton) {
+    okControlType = false;
+  } else {
+    okControlType = undefined;
+  }
+
+  fallback('okControl', okControlType);
+
   fallback('highlightColor', options.highlightcolor);
   fallback('highlightEndColor', options.highlightendcolor);
 };
