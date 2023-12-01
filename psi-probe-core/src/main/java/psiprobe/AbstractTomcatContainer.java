@@ -428,7 +428,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
           try (URLClassLoader urlcl =
               new URLClassLoader(new URL[0], context.getLoader().getClassLoader())) {
 
-            compileItem("/", opt, context, jrctx, summary, urlcl, 0, compile);
+            compileItem("/", opt, context, jrctx, summary, urlcl, compile);
           } catch (IOException e) {
             this.logger.error("", e);
           }
@@ -453,7 +453,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  private void compileItem(String s, Options opt, Context context, JspRuntimeContext jrctx, Summary summary, URLClassLoader urlcl, int i, boolean compile) {
+  private void compileItem(String s, Options opt, Context context, JspRuntimeContext jrctx, Summary summary, URLClassLoader urlcl, boolean compile) {
     JspCompilationContext jcctx = createJspCompilationContext(s, opt, context.getServletContext(), jrctx, urlcl);
     if (compile) {
       compileItem(summary.getItems().get(s), s, jcctx);
@@ -530,7 +530,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     private boolean compile;
 
     public CompileItemParams(String jspName, Options options, Context context, JspRuntimeContext jspRuntimeContext,
-                             Summary summary, URLClassLoader classLoader, int level, boolean compile) {
+                             Summary summary, URLClassLoader classLoader, boolean compile) {
       this.jspName = jspName;
       this.options = options;
       this.context = context;
