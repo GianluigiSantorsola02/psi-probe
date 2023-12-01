@@ -20,6 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.tools.logging.LogDestination;
 
+import java.util.Objects;
+
 /**
  * The Class FollowedFileInfoController.
  */
@@ -36,7 +38,7 @@ public class FollowedFileInfoController extends AbstractLogHandlerController {
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
       LogDestination logDest) throws Exception {
-    return new ModelAndView(getViewName()).addObject("log", logDest);
+    return new ModelAndView(Objects.requireNonNull(getViewName())).addObject("log", logDest);
   }
 
   @Value("ajax/followed_file_info")
