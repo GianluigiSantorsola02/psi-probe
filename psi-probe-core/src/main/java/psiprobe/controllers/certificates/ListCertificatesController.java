@@ -18,7 +18,10 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,10 +117,11 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    *
    * @return the certificates
    *
-   * @throws Exception the exception
+   * @throws KeyStoreLoadException the exception
    */
+
   public List<Cert> getCertificates(String storeType, String storeFile, String storePassword)
-      throws Exception {
+          throws KeyStoreLoadException, KeyStoreException {
     KeyStore keyStore;
 
     // Get key store
@@ -136,7 +140,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     // Load key store from file
     try (InputStream storeInput = getStoreInputStream(storeFile)) {
       keyStore.load(storeInput, password);
-    } catch (IOException e) {
+    } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
       logger.error("Error loading store file {}", storeFile, e);
       return Collections.emptyList();
     }
@@ -271,10 +275,10 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     Cert cert = new Cert();
 
     cert.setAlias(alias);
-    cert.setSubjectDistinguishedName(x509Cert.getSubjectDN().toString());
+    cert.setSubjectDistinguishedName(x509Cert.getSubjectX500Principal().toString());
     cert.setNotBefore(x509Cert.getNotBefore().toInstant());
     cert.setNotAfter(x509Cert.getNotAfter().toInstant());
-    cert.setIssuerDistinguishedName(x509Cert.getIssuerDN().toString());
+    cert.setIssuerDistinguishedName(x509Cert.getIssuerX500Principal().toString());
 
     certs.add(cert);
   }
