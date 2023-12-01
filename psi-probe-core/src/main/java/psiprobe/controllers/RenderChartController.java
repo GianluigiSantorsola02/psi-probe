@@ -10,14 +10,6 @@
  */
 package psiprobe.controllers;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.util.Objects;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -33,11 +25,15 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-
 import psiprobe.Utils;
 import psiprobe.beans.stats.providers.SeriesProvider;
 import psiprobe.jfreechart.XYLine3DRenderer;
 import psiprobe.model.stats.StatsCollection;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.util.Objects;
 
 /**
  * Plots data from "statsCollection" bean. The data is converted to XYSeries using SeriesProvider,
@@ -63,27 +59,9 @@ public class RenderChartController extends AbstractController {
   private static final Logger logger = LoggerFactory.getLogger(RenderChartController.class);
 
   /** The stats' collection. */
-  private StatsCollection statsCollection;
+  private final StatsCollection statsCollection;
 
-  @Inject
-  public void statsCollection(StatsCollection statsCollection) {
-    this.statsCollection = statsCollection;
-  }
-  /**
-   * Gets the stats collection.
-   *
-   * @return the stats collection
-   */
-  public StatsCollection getStatsCollection() {
-    return statsCollection;
-  }
-
-  /**
-   * Sets the stats collection.
-   *
-   * @param statsCollection the new stats collection
-   */
-  public void setStatsCollection(StatsCollection statsCollection) {
+  public RenderChartController(StatsCollection statsCollection) {
     this.statsCollection = statsCollection;
   }
 
@@ -139,49 +117,51 @@ public class RenderChartController extends AbstractController {
     boolean showLegend = ServletRequestUtils.getBooleanParameter(request, "l", true);
 
     // Series provider
-    String provider = ServletRequestUtils.getStringParameter(request, "p", null);
+    String provider = ServletRequestUtils.getStringParameter(request, "p", "");
 
     // Chart type
     String chartType = ServletRequestUtils.getStringParameter(request, "ct", "area");
 
     DefaultTableXYDataset ds = new DefaultTableXYDataset();
 
-    if (provider != null) {
       Object series = Objects.requireNonNull(getApplicationContext()).getBean(provider);
       if (series instanceof SeriesProvider) {
         ((SeriesProvider) series).populate(ds, statsCollection, request);
       } else {
         logger.error("SeriesProvider '{}' does not implement '{}'", provider, SeriesProvider.class);
       }
-    }
 
-    // Build series data from the give statistic
+      // Build series data from the give statistic
     JFreeChart chart = null;
-    if ("area".equals(chartType)) {
-      chart = ChartFactory.createXYAreaChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
-          showLegend, false, false);
+      switch (chartType) {
+          case "area":
+              chart = ChartFactory.createXYAreaChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
+                      showLegend, false, false);
 
-      ((XYAreaRenderer) chart.getXYPlot().getRenderer()).setOutline(true);
+              ((XYAreaRenderer) chart.getXYPlot().getRenderer()).setOutline(true);
 
-    } else if ("stacked".equals(chartType)) {
-      chart = ChartFactory.createStackedXYAreaChart("", labelX, labelY, ds,
-          PlotOrientation.VERTICAL, showLegend, false, false);
+              break;
+          case "stacked":
+              chart = ChartFactory.createStackedXYAreaChart("", labelX, labelY, ds,
+                      PlotOrientation.VERTICAL, showLegend, false, false);
 
-    } else if ("line".equals(chartType)) {
-      chart = ChartFactory.createXYLineChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
-          showLegend, false, false);
+              break;
+          case "line":
+              chart = ChartFactory.createXYLineChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
+                      showLegend, false, false);
 
-      final XYLine3DRenderer renderer = new XYLine3DRenderer();
-      renderer.setDrawOutlines(true);
-      for (int i = 0; i < seriesMaxCount; i++) {
-        renderer.setSeriesLinesVisible(i, true);
-        renderer.setSeriesShapesVisible(i, true);
-        renderer.setSeriesStroke(i, new BasicStroke(2));
+              final XYLine3DRenderer renderer = new XYLine3DRenderer();
+              renderer.setDrawOutlines(true);
+              for (int i = 0; i < seriesMaxCount; i++) {
+                  renderer.setSeriesLinesVisible(i, true);
+                  renderer.setSeriesShapesVisible(i, true);
+                  renderer.setSeriesStroke(i, new BasicStroke(2));
+              }
+              renderer.setXOffset(1);
+              renderer.setYOffset(1);
+              chart.getXYPlot().setRenderer(renderer);
+              break;
       }
-      renderer.setXOffset(1);
-      renderer.setYOffset(1);
-      chart.getXYPlot().setRenderer(renderer);
-    }
 
     if (chart != null) {
       chart.setAntiAlias(true);
