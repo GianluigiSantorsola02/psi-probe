@@ -10,6 +10,7 @@
  */
 package psiprobe.tools.logging.log4j2;
 
+import java.util.Collections;
 import java.util.Map;
 
 import psiprobe.tools.logging.DefaultAccessor;
@@ -26,13 +27,13 @@ public class Log4J2LoggerContextAccessor extends DefaultAccessor {
    */
   public Map<String, Object> getLoggers() {
     Map<String, Object> loggers = null;
-    Object configuration;
+    Object configuration = null;
     try {
       configuration = invokeMethod(getTarget(), "getConfiguration", null, null);
     } catch (Exception e) {
       logger.error("Exception invoking getConfiguration: " + e.getMessage(), e);
 
-      return null;
+      loggers = Collections.emptyMap();
     }
     if (configuration != null) {
       try {
@@ -40,7 +41,7 @@ public class Log4J2LoggerContextAccessor extends DefaultAccessor {
       } catch (Exception e) {
         logger.error("Exception invoking getLoggers: " + e.getMessage(), e);
 
-        return null;
+        loggers = Collections.emptyMap();
       }
     }
     return loggers;
