@@ -76,7 +76,6 @@ public class ThreadStackController extends ParameterizableViewController {
                 new Object[] {id}, new String[] {"long"});
         String name = JmxTools.getStringAttr(cd, threadName);
         if (threadName.equals(name)) {
-          threadId = id;
           break;
         }
       }
