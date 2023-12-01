@@ -11,6 +11,7 @@
 package psiprobe.controllers.jsp;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
@@ -45,30 +46,31 @@ public class ViewServletSourceController extends AbstractContextHandlerControlle
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) {
 
-    String jspName = ServletRequestUtils.getStringParameter(request, "source", null);
+    String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
     ServletContext sctx = context.getServletContext();
     ServletConfig scfg = (ServletConfig) context.findChild("jsp");
     Options opt = new EmbeddedServletOptions(scfg, sctx);
     String encoding = opt.getJavaEncoding();
     String content = null;
 
-    if (jspName != null) {
       String servletName =
-          getContainerWrapper().getTomcatContainer().getServletFileNameForJsp(context, jspName);
+              getContainerWrapper().getTomcatContainer().getServletFileNameForJsp(context, jspName);
 
       if (servletName != null) {
         File servletFile = new File(servletName);
         if (servletFile.exists()) {
           try (InputStream fis = Files.newInputStream(servletFile.toPath())) {
             content = Utils.highlightStream(jspName, fis, "java", encoding);
+          } catch (IOException e) {
+              throw new RuntimeException(e);
           }
         }
       }
-    }
-    return new ModelAndView(getViewName(), "content", content);
+      assert content != null;
+      return new ModelAndView(getViewName(), "content", content);
   }
 
   @Value("view_servlet_source")
