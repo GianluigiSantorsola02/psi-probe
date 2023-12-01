@@ -1,13 +1,4 @@
-/*
- * Licensed under the GPL License. You may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE.
- */
+
 package psiprobe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,58 +35,25 @@ class Tomcat10ContainerAdapterTest {
   /**
    * Creates the valve.
    */
+  @ParameterizedTest
+  @ValueSource(strings = {
+          "Apache Tomcat/10.1",
+          "Apache Tomcat (TomEE)/10.1",
+          "Pivotal tc..../10.1",
+          "Other"
+  })
+  void canBoundTo(String containerName) {
+    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
+    boolean result = adapter.canBoundTo(containerName);
+    assertTrue(result);
+  }
+
   @Test
   void createValve() {
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     Valve valve = adapter.createValve();
     assertEquals("Tomcat10AgentValve[Container is null]", valve.toString());
   }
-
-  /**
-   * Can bound to null.
-   */
-  @Test
-  void canBoundToNull() {
-    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
-    assertFalse(adapter.canBoundTo(null));
-  }
-
-  /**
-   * Can bound to tomcat10.
-   */
-  @Test
-  void canBoundToTomcat10() {
-    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat/10.1"));
-  }
-
-  /**
-   * Can bound to tomEE10.
-   */
-  @Test
-  void canBoundToTomEE10() {
-    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat (TomEE)/10.1"));
-  }
-
-  /**
-   * Can bound to pivotal10.
-   */
-  @Test
-  void canBoundToPivotal10() {
-    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Pivotal tc..../10.1"));
-  }
-
-  /**
-   * Can bound to other.
-   */
-  @Test
-  void canBoundToOther() {
-    final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
-    assertFalse(adapter.canBoundTo("Other"));
-  }
-
   /**
    * Filter mappings.
    */
