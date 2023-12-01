@@ -79,7 +79,7 @@ public class ViewServletSourceController extends AbstractContextHandlerControlle
     super.setViewName(viewName);
   }
 
-  private static class FileProcessingException extends Throwable {
+  public static class FileProcessingException extends Throwable {
     public FileProcessingException(String errorProcessingFile, IOException e) {
       super(errorProcessingFile, e);
     }

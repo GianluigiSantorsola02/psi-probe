@@ -10,27 +10,21 @@
  */
 package psiprobe;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
 import mockit.Expectations;
 import mockit.Mocked;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Valve;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.tomcat.util.descriptor.web.ApplicationParameter;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import psiprobe.model.ApplicationResource;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The Class Tomcat85ContainerAdapterTest.
@@ -45,66 +39,27 @@ class Tomcat85ContainerAdapterTest {
    * Creates the valve.
    */
   @Test
+  @SuppressWarnings({
+          "Apache Tomcat/8.5, true",
+          "Apache Tomcat (TomEE)/8.5, true",
+          "NonStop(tm) Servlets For JavaServer Pages(tm) v8.5, true",
+          "Pivotal tc..../8.5, true",
+          "Other, false"
+  })
+  void canBoundTo() {
+    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
+    String containerName = "";
+    boolean result = adapter.canBoundTo(containerName);
+    boolean expectedResult = false;
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
   void createValve() {
     final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
     Valve valve = adapter.createValve();
     assertEquals("psiprobe.Tomcat85AgentValve[Container is null]", valve.toString());
   }
-
-  /**
-   * Can bound to null.
-   */
-  @Test
-  void canBoundToNull() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    assertFalse(adapter.canBoundTo(null));
-  }
-
-  /**
-   * Can bound to tomcat85.
-   */
-  @Test
-  void canBoundToTomcat85() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat/8.5"));
-  }
-
-  /**
-   * Can bound to tomEE85.
-   */
-  @Test
-  void canBoundToTomEE85() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat (TomEE)/8.5"));
-  }
-
-  /**
-   * Can bound to nsjsp85.
-   */
-  @Test
-  void canBoundToNsJsp85() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    assertTrue(adapter.canBoundTo("NonStop(tm) Servlets For JavaServer Pages(tm) v8.5"));
-  }
-
-  /**
-   * Can bound to pivotal85.
-   */
-  @Test
-  void canBoundToPivotal85() {
-    final Tomcat85ContainerAdapter valve = new Tomcat85ContainerAdapter();
-    assertTrue(valve.canBoundTo("Pivotal tc..../8.5"));
-  }
-
-  /**
-   * Can bound to other.
-   */
-  @Test
-  void canBoundToOther() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    assertFalse(adapter.canBoundTo("Other"));
-  }
-
   /**
    * Filter mappings.
    */
@@ -151,14 +106,14 @@ class Tomcat85ContainerAdapterTest {
    */
   @Test
   void applicationFilterMaps() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findFilterMaps();
-        result = new FilterMap();
-      }
-    });
+      new Expectations() {
+          {
+              context.findFilterMaps();
+              result = new FilterMap();
+          }
+      };
 
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
+      final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
     assertEquals(0, adapter.getApplicationFilterMaps(context).size());
   }
 
@@ -167,14 +122,14 @@ class Tomcat85ContainerAdapterTest {
    */
   @Test
   void applicationFilters() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findFilterDefs();
-        result = new FilterDef();
-      }
-    });
+      new Expectations() {
+          {
+              context.findFilterDefs();
+              result = new FilterDef();
+          }
+      };
 
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
+      final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
     assertEquals(1, adapter.getApplicationFilters(context).size());
   }
 
@@ -183,13 +138,13 @@ class Tomcat85ContainerAdapterTest {
    */
   @Test
   void applicationInitParams() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findApplicationParameters();
-        result = new ApplicationParameter();
-      }
-    });
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
+      new Expectations() {
+          {
+              context.findApplicationParameters();
+              result = new ApplicationParameter();
+          }
+      };
+      final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
     assertEquals(0, adapter.getApplicationInitParams(context).size());
   }
 

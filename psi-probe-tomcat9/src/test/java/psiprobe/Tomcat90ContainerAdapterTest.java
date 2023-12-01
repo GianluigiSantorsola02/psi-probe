@@ -10,27 +10,21 @@
  */
 package psiprobe;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
 import mockit.Expectations;
 import mockit.Mocked;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Valve;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.tomcat.util.descriptor.web.ApplicationParameter;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import psiprobe.model.ApplicationResource;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The Class Tomcat90ContainerAdapterTest.
@@ -45,57 +39,26 @@ class Tomcat90ContainerAdapterTest {
    * Creates the valve.
    */
   @Test
+  @SuppressWarnings({
+          "Apache Tomcat/9.0, true",
+          "Apache Tomcat (TomEE)/9.0, true",
+          "Pivotal tc..../9.0, true",
+          "Other, false"
+  })
+  void canBoundTo() {
+    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
+    String containerName = "";
+    boolean result = adapter.canBoundTo(containerName);
+    boolean expectedResult = false;
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
   void createValve() {
     final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
     Valve valve = adapter.createValve();
     assertEquals("Tomcat90AgentValve[Container is null]", valve.toString());
   }
-
-  /**
-   * Can bound to null.
-   */
-  @Test
-  void canBoundToNull() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    assertFalse(adapter.canBoundTo(null));
-  }
-
-  /**
-   * Can bound to tomcat9.
-   */
-  @Test
-  void canBoundToTomcat9() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat/9.0"));
-  }
-
-  /**
-   * Can bound to tomEE9.
-   */
-  @Test
-  void canBoundToTomEE9() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Apache Tomcat (TomEE)/9.0"));
-  }
-
-  /**
-   * Can bound to pivotal9.
-   */
-  @Test
-  void canBoundToPivotal9() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    assertTrue(adapter.canBoundTo("Pivotal tc..../9.0"));
-  }
-
-  /**
-   * Can bound to other.
-   */
-  @Test
-  void canBoundToOther() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    assertFalse(adapter.canBoundTo("Other"));
-  }
-
   /**
    * Filter mappings.
    */
@@ -142,14 +105,14 @@ class Tomcat90ContainerAdapterTest {
    */
   @Test
   void applicationFilterMaps() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findFilterMaps();
-        result = new FilterMap();
-      }
-    });
+      new Expectations() {
+          {
+              context.findFilterMaps();
+              result = new FilterMap();
+          }
+      };
 
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
+      final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
     assertEquals(0, adapter.getApplicationFilterMaps(context).size());
   }
 
@@ -158,14 +121,14 @@ class Tomcat90ContainerAdapterTest {
    */
   @Test
   void applicationFilters() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findFilterDefs();
-        result = new FilterDef();
-      }
-    });
+      new Expectations() {
+          {
+              context.findFilterDefs();
+              result = new FilterDef();
+          }
+      };
 
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
+      final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
     assertEquals(1, adapter.getApplicationFilters(context).size());
   }
 
@@ -174,13 +137,13 @@ class Tomcat90ContainerAdapterTest {
    */
   @Test
   void applicationInitParams() {
-    Assertions.assertNotNull(new Expectations() {
-      {
-        context.findApplicationParameters();
-        result = new ApplicationParameter();
-      }
-    });
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
+      new Expectations() {
+          {
+              context.findApplicationParameters();
+              result = new ApplicationParameter();
+          }
+      };
+      final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
     assertEquals(0, adapter.getApplicationInitParams(context).size());
   }
 
