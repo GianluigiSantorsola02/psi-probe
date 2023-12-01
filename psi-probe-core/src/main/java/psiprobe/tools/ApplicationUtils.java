@@ -69,7 +69,7 @@ public final class ApplicationUtils {
    *
    * @return the application
    */
-  public static Application getApplication(Context context, ContainerWrapperBean containerWrapper) {
+  public static Application getApplication(Context context, ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
     return getApplication(context, null, false, containerWrapper);
   }
 
@@ -90,13 +90,13 @@ public final class ApplicationUtils {
    * @return Application object
    */
   public static Application getApplication(Context context, ResourceResolver resourceResolver,
-      boolean calcSize, ContainerWrapperBean containerWrapper) {
+      boolean calcSize, ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
 
     // ContainerWrapperBean containerWrapper
     logger.debug("Querying webapp: {}", context.getName());
 
     Application app = new Application();
-    app.setName(context.getName().length() > 0 ? context.getName() : "/");
+    app.setName(!context.getName().isEmpty() ? context.getName() : "/");
     app.setDocBase(context.getDocBase());
     app.setDisplayName(context.getDisplayName());
 
@@ -196,7 +196,7 @@ public final class ApplicationUtils {
    * @return the application data source usage scores
    */
   public static int[] getApplicationDataSourceUsageScores(Context context,
-      ResourceResolver resolver, ContainerWrapperBean containerWrapper) {
+                                                          ResourceResolver resolver, ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
 
     logger.debug("Calculating datasource usage score");
 
@@ -205,7 +205,7 @@ public final class ApplicationUtils {
     try {
       appResources = resolver.getApplicationResources(context, containerWrapper);
     } catch (NamingException e) {
-      throw new RuntimeException(e);
+      throw new ApplicationResourcesException("Error retrieving application resources", e);
     }
     for (ApplicationResource appResource : appResources) {
       if (appResource.getDataSourceInfo() != null) {
@@ -215,7 +215,6 @@ public final class ApplicationUtils {
     }
     return scores;
   }
-
   /**
    * Gets the application session.
    *
@@ -263,14 +262,6 @@ public final class ApplicationUtils {
           sessionSerializable = sessionSerializable && obj instanceof Serializable;
 
           long objSize = 0;
-          if (calcSize) {
-            try {
-              objSize += Instruments.sizeOf(name, processedObjects);
-              objSize += Instruments.sizeOf(obj, processedObjects);
-            } catch (Exception ex) {
-              logger.error("Cannot estimate size of attribute '{}'", name, ex);
-            }
-          }
 
           if (addAttributes) {
             Attribute saBean = new Attribute();
@@ -304,6 +295,50 @@ public final class ApplicationUtils {
 
     return sbean;
   }
+  public void processSessionAttributes(HttpSession httpSession, boolean calcSize, boolean addAttributes, List<Object> processedObjects) {
+    ApplicationSession sbean = null;
+    for (String name : Collections.list(httpSession.getAttributeNames())) {
+      Object obj = httpSession.getAttribute(name);
+      boolean sessionSerializable =  obj instanceof Serializable;
+
+      long objSize = 0;
+      if (calcSize) {
+        try {
+          objSize += Instruments.sizeOf(name, (ClassLoader) processedObjects);
+          objSize += Instruments.sizeOf(obj, (ClassLoader) processedObjects);
+        } catch (Exception ex) {
+          logger.error("Cannot estimate size of attribute '{}'", name, ex);
+        }
+      }
+
+      if (addAttributes) {
+        Attribute saBean = new Attribute();
+        saBean.setName(name);
+        saBean.setType(ClassUtils.getQualifiedName(obj.getClass()));
+        saBean.setValue(obj);
+        saBean.setSize(objSize);
+        saBean.setSerializable(obj instanceof Serializable);
+        sbean.addAttribute(saBean);
+      }
+      int attributeCount = 0;
+      attributeCount++;
+      long size = objSize;
+    }
+    String lastAccessedIp = (String) httpSession.getAttribute(ApplicationSession.LAST_ACCESSED_BY_IP);
+    if (lastAccessedIp != null) {
+        assert sbean != null;
+        sbean.setLastAccessedIp(lastAccessedIp);
+      sbean.setLastAccessedIpLocale((Locale) httpSession.getAttribute(ApplicationSession.LAST_ACCESSED_LOCALE));
+    }
+    try {
+      processSessionAttributes(httpSession, calcSize, addAttributes, processedObjects);
+    } catch (IllegalStateException e) {
+      logger.info("Session appears to be invalidated, ignore");
+      logger.trace("", e);
+    }
+
+  }
+
 
   /**
    * Gets the application attributes.
@@ -369,7 +404,7 @@ public final class ApplicationUtils {
    */
   private static ServletInfo getServletInfo(Wrapper wrapper, String contextName) {
     ServletInfo si = new ServletInfo();
-    si.setApplicationName(contextName.length() > 0 ? contextName : "/");
+    si.setApplicationName(!contextName.isEmpty() ? contextName : "/");
     si.setServletName(wrapper.getName());
     si.setServletClass(wrapper.getServletClass());
     si.setAvailable(!wrapper.isUnavailable());
@@ -427,7 +462,7 @@ public final class ApplicationUtils {
         String sn = context.findServletMapping(servletMapping);
         if (sn != null) {
           ServletMapping sm = new ServletMapping();
-          sm.setApplicationName(context.getName().length() > 0 ? context.getName() : "/");
+          sm.setApplicationName(!context.getName().isEmpty() ? context.getName() : "/");
           sm.setUrl(servletMapping);
           sm.setServletName(sn);
           Container container = context.findChild(sn);
@@ -456,4 +491,10 @@ public final class ApplicationUtils {
     return containerWrapper.getTomcatContainer().getApplicationFilters(context);
   }
 
+  private static class ApplicationResourcesException extends Exception {
+    public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
+      super(errorRetrievingApplicationResources, e);
+
+    }
+  }
 }
