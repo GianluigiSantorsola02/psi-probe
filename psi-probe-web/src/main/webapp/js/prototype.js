@@ -1494,7 +1494,8 @@ let Hash = Class.create(Enumerable, (function() {
     let match = this.detect(function(pair) {
       return pair.value === value;
     });
-    return match && match.key;
+    return match?.key;
+
   }
 
   function merge(object) {
@@ -2230,9 +2231,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let el = document.createElement("select"),
         isBuggy = true;
     el.innerHTML = "<option value=\"test\">test</option>";
-    if (el.options && el.options[0]) {
-      isBuggy = el.options[0].nodeName.toUpperCase() !== "OPTION";
-    }
+    isBuggy = el?.options?.[0]?.nodeName?.toUpperCase() !== "OPTION";
+
     el = null;
     return isBuggy;
   })();
@@ -2286,8 +2286,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
      i = descendants.length;
     while (i--) purgeElement(descendants[i]);
 
-    if (content && content.toElement)
-      content = content.toElement();
+    content = content?.toElement?.();
 
     if (Object.isElement(content))
       return element.update().insert(content);
@@ -2550,23 +2549,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       delete Element.Storage[uid];
     }
   }
-
-  function purgeCollection(elements) {
-    let i = elements.length;
-    while (i--)
-      purgeElement(elements[i]);
-  }
-
-  function purgeCollection_IE(elements) {
-    let i = elements.length, element, uid;
-    while (i--) {
-      element = elements[i];
-      uid = getUniqueElementID(element);
-      delete Element.Storage[uid];
-      delete Event.cache[uid];
-    }
-  }
-
   function purge(element) {
     if (!(element = $(element))) return;
     purgeElement(element);
@@ -2814,9 +2796,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     if (table.names[name]) name = table.names[name];
 
-    if (name.include(':')) {
-      if (!element.attributes || !element.attributes[name]) return null;
-      return element.attributes[name].value;
+    if (name.includes(':')) {
+      return element?.attributes?.[name]?.value ?? null;
     }
 
     return element.getAttribute(name);
