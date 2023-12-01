@@ -319,7 +319,8 @@ let Class = (function() {
   }
 
   function toHTML(object) {
-    return object && object.toHTML ? object.toHTML() : String.interpret(object);
+    return object?.toHTML?.() ?? String.interpret(object);
+
   }
 
   function keys(object) {
