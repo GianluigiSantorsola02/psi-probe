@@ -57,23 +57,30 @@ public class BeanToXmlController extends AbstractController {
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
 
     String path = request.getServletPath();
     String internalPath = path.replaceAll(xmlMarker, "");
 
     Controller controller = (Controller) Objects.requireNonNull(getApplicationContext()).getBean(internalPath);
-      ModelAndView modelAndView = controller.handleRequest(request, response);
-      if (modelAndView != null) {
-        TransportableModel tm = new TransportableModel();
-        tm.putAll(modelAndView.getModel());
-        xstream.toXML(tm, response.getWriter());
-      } else {
-        // Handle the case when the model or the ModelAndView is null
-        // Return an error response with an HTTP status of 500
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        response.getWriter().write("Error occurred while handling the request.");
-      }
-      return null;
+    ModelAndView modelAndView = controller.handleRequest(request, response);
+    if (modelAndView != null) {
+      TransportableModel tm = new TransportableModel();
+      tm.putAll(modelAndView.getModel());
+      xstream.toXML(tm, response.getWriter());
+    } else {
+      // Handle the case when the model or the ModelAndView is null
+      // Return an error response with an HTTP status of 500
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      response.getWriter().write("Error occurred while handling the request.");
+      throw new HandleRequestException("Error occurred while handling the request.");
+    }
+    return null;
+  }
+
+  private static class HandleRequestException extends Exception {
+    public HandleRequestException(String message) {
+      super(message);
+    }
   }
 }
