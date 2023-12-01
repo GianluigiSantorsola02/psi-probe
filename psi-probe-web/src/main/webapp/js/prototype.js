@@ -2857,13 +2857,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let checkbox = document.createElement('<input type="checkbox">');
     checkbox.checked = true;
     let node = checkbox.getAttributeNode('checked');
-    return !node || !node.specified;
+    return !node?.specified;
   })();
 
   function hasAttribute(element, attribute) {
     attribute = ATTRIBUTE_TRANSLATIONS.has[attribute] || attribute;
     let node = $(element).getAttributeNode(attribute);
-    return !!(node && node.specified);
+    return !!node?.specified;
   }
 
   function hasAttribute_IE(element, attribute) {
@@ -3138,23 +3138,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     if (style === 'opacity') return value ? parseFloat(value) : 1.0;
     return value === 'auto' ? null : value;
   }
-
-  function getStyle_Opera(element, style) {
-    switch (style) {
-      case 'height': case 'width':
-        if (!Element.visible(element)) return null;
-
-        let dim = parseInt(getStyle(element, style), 10);
-
-        if (dim !== element['offset' + style.capitalize()])
-          return dim + 'px';
-
-        return Element.measure(element, style);
-
-      default: return getStyle(element, style);
-    }
-  }
-
   function getStyle_IE(element, style) {
     element = $(element);
     style = normalizeStyleName_IE(style);
