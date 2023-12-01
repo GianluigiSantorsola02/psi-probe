@@ -10,20 +10,17 @@
  */
 package psiprobe.controllers.connectors;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.Connector;
 
-import static psiprobe.beans.ContainerListenerBean.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import static psiprobe.beans.ContainerListenerBean.CustomException;
 
 /**
  * The Class BaseGetConnectorController.
@@ -33,23 +30,23 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
   /** The container listener bean. */
   private ContainerListenerBean containerListenerBean;
 
-  @Inject
-  public void containerListener(ContainerListenerBean containerListenerBean) {
-    this.containerListenerBean = containerListenerBean;
+  public BaseGetConnectorController() {
   }
+
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
     String connectorName;
-    connectorName = ServletRequestUtils.getStringParameter(request, "cn", null);
+    connectorName = ServletRequestUtils.getStringParameter(request, "cn", "");
     Connector connector = null;
 
     List<Connector> connectors;
     try {
       connectors = containerListenerBean.getConnectors(false);
     } catch (CustomException e) {
-      throw new RuntimeException(e);
+      throw new MyCustomException("Custom exception message");
     }
+
     for (Connector conn : connectors) {
         if (connectorName.equals(conn.getProtocolHandler())) {
           connector = conn;
@@ -63,4 +60,13 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
       return new ModelAndView(getViewName(), "connector", connector);
   }
 
+  public void setContainerListenerBean(ContainerListenerBean containerListenerBean) {
+    this.containerListenerBean = containerListenerBean;
+  }
+
+  static class MyCustomException extends Exception {
+    public MyCustomException(String message) {
+      super(message);
+    }
+  }
 }

@@ -132,7 +132,7 @@ public class RenderChartController extends AbstractController {
       }
 
       // Build series data from the give statistic
-    JFreeChart chart = null;
+    JFreeChart chart;
       switch (chartType) {
           case "area":
               chart = ChartFactory.createXYAreaChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
@@ -161,9 +161,10 @@ public class RenderChartController extends AbstractController {
               renderer.setYOffset(1);
               chart.getXYPlot().setRenderer(renderer);
               break;
-      }
+        default:
+            chart = ChartFactory.createXYAreaChart("", labelX, labelY, ds, PlotOrientation.VERTICAL,
+                    showLegend, false, false); }
 
-    if (chart != null) {
       chart.setAntiAlias(true);
       chart.setBackgroundPaint(new Color(backgroundColor));
       for (int i = 0; i < seriesMaxCount; i++) {
@@ -184,8 +185,7 @@ public class RenderChartController extends AbstractController {
       response.setHeader("Content-type", "image/png");
       response.getOutputStream()
           .write(ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height)));
-    }
 
-    return null;
+      return null;
   }
 }
