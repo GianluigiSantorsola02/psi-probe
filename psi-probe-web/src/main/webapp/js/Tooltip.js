@@ -107,8 +107,8 @@ let Tooltip = {
 	 */
 	setup: function ()
 	{
-		let match_class = /^(.*)?tooltip?(.*)$/i;
-		let match_for = /^.*?for_(.*)?.*$/i;
+		let match_class = /^?tooltip?(.*)$/i;
+		let match_for = /^.*?for_?.*$/i;
 		let divs = document.getElementsByTagName('div');
 		let for_result;
 		if (divs.length > 0) {
@@ -142,6 +142,7 @@ let Tooltip = {
 					while (foundPrevious === false && activator) {
 						activator = activator.previousSibling;
 						if (activator && activator.tagName) {
+							foundPrevious = true;
 							break;
 						}
 					}
@@ -249,10 +250,10 @@ let Tooltip = {
 		}
 		catch (e) { }
 
-		let node;
+		let node = event.target;
 		if (Tooltip.autoHideClick && event.type === "click") {
-			let close_class = /^(.*)?close?(.*)$/i;
-			let tooltip_class = /^(.*)?tooltip?(.*)$/i;
+			let close_class = /^?close?(.*)$/i;
+			let tooltip_class = /^?tooltip?(.*)$/i;
 
 			if (node.className?.match(close_class) === null) {
 				let isWithinTooltip = false;
@@ -260,10 +261,11 @@ let Tooltip = {
 					// Check if the parent is a close element first, if so, we can break
 					// and we still want to close the tooltip
 					if (node.className?.match(close_class)) {
+						isWithinTooltip = true;
 						break;
 					}
 					if (node.className?.match(tooltip_class)) {
-
+						isWithinTooltip = true;
 						break;
 					}
 					node = node.parentNode;
@@ -445,19 +447,7 @@ let Tooltip = {
 			left = event.pageX + 15;
 		} else if (event.clientY) {
 			top = event.clientY + 15;
-			if (document.body.scrollTop > document.documentElement.scrollTop) {
-				left = event.clientX + 15;
-			} else {
-				left = event.clientX + 15;
-			}
-
-			if (document.body.scrollLeft > document.documentElement.scrollLeft) {
-				left = event.clientX + 15;
-			} else {
-				left = event.clientX + 15;
-			}
 		}
-
 
 		if ((left + parseInt(tooltipWidth)) > winWidth) {
 			left = winWidth - parseInt(tooltipWidth) * 1.2;
