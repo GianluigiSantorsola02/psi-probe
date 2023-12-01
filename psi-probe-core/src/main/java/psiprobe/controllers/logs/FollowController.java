@@ -11,6 +11,7 @@
 package psiprobe.controllers.logs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,7 +44,7 @@ public class FollowController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws Exception {
+      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException {
 
     ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()));
     File file = logDest.getFile();
