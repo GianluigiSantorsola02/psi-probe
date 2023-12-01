@@ -537,7 +537,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       this.jspRuntimeContext = jspRuntimeContext;
       this.summary = summary;
       this.classLoader = classLoader;
-      this.level = level;
       this.compile = compile;
     }
 
