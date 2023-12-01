@@ -2647,9 +2647,12 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
 
   function _recursivelyFind(element, property, expression, index) {
-    element = $(element), expression = expression || 0, index = index || 0;
+    element = $(element)
+    expression = expression || 0
+    index = index || 0;
     if (Object.isNumber(expression)) {
-      index = expression, expression = null;
+      index = expression
+      expression = null;
     }
 
     while (element === element[property]) {
@@ -2708,7 +2711,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function descendantOf_DOM(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     while (element = element.parentNode)
       if (element === ancestor) return true;
@@ -2716,14 +2720,16 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function descendantOf_contains(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     if (!ancestor.contains) return descendantOf_DOM(element, ancestor);
     return ancestor.contains(element) && ancestor !== element;
   }
 
   function descendantOf_compareDocumentPosition(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     return (element.compareDocumentPosition(ancestor) & 8) === 8;
   }
@@ -5768,18 +5774,20 @@ Expr = Sizzle.selectors = {
 
 		"lt": createPositionalPseudo(function( matchIndexes, length, argument ) {
 			let i = argument < 0 ? argument + length : argument;
-			for ( ; --i >= 0; ) {
-				matchIndexes.push( i );
-			}
-			return matchIndexes;
+          while (--i >= 0) {
+            matchIndexes.push(i);
+          }
+
+          return matchIndexes;
 		}),
 
 		"gt": createPositionalPseudo(function( matchIndexes, length, argument ) {
 			let i = argument < 0 ? argument + length : argument;
-			for ( ; ++i < length; ) {
-				matchIndexes.push( i );
-			}
-			return matchIndexes;
+          while (++i < length) {
+            matchIndexes.push(i);
+          }
+
+          return matchIndexes;
 		})
 	}
 };
