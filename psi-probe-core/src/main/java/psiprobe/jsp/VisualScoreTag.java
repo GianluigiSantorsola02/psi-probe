@@ -165,8 +165,10 @@ public class VisualScoreTag extends BodyTagSupport {
     }
 
     // Empty blocks
+    int redPartResult = (redPart > 0) ? 1 : 0;
+    int bluePart2Result = (bluePart2 > 0) ? 1 : 0;
     int emptyBlocks = showEmptyBlocks
-        ? fullBlocks - (redWhole + blueWhole + (redPart > 0 ? 1 : 0) + (bluePart2 > 0 ? 1 : 0))
+        ? fullBlocks - (redWhole + blueWhole + redPartResult + bluePart2Result)
         : 0;
     if (emptyBlocks > 0) {
       String emptyBody = MessageFormat.format(body, "0+0");
