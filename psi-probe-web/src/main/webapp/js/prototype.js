@@ -261,12 +261,8 @@ let Class = (function() {
       }
 
       let type = typeof value;
-      if (type === "undefined") {}
-      else if (type === "boolean") {}
-      else if (type === "function") {}
-      else if (type === "symbol") {}
-      else if (type === "bigint") {}
-      else if (type === 'string') {
+      if (type === "undefined" || type === "boolean" || type === "function" || type === "symbol" || type === "bigint" || type === 'string')
+       {
         return value.inspect(true);
       } else if (type === 'number') {
         return isFinite(value) ? String(value) : 'null';
