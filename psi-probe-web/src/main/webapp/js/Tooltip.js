@@ -27,15 +27,7 @@
  * Add an Array.contains() method, mimics PHPs in_array() function
  */
 
-Array.prototype.contains = function (value)
-{
-	for (let i = 0; i < this.length; i++) {
-		if (this[i] == value) {
-			return true;
-		}
-	}
-	return false;
-}
+
 
 /**
  * Tooltip Object definition
@@ -115,8 +107,8 @@ let Tooltip = {
 	 */
 	setup: function ()
 	{
-		match_class = new RegExp("^(.*)\s?tooltip\s?(.*)$", 'i');
-		match_for = new RegExp("^.*\s?for_(.*)\s?.*$", 'i');
+		let match_class = /^(.*)?tooltip?(.*)$/i;
+		let match_for = /^.*?for_(.*)?.*$/i;
 		let divs = document.getElementsByTagName('div');
 		let for_result;
 		if (divs.length > 0) {
@@ -130,36 +122,40 @@ let Tooltip = {
 			}
 
 			for (let i = 0; i < divs.length; i++) {
-				if (divs.item(i).className.match(match_class)) {
-					for_result = divs.item(i).className.match(match_for);
-					if (for_result && for_result.length > 0) {
-						if (document.getElementById(for_result[1])) {
-							let activator = document.getElementById(for_result[1]);
-						}
-					} else {
-						let foundPrevious = false;
-						let activator = divs.item(i);
-						while (foundPrevious == false && activator) {
-							activator = activator.previousSibling;
-                            if (activator && activator.tagName) {
-								foundPrevious = true;
-								break;
-							}
+				if (!match_class.exec(divs.item(i).className)) {
+					continue;
+				}
+				for_result = (match_for.exec(divs.item(i).className));
+				if (for_result && for_result.length > 0) {
+					let foundNext = false;
+					let activator = divs.item(i);
+					while (foundNext === false && activator) {
+						activator = activator.nextSibling;
+						if (activator && activator.tagName) {
+							foundNext = true;
+							break;
 						}
 					}
-                    if (activator) {
-                        activator.Tooltip = divs.item(i);
-                        if (!activator.id) {
-                            activator.id = "tt" + i;
-                        }
-                        activator.Tooltip.activator = activator.id;
-                        Tooltip.init(activator);
-                        // Just in case you need to access the activator from the Tooltip (i.e. a "Close" button)
-                    }
-
-
-
+				} else {
+					let foundPrevious = false;
+					let activator = divs.item(i);
+					while (foundPrevious === false && activator) {
+						activator = activator.previousSibling;
+						if (activator && activator.tagName) {
+							break;
+						}
+					}
 				}
+				let activator;
+				if (!activator) {
+					continue;
+				}
+				activator.Tooltip = divs.item(i);
+				if (!activator.id) {
+					activator.id = "tt" + i;
+				}
+				activator.Tooltip.activator = activator.id;
+				Tooltip.init(activator);
 			}
 		}
 	},
@@ -180,7 +176,7 @@ let Tooltip = {
 
 
 		// Remove Link Hrefs
-		if (activator.tagName.toLowerCase() == "a") {
+		if (activator.tagName.toLowerCase() === "a") {
 			try {
 				activator.removeAttribute("href");
 				activator.style.cursor = (document.links[0].style.cursor.length > 0) ? document.links[0].style.cursor : "pointer";
@@ -193,43 +189,22 @@ let Tooltip = {
         // Make sure the Tooltip is on top, only works if the element has position: absolute; in the CSS
         tooltip.style.zIndex = "1000";
 
-		if (Tooltip.autoFollowMouse != true && Tooltip.closeText ) {
-			// Create the <p><a href="#">Close</a></p> and add it to the Tooltip
-
-			// <p> element
-			let p = document.createElement('p');
-
-			// <p> styles
-			p.style.textAlign = "right";
-			p.style.padding.padding = "0";
-			p.style.margin = "0";
-
-			// <p> class name
-			p.className = "close";
-
-			// <a> element
-			let link = document.createElement('a');
-
-			// Set the Tooltip let to the tooltip element
-			link.Tooltip = tooltip;
-
-			link.style.cursor = "pointer";
-
-			// Add the click handler
-			Tooltip._attachEvent(link, "click");
-
-			// "Close" text node
-			let close = document.createTextNode(Tooltip.closeText);
-
-			// Append the text to the <a> element
-			link.appendChild(close);
-
-			// Append the <a> to the <p> element
-			p.appendChild(link);
-
-			// Stick the entire thing on the end of the Tooltip
-			tooltip.appendChild(p, tooltip.firstChild);
+		if (!(Tooltip.autoFollowMouse !== true && Tooltip.closeText)) {
+			return;
 		}
+		let p = document.createElement('p');
+		p.style.textAlign = "right";
+		p.style.padding.padding = "0";
+		p.style.margin = "0";
+		p.className = "close";
+		let link = document.createElement('a');
+		link.Tooltip = tooltip;
+		link.style.cursor = "pointer";
+		Tooltip._attachEvent(link, "click");
+		let close = document.createTextNode(Tooltip.closeText);
+		link.appendChild(close);
+		p.appendChild(link);
+		tooltip.appendChild(p, tooltip.firstChild);
 	},
 
 	/**
@@ -255,55 +230,55 @@ let Tooltip = {
 
 	/**
 	 * Toggle the Tooltip
-         *
-         * Shows or Hides the Tooltip
-         *
-         * @param activator Activator Element
-         * @return void
+	 *
+	 * Shows or Hides the Tooltip
+	 *
+	 * @param activator Activator Element
+	 * @param event
+	 * @param directHit
+	 * @return void
 	 */
 
 	toggle: function (activator, event, directHit)
 	{
+		event.fromElement = undefined;
 		try {
-			if (activator == 1) {
+			if (activator === 1) {
 				activator = document.getElementById(window._currentTT);
 			}
 		}
 		catch (e) { }
 
-		if (Tooltip.autoHideClick && event.type == "click") {
-			let close_class = new RegExp("^(.*)\s?close\s?(.*)$", 'i');
-			let tooltip_class = new RegExp("^(.*)\s?tooltip\s?(.*)$", 'i');
-			if (event.srcElement) {
-				let node = event.srcElement;
-			} else if (event.fromElement) {
-				let node = event.fromElement;
-			} else if (event.target) {
-				let node = event.target;
-			}
-			if (node.className == null  || !node.className.match(close_class)) {
+		let node;
+		if (Tooltip.autoHideClick && event.type === "click") {
+			let close_class = /^(.*)?close?(.*)$/i;
+			let tooltip_class = /^(.*)?tooltip?(.*)$/i;
+
+			if (node.className?.match(close_class) === null) {
 				let isWithinTooltip = false;
 				while (!isWithinTooltip && node.parentNode) {
 					// Check if the parent is a close element first, if so, we can break
 					// and we still want to close the tooltip
-					if (node.className && node.className.match(close_class)) {
+					if (node.className?.match(close_class)) {
 						break;
 					}
-					if (node.className && node.className != null && node.className.match(tooltip_class)) {
-						isWithinTooltip = true;
+					if (node.className?.match(tooltip_class)) {
+
 						break;
 					}
 					node = node.parentNode;
 				}
 			}
 
+			let isWithinTooltip;
 			if (isWithinTooltip) {
-				return false;
+				Tooltip._hide(activator, event, true);
+				return
 			}
 		}
 
 		try {
-			if (directHit && (activator.Tooltip.style.visibility == 'hidden' || activator.Tooltip.style.display == 'none')) {
+			if (directHit && (activator.Tooltip.style.visibility === 'hidden' || activator.Tooltip.style.display === 'none')) {
                 Tooltip._show(activator, event);
 			} else {
                 Tooltip._hide(activator, event);
@@ -333,7 +308,7 @@ let Tooltip = {
     * @private
 	 * @return void
 	 */
-	_show: function (activator, event, ignore_event)
+	_show: function (activator, event)
 	{
 		if (Tooltip.autoHideClick && window._currentTT ) {
 			Tooltip._hide(document.getElementById(window._currentTT), event, true);
@@ -341,7 +316,8 @@ let Tooltip = {
 
 		window._currentTT = activator.id;
 
-		if (ignore_event == true || typeof Tooltip.showEvent == "string" || Tooltip.showEvent.constructor && Tooltip.showEvent.constructor == Array && Tooltip.showEvent.contains(event.type)) {
+		let ignore_event;
+		if (ignore_event === true || typeof Tooltip.showEvent == "string" || Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array && Tooltip.showEvent.contains(event.type)) {
 			activator.Tooltip.isVisible = true;
          if (Tooltip.autoFollowMouse || Tooltip.autoMoveToCursor) {
             Tooltip._follow(activator, event);
@@ -377,7 +353,7 @@ let Tooltip = {
                                             }, Tooltip.autoHideTimeout * 1000);
             }
 
-			return;
+
 		}
 	},
 
@@ -387,7 +363,9 @@ let Tooltip = {
 	 * Hides the Tooltip and sets the show events up. You should never need to call this manually.
 	 *
 	 * @param activator Activator Element
-         * @private
+	 * @param event
+	 * @param ignore_event
+	 * @private
 	 * @return void
 	 */
 	_hide: function (activator, event, ignore_event)
@@ -400,7 +378,7 @@ let Tooltip = {
 
 		let tooltip = activator.Tooltip;
         // We need to defer this
-        if (event == "mouseout" && Tooltip.autoFollowMouse) {
+        if (event === "mouseout" && Tooltip.autoFollowMouse) {
             activator.timer = setTimeout(function () {
                                             try {
                                                 Tooltip.hideMethod(tooltip, {duration:Tooltip.fade});
@@ -408,9 +386,9 @@ let Tooltip = {
                                             catch (e) {
                                                 activator.Tooltip.style.visibility = "hidden"; }
                                             }, Tooltip.autoHideTimeout * 1000);
-        } else if (ignore_event == true || ((typeof Tooltip.hideEvent == "string" && Tooltip.hideEvent == event) || Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor == Array && Tooltip.hideEvent.contains(event))) {
+        } else if (ignore_event === true || ((typeof Tooltip.hideEvent == "string" && Tooltip.hideEvent === event) || Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor === Array && Tooltip.hideEvent.contains(event))) {
 			activator.Tooltip.isVisible = false;
-            if( tooltip.style.visibility == 'vidible' || activator.Tooltip.style.display != 'none') {
+            if( tooltip.style.visibility === 'vidible' || activator.Tooltip.style.display !== 'none') {
                 try {
                     Tooltip.hideMethod(tooltip, {duration:Tooltip.fade});
                 }
@@ -428,7 +406,7 @@ let Tooltip = {
             }
             window._currentTT = false;
 
-			return;
+
 		}
 	},
 
@@ -441,58 +419,51 @@ let Tooltip = {
          catch (e) { }
       }
 
-		let winWidth, winHeight, d=document;
+		let winWidth;
 		if (typeof window.innerWidth!='undefined') {
 			winWidth = window.innerWidth;
-			winHeight = window.innerHeight;
-		} else {
-			if (d.documentElement && typeof d.documentElement.clientWidth!='undefined' && d.documentElement.clientWidth!=0) {
+		} else if (d.documentElement && typeof d.documentElement.clientWidth!='undefined' && d.documentElement.clientWidth!==0) {
 				winWidth = d.documentElement.clientWidth
-				winHeight = d.documentElement.clientHeight
-			} else {
-				if (d.body && typeof d.body.clientWidth!='undefined') {
+			} else if (d.body && typeof d.body.clientWidth!='undefined') {
 					winWidth = d.body.clientWidth
-					winHeight = d.body.clientHeight
 				}
-			}
-		}
 
-		let tooltipWidth, tooltipHeight;
+
+
+		let tooltipWidth;
 		if (activator.Tooltip.currentStyle) {
 			tooltipWidth = activator.Tooltip.currentStyle.width;
-			tooltipHeight = activator.Tooltip.currentStyle.height;
 		} else if (window.getComputedStyle) {
 			tooltipWidth = window.getComputedStyle(activator.Tooltip, null).width;
-			tooltipHeight = window.getComputedStyle(activator.Tooltip, null).height;
 		}
 
       activator.Tooltip.style.position = "absolute";
 
+		let left;
 		if (event.pageY) {
-			let top = event.pageY;
-			let left = event.pageX;
+			top = event.pageY + 15;
+			left = event.pageX + 15;
 		} else if (event.clientY) {
-			// put an If here instead, ?: doesn't seem to work
+			top = event.clientY + 15;
 			if (document.body.scrollTop > document.documentElement.scrollTop) {
-				let top = event.clientY + document.body.scrollTop;
+				left = event.clientX + 15;
 			} else {
-				let top = event.clientY + document.documentElement.scrollTop;
+				left = event.clientX + 15;
 			}
 
 			if (document.body.scrollLeft > document.documentElement.scrollLeft) {
-				let left = event.clientX + document.body.scrollLeft;
+				left = event.clientX + 15;
 			} else {
-				let left = event.clientX + document.documentElement.scrollLeft;
+				left = event.clientX + 15;
 			}
 		}
 
-		// Make sure the Tooltip doesn't go off the page. The 1.2 comes from Trial and error.
-		// We don't track the height, its possible (and much more common) that the height of an item will be more than the browser pane
+
 		if ((left + parseInt(tooltipWidth)) > winWidth) {
 			left = winWidth - parseInt(tooltipWidth) * 1.2;
 		}
 
-		activator.Tooltip.style.top = top + "px";
+		activator.Tooltip.style.top = parseInt(top) + "px";
 		activator.Tooltip.style.left = left + "px";
     },
 
@@ -508,10 +479,11 @@ let Tooltip = {
 
 	_attachEvent: function (element, event)
 	{
+		element.attachEvent = undefined;
 		let i;
-		let events = new Array();
-        if (event == "toggle") {
-			if (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor == Array) {
+		let events = [];
+        if (event === "toggle") {
+			if (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array) {
                 for (i = 0; i < Tooltip.showEvent.length; i++) {
                     events.push(Tooltip.showEvent[i]);
                     if (element.addEventListener) {
@@ -524,12 +496,12 @@ let Tooltip = {
                 events.push(Tooltip.showEvent);
                 if (element.addEventListener) {
                     element.addEventListener(Tooltip.showEvent, function (e) { Tooltip.toggle(element, e, true); return false; }, false);
-                } else if (element.attachEvent) {
-                    element.attachEvent('on' + Tooltip.showEvent, function (e) { Tooltip.toggle(element, e, true); return false; });
-                }
+                } else {
+					element.attachEvent('on' + Tooltip.showEvent, function (e) { Tooltip.toggle(element, e, true); return false; });
+				}
             }
 
-            if (Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor == Array) {
+            if (Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor === Array) {
                 for (i = 0; i < Tooltip.hideEvent.length; i++) {
                     if (!events.contains(Tooltip.hideEvent[i])) {
                         events.push(Tooltip.hideEvent[i]);
@@ -540,8 +512,7 @@ let Tooltip = {
                         }
                     }
                 }
-            } else {
-                if (!events.contains(Tooltip.hideEvent)) {
+            } else if (!events.contains(Tooltip.hideEvent)) {
                     events.push(Tooltip.hideEvent);
                     if (element.addEventListener) {
                         element.addEventListener(Tooltip.hideEvent, function (e) { Tooltip.toggle(element, e, false); return false; }, false);
@@ -550,25 +521,25 @@ let Tooltip = {
                     }
                 }
             }
-        } else if (event == "load") {
+         else if (event === "load") {
             if (element.addEventListener) {
                 element.addEventListener("load", function () { Tooltip.setup(); }, false);
-            } else if (element.attachEvent) {
-                element.attachEvent('on' + "load", function () { Tooltip.setup(); });
-            }
-        } else if (event == "click") {
+            } else{
+				element.attachEvent('onload', function () { Tooltip.setup(); });
+			}
+        } else if (event === "click") {
             if (element.addEventListener) {
                 element.addEventListener("click", function (e) { Tooltip.toggle(element, e, true); }, false);
-            } else if (element.attachEvent) {
-                element.attachEvent('on' + "click", function (e) { Tooltip.toggle(element, e, true); });
-            }
-        } else if (event == "follow") {
+            } else{
+				element.attachEvent('onclick', function (e) { Tooltip.toggle(element, e, true); });
+			}
+        } else if (event === "follow") {
             if (element.addEventListener) {
                 element.addEventListener("mousemove", function (e) { Tooltip._follow(element, e); }, false);
             }  else {
                 element.attachEvent('onmousemove', function (e) { Tooltip._follow(element, e);  });
             }
-        } else if (event == "clickanywhere") {
+        } else if (event === "clickanywhere") {
 			if (element.addEventListener) {
                 element.addEventListener("click", function (e) { Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false); }, false);
             }  else {
@@ -580,7 +551,7 @@ let Tooltip = {
     _removeEvent: function (element, event)
     {
         try {
-            if (event == "follow") {
+            if (event === "follow") {
                 if (element.addEventListener) {
                     element.removeEventListener("mousemove", function (e) { Tooltip._follow(element, e); }, false);
                 } else {
