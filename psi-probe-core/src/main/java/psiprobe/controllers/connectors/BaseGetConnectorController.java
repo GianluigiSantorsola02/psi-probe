@@ -31,6 +31,7 @@ public class BaseGetConnectorController extends AbstractTomcatContainerControlle
   private ContainerListenerBean containerListenerBean;
 
   public BaseGetConnectorController() {
+    setViewName("/WEB-INF/jsp/connectors/connector2.jsp");
   }
 
   @Override
