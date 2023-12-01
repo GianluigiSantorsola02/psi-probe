@@ -17,6 +17,7 @@ import org.apache.catalina.Context;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.controllers.jsp.ViewServletSourceController;
 
 /**
@@ -35,7 +36,13 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 
       if (context != null || isContextOptional()) {
         try {
-          return handleContext(contextName, context, request, response);
+          try {
+            return handleContext(contextName, context, request, response);
+          } catch (BaseViewXmlConfController.DisplayTargetException e) {
+            throw new RuntimeException(e);
+          } catch (BaseViewXmlConfController.UnknownDisplayTargetException e) {
+            throw new RuntimeException(e);
+          }
         } catch (ViewServletSourceController.FileProcessingException e) {
           throw new RuntimeException(e);
         }
@@ -72,7 +79,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, Exception, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException {
     // Your code logic here
 
     if (context == null) {
