@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -154,9 +155,10 @@ public class WhoisController extends ParameterizableViewController {
         logger.trace("", e);
       }
     }
-    return new ModelAndView(getViewName(), "result", lines).addObject("timeout", timeout)
+      assert lines != null;
+      return new ModelAndView(Objects.requireNonNull(getViewName()), "result", lines).addObject("timeout", timeout)
         .addObject("whoisServer",
-            wh != null ? wh.getServer() + ":" + wh.getPort() : defaultServer + ":" + defaultPort)
+                wh.getServer() + ":" + wh.getPort())
         .addObject("domainName", reverseName);
   }
 
