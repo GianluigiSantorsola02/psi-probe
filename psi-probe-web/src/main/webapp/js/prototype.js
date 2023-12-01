@@ -14,7 +14,7 @@
  *  (c) 2005-2010 Sam Stephenson
  *
  *  Prototype is freely distributable under the terms of an MIT-style license.
- *  For details, see the Prototype web site: http://www.prototypejs.org/
+ *  For details, see the Prototype website: http://www.prototypejs.org/
  *
  *--------------------------------------------------------------------------*/
 
@@ -63,7 +63,7 @@ const Prototype = {
     })()
   },
 
-  ScriptFragment: '<script[^>]*>([\\S\\s]*?)<\/script\\s*>',
+  ScriptFragment: '<script[^>]*>([\\S\\s]*?)<script\\s*>',
   JSONFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/,
 
   emptyFunction: function () {
@@ -261,12 +261,12 @@ let Class = (function() {
       }
 
       let type = typeof value;
-      if (type === "undefined") {
-      } else if (type === "boolean") {
-      } else if (type === "function") {
-      } else if (type === "symbol") {
-      } else if (type === "bigint") {
-      } else if (type === 'string') {
+      if (type === "undefined") {}
+      else if (type === "boolean") {}
+      else if (type === "function") {}
+      else if (type === "symbol") {}
+      else if (type === "bigint") {}
+      else if (type === 'string') {
         return value.inspect(true);
       } else if (type === 'number') {
         return isFinite(value) ? String(value) : 'null';
