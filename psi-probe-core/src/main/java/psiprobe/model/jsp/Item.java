@@ -10,6 +10,8 @@
  */
 package psiprobe.model.jsp;
 
+import org.apache.catalina.Container;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -233,4 +235,7 @@ public class Item implements Serializable {
     this.encoding = encoding;
   }
 
+  public Container getContext() {
+    return null;
+  }
 }
