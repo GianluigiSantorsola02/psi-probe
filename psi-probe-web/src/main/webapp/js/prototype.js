@@ -2332,15 +2332,16 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   function replace(element, content) {
     element = $(element);
 
-    if (content && content.toElement) {
-      content = content.toElement();
-    } else if (!Object.isElement(content)) {
-      content = Object.toHTML(content);
-      let range = element.ownerDocument.createRange();
-      range.selectNode(element);
-      content.evalScripts.bind(content).defer();
-      content = range.createContextualFragment(content.stripScripts());
-    }
+    content = content?.toElement?.() ||
+        (Object.isElement(content) ? content :
+            (() => {
+              let contentHTML = Object.toHTML(content);
+              let range = element.ownerDocument.createRange();
+              range.selectNode(element);
+              contentHTML.evalScripts?.bind(contentHTML)?.defer?.();
+              return range.createContextualFragment(contentHTML.stripScripts());
+            })());
+
 
     element.parentNode.replaceChild(content, element);
     return element;
@@ -2379,12 +2380,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
   function replace_IE(element, content) {
     element = $(element);
-    if (content && content.toElement)
-      content = content.toElement();
+    content = content?.toElement?.();
+
     if (Object.isElement(content)) {
       element.parentNode.replaceChild(content, element);
       return element;
     }
+
 
     content = Object.toHTML(content);
     let parent = element.parentNode, tagName = parent.tagName.toUpperCase();
@@ -2428,7 +2430,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     position   = position.toLowerCase();
     let method = INSERTION_TRANSLATIONS[position];
 
-    if (content && content.toElement) content = content.toElement();
+    content = content?.toElement?.();
+
+    if (Object.isElement(content)) {
+      element.parentNode.replaceChild(content, element);
+      return element;
+    }
+
     if (Object.isElement(content)) {
       method(element, content);
       return element;
@@ -2558,11 +2566,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     }
   }
 
-  if (HAS_UNIQUE_ID_PROPERTY) {
-    purgeCollection = purgeCollection_IE;
-  }
-
-
   function purge(element) {
     if (!(element = $(element))) return;
     purgeElement(element);
@@ -2688,10 +2691,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
   function down(element, expression, index) {
     if (arguments.length === 1) return firstDescendant(element);
-    element = $(element), expression = expression || 0, index = index || 0;
+    element = $(element)
+    expression = expression || 0
+    index = index || 0;
 
     if (Object.isNumber(expression))
-      index = expression, expression = '*';
+      index = expression
+      expression = '*';
 
     let node = Prototype.Selector.select(expression, element)[index];
     return Element.extend(node);
