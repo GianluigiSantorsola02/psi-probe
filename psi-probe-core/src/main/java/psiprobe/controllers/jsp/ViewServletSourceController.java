@@ -47,7 +47,7 @@ public class ViewServletSourceController extends AbstractContextHandlerControlle
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) {
+                                    HttpServletRequest request, HttpServletResponse response) throws FileProcessingException {
 
     String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
     ServletContext sctx = context.getServletContext();
@@ -65,7 +65,7 @@ public class ViewServletSourceController extends AbstractContextHandlerControlle
           try (InputStream fis = Files.newInputStream(servletFile.toPath())) {
             content = Utils.highlightStream(jspName, fis, "java", encoding);
           } catch (IOException e) {
-              throw new RuntimeException(e);
+            throw new FileProcessingException("Error processing file", e);
           }
         }
       }
@@ -79,4 +79,9 @@ public class ViewServletSourceController extends AbstractContextHandlerControlle
     super.setViewName(viewName);
   }
 
+  private static class FileProcessingException extends Throwable {
+    public FileProcessingException(String errorProcessingFile, IOException e) {
+      super(errorProcessingFile, e);
+    }
+  }
 }
