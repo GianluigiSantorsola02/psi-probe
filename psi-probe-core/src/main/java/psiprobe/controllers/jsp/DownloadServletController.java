@@ -49,10 +49,11 @@ public class DownloadServletController extends AbstractContextHandlerController 
       if (servletName != null) {
         File servletFile = new File(servletName);
         if (servletFile.exists()) {
+
           try {
             Utils.sendFile(request, response, servletFile);
           } catch (IOException e) {
-            throw new RuntimeException(e);
+              throw new RuntimeException(e);
           }
         }
       }
