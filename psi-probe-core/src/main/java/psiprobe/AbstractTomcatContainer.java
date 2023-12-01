@@ -262,7 +262,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       return null;
     }
     Context result = findContextInternal(safeName);
-    if (result == null && "".equals(safeName)) {
+    if (result == null && safeName.isEmpty()) {
       result = findContextInternal("/");
     }
     return result;
@@ -296,7 +296,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     if (contextName == null) {
       return null;
     }
-    if ("".equals(contextName)) {
+    if (contextName.isEmpty()) {
       return "ROOT";
     }
     if (contextName.startsWith("/")) {
@@ -359,17 +359,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
               try {
                 Item item = summary.getItems().get(name);
                 if (item != null) {
-                  try {
-                    org.apache.jasper.compiler.Compiler compiler = jcctx.createCompiler();
-                    compiler.compile();
-                    item.setState(Item.STATE_READY);
-                    item.setException(null);
-                    logger.info("Compiled '{}': OK", name);
-                  } catch (Exception e) {
-                    item.setState(Item.STATE_FAILED);
-                    item.setException(e);
-                    logger.error("Compiled '{}': FAILED", name, e);
-                  }
                   item.setCompileTime(System.currentTimeMillis() - time);
                 } else {
                   logger.error("{} is not on the summary list, ignored", name);
@@ -391,7 +380,20 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       logger.error(NO_JSP_SERVLET, context.getName());
     }
   }
-
+  private void compileItem(Item item, String name, JspCompilationContext jcctx) {
+    try {
+      ServletConfig servletConfig = (ServletConfig) item.getContext().findChild("jsp");
+      org.apache.jasper.compiler.Compiler compiler = jcctx.createCompiler();
+      compiler.compile();
+      item.setState(Item.STATE_READY);
+      item.setException(null);
+      logger.info("Compiled '{}': OK", name);
+    } catch (Exception e) {
+      item.setState(Item.STATE_FAILED);
+      item.setException(e);
+      logger.error("Compiled '{}': FAILED", name, e);
+    }
+  }
   @Override
   public void listContextJsps(Context context, Summary summary, boolean compile) {
     ServletConfig servletConfig = (ServletConfig) context.findChild("jsp");
@@ -603,7 +605,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   protected void checkChanges(String name) throws Exception {
     Boolean result = (Boolean) mbeanServer.invoke(deployerOName, "isServiced", new String[] {name},
         new String[] {String.class.getName()});
-    if (!result.booleanValue()) {
+    if (!result) {
       mbeanServer.invoke(deployerOName, "addServiced", new String[] {name},
           new String[] {String.class.getName()});
       try {
