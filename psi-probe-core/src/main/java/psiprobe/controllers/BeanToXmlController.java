@@ -11,19 +11,15 @@
 package psiprobe.controllers;
 
 import com.thoughtworks.xstream.XStream;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.mvc.Controller;
-
 import psiprobe.model.TransportableModel;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 /**
@@ -36,19 +32,10 @@ public class BeanToXmlController extends AbstractController {
   private String xmlMarker;
 
   /** The xstream. */
-  private XStream xstream;
+  private final XStream xstream;
 
-  @Inject
-  public void xStream(XStream xstream) {
+  public BeanToXmlController(XStream xstream) {
     this.xstream = xstream;
-  }
-  /**
-   * Gets the xml marker.
-   *
-   * @return the xml marker
-   */
-  public String getXmlMarker() {
-    return xmlMarker;
   }
 
   /**
@@ -76,7 +63,6 @@ public class BeanToXmlController extends AbstractController {
     String internalPath = path.replaceAll(xmlMarker, "");
 
     Controller controller = (Controller) Objects.requireNonNull(getApplicationContext()).getBean(internalPath);
-    if (controller != null) {
       ModelAndView modelAndView = controller.handleRequest(request, response);
       if (modelAndView != null) {
         TransportableModel tm = new TransportableModel();
@@ -88,7 +74,6 @@ public class BeanToXmlController extends AbstractController {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         response.getWriter().write("Error occurred while handling the request.");
       }
-    }
-    return null;
+      return null;
   }
 }
