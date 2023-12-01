@@ -13,6 +13,7 @@ package psiprobe.controllers.sessions;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,8 +48,8 @@ public class ListSessionsController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
         && SecurityUtils.hasAttributeValueRole(getServletContext());
@@ -105,10 +106,10 @@ public class ListSessionsController extends AbstractContextHandlerController {
         Session[] sessions = ctx.getManager().findSessions();
         for (Session session : sessions) {
           ApplicationSession appSession =
-              ApplicationUtils.getApplicationSession(session, calcSize, searchInfo.isUseAttr());
+              ApplicationUtils.getApplicationSession(session, searchInfo.isUseAttr());
           if (appSession != null && matchSession(appSession, searchInfo)) {
             if (ctx.getName() != null) {
-              appSession.setApplicationName(ctx.getName().length() > 0 ? ctx.getName() : "/");
+              appSession.setApplicationName(!ctx.getName().isEmpty() ? ctx.getName() : "/");
             }
             sessionList.add(appSession);
           }
@@ -117,7 +118,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
     }
 
     if (sessionList.isEmpty() && searchInfo.isApply()) {
-      synchronized (sess) {
+      synchronized (Objects.requireNonNull(sess)) {
         populateSearchMessages(searchInfo);
       }
     }
@@ -141,35 +142,44 @@ public class ListSessionsController extends AbstractContextHandlerController {
     searchInfo.getErrorMessages().clear();
 
     if (searchInfo.isEmpty()) {
-      searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.empty"));
+        assert msa != null;
+        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.empty"));
     } else if (searchInfo.isValid()) {
-      searchInfo.setInfoMessage(msa.getMessage("probe.src.sessions.search.results.empty"));
+        assert msa != null;
+        searchInfo.setInfoMessage(msa.getMessage("probe.src.sessions.search.results.empty"));
     } else {
       if (!searchInfo.isSessionIdValid()) {
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.sessionId",
+          assert msa != null;
+          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.sessionId",
             new Object[] {searchInfo.getSessionIdMsg()}));
       }
       if (!searchInfo.isAttrNameValid()) {
         for (String message : searchInfo.getAttrNameMsgs()) {
-          searchInfo.addErrorMessage(
+            assert msa != null;
+            searchInfo.addErrorMessage(
               msa.getMessage("probe.src.sessions.search.invalid.attrName", new Object[] {message}));
         }
       }
       if (!searchInfo.isAgeFromValid()) {
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageFrom"));
+          assert msa != null;
+          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageFrom"));
       }
       if (!searchInfo.isAgeToValid()) {
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageTo"));
+          assert msa != null;
+          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageTo"));
       }
       if (!searchInfo.isIdleTimeFromValid()) {
-        searchInfo
+          assert msa != null;
+          searchInfo
             .addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.idleTimeFrom"));
       }
       if (!searchInfo.isIdleTimeToValid()) {
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.idleTimeTo"));
+          assert msa != null;
+          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.idleTimeTo"));
       }
       if (searchInfo.getErrorMessages().isEmpty()) {
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid"));
+          assert msa != null;
+          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid"));
       }
     }
   }

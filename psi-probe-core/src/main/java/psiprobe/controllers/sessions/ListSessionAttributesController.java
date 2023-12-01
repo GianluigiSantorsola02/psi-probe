@@ -39,8 +39,8 @@ public class ListSessionAttributesController extends AbstractContextHandlerContr
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     boolean privileged = SecurityUtils.hasAttributeValueRole(getServletContext());
     boolean calcSize =
@@ -48,7 +48,7 @@ public class ListSessionAttributesController extends AbstractContextHandlerContr
     String sid = ServletRequestUtils.getStringParameter(request, "sid");
 
     ApplicationSession appSession = ApplicationUtils
-        .getApplicationSession(context.getManager().findSession(sid), calcSize, true);
+        .getApplicationSession(context.getManager().findSession(sid), true);
 
     if (appSession != null) {
       appSession.setAllowedToViewValues(privileged);

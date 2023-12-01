@@ -122,7 +122,7 @@ public final class ApplicationUtils {
         long size = 0;
 
         for (Session session : context.getManager().findSessions()) {
-          ApplicationSession appSession = getApplicationSession(session, calcSize, false);
+          ApplicationSession appSession = getApplicationSession(session, false);
           if (appSession != null) {
             sessionAttributeCount += appSession.getObjectCount();
             serializable = serializable && appSession.isSerializable();
@@ -219,13 +219,12 @@ public final class ApplicationUtils {
    * Gets the application session.
    *
    * @param session the session
-   * @param calcSize the calc size
    * @param addAttributes the add attributes
    *
    * @return the application session
    */
-  public static ApplicationSession getApplicationSession(Session session, boolean calcSize,
-      boolean addAttributes) {
+  public static ApplicationSession getApplicationSession(Session session,
+                                                         boolean addAttributes) {
 
     ApplicationSession sbean = null;
     if (session != null && session.isValid()) {
@@ -299,7 +298,6 @@ public final class ApplicationUtils {
     ApplicationSession sbean = null;
     for (String name : Collections.list(httpSession.getAttributeNames())) {
       Object obj = httpSession.getAttribute(name);
-      boolean sessionSerializable =  obj instanceof Serializable;
 
       long objSize = 0;
       if (calcSize) {
@@ -318,11 +316,9 @@ public final class ApplicationUtils {
         saBean.setValue(obj);
         saBean.setSize(objSize);
         saBean.setSerializable(obj instanceof Serializable);
-        sbean.addAttribute(saBean);
+          assert sbean != null;
+          sbean.addAttribute(saBean);
       }
-      int attributeCount = 0;
-      attributeCount++;
-      long size = objSize;
     }
     String lastAccessedIp = (String) httpSession.getAttribute(ApplicationSession.LAST_ACCESSED_BY_IP);
     if (lastAccessedIp != null) {
@@ -374,24 +370,6 @@ public final class ApplicationUtils {
       ContainerWrapperBean containerWrapper) {
 
     return containerWrapper.getTomcatContainer().getApplicationInitParams(context);
-  }
-
-  /**
-   * Gets the application servlet.
-   *
-   * @param context the context
-   * @param servletName the servlet name
-   *
-   * @return the application servlet
-   */
-  public static ServletInfo getApplicationServlet(Context context, String servletName) {
-    Container container = context.findChild(servletName);
-
-    if (container instanceof Wrapper) {
-      Wrapper wrapper = (Wrapper) container;
-      return getServletInfo(wrapper, context.getName());
-    }
-    return null;
   }
 
   /**
