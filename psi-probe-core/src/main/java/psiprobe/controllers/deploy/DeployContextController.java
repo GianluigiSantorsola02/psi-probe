@@ -42,36 +42,36 @@ public class DeployContextController extends AbstractTomcatContainerController {
   public ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    String contextName = ServletRequestUtils.getStringParameter(request, "context", null);
+      String contextName = ServletRequestUtils.getStringParameter(request, "context", "");
 
-    if (contextName != null) {
+      String errorMessageString = null;
       try {
-        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-        if (getContainerWrapper().getTomcatContainer().installContext(contextName) && messageSourceAccessor != null) {
-          request.setAttribute("successMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.success", new Object[] {contextName}));
-        }          // Logging action
+          errorMessageString = "errorMessage";
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (getContainerWrapper().getTomcatContainer().installContext(contextName) && messageSourceAccessor != null) {
+              request.setAttribute("successMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.success", new Object[]{contextName}));
+          }          // Logging action
           Authentication auth = SecurityContextHolder.getContext().getAuthentication();
           // get username logger
           String name = auth.getName();
           messageSourceAccessor = getMessageSourceAccessor();
-        if (messageSourceAccessor != null) {
-          String message = messageSourceAccessor.getMessage("probe.src.log.copyfile");
-          logger.info(message, name, contextName);
-        }
-         else {
-            messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
-            request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.failure", new Object[] {contextName}));
+              String message = messageSourceAccessor.getMessage("probe.src.log.copyfile");
+              logger.info(message, name, contextName);
           } else {
-            request.setAttribute("errorMessage", "Error: Failed to get message source accessor.");
-          }        }
+              messageSourceAccessor = getMessageSourceAccessor();
+              if (messageSourceAccessor != null) {
+                  request.setAttribute(errorMessageString, messageSourceAccessor.getMessage("probe.src.deploy.context.failure", new Object[]{contextName}));
+              } else {
+                  request.setAttribute(errorMessageString, "Error: Failed to get message source accessor.");
+              }
+          }
       } catch (Exception e) {
-        request.setAttribute("errorMessage", e.getMessage());
-        logger.trace("", e);
+          request.setAttribute(errorMessageString, e.getMessage());
+          logger.trace("", e);
       }
-    }
 
-    return new ModelAndView(new InternalResourceView(getViewName()));
+      return new ModelAndView(new InternalResourceView(getViewName()));
   }
 
   @Value("/adm/deploy.htm")
