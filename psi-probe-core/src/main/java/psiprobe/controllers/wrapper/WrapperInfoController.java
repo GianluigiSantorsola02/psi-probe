@@ -24,6 +24,8 @@ import org.tanukisoftware.wrapper.WrapperManager;
 
 import psiprobe.model.wrapper.WrapperInfo;
 
+import java.util.Objects;
+
 /**
  * The Class WrapperInfoController.
  */
@@ -31,7 +33,7 @@ import psiprobe.model.wrapper.WrapperInfo;
 public class WrapperInfoController extends ParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(WrapperInfoController.class);
+  private static final Logger TheLogger = LoggerFactory.getLogger(WrapperInfoController.class);
 
   @RequestMapping(path = "/wrapper.htm")
   @Override
@@ -62,11 +64,11 @@ public class WrapperInfoController extends ParameterizableViewController {
       wi.setDebugEnabled(WrapperManager.isDebugEnabled());
       wi.setLaunchedAsService(WrapperManager.isLaunchedAsService());
     } catch (ClassNotFoundException e) {
-      logger.info("Could not find WrapperManager class. Is wrapper.jar in the classpath?");
-      logger.trace("", e);
+      TheLogger.info("Could not find WrapperManager class. Is wrapper.jar in the classpath?");
+      TheLogger.trace("", e);
       wi.setControlledByWrapper(false);
     }
-    return new ModelAndView(getViewName(), "wrapperInfo", wi);
+    return new ModelAndView(Objects.requireNonNull(getViewName()), "wrapperInfo", wi);
   }
 
   @Value("wrapper")

@@ -11,6 +11,7 @@
 package psiprobe.controllers.sql;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +54,8 @@ public class QueryHistoryController extends PostParameterizableViewController {
       }
     }
 
-    return new ModelAndView(getViewName(), "queryHistory", queryHistory);
+      assert queryHistory != null;
+      return new ModelAndView(Objects.requireNonNull(getViewName()), "queryHistory", queryHistory);
   }
 
   @Value("ajax/sql/queryHistory")

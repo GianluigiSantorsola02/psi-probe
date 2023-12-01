@@ -54,11 +54,6 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   /** The xstream. */
   private XStream xstream;
 
-  @Inject
-  public void xStream(XStream xstream) {
-    this.xstream = xstream;
-  }
-
   /** The swap file name. */
   private String swapFileName;
 
@@ -74,13 +69,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
 
-  /**
-   * Gets the swap file name.
-   *
-   * @return the swap file name
-   */
-  public String getSwapFileName() {
-    return swapFileName;
+  public StatsCollection() {
   }
 
   /**
@@ -293,12 +282,6 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
           stats = (Map<String, List<XYDataItem>>) xstream.fromXML(fis);
 
           if (stats != null) {
-            // adjust stats data so that charts look realistic.
-            // we do that by ending the previous stats group with 0 value
-            // and starting the current stats group also with 0
-            // thus giving the chart nice plunge to zero indicating downtime
-            // and lets not bother about rotating stats;
-            // regular stats collection cycle will do it
 
             for (Entry<String, List<XYDataItem>> set : stats.entrySet()) {
               List<XYDataItem> list = set.getValue();
@@ -382,4 +365,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
     }
   }
 
+  public void setXstream(XStream xstream) {
+    this.xstream = xstream;
+  }
 }
