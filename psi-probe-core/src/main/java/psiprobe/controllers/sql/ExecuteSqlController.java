@@ -60,7 +60,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(ExecuteSqlController.class);
 
-  @RequestMapping(path = "/sql/recordset.ajax")
+  @RequestMapping(path = "/sql/record1set.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -137,6 +137,8 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
     } else {
       List<Map<String, String>> results = null;
       int rowsAffected;
+      
+      
 
       try {
 
@@ -155,7 +157,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
                 ResultSetMetaData metaData = rs.getMetaData();
 
                 while (rs.next() && (maxRows < 0 || results.size() < maxRows)) {
-                  Map<String, String> record = new LinkedHashMap<>();
+                  Map<String, String> record1 = new LinkedHashMap<>();
 
                   for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String value = rs.getString(i);
@@ -182,13 +184,13 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
                     // Pad the keys of columns with existing labels so they are distinct
                     StringBuilder key = new StringBuilder(metaData.getColumnLabel(i));
-                    while (record.containsKey(key.toString())) {
+                    while (record1.containsKey(key.toString())) {
                       key.append(" ");
                     }
-                    record.put(HtmlUtils.htmlEscape(key.toString()), value);
+                    record1.put(HtmlUtils.htmlEscape(key.toString()), value);
                   }
 
-                  results.add(record);
+                  results.add(record1);
                 }
               }
 
@@ -235,7 +237,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
     return true;
   }
 
-  @Value("ajax/sql/recordset")
+  @Value("ajax/sql/record1set")
   @Override
   public void setViewName(String viewName) {
     super.setViewName(viewName);
