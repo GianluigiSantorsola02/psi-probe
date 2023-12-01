@@ -13,6 +13,7 @@ package psiprobe.controllers.threads;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -93,7 +94,8 @@ public class ListSunThreadsController extends ParameterizableViewController {
         }
       }
     }
-    return new ModelAndView(getViewName(), "threads", threads);
+      assert threads != null;
+      return new ModelAndView(Objects.requireNonNull(getViewName()), "threads", threads);
   }
 
   /**
