@@ -68,7 +68,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws MyCustomException, ViewServletSourceController.FileProcessingException {
+                                    HttpServletRequest request, HttpServletResponse response) throws MyCustomException, ViewServletSourceController.FileProcessingException, Exception {
     // Your code logic here
 
     if (context == null) {

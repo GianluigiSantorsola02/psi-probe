@@ -10,13 +10,6 @@
  */
 package psiprobe.controllers.jsp;
 
-import java.io.InputStream;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
@@ -27,11 +20,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.Utils;
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.jsp.Item;
 import psiprobe.model.jsp.Summary;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * The Class ViewSourceController.
@@ -40,8 +39,7 @@ import psiprobe.model.jsp.Summary;
 public class ViewSourceController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ViewSourceController.class);
-
+  private static final Logger viewSourceLogger = LoggerFactory.getLogger(ViewSourceController.class);
   @RequestMapping(path = "/app/viewsource.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
@@ -50,76 +48,92 @@ public class ViewSourceController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    String jspName = ServletRequestUtils.getStringParameter(request, "source", null);
+    String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
     boolean highlight = ServletRequestUtils.getBooleanParameter(request, "highlight", true);
-    Summary summary = (Summary) (request.getSession(false) != null
-        ? request.getSession(false).getAttribute(DisplayJspController.SUMMARY_ATTRIBUTE)
-        : null);
+    Summary summary = getSessionSummary(request);
 
-    if (jspName != null && summary != null && contextName.equals(summary.getName())) {
-
-      Item item = summary.getItems().get(jspName);
+    if (summary != null && contextName.equals(summary.getName())) {
+      Item item = getSummaryItem(summary, jspName);
 
       if (item != null) {
-        // replace "\" with "/"
-        jspName = jspName.replace('\\', '/');
-
-        // remove cheeky "../" from the path to avoid exploits
-        while (jspName.contains("../")) {
-          jspName = jspName.replace("../", "");
-        }
+        jspName = sanitizeJspName(jspName);
 
         if (getContainerWrapper().getTomcatContainer().resourceExists(jspName, context)) {
-          ServletContext sctx = context.getServletContext();
-          ServletConfig scfg = (ServletConfig) context.findChild("jsp");
-          Options opt = new EmbeddedServletOptions(scfg, sctx);
-          String descriptorPageEncoding =
-              opt.getJspConfig().findJspProperty(jspName).getPageEncoding();
+          String descriptorPageEncoding = getDescriptorPageEncoding(jspName, context);
 
-          if (descriptorPageEncoding != null && descriptorPageEncoding.length() > 0) {
+          if (descriptorPageEncoding != null && !descriptorPageEncoding.isEmpty()) {
             item.setEncoding(descriptorPageEncoding);
           } else {
-
-            /*
-             * we have to read the JSP twice, once to figure out the content encoding the second
-             * time to read the actual content using the correct encoding
-             */
-            try (InputStream encodedStream =
-                getContainerWrapper().getTomcatContainer().getResourceStream(jspName, context)) {
-              item.setEncoding(Utils.getJspEncoding(encodedStream));
-            }
-          }
-          try (InputStream jspStream =
-              getContainerWrapper().getTomcatContainer().getResourceStream(jspName, context)) {
-            if (highlight) {
-              request.setAttribute("highlightedContent",
-                  Utils.highlightStream(jspName, jspStream, "xhtml", item.getEncoding()));
-            } else {
-              request.setAttribute("content", Utils.readStream(jspStream, item.getEncoding()));
-            }
+            item.setEncoding(getJspEncoding(jspName, context));
           }
 
+          if (highlight) {
+            request.setAttribute("highlightedContent",
+                    highlightJspContent(jspName, item.getEncoding(), context));
+          } else {
+            request.setAttribute("content",
+                    readJspContent(jspName, item.getEncoding(), context));
+          }
         } else {
-          logger.error("{} does not exist", jspName);
+          viewSourceLogger.error("{} does not exist", jspName);
         }
 
         request.setAttribute("item", item);
 
       } else {
-        logger.error("jsp name passed is not in the summary, ignored");
+        viewSourceLogger.error("jsp name passed is not in the summary, ignored");
       }
     } else {
-      if (jspName == null && jspName.isEmpty()) {
-        logger.error("Passed empty or null 'source' parameter");
-      }
       if (summary == null) {
-        logger.error("Session has expired or there is no summary");
+        viewSourceLogger.error("Session has expired or there is no summary");
       }
     }
+
     return new ModelAndView(getViewName());
+  }
+
+  private Summary getSessionSummary(HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    return (session != null) ? (Summary) session.getAttribute(DisplayJspController.SUMMARY_ATTRIBUTE) : null;
+  }
+
+  private Item getSummaryItem(Summary summary, String jspName) {
+    return summary.getItems().get(jspName);
+  }
+
+  private String sanitizeJspName(String jspName) {
+    jspName = jspName.replace('\\', '/');
+    while (jspName.contains("../")) {
+      jspName = jspName.replace("../", "");
+    }
+    return jspName;
+  }
+
+  private String getDescriptorPageEncoding(String jspName, Context context) {
+    ServletConfig scfg = (ServletConfig) context.findChild("jsp");
+    Options opt = new EmbeddedServletOptions(scfg, context.getServletContext());
+    return opt.getJspConfig().findJspProperty(jspName).getPageEncoding();
+  }
+
+  private String getJspEncoding(String jspName, Context context) throws IOException {
+    try (InputStream encodedStream = getContainerWrapper().getTomcatContainer().getResourceStream(jspName, context)) {
+      return Utils.getJspEncoding(encodedStream);
+    }
+  }
+
+  private String highlightJspContent(String jspName, String encoding, Context context) throws IOException {
+    try (InputStream jspStream = getContainerWrapper().getTomcatContainer().getResourceStream(jspName, context)) {
+      return Utils.highlightStream(jspName, jspStream, "xhtml", encoding);
+    }
+  }
+
+  private String readJspContent(String jspName, String encoding, Context context) throws IOException {
+    try (InputStream jspStream = getContainerWrapper().getTomcatContainer().getResourceStream(jspName, context)) {
+      return Utils.readStream(jspStream, encoding);
+    }
   }
 
   @Value("view_jsp_source")
