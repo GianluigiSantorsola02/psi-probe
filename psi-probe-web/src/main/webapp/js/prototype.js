@@ -456,16 +456,6 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(context, a);
     }
   }
-
-  function curry() {
-    if (!arguments.length) return this;
-    let __method = this, args = slice.call(arguments, 0);
-    return function() {
-      let a = merge(args, arguments);
-      return __method.apply(this, a);
-    }
-  }
-
   function delay(timeout) {
     let __method = this, args = slice.call(arguments, 1);
     timeout = timeout * 1000;
@@ -3163,13 +3153,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function stripAlphaFromFilter_IE(filter) {
-    return (filter || '').replace(/alpha\([^\)]*\)/gi, '');
+    return (filter || '').replace(/alpha\([^]*\)/gi, '');
   }
 
   function hasLayout_IE(element) {
-    if (!element.currentStyle || !element.currentStyle.hasLayout)
-      element.style.zoom = 1;
+    element?.currentStyle?.hasLayout || (element.style.zoom = 1);
     return element;
+
   }
 
   let STANDARD_CSS_OPACITY_SUPPORTED = (function() {
@@ -3220,8 +3210,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let filter = Element.getStyle(element, 'filter');
     if (filter.length === 0) return 1.0;
     let match = (filter || '').match(/alpha\(opacity=(.*)\)/i);
-    if (match && match[1]) return parseFloat(match[1]) / 100;
-    return 1.0;
+    return match?.[1] ? parseFloat(match[1]) / 100 : 1.0;
   }
 
 
@@ -3237,8 +3226,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     methods.setOpacity = setOpacity_IE;
     methods.getOpacity = getOpacity_IE;
   }
-
-  let UID = 0;
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
     GLOBAL.Element.Storage = { UID: 1 };
@@ -3430,7 +3417,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     if (arguments.length === 0) addFormMethods();
 
     if (arguments.length === 2) {
-      let tagName = methods;
       methods = arguments[1];
     }
 
@@ -3619,15 +3605,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     return 0;
   }
-
-  function toCSSPixels(number) {
-    if (Object.isString(number) && number.endsWith('px'))
-      return number;
-    return number + 'px';
-  }
-
   function isDisplayed(element) {
-    while (element && element.parentNode) {
+    while (element?.parentNode) {
       let display = element.getStyle('display');
       if (display === 'none') {
         return false;
@@ -3637,7 +3616,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     return true;
   }
 
-  let hasLayout = Prototype.K;
+    let hasLayout = Prototype.K;
   if ('currentStyle' in document.documentElement) {
     hasLayout = function(element) {
       if (!element.currentStyle.hasLayout) {
@@ -4348,9 +4327,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       styles.left = (p[0] + pageXY.x - delta[0] + options.offsetLeft) + 'px';
     if (options.setTop)
       styles.top  = (p[1] + pageXY.y - delta[1] + options.offsetTop)  + 'px';
-
-    let currentLayout = element.getLayout();
-
+    element.getLayout();
     if (options.setWidth) {
       styles.width = layout.get('width')  + 'px';
     }
@@ -5660,9 +5637,9 @@ Expr = Sizzle.selectors = {
 		}),
 
 		"target": function( elem ) {
-			let hash = window.location && window.location.hash;
-			return hash && hash.slice( 1 ) === elem.id;
-		},
+          let hash = window.location?.hash;
+          return hash && hash.slice(1) === elem.id;
+        },
 
 		"root": function( elem ) {
 			return elem === docElem;
@@ -5687,11 +5664,9 @@ Expr = Sizzle.selectors = {
 
 		"selected": function( elem ) {
 			if ( elem.parentNode ) {
-              let parentNode = elem.parentNode;
-              let selectedIndex = parentNode.selectedIndex;
-			}
+                elem.parentNode.selectedIndex;}
 
-			return elem.selected === true;
+          return elem.selected === true;
 		},
 
 		"empty": function( elem ) {
@@ -5787,7 +5762,7 @@ for ( i in { submit: true, reset: true } ) {
 
 function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters();
+Expr.setFilters = new setFilters( Expr );
 
 function tokenize( selector, parseOnly ) {
 	let matched, match, tokens, type,
