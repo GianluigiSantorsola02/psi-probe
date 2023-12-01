@@ -68,13 +68,13 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
-    String sql = ServletRequestUtils.getStringParameter(request, "sql", null);
+    String sql = ServletRequestUtils.getStringParameter(request, "sql", "");
 
-    if (sql == null || sql.isEmpty() || sql.trim().isEmpty()) {
+    if (sql.isEmpty() || sql.trim().isEmpty()) {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
         request.setAttribute("errorMessage",
@@ -136,7 +136,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
       }
     } else {
       List<Map<String, String>> results = null;
-      int rowsAffected = 0;
+      int rowsAffected;
 
       try {
         // TODO: use Spring's jdbc template?
@@ -204,7 +204,8 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
           sessData.setResults(results);
         }
 
-        ModelAndView mv = new ModelAndView(getViewName(), "results", results);
+          assert results != null;
+          ModelAndView mv = new ModelAndView(getViewName(), "results", results);
         mv.addObject("rowsAffected", String.valueOf(rowsAffected));
         mv.addObject("rowsPerPage", String.valueOf(rowsPerPage));
 
