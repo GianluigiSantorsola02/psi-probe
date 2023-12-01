@@ -11,6 +11,7 @@
 package psiprobe.controllers.jsp;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,22 +39,24 @@ public class DownloadServletController extends AbstractContextHandlerController 
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) {
 
-    String jspName = ServletRequestUtils.getStringParameter(request, "source", null);
+    String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
 
-    if (jspName != null) {
       String servletName =
-          getContainerWrapper().getTomcatContainer().getServletFileNameForJsp(context, jspName);
+              getContainerWrapper().getTomcatContainer().getServletFileNameForJsp(context, jspName);
       if (servletName != null) {
         File servletFile = new File(servletName);
         if (servletFile.exists()) {
-          Utils.sendFile(request, response, servletFile);
+          try {
+            Utils.sendFile(request, response, servletFile);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
         }
       }
-    }
-    return null;
+      return null;
   }
 
 }
