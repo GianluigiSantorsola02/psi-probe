@@ -26,8 +26,10 @@ class LogbackConfigTest {
   @Test
   void test() {
     Logger log = LoggerFactory.getLogger(getClass());
-    Assertions.assertNotEquals("slf4j-jdk14-1.7.7.jar is on the classpath, but it should NOT be.",
-        "org.slf4j.impl.JDK14LoggerAdapter", log.getClass().getName());
-  }
+    String expectedMessage = "slf4j-jdk14-1.7.7.jar is on the classpath, but it should NOT be.";
+    String expectedClassName = "org.slf4j.impl.JDK14LoggerAdapter";
+    String actualClassName = log.getClass().getName();
+
+    Assertions.assertNotEquals(expectedMessage, expectedClassName, actualClassName);  }
 
 }
