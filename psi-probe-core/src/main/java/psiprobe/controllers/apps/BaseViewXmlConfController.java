@@ -35,7 +35,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
 public class BaseViewXmlConfController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(BaseViewXmlConfController.class);
+  private static final Logger theLogger = LoggerFactory.getLogger(BaseViewXmlConfController.class);
 
   /** The Constant TARGET_WEB_XML. */
   private static final String TARGET_WEB_XML = "web.xml";
@@ -77,11 +77,11 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception, DisplayTargetException, UnknownDisplayTargetException {
 
     if (displayTarget == null) {
-      throw new RuntimeException("Display target is not set for " + getClass().getName());
+      throw new DisplayTargetException("Display target is not set for " + getClass().getName());
     }
 
     String xmlPath;
@@ -99,7 +99,7 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
         String message = accessor.getMessage("probe.src.app.viewxmlconf.webxml.desc");
         mv.addObject("message", message);
       } else {
-        logger.debug("MessageSourceAccessor is null");
+        theLogger.debug("MessageSourceAccessor is null");
       }
     } else if (TARGET_CONTEXT_XML.equals(displayTarget)) {
       xmlFile = getContainerWrapper().getTomcatContainer().getConfigFile(context);
@@ -111,9 +111,8 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = (accessor != null) ? accessor.getMessage("probe.src.app.viewxmlconf.contextxml.desc") : "";
       mv.addObject("fileDesc", message);
-
     } else {
-      throw new RuntimeException("Unknown display target " + getDisplayTarget());
+      throw new UnknownDisplayTargetException("Unknown display target " + getDisplayTarget());
     }
 
     mv.addObject("displayTarget", displayTarget);
@@ -128,14 +127,25 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
               encoding == null ? "ISO-8859-1" : encoding));
         }
       } else {
-        logger.debug("File {} of {} application does not exists.", xmlPath, contextName);
+        theLogger.debug("File {} of {} application does not exists.", xmlPath, contextName);
       }
     } else {
-      logger.debug("Cannot determine path to {} file of {} application.", getDisplayTarget(),
+      theLogger.debug("Cannot determine path to {} file of {} application.", getDisplayTarget(),
           contextName);
     }
 
     return mv;
   }
 
+  public static class DisplayTargetException extends Throwable {
+    public DisplayTargetException(String s) {
+      super(s);
+    }
+  }
+
+  public static class UnknownDisplayTargetException extends Throwable {
+    public UnknownDisplayTargetException(String s) {
+      super(s);
+    }
+  }
 }
