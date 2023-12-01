@@ -338,7 +338,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   @Override
   public void recompileJsps(Context context, Summary summary, List<String> names) {
     ServletConfig servletConfig = (ServletConfig) context.findChild("jsp");
-    if (servletConfig != null) {
+    if (null != servletConfig) {
       if (summary != null) {
         synchronized (servletConfig) {
           ServletContext sctx = context.getServletContext();
@@ -355,6 +355,8 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
               long time = System.currentTimeMillis();
               JspCompilationContext jcctx =
                   createJspCompilationContext(name, opt, sctx, jrctx, classLoader);
+
+              compileItem(summary.getItems().get(name), name, jcctx);
               ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(classLoader);
               try {
                 Item item = summary.getItems().get(name);
@@ -383,6 +385,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   private void compileItem(Item item, String name, JspCompilationContext jcctx) {
     try {
       ServletConfig servletConfig = (ServletConfig) item.getContext().findChild("jsp");
+      if (servletConfig == null) {
+        logger.error("servletConfig is null, request ignored");
+        return;
+      }
       org.apache.jasper.compiler.Compiler compiler = jcctx.createCompiler();
       compiler.compile();
       item.setState(Item.STATE_READY);
@@ -447,6 +453,13 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
+  private void compileItem(String s, Options opt, Context context, JspRuntimeContext jrctx, Summary summary, URLClassLoader urlcl, int i, boolean compile) {
+    JspCompilationContext jcctx = createJspCompilationContext(s, opt, context.getServletContext(), jrctx, urlcl);
+    if (compile) {
+      compileItem(summary.getItems().get(s), s, jcctx);
+    }
+  }
+
   @Override
   public boolean getAvailable(Context context) {
     return context.getState().isAvailable();
@@ -506,51 +519,93 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  /**
-   * Lists and optionally compiles a directory recursively.
-   *
-   * @param jspName name of JSP file or directory to be listed and compiled.
-   * @param opt the JSP compiler options
-   * @param ctx the context
-   * @param jrctx the runtime context used to create the compilation context
-   * @param summary the summary in which the output is stored
-   * @param classLoader the classloader used by the compiler
-   * @param level the depth in the tree at which the item was encountered
-   * @param compile whether or not to compile the item or just to check whether it's out of date
-   */
-  protected void compileItem(String jspName, Options opt, Context ctx, JspRuntimeContext jrctx,
-      Summary summary, URLClassLoader classLoader, int level, boolean compile) {
-    ServletContext sctx = ctx.getServletContext();
+  public class CompileItemParams {
+    private String jspName;
+    private Options options;
+    private Context context;
+    private JspRuntimeContext jspRuntimeContext;
+    private Summary summary;
+    private URLClassLoader classLoader;
+    private int level;
+    private boolean compile;
+
+    public CompileItemParams(String jspName, Options options, Context context, JspRuntimeContext jspRuntimeContext,
+                             Summary summary, URLClassLoader classLoader, int level, boolean compile) {
+      this.jspName = jspName;
+      this.options = options;
+      this.context = context;
+      this.jspRuntimeContext = jspRuntimeContext;
+      this.summary = summary;
+      this.classLoader = classLoader;
+      this.level = level;
+      this.compile = compile;
+    }
+
+    public String getJspName() {
+      return jspName;
+    }
+
+    public Options getOptions() {
+      return options;
+    }
+
+    public Context getContext() {
+      return context;
+    }
+
+    public JspRuntimeContext getJspRuntimeContext() {
+      return jspRuntimeContext;
+    }
+
+    public Summary getSummary() {
+      return summary;
+    }
+
+    public URLClassLoader getClassLoader() {
+      return classLoader;
+    }
+
+    public int getLevel() {
+      return level;
+    }
+
+    public boolean isCompile() {
+      return compile;
+    }
+  }
+
+  protected void compileItem(String jspName, CompileItemParams params) {
+    ServletContext sctx = params.getContext().getServletContext();
     Set<String> paths = sctx.getResourcePaths(jspName);
 
     if (paths != null) {
       for (String name : paths) {
         boolean isJsp =
-            name.endsWith(".jsp") || name.endsWith(".jspx") || opt.getJspConfig().isJspPage(name);
+                name.endsWith(".jsp") || name.endsWith(".jspx") || params.getOptions().getJspConfig().isJspPage(name);
 
         if (isJsp) {
           JspCompilationContext jcctx =
-              createJspCompilationContext(name, opt, sctx, jrctx, classLoader);
-          ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(classLoader);
+                  createJspCompilationContext(name, params.getOptions(), sctx, params.getJspRuntimeContext(), params.getClassLoader());
+          ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(params.getClassLoader());
           try {
-            Item item = summary.getItems().get(name);
+            Item item = params.getSummary().getItems().get(name);
 
             if (item == null) {
               item = new Item();
               item.setName(name);
             }
 
-            item.setLevel(level);
+            item.setLevel(params.getLevel());
             item.setCompileTime(-1);
 
-            Long[] objects = this.getResourceAttributes(name, ctx);
+            Long[] objects = this.getResourceAttributes(name, params.getContext());
             item.setSize(objects[0]);
             item.setLastModified(objects[1]);
 
             long time = System.currentTimeMillis();
             try {
               org.apache.jasper.compiler.Compiler compiler = jcctx.createCompiler();
-              if (compile) {
+              if (params.isCompile()) {
                 compiler.compile();
                 item.setState(Item.STATE_READY);
                 item.setException(null);
@@ -567,23 +622,22 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
               item.setException(e);
               logger.info("Compiled '{}': FAILED", name, e);
             }
-            if (compile) {
+            if (params.isCompile()) {
               item.setCompileTime(System.currentTimeMillis() - time);
             }
             item.setMissing(false);
-            summary.getItems().put(name, item);
+            params.getSummary().getItems().put(name, item);
           } finally {
             ClassUtils.overrideThreadContextClassLoader(prevCl);
           }
         } else {
-          compileItem(name, opt, ctx, jrctx, summary, classLoader, level + 1, compile);
+          compileItem(name, params);
         }
       }
     } else {
       logger.debug("getResourcePaths() is null for '{}'. Empty dir? Or Tomcat bug?", jspName);
     }
   }
-
   /**
    * Find context internal.
    *
