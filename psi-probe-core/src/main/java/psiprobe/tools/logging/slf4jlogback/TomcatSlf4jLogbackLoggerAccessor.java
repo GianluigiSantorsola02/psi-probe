@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import psiprobe.tools.logging.DefaultAccessor;
+import psiprobe.tools.logging.logback13.Logback13LoggerAccessor;
 
 /**
  * A wrapper for a TomcatSlf4jLogback logger.
@@ -145,19 +146,22 @@ public class TomcatSlf4jLogbackLoggerAccessor extends DefaultAccessor {
    *
    * @return the sifted appenders
    *
-   * @throws Exception the exception
+   * @throws Logback13LoggerAccessor.SiftedAppendersException the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object> getSiftedAppenders(Object appender) throws Exception {
-    if (appender instanceof ch.qos.logback.classic.sift.SiftingAppender){
-      Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
-      if (tracker != null) {
-        return (List<Object>) MethodUtils.invokeMethod(tracker, "allComponents");
+  private List<Object> getSiftedAppenders(Object appender) throws Logback13LoggerAccessor.SiftedAppendersException {
+    try {
+      if (appender instanceof ch.qos.logback.classic.sift.SiftingAppender) {
+        Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
+        if (tracker != null) {
+          return (List<Object>) MethodUtils.invokeMethod(tracker, "allComponents");
+        }
       }
+      return Collections.emptyList();
+    } catch (Exception e) {
+      throw new Logback13LoggerAccessor.SiftedAppendersException("Error getting sifted appenders", e);
     }
-    return Collections.emptyList();
   }
-
   /**
    * Wrap and add appender.
    *

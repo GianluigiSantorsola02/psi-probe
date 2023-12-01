@@ -16,12 +16,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
+
+import java.io.IOException;
 
 /**
  * The Class AbstractLogHandlerController.
@@ -98,9 +101,9 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
    *
    * @return the model and view
    *
-   * @throws Exception the exception
+   * @throws HandleLogFileException the exception
    */
   protected abstract ModelAndView handleLogFile(HttpServletRequest request,
-      HttpServletResponse response, LogDestination logDest) throws Exception;
+      HttpServletResponse response, LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException;
 
 }
