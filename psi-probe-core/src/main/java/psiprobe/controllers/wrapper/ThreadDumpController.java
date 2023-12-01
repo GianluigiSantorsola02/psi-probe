@@ -23,6 +23,8 @@ import org.tanukisoftware.wrapper.WrapperManager;
 
 import psiprobe.PostParameterizableViewController;
 
+import java.util.Objects;
+
 /**
  * The Class ThreadDumpController.
  */
@@ -53,7 +55,7 @@ public class ThreadDumpController extends PostParameterizableViewController {
       logger.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
       logger.trace("", e);
     }
-    return new ModelAndView(getViewName(), "done", done);
+    return new ModelAndView(Objects.requireNonNull(getViewName()), "done", done);
   }
 
   @Value("ajax/thread_dump")
