@@ -12,6 +12,7 @@ package psiprobe.controllers.threads;
 
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +48,7 @@ public class GetClassLoaderUrlsController extends ParameterizableViewController 
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    String threadName = ServletRequestUtils.getStringParameter(request, "thread", null);
+    String threadName = ServletRequestUtils.getStringParameter(request, "thread", "");
 
     Thread thread = Utils.getThreadByName(threadName);
 
@@ -63,7 +64,7 @@ public class GetClassLoaderUrlsController extends ParameterizableViewController 
       }
     }
 
-    return new ModelAndView(getViewName());
+    return new ModelAndView(Objects.requireNonNull(getViewName()));
   }
 
   @Value("ajax/classLoaderDetails")
