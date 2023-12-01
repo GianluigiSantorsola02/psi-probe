@@ -19,6 +19,19 @@
  *--------------------------------------------------------------------------*/
 
 import {Component} from "react";
+import PropTypes from 'prop-types';
+
+ComponentName.propTypes = {
+  key: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  })),
+  holder: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  })),
+  stack: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  }))
+};
 
 const Prototype = {
 
