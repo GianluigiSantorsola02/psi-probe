@@ -50,7 +50,7 @@ class Tomcat85ContainerAdapterTest {
     final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
     String containerName = "";
     boolean result = adapter.canBoundTo(containerName);
-    int expectedResult = 0;
+    boolean expectedResult = false;
     assertEquals(expectedResult, result);
   }
 
