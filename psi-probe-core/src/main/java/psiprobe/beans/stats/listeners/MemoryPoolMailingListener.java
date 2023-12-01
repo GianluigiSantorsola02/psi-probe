@@ -80,10 +80,10 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
   public void afterPropertiesSet() throws Exception {
     if (getMailer().getSmtp() == null) {
       logger.info("Mailer SMTP host is not set.  Disabling listener.");
-      setEnabled(false);
+      setEnabled();
     } else if (getMailer().getDefaultTo() == null) {
       logger.info("Mailer default recipient is not set.  Disabling listener.");
-      setEnabled(false);
+      setEnabled();
     }
   }
 
