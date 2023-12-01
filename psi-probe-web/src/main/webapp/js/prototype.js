@@ -14,11 +14,24 @@
  *  (c) 2005-2010 Sam Stephenson
  *
  *  Prototype is freely distributable under the terms of an MIT-style license.
- *  For details, see the Prototype web site: http://www.prototypejs.org/
+ *  For details, see the Prototype website: http://www.prototypejs.org/
  *
  *--------------------------------------------------------------------------*/
 
 import {Component} from "react";
+import PropTypes from 'prop-types';
+
+ComponentName.propTypes = {
+  key: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  })),
+  holder: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  })),
+  stack: PropTypes.arrayOf(PropTypes.shape({
+    toJSON: PropTypes.func.isRequired
+  }))
+};
 
 const Prototype = {
 
@@ -57,13 +70,13 @@ const Prototype = {
         isSupported = true;
       }
 
-      div = form = null;
+      form = null;
 
       return isSupported;
     })()
   },
 
-  ScriptFragment: '<script[^>]*>([\\S\\s]*?)<\/script\\s*>',
+  ScriptFragment: '<script[^>]*>([\\S\\s]*?)<script\\s*>',
   JSONFilter: /^\/\*-secure-([\s\S]*)\*\/\s*$/,
 
   emptyFunction: function () {
@@ -118,8 +131,9 @@ let Class = (function() {
   }
 
   function addMethods(source) {
-    let ancestor   = this.superclass && this.superclass.prototype,
-        properties = Object.keys(source);
+    let ancestor = this.superclass?.prototype;
+    let properties;
+    properties = Object.keys(source);
 
     if (IS_DONTENUM_BUGGY) {
       if (source.toString !== Object.prototype.toString)
@@ -133,13 +147,12 @@ let Class = (function() {
       let property = properties[i], value = source[property];
       if (!(ancestor && Object.isFunction(value) &&
           value.argumentNames()[0] === "$super")) {
-      } else {
         const method = value;
         value = (function (m) {
           return function () {
             return ancestor[m].apply(this, arguments);
           };
-        })(property).wrap(method);
+      })(property).wrap(method);
 
         value.valueOf = (function (method) {
           return function () {
@@ -236,7 +249,7 @@ let Class = (function() {
 
   class Str extends Component {
     render() {
-      let {key, holder, stack} = this.props;
+      let key = this.props.key, holder = this.props.holder, stack = this.props.stack;
       let value = holder[key];
       if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
         value = value.toJSON(key);
@@ -261,12 +274,8 @@ let Class = (function() {
       }
 
       let type = typeof value;
-      if (type === "undefined") {
-      } else if (type === "boolean") {
-      } else if (type === "function") {
-      } else if (type === "symbol") {
-      } else if (type === "bigint") {
-      } else if (type === 'string') {
+      if (type === "undefined" || type === "boolean" || type === "function" || type === "symbol" || type === "bigint" || type === 'string')
+       {
         return value.inspect(true);
       } else if (type === 'number') {
         return isFinite(value) ? String(value) : 'null';
@@ -310,7 +319,8 @@ let Class = (function() {
   }
 
   function toHTML(object) {
-    return object && object.toHTML ? object.toHTML() : String.interpret(object);
+    return object?.toHTML?.() ?? String.interpret(object);
+
   }
 
   function keys(object) {
@@ -372,11 +382,6 @@ let Class = (function() {
   function isNumber(object) {
     return _toString.call(object) === NUMBER_CLASS;
   }
-
-  function isDate(object) {
-    return _toString.call(object) === DATE_CLASS;
-  }
-
   function isUndefined(object) {
     return typeof object === "undefined";
   }
@@ -428,7 +433,11 @@ Object.extend(Function.prototype, (function() {
     if (!Object.isFunction(this))
       throw new TypeError("The object is not callable.");
 
-    let nop = function() {};
+    let nop = function() {
+      nop.prototype   = this.prototype;
+      bound.prototype = new nop();
+
+      return bound;};
     let __method = this, args = slice.call(arguments, 1);
 
     let bound = function() {
@@ -437,10 +446,7 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(c, a);
     };
 
-    nop.prototype   = this.prototype;
-    bound.prototype = new nop();
 
-    return bound;
   }
 
   function bindAsEventListener(context) {
@@ -450,16 +456,6 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(context, a);
     }
   }
-
-  function curry() {
-    if (!arguments.length) return this;
-    let __method = this, args = slice.call(arguments, 0);
-    return function() {
-      let a = merge(args, arguments);
-      return __method.apply(this, a);
-    }
-  }
-
   function delay(timeout) {
     let __method = this, args = slice.call(arguments, 1);
     timeout = timeout * 1000;
@@ -533,7 +529,7 @@ Object.extend(Function.prototype, (function() {
 RegExp.prototype.match = RegExp.prototype.test;
 
 RegExp.escape = function(str) {
-  return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+  return String(str).replace(/([.*+?^=!:${}()|[\]\\])/g, '\\$1');
 };
 let PeriodicalExecuter = Class.create({
   initialize: function(callback, frequency) {
@@ -620,7 +616,8 @@ Object.extend(String.prototype, (function() {
         result += String.interpret(replacement(match));
         source  = source.slice(match.index + match[0].length);
       } else {
-        result += source, source = '';
+        result += source
+        source = '';
       }
     }
     return result;
@@ -758,8 +755,8 @@ Object.extend(String.prototype, (function() {
   function isJSON() {
     let str = this;
     if (str.blank()) return false;
-    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -1487,7 +1484,8 @@ let Hash = Class.create(Enumerable, (function() {
     let match = this.detect(function(pair) {
       return pair.value === value;
     });
-    return match && match.key;
+    return match?.key;
+
   }
 
   function merge(object) {
@@ -1866,7 +1864,7 @@ Ajax.Request = Class.create(Ajax.Base, {
   },
 
   isSameOrigin: function() {
-    const m = this.url.match(/^\s*https?:\/\/[^\/]*/);
+    const m = this.url.match(/^\s*https?:\/\/[^]*/);
     return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
       protocol: location.protocol,
       domain: document.domain,
@@ -2223,9 +2221,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let el = document.createElement("select"),
         isBuggy = true;
     el.innerHTML = "<option value=\"test\">test</option>";
-    if (el.options && el.options[0]) {
-      isBuggy = el.options[0].nodeName.toUpperCase() !== "OPTION";
-    }
+    isBuggy = el?.options?.[0]?.nodeName?.toUpperCase() !== "OPTION";
+
     el = null;
     return isBuggy;
   })();
@@ -2233,12 +2230,11 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   let TABLE_ELEMENT_INNERHTML_BUGGY = (function(){
     try {
       let el = document.createElement("table");
-      if (el && el.tBodies) {
-        el.innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
-        let isBuggy = typeof el.tBodies[0] == "undefined";
-        el = null;
-        return isBuggy;
-      }
+      el.tBodies[0].innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
+      let isBuggy = typeof el?.tBodies?.[0] === "undefined";
+      el = null;
+      return isBuggy;
+
     } catch (e) {
       return true;
     }
@@ -2280,8 +2276,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
      i = descendants.length;
     while (i--) purgeElement(descendants[i]);
 
-    if (content && content.toElement)
-      content = content.toElement();
+    content = content?.toElement?.();
 
     if (Object.isElement(content))
       return element.update().insert(content);
@@ -2327,15 +2322,16 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   function replace(element, content) {
     element = $(element);
 
-    if (content && content.toElement) {
-      content = content.toElement();
-    } else if (!Object.isElement(content)) {
-      content = Object.toHTML(content);
-      let range = element.ownerDocument.createRange();
-      range.selectNode(element);
-      content.evalScripts.bind(content).defer();
-      content = range.createContextualFragment(content.stripScripts());
-    }
+    content = content?.toElement?.() ||
+        (Object.isElement(content) ? content :
+            (() => {
+              let contentHTML = Object.toHTML(content);
+              let range = element.ownerDocument.createRange();
+              range.selectNode(element);
+              contentHTML.evalScripts?.bind(contentHTML)?.defer?.();
+              return range.createContextualFragment(contentHTML.stripScripts());
+            })());
+
 
     element.parentNode.replaceChild(content, element);
     return element;
@@ -2374,12 +2370,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
   function replace_IE(element, content) {
     element = $(element);
-    if (content && content.toElement)
-      content = content.toElement();
+    content = content?.toElement?.();
+
     if (Object.isElement(content)) {
       element.parentNode.replaceChild(content, element);
       return element;
     }
+
 
     content = Object.toHTML(content);
     let parent = element.parentNode, tagName = parent.tagName.toUpperCase();
@@ -2423,7 +2420,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     position   = position.toLowerCase();
     let method = INSERTION_TRANSLATIONS[position];
 
-    if (content && content.toElement) content = content.toElement();
+    content = content?.toElement?.();
+
+    if (Object.isElement(content)) {
+      element.parentNode.replaceChild(content, element);
+      return element;
+    }
+
     if (Object.isElement(content)) {
       method(element, content);
       return element;
@@ -2536,28 +2539,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       delete Element.Storage[uid];
     }
   }
-
-  function purgeCollection(elements) {
-    let i = elements.length;
-    while (i--)
-      purgeElement(elements[i]);
-  }
-
-  function purgeCollection_IE(elements) {
-    let i = elements.length, element, uid;
-    while (i--) {
-      element = elements[i];
-      uid = getUniqueElementID(element);
-      delete Element.Storage[uid];
-      delete Event.cache[uid];
-    }
-  }
-
-  if (HAS_UNIQUE_ID_PROPERTY) {
-    purgeCollection = purgeCollection_IE;
-  }
-
-
   function purge(element) {
     if (!(element = $(element))) return;
     purgeElement(element);
@@ -2655,9 +2636,12 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
 
   function _recursivelyFind(element, property, expression, index) {
-    element = $(element), expression = expression || 0, index = index || 0;
+    element = $(element)
+    expression = expression || 0
+    index = index || 0;
     if (Object.isNumber(expression)) {
-      index = expression, expression = null;
+      index = expression
+      expression = null;
     }
 
     while (element === element[property]) {
@@ -2680,10 +2664,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
   function down(element, expression, index) {
     if (arguments.length === 1) return firstDescendant(element);
-    element = $(element), expression = expression || 0, index = index || 0;
+    element = $(element)
+    expression = expression || 0
+    index = index || 0;
 
     if (Object.isNumber(expression))
-      index = expression, expression = '*';
+      index = expression
+      expression = '*';
 
     let node = Prototype.Selector.select(expression, element)[index];
     return Element.extend(node);
@@ -2716,7 +2703,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function descendantOf_DOM(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     while (element = element.parentNode)
       if (element === ancestor) return true;
@@ -2724,14 +2712,16 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function descendantOf_contains(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     if (!ancestor.contains) return descendantOf_DOM(element, ancestor);
     return ancestor.contains(element) && ancestor !== element;
   }
 
   function descendantOf_compareDocumentPosition(element, ancestor) {
-    element = $(element), ancestor = $(ancestor);
+    element = $(element)
+    ancestor = $(ancestor);
     if (!element || !ancestor) return false;
     return (element.compareDocumentPosition(ancestor) & 8) === 8;
   }
@@ -2796,9 +2786,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     if (table.names[name]) name = table.names[name];
 
-    if (name.include(':')) {
-      if (!element.attributes || !element.attributes[name]) return null;
-      return element.attributes[name].value;
+    if (name.includes(':')) {
+      return element?.attributes?.[name]?.value ?? null;
     }
 
     return element.getAttribute(name);
@@ -2858,13 +2847,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let checkbox = document.createElement('<input type="checkbox">');
     checkbox.checked = true;
     let node = checkbox.getAttributeNode('checked');
-    return !node || !node.specified;
+    return !node?.specified;
   })();
 
   function hasAttribute(element, attribute) {
     attribute = ATTRIBUTE_TRANSLATIONS.has[attribute] || attribute;
     let node = $(element).getAttributeNode(attribute);
-    return !!(node && node.specified);
+    return !!node?.specified;
   }
 
   function hasAttribute_IE(element, attribute) {
@@ -3139,23 +3128,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     if (style === 'opacity') return value ? parseFloat(value) : 1.0;
     return value === 'auto' ? null : value;
   }
-
-  function getStyle_Opera(element, style) {
-    switch (style) {
-      case 'height': case 'width':
-        if (!Element.visible(element)) return null;
-
-        let dim = parseInt(getStyle(element, style), 10);
-
-        if (dim !== element['offset' + style.capitalize()])
-          return dim + 'px';
-
-        return Element.measure(element, style);
-
-      default: return getStyle(element, style);
-    }
-  }
-
   function getStyle_IE(element, style) {
     element = $(element);
     style = normalizeStyleName_IE(style);
@@ -3181,13 +3153,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function stripAlphaFromFilter_IE(filter) {
-    return (filter || '').replace(/alpha\([^\)]*\)/gi, '');
+    return (filter || '').replace(/alpha\([^]*\)/gi, '');
   }
 
   function hasLayout_IE(element) {
-    if (!element.currentStyle || !element.currentStyle.hasLayout)
-      element.style.zoom = 1;
+    element?.currentStyle?.hasLayout || (element.style.zoom = 1);
     return element;
+
   }
 
   let STANDARD_CSS_OPACITY_SUPPORTED = (function() {
@@ -3238,8 +3210,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let filter = Element.getStyle(element, 'filter');
     if (filter.length === 0) return 1.0;
     let match = (filter || '').match(/alpha\(opacity=(.*)\)/i);
-    if (match && match[1]) return parseFloat(match[1]) / 100;
-    return 1.0;
+    return match?.[1] ? parseFloat(match[1]) / 100 : 1.0;
   }
 
 
@@ -3255,8 +3226,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     methods.setOpacity = setOpacity_IE;
     methods.getOpacity = getOpacity_IE;
   }
-
-  let UID = 0;
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
     GLOBAL.Element.Storage = { UID: 1 };
@@ -3448,7 +3417,6 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     if (arguments.length === 0) addFormMethods();
 
     if (arguments.length === 2) {
-      let tagName = methods;
       methods = arguments[1];
     }
 
@@ -3637,15 +3605,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
 
     return 0;
   }
-
-  function toCSSPixels(number) {
-    if (Object.isString(number) && number.endsWith('px'))
-      return number;
-    return number + 'px';
-  }
-
   function isDisplayed(element) {
-    while (element && element.parentNode) {
+    while (element?.parentNode) {
       let display = element.getStyle('display');
       if (display === 'none') {
         return false;
@@ -3655,7 +3616,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     return true;
   }
 
-  let hasLayout = Prototype.K;
+    let hasLayout = Prototype.K;
   if ('currentStyle' in document.documentElement) {
     hasLayout = function(element) {
       if (!element.currentStyle.hasLayout) {
@@ -4366,9 +4327,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       styles.left = (p[0] + pageXY.x - delta[0] + options.offsetLeft) + 'px';
     if (options.setTop)
       styles.top  = (p[1] + pageXY.y - delta[1] + options.offsetTop)  + 'px';
-
-    let currentLayout = element.getLayout();
-
+    element.getLayout();
     if (options.setWidth) {
       styles.width = layout.get('width')  + 'px';
     }
@@ -5678,9 +5637,9 @@ Expr = Sizzle.selectors = {
 		}),
 
 		"target": function( elem ) {
-			let hash = window.location && window.location.hash;
-			return hash && hash.slice( 1 ) === elem.id;
-		},
+          let hash = window.location?.hash;
+          return hash && hash.slice(1) === elem.id;
+        },
 
 		"root": function( elem ) {
 			return elem === docElem;
@@ -5705,11 +5664,9 @@ Expr = Sizzle.selectors = {
 
 		"selected": function( elem ) {
 			if ( elem.parentNode ) {
-              let parentNode = elem.parentNode;
-              let selectedIndex = parentNode.selectedIndex;
-			}
+                elem.parentNode.selectedIndex;}
 
-			return elem.selected === true;
+          return elem.selected === true;
 		},
 
 		"empty": function( elem ) {
@@ -5776,18 +5733,20 @@ Expr = Sizzle.selectors = {
 
 		"lt": createPositionalPseudo(function( matchIndexes, length, argument ) {
 			let i = argument < 0 ? argument + length : argument;
-			for ( ; --i >= 0; ) {
-				matchIndexes.push( i );
-			}
-			return matchIndexes;
+          while (--i >= 0) {
+            matchIndexes.push(i);
+          }
+
+          return matchIndexes;
 		}),
 
 		"gt": createPositionalPseudo(function( matchIndexes, length, argument ) {
 			let i = argument < 0 ? argument + length : argument;
-			for ( ; ++i < length; ) {
-				matchIndexes.push( i );
-			}
-			return matchIndexes;
+          while (++i < length) {
+            matchIndexes.push(i);
+          }
+
+          return matchIndexes;
 		})
 	}
 };
@@ -5803,7 +5762,7 @@ for ( i in { submit: true, reset: true } ) {
 
 function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters();
+Expr.setFilters = new setFilters( Expr );
 
 function tokenize( selector, parseOnly ) {
 	let matched, match, tokens, type,
