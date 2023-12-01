@@ -84,7 +84,7 @@ public interface TomcatContainer {
    * @param name the name of the context to stop
    *
    */
-  void stop(String name) throws stopException, LifecycleException;
+  void stop(String name) throws StopException, LifecycleException;
 
   /**
    * Starts the context with the given name.
@@ -92,7 +92,7 @@ public interface TomcatContainer {
    * @param name the name of the context to start
    *
    */
-  void start(String name) throws startException, LifecycleException;
+  void start(String name) throws StartException, LifecycleException;
 
   /**
    * Undeploys a context.
@@ -100,7 +100,7 @@ public interface TomcatContainer {
    * @param name the context path
    *
    */
-  void remove(String name) throws removeException, AbstractTomcatContainer.removeInternalException, AbstractTomcatContainer.CheckChangesException;
+  void remove(String name) throws RemoveException, AbstractTomcatContainer.removeInternalException, AbstractTomcatContainer.CheckChangesException;
 
   /**
    * Installs .war file at the given context name.
@@ -109,7 +109,7 @@ public interface TomcatContainer {
    * @param url pointer to .war file to be deployed
    *
    */
-  void installWar(String name, URL url) throws installWarException, AbstractTomcatContainer.CheckChangesException;
+  void installWar(String name, URL url) throws InstallWarException, AbstractTomcatContainer.CheckChangesException;
 
   /**
    * This method always returns absolute path, no matter what Tomcat is up to.
@@ -158,7 +158,7 @@ public interface TomcatContainer {
    * @return {@code true} if deployment was successful
    *
    */
-  boolean installContext(String contextName) throws installContextException, AbstractTomcatContainer.installContextInternalException, AbstractTomcatContainer.CheckChangesException;
+  boolean installContext(String contextName) throws InstallContextException, AbstractTomcatContainer.installContextInternalException, AbstractTomcatContainer.CheckChangesException;
 
   /**
    * Lists and optionally compiles all JSPs for the given context. Compilation details are added to
@@ -317,32 +317,32 @@ public interface TomcatContainer {
    */
   void unbindFromContext(Context context) throws NamingException;
 
-  class stopException extends Exception {
-    public stopException(String message) {
+  class StopException extends Exception {
+    public StopException(String message) {
       super(message);
     }
   }
 
-  class startException extends Exception {
-    public startException(String message) {
+  class StartException extends Exception {
+    public StartException(String message) {
       super(message);
     }
   }
 
-  class removeException extends Exception {
-    public removeException(String message) {
+  class RemoveException extends Exception {
+    public RemoveException(String message) {
       super(message);
     }
   }
 
-  class installWarException extends Exception {
-    public installWarException(String message) {
+  class InstallWarException extends Exception {
+    public InstallWarException(String message) {
       super(message);
     }
   }
 
-  class installContextException extends Exception {
-    public installContextException(String message) {
+  class InstallContextException extends Exception {
+    public InstallContextException(String message) {
       super(message);
     }
   }
