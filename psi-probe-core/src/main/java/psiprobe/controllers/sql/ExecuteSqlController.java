@@ -73,15 +73,15 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
     String sql = ServletRequestUtils.getStringParameter(request, "sql", "");
-
+    final String errorMessageString = "errorMessage";
     if (sql.isEmpty() || sql.trim().isEmpty()) {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        request.setAttribute("errorMessage",
+        request.setAttribute(errorMessageString,
             messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
       }
       return new ModelAndView(getViewName());
     }
@@ -116,11 +116,11 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
     } catch (NamingException e) {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+        request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(
             "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
       }
       logger.trace("", e);
     }
@@ -128,18 +128,18 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
     if (dataSource == null) {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        request.setAttribute("errorMessage", messageSourceAccessor.getMessage(
+        request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(
             "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute("errorMessage", "Errore durante l'accesso al messaggio di origine.");
+        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
       }
     } else {
       List<Map<String, String>> results = null;
       int rowsAffected;
 
       try {
-        // TODO: use Spring's jdbc template?
+
         try (Connection conn = dataSource.getConnection()) {
           conn.setAutoCommit(true);
 
@@ -216,13 +216,13 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
           String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure",
               new Object[] {e.getMessage()});
           logger.error(message, e);
-          request.setAttribute("errorMessage", message);
+          request.setAttribute(errorMessageString, message);
         } else {
           // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
           String errorMessage = "Errore durante l'accesso al messaggio di origine.";
           logger.error(errorMessage, e);
 
-          request.setAttribute("errorMessage", errorMessage);
+          request.setAttribute(errorMessageString, errorMessage);
         }
       }
     }
