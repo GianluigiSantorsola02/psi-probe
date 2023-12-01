@@ -66,7 +66,7 @@ public class JBossResourceResolverBean implements ResourceResolver {
   }
 
   @Override
-  public List<ApplicationResource> getApplicationResources() throws NamingException {
+  public List<ApplicationResource> getApplicationResources() {
 
     List<ApplicationResource> resources = new ArrayList<>();
 
@@ -135,53 +135,44 @@ public class JBossResourceResolverBean implements ResourceResolver {
     return resources;
   }
 
-  /**
-   * Gets the application resources.
-   *
-   * @param context the context
-   *
-   * @return the application resources
-   *
-   * @throws NamingException the naming exception
-   */
-  public List<ApplicationResource> getApplicationResources(Context context) throws NamingException {
-    return new ArrayList<>();
-  }
-
   @Override
   public List<ApplicationResource> getApplicationResources(Context context,
-      ContainerWrapperBean containerWrapper) throws NamingException {
+      ContainerWrapperBean containerWrapper) {
 
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
   public boolean resetResource(Context context, String resourceName,
-      ContainerWrapperBean containerWrapper) throws NamingException {
+                               ContainerWrapperBean containerWrapper) throws NamingException {
     try {
       ObjectName poolOName =
-          new ObjectName("jboss.jca:service=ManagedConnectionPool,name=" + resourceName);
+              new ObjectName("jboss.jca:service=ManagedConnectionPool,name=" + resourceName);
       MBeanServer server = getMBeanServer();
       if (server != null) {
-        try {
-          server.invoke(poolOName, "stop", null, null);
-          server.invoke(poolOName, "start", null, null);
-          return true;
-        } catch (Exception e) {
-          logger.error("Could not reset resource '{}'", resourceName, e);
-        }
+        resetResourceOnServer(poolOName, server, resourceName);
+        return true;
       }
       return false;
     } catch (MalformedObjectNameException e) {
       logger.trace("", e);
       throw new NamingException(
-          "Resource name: \"" + resourceName + "\" makes a malformed ObjectName");
+              "Resource name: \"" + resourceName + "\" makes a malformed ObjectName");
+    }
+  }
+
+  private void resetResourceOnServer(ObjectName poolOName, MBeanServer server, String resourceName) {
+    try {
+      server.invoke(poolOName, "stop", null, null);
+      server.invoke(poolOName, "start", null, null);
+    } catch (Exception e) {
+      logger.error("Could not reset resource '{}'", resourceName, e);
     }
   }
 
   @Override
   public DataSource lookupDataSource(Context context, String resourceName,
-      ContainerWrapperBean containerWrapper) throws NamingException {
+      ContainerWrapperBean containerWrapper) {
     throw new UnsupportedOperationException(
         "This feature has not been implemented for JBoss server yet.");
   }
