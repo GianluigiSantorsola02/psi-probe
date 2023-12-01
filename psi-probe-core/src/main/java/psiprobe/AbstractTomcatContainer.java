@@ -33,13 +33,7 @@ import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.apache.catalina.Container;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
-import org.apache.catalina.Service;
-import org.apache.catalina.Valve;
-import org.apache.catalina.Wrapper;
+import org.apache.catalina.*;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.jasper.EmbeddedServletOptions;
@@ -166,14 +160,14 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public boolean installContext(String contextName) throws Exception {
+  public boolean installContext(String contextName) throws installContextInternalException, CheckChangesException {
     contextName = formatContextName(contextName);
     installContextInternal(contextName);
     return findContext(contextName) != null;
   }
 
   @Override
-  public void stop(String name) throws Exception {
+  public void stop(String name) throws stopException, LifecycleException {
     Context ctx = findContext(name);
     if (ctx != null) {
       ctx.stop();
@@ -181,7 +175,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public void start(String name) throws Exception {
+  public void start(String name) throws startException, LifecycleException {
     Context ctx = findContext(name);
     if (ctx != null) {
       ctx.start();
@@ -189,7 +183,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public void remove(String name) throws Exception {
+  public void remove(String name) throws removeException, removeInternalException, CheckChangesException {
     name = formatContextName(name);
     Context ctx = findContext(name);
 
@@ -233,14 +227,13 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
    *
    * @param name the name
    *
-   * @throws Exception the exception
    */
-  private void removeInternal(String name) throws Exception {
+  private void removeInternal(String name) throws CheckChangesException {
     checkChanges(name);
   }
 
   @Override
-  public void installWar(String name, URL url) throws Exception {
+  public void installWar(String name, URL url) throws CheckChangesException {
     checkChanges(name);
   }
 
@@ -249,9 +242,8 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
    *
    * @param name the name
    *
-   * @throws Exception the exception
    */
-  private void installContextInternal(String name) throws Exception {
+  private void installContextInternal(String name) throws CheckChangesException {
     checkChanges(name);
   }
 
@@ -428,7 +420,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
           try (URLClassLoader urlcl =
               new URLClassLoader(new URL[0], context.getLoader().getClassLoader())) {
 
-            compileItem("/", opt, context, jrctx, summary, urlcl, compile);
+            compileItem(opt, context, jrctx, summary, urlcl, compile);
           } catch (IOException e) {
             this.logger.error("", e);
           }
@@ -453,10 +445,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  private void compileItem(String s, Options opt, Context context, JspRuntimeContext jrctx, Summary summary, URLClassLoader urlcl, boolean compile) {
-    JspCompilationContext jcctx = createJspCompilationContext(s, opt, context.getServletContext(), jrctx, urlcl);
+  private void compileItem(Options opt, Context context, JspRuntimeContext jrctx, Summary summary, URLClassLoader urlcl, boolean compile) {
+    JspCompilationContext jcctx = createJspCompilationContext("/", opt, context.getServletContext(), jrctx, urlcl);
     if (compile) {
-      compileItem(summary.getItems().get(s), s, jcctx);
+      compileItem(summary.getItems().get("/"), "/", jcctx);
     }
   }
 
@@ -519,29 +511,23 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  public class CompileItemParams {
-    private String jspName;
-    private Options options;
-    private Context context;
-    private JspRuntimeContext jspRuntimeContext;
-    private Summary summary;
-    private URLClassLoader classLoader;
-    private int level;
-    private boolean compile;
+  public static class CompileItemParams {
+    private final Options options;
+    private final Context context;
+    private final JspRuntimeContext jspRuntimeContext;
+    private final Summary summary;
+    private final URLClassLoader classLoader;
 
-    public CompileItemParams(String jspName, Options options, Context context, JspRuntimeContext jspRuntimeContext,
+    private final boolean compile;
+
+    public CompileItemParams(Options options, Context context, JspRuntimeContext jspRuntimeContext,
                              Summary summary, URLClassLoader classLoader, boolean compile) {
-      this.jspName = jspName;
       this.options = options;
       this.context = context;
       this.jspRuntimeContext = jspRuntimeContext;
       this.summary = summary;
       this.classLoader = classLoader;
       this.compile = compile;
-    }
-
-    public String getJspName() {
-      return jspName;
     }
 
     public Options getOptions() {
@@ -564,9 +550,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       return classLoader;
     }
 
-    public int getLevel() {
-      return level;
-    }
+
 
     public boolean isCompile() {
       return compile;
@@ -594,7 +578,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
               item.setName(name);
             }
 
-            item.setLevel(params.getLevel());
+
             item.setCompileTime(-1);
 
             Long[] objects = this.getResourceAttributes(name, params.getContext());
@@ -731,4 +715,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
+  static class removeInternalException extends Exception {
+
+  }
+
+  static class installContextInternalException extends Exception {
+  }
 }
