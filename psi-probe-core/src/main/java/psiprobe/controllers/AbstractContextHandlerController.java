@@ -34,8 +34,12 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
       context = getContainerWrapper().getTomcatContainer().findContext(contextName);
 
       if (context != null || isContextOptional()) {
-      return handleContext(contextName, context, request, response);
-    }
+        try {
+          return handleContext(contextName, context, request, response);
+        } catch (ViewServletSourceController.FileProcessingException e) {
+          throw new RuntimeException(e);
+        }
+      }
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
     if (contextName != null && messageSourceAccessor != null) {
       request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.contextDoesntExist", new Object[] {contextName}));
@@ -68,7 +72,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws MyCustomException, ViewServletSourceController.FileProcessingException, Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, Exception {
     // Your code logic here
 
     if (context == null) {
