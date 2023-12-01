@@ -70,7 +70,7 @@ public final class ApplicationUtils {
    * @return the application
    */
   public static Application getApplication(Context context, ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
-    return getApplication(context, null, false, containerWrapper);
+    return getApplication(context, null, containerWrapper);
   }
 
   /**
@@ -84,13 +84,12 @@ public final class ApplicationUtils {
    *
    * @param context the context from which to create the Application
    * @param resourceResolver the resolver to use for resources associated with the given context
-   * @param calcSize flag which controls whether to calculate session size
    * @param containerWrapper the wrapper for the context's root containing server
    *
    * @return Application object
    */
   public static Application getApplication(Context context, ResourceResolver resourceResolver,
-      boolean calcSize, ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
+                                           ContainerWrapperBean containerWrapper) throws ApplicationResourcesException {
 
     // ContainerWrapperBean containerWrapper
     logger.debug("Querying webapp: {}", context.getName());

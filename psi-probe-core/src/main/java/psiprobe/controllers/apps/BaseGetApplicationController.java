@@ -98,15 +98,15 @@ public class BaseGetApplicationController extends AbstractContextHandlerControll
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
         && SecurityUtils.hasAttributeValueRole(getServletContext());
 
     ResourceResolver resourceResolver = getContainerWrapper().getResourceResolver();
     Application app = ApplicationUtils.getApplication(context,
-        isExtendedInfo() ? resourceResolver : null, calcSize, getContainerWrapper());
+        isExtendedInfo() ? resourceResolver : null, getContainerWrapper());
 
     if (isExtendedInfo() && getStatsCollection() != null) {
       String avgStatisticName = "app.avg_proc_time." + app.getName();
