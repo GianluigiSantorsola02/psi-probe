@@ -26,19 +26,21 @@ public class Log4J2LoggerContextAccessor extends DefaultAccessor {
    */
   public Map<String, Object> getLoggers() {
     Map<String, Object> loggers = null;
-    Object configuration = null;
+    Object configuration;
     try {
       configuration = invokeMethod(getTarget(), "getConfiguration", null, null);
     } catch (Exception e) {
-      logger.error("exception invoking getConfiguration", e);
-      throw e;
+      logger.error("Exception invoking getConfiguration: " + e.getMessage(), e);
+
+      return null;
     }
     if (configuration != null) {
       try {
         loggers = (Map<String, Object>) invokeMethod(configuration, "getLoggers", null, null);
       } catch (Exception e) {
-        logger.error("exception invoking getLoggers", e);
-        throw e;
+        logger.error("Exception invoking getLoggers: " + e.getMessage(), e);
+
+        return null;
       }
     }
     return loggers;
@@ -51,8 +53,8 @@ public class Log4J2LoggerContextAccessor extends DefaultAccessor {
     try {
       invokeMethod(getTarget(), "updateLoggers", null, null);
     } catch (Exception e) {
-      logger.error("exception invoking updateLoggers", e);
-      throw e;
+      logger.error("Exception invoking updateLoggers: " + e.getMessage(), e);
+
     }
   }
 }
