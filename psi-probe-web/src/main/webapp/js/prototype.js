@@ -57,7 +57,7 @@ const Prototype = {
         isSupported = true;
       }
 
-      div = form = null;
+      form = null;
 
       return isSupported;
     })()
@@ -118,8 +118,9 @@ let Class = (function() {
   }
 
   function addMethods(source) {
-    let ancestor   = this.superclass && this.superclass.prototype,
-        properties = Object.keys(source);
+    let ancestor = this.superclass?.prototype;
+    let properties;
+    properties = Object.keys(source);
 
     if (IS_DONTENUM_BUGGY) {
       if (source.toString !== Object.prototype.toString)
@@ -133,13 +134,12 @@ let Class = (function() {
       let property = properties[i], value = source[property];
       if (!(ancestor && Object.isFunction(value) &&
           value.argumentNames()[0] === "$super")) {
-      } else {
         const method = value;
         value = (function (m) {
           return function () {
             return ancestor[m].apply(this, arguments);
           };
-        })(property).wrap(method);
+      })(property).wrap(method);
 
         value.valueOf = (function (method) {
           return function () {
@@ -236,7 +236,7 @@ let Class = (function() {
 
   class Str extends Component {
     render() {
-      let {key, holder, stack} = this.props;
+      let key = this.props.key, holder = this.props.holder, stack = this.props.stack;
       let value = holder[key];
       if (Type(value) === OBJECT_TYPE && typeof value.toJSON === 'function') {
         value = value.toJSON(key);
@@ -368,11 +368,6 @@ let Class = (function() {
   function isNumber(object) {
     return _toString.call(object) === NUMBER_CLASS;
   }
-
-  function isDate(object) {
-    return _toString.call(object) === DATE_CLASS;
-  }
-
   function isUndefined(object) {
     return typeof object === "undefined";
   }
@@ -424,7 +419,11 @@ Object.extend(Function.prototype, (function() {
     if (!Object.isFunction(this))
       throw new TypeError("The object is not callable.");
 
-    let nop = function() {};
+    let nop = function() {
+      nop.prototype   = this.prototype;
+      bound.prototype = new nop();
+
+      return bound;};
     let __method = this, args = slice.call(arguments, 1);
 
     let bound = function() {
@@ -433,10 +432,7 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(c, a);
     };
 
-    nop.prototype   = this.prototype;
-    bound.prototype = new nop();
 
-    return bound;
   }
 
   function bindAsEventListener(context) {
@@ -529,7 +525,7 @@ Object.extend(Function.prototype, (function() {
 RegExp.prototype.match = RegExp.prototype.test;
 
 RegExp.escape = function(str) {
-  return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+  return String(str).replace(/([.*+?^=!:${}()|[\]\\])/g, '\\$1');
 };
 let PeriodicalExecuter = Class.create({
   initialize: function(callback, frequency) {
@@ -616,7 +612,8 @@ Object.extend(String.prototype, (function() {
         result += String.interpret(replacement(match));
         source  = source.slice(match.index + match[0].length);
       } else {
-        result += source, source = '';
+        result += source
+        source = '';
       }
     }
     return result;
@@ -754,8 +751,8 @@ Object.extend(String.prototype, (function() {
   function isJSON() {
     let str = this;
     if (str.blank()) return false;
-    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -1862,7 +1859,7 @@ Ajax.Request = Class.create(Ajax.Base, {
   },
 
   isSameOrigin: function() {
-    const m = this.url.match(/^\s*https?:\/\/[^\/]*/);
+    const m = this.url.match(/^\s*https?:\/\/[^]*/);
     return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
       protocol: location.protocol,
       domain: document.domain,
@@ -2229,12 +2226,11 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   let TABLE_ELEMENT_INNERHTML_BUGGY = (function(){
     try {
       let el = document.createElement("table");
-      if (el && el.tBodies) {
-        el.innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
-        let isBuggy = typeof el.tBodies[0] == "undefined";
-        el = null;
-        return isBuggy;
-      }
+      el.tBodies[0].innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
+      let isBuggy = typeof el?.tBodies?.[0] === "undefined";
+      el = null;
+      return isBuggy;
+
     } catch (e) {
       return true;
     }
