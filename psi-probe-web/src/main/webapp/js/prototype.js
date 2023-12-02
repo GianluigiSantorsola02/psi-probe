@@ -6072,9 +6072,11 @@ function matcherFromTokens( tokens ) {
 		} ];
 
 	for ( ; i < len; i++ ) {
-		if ( (matcher = Expr.relative[ tokens[i].type ]) ) {
-			matchers = [ addCombinator(elementMatcher( matchers ), matcher) ];
-		} else {
+      let matcher = Expr.relative[tokens[i].type];
+      if (matcher) {
+        matchers = [addCombinator(elementMatcher(matchers), matcher)];
+      }
+      else {
 			matcher = Expr.filter[ tokens[i].type ].apply( null, tokens[i].matches );
 
 			if ( matcher[ expando ] ) {
@@ -6084,6 +6086,7 @@ function matcherFromTokens( tokens ) {
 						break;
 					}
 				}
+                let tokens = tokens.slice(j);
 				return setMatcher(
 					i > 1 && elementMatcher( matchers ),
 					i > 1 && toSelector(
@@ -6091,7 +6094,7 @@ function matcherFromTokens( tokens ) {
 					).replace( rtrim, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
-					j < len && matcherFromTokens( (tokens = tokens.slice( j )) ),
+					j < len && matcherFromTokens(tokens),
 					j < len && toSelector( tokens )
 				);
 			}
@@ -6135,11 +6138,12 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				}
 
 				if ( bySet ) {
-					if ( (elem = !matcher && elem) ) {
-						matchedCount--;
-					}
+                  let elem = !matcher && elem;
+                  if (elem) {
+                    matchedCount--;
+                  }
 
-					if ( seed ) {
+                  if ( seed ) {
 						unmatched.push( elem );
 					}
 				}
@@ -6216,23 +6220,24 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 /**
  * A low-level selection function that works with Sizzle's compiled
  *  selector functions
- * @param {String|Function} selector A selector or a pre-compiled
- *  selector function built with Sizzle.compile
+ *  selector function built with Sizzle. Compile
  * @param {Element} context
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function( selector, context, results, seed ) {
-	let i, tokens, token, type, find,
+select = Sizzle.select = function( context, results, seed ) {
+  let selector =  compiled.selector;
+  let i, tokens, token, type, find,
 		compiled = typeof selector === "function" && selector,
-		match = !seed && tokenize( (selector = compiled.selector || selector) );
+		match = !seed && tokenize( (selector) );
 
 	results = results || [];
 
 	if ( match.length === 1 ) {
 
 		tokens = match[0] = match[0].slice( 0 );
-		if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
+        let token = tokens[0];
+		if ( tokens.length > 2 && (token).type === "ID" &&
 				support.getById && context.nodeType === 9 && documentIsHTML &&
 				Expr.relative[ tokens[1].type ] ) {
 
@@ -6250,16 +6255,17 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
 		while ( i-- ) {
 			token = tokens[i];
-
-			if ( Expr.relative[ (type = token.type) ] ) {
+            let type = token.type;
+			if ( Expr.relative[type] ) {
 				break;
 			}
-			if ( (find = Expr.find[ type ]) ) {
-				if ( (seed = find(
-					token.matches[0].replace( runescape, funescape ),
-					rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
-				)) ) {
-
+          let find = Expr.find[type];
+          let seed = find(
+              token.matches[0].replace(runescape, funescape),
+              rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+          );
+          if (find) {
+				if (seed)  {
 					tokens.splice( i, 1 );
 					selector = seed.length && toSelector( tokens );
 					if ( !selector ) {
@@ -6321,13 +6327,14 @@ if ( !assert(function( div ) {
 	return div.getAttribute("disabled") == null;
 }) ) {
 	addHandle( booleans, function( elem, name, isXML ) {
-		let val;
 		if ( !isXML ) {
-			return elem[ name ] === true ? name.toLowerCase() :
-					(val = elem.getAttributeNode( name )) && val.specified ?
-					val.value :
-				null;
-		}
+          let val = elem.getAttributeNode(name);
+          return elem[name] === true ? name.toLowerCase() :
+              (val ) && val.specified ?
+                  val.value :
+                  null;
+
+        }
 	});
 }
 
