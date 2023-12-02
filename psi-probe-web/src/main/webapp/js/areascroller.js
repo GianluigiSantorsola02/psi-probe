@@ -12,9 +12,8 @@ Effect.Scroll = Class.create();
 Object.extend(Object.extend(Effect.Scroll.prototype, Effect.Base.prototype), {
 	initialize: function(element, options) {
 		this.element = $(element);
-		this.direction = options && options.direction ? options.direction : 'right';
-		this.pps = options && options.pps ? options.pps : 100;
-
+		this.direction = options?.direction ?? 'right';
+		this.pps = options?.pps ?? 100;
 		let opts = Object.extend({
 			duration: (this.element.scrollWidth - this.element.scrollLeft) / this.pps
 		}, options || {});
@@ -27,7 +26,7 @@ Object.extend(Object.extend(Effect.Scroll.prototype, Effect.Base.prototype), {
 		this.delta = this.element.scrollWidth;
 	},
 	update: function(position) {
-		if (this.direction == 'right')
+		if (this.direction === 'right')
 			this.element.scrollLeft = this.scrollStart + (position * this.delta);
 		else
 			this.element.scrollLeft = this.scrollStart - (position * this.delta);
