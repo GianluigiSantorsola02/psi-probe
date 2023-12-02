@@ -138,7 +138,6 @@ document.getElementsBySelector = function(selector) {
   let currentContext = new Array(document);
     let tagName;
     let attrName;
-    let attrOperator;
     let attrValue;
     for (let token of tokens) {
 
@@ -167,20 +166,20 @@ document.getElementsBySelector = function(selector) {
             // Get elements matching tag, filter them for class selector
             let found = [];
             let foundCount = 0;
-            for (const item of currentContext) {
+            currentContext.forEach(() => {
                 let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (const element of elements) {
+                currentContext.forEach(() => {
                     found[foundCount++] = elements[j];
-                }
-            }
+                });
+            });
             currentContext = [];
             let currentContextIndex = 0;
-            for (const item of found) {
+            for (const foundElement of found) {
                 let k;
                 if (found[k]?.className?.match(new RegExp('\\b' + className + '\\b'))) {
                     currentContext[currentContextIndex++] = found[k];
@@ -203,14 +202,13 @@ document.getElementsBySelector = function(selector) {
             // Grab all of the tagName elements within current context
             let found = [];
             let foundCount = 0;
-            for (const item of currentContext) {
-                let elements;
+            for (const _ of currentContext) {                let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (const element of elements) {
+                for (let j = 0; j < elements.length; j++) {
                     found[foundCount++] = elements[j];
                 }
             }
@@ -255,11 +253,11 @@ document.getElementsBySelector = function(selector) {
             }
             currentContext = [];
             let currentContextIndex = 0;
-            for (const item of found)
-                let k;
-            if (checkFunction(found[k])) {
-                currentContext[currentContextIndex++] = found[k];
-            }
+            found.forEach(item => {
+                if (checkFunction(found[k])) {
+                    currentContext[currentContextIndex++] = found[k];
+                }
+            });
         }
     }
 
@@ -268,8 +266,9 @@ document.getElementsBySelector = function(selector) {
         }
 
         // If we get here, token is JUST an element (not a class or ID selector)
-        tagName = token;
-        let found = [];
+
+    tagName = token;
+
         let foundCount = 0;
         for (const context of currentContext) {
             let elements = context.getElementsByTagName(tagName);
