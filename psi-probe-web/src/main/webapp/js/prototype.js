@@ -5289,13 +5289,15 @@ Sizzle.attr = function( elem, name ) {
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
 
-	return val !== undefined ?
-		val :
-		support.attributes || !documentIsHTML ?
-			elem.getAttribute( name ) :
-			(val = elem.getAttributeNode(name)) && val.specified ?
-				val.value :
-				null;
+  let val1 = elem.getAttributeNode(name) ;
+
+  return (val1 && val.specified ?
+      val.value :
+      val !== undefined ?
+          val :
+          support.attributes || !documentIsHTML ?
+              elem.getAttribute(name) :
+              null);
 };
 
 Sizzle.error = function( msg ) {
@@ -5483,15 +5485,32 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
-				return operator === "=" ? result === check :
-					operator === "!=" ? result !== check :
-					operator === "^=" ? check && result.indexOf( check ) === 0 :
-					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "$=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result + " " ).indexOf( check ) > -1 :
-					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
-					false;
-			};
+              let isEqual = operator === "=";
+              let isNotEqual = operator === "!=";
+              let isStartsWith = operator === "^=";
+              let isContains = operator === "*=";
+              let isEndsWith = operator === "$=";
+              let isSpaceSeparated = operator === "~=";
+              let isHyphenSeparated = operator === "|=";
+
+              if (isEqual) {
+                return result === check;
+              } else if (isNotEqual) {
+                return result !== check;
+              } else if (isStartsWith) {
+                return check && result.indexOf(check) === 0;
+              } else if (isContains) {
+                return check && result.indexOf(check) > -1;
+              } else if (isEndsWith) {
+                return check && result.slice(-check.length) === check;
+              } else if (isSpaceSeparated) {
+                return (" " + result + " ").indexOf(check) > -1;
+              } else if (isHyphenSeparated) {
+                return result === check || result.slice(0, check.length + 1) === check + "-";
+              } else {
+                return false;
+              }
+            };
 		},
 
 		"CHILD": function( type, what, argument, first, last ) {
