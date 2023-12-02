@@ -18,9 +18,8 @@
  *
  *--------------------------------------------------------------------------*/
 
-import {Component} from "react";
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
@@ -4679,26 +4678,28 @@ let i,
 	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
 
 	rsibling = /[+~]/,
-	rescape = /'|\\/g,
+    rescape = /[\\']/g,
 
 	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
 	funescape = function( _, escaped, escapedWhitespace ) {
 		let high = "0x" + escaped - 0x10000;
-		return high !== high || escapedWhitespace ?
-			escaped :
-			high < 0 ?
-				String.fromCharCode( high + 0x10000 ) :
-				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
-	};
+      if (high !== high || escapedWhitespace) {
+        return escaped;
+      } else if (high < 0) {
+        return String.fromCharCode(high + 0x10000);
+      } else {
+        return String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00);
+      }
+    };
 
-try {
+
+      try {
 	push.apply(
 		(arr = slice.call( preferredDoc.childNodes )),
 		preferredDoc.childNodes
 	);
   let index = preferredDoc.childNodes.length;
-  let nodeType = arr[index].nodeType;
-} catch ( e ) {
+      } catch ( e ) {
 	push = { apply: arr.length ?
 
 		function( target, els ) {
@@ -4734,16 +4735,15 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	if ( documentIsHTML && !seed ) {
-
-		if ( (match = rquickExpr.exec( selector )) ) {
-			if ( (m = match[1]) ) {
+        let match = rquickExpr.exec( selector );
+		if (match) {
+          let m = match[1];
+			if (m) {
 				if ( nodeType === 9 ) {
 					elem = context.getElementById( m );
-                  if (elem?.parentNode) {
-						if ( elem.id === m ) {
+                  if (elem?.parentNode &&  elem.id === m ) {
 							results.push( elem );
 							return results;
-						}
 					} else {
 						return results;
 					}
@@ -4765,7 +4765,8 @@ function Sizzle( selector, context, results, seed ) {
 			}
 		}
 
-		if ( support.qsa && (!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
+      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))
+      {
 			nid = old = expando;
 			newContext = context;
 			newSelector = nodeType === 9 && selector;
