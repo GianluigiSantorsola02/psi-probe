@@ -106,38 +106,6 @@ let Class = (function() {
     let parent = null, properties = $A(arguments);
 
   }
-  function Create() {
-    let parent = null, properties = [...arguments];
-    if (Object.isFunction(properties[0]))
-      parent = properties.shift();
-
-    function klass() {
-      this.initialize(...arguments);
-    }
-
-
-
-
-    Object.extend(klass, Class.Methods);
-    klass.superclass = parent;
-    klass.subclasses = [];
-
-    if (parent) {
-      Subclass.prototype = parent.prototype;
-      klass.prototype = new Subclass;
-      parent.subclasses.push(klass);
-    }
-
-    for (let i = 0, length = properties.length; i < length; i++)
-      klass.addMethods(properties[i]);
-
-    if (!klass.prototype.initialize)
-      klass.prototype.initialize = Prototype.emptyFunction;
-
-    klass.prototype.constructor = klass;
-    return klass;
-  }
-
   function addMethods(source) {
     let ancestor = this.superclass?.prototype;
     let properties;
