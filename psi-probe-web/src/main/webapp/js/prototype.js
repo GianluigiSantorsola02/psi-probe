@@ -194,7 +194,6 @@ let Class = (function() {
       NUMBER_CLASS = '[object Number]',
       STRING_CLASS = '[object String]',
       ARRAY_CLASS = '[object Array]',
-      DATE_CLASS = '[object Date]',
       NATIVE_JSON_STRINGIFY_SUPPORT = window.JSON &&
         typeof JSON.stringify === 'function' &&
         JSON.stringify(0) === '0' &&
@@ -482,7 +481,11 @@ Object.extend(Function.prototype, (function() {
     let __method = this;
     return this._methodized = function() {
       let a = update([this], arguments);
-      return __method.apply(null, a);
+      this._methodized = __method.apply(null, a);
+      let methodizedResult = this._methodized;
+      this._methodized = methodizedResult;
+      return methodizedResult;
+
     };
   }
 
@@ -650,7 +653,8 @@ Object.extend(String.prototype, (function() {
   }
 
   function stripTags() {
-    return this.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?(\/)?>|<\/\w+>/gi, '');
+    return this.replace(/<[^>]*>|<\/\w+>/gi, '');
+
   }
 
   function stripScripts() {
@@ -763,7 +767,7 @@ Object.extend(String.prototype, (function() {
 
   function evalJSON(sanitize) {
     let json = this.unfilterJSON(),
-        cx = new RegExp("[\u00ad\u0600-\u0604\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
+        cx = new RegExp("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
     if (cx.test(json)) {
       json = json.replace(cx, function (a) {
         return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
@@ -3654,8 +3658,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     },
 
     set: function(property, value) {
-      throw "Properties of Element.Layout are read-only.";
+      throw new Error("Properties of Element.Layout are read-only.");
     },
+
 
     get: function($super, property) {
       let value = $super(property);
@@ -3733,8 +3738,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     _compute: function(property) {
       let COMPUTATIONS = Element.Layout.COMPUTATIONS;
       if (!(property in COMPUTATIONS)) {
-        throw "Property not found.";
+        throw new Error("Property not found.");
       }
+
 
       return this._set(property, COMPUTATIONS[property].call(this, this.element));
     },
@@ -4686,7 +4692,7 @@ try {
 		function( target, els ) {
 			let j = target.length,
 				i = 0;
-			while ( (target[j++] = els[i++]) ) {}
+			while ( (target[j++] = els[i++]) )
 			target.length = j - 1;
 		}
 	};
@@ -4717,7 +4723,7 @@ function Sizzle( selector, context, results, seed ) {
 			if ( (m = match[1]) ) {
 				if ( nodeType === 9 ) {
 					elem = context.getElementById( m );
-					if ( elem && elem.parentNode ) {
+                  if (elem?.parentNode) {
 						if ( elem.id === m ) {
 							results.push( elem );
 							return results;
@@ -4992,15 +4998,15 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	support.getById = assert(function( div ) {
 		docElem.appendChild( div ).id = expando;
-		return !doc.getElementsByName || !doc.getElementsByName( expando ).length;
-	});
+      return !doc?.getElementsByName?.(expando)?.length;
+    });
 
 	if ( support.getById ) {
 		Expr.find["ID"] = function( id, context ) {
 			if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
 				let m = context.getElementById( id );
-				return m && m.parentNode ? [m] : [];
-			}
+              return m?.parentNode ? [m] : [];
+            }
 		};
 		Expr.filter["ID"] = function( id ) {
 			let attrId = id.replace( runescape, funescape );
@@ -5116,8 +5122,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 	contains = hasCompare || rnative.test( docElem.contains ) ?
 		function( a, b ) {
 			let adown = a.nodeType === 9 ? a.documentElement : a,
-				bup = b && b.parentNode;
-			return a === bup || !!( bup && bup.nodeType === 1 && (
+                bup = b?.parentNode;
+          return a === bup || !!( bup && bup.nodeType === 1 && (
 				adown.contains ?
 					adown.contains( bup ) :
 					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
@@ -5234,8 +5240,8 @@ Sizzle.matchesSelector = function( elem, expr ) {
 	expr = expr.replace( rattributeQuotes, "='$1']" );
 
 	if ( support.matchesSelector && documentIsHTML &&
-		( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
-		( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
+        (!rbuggyMatches || !rbuggyMatches.test?.(expr)) &&
+        (!rbuggyQSA || !rbuggyQSA.test?.(expr))) {
 
 		try {
 			let ret = matches.call( elem, expr );
@@ -5511,7 +5517,6 @@ Expr = Sizzle.selectors = {
 							outerCache = parent[ expando ] || (parent[ expando ] = {});
 							cache = outerCache[ type ] || [];
 							nodeIndex = cache[0] === dirruns && cache[1];
-							diff = cache[0] === dirruns && cache[2];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
 
 							while ( (node = ++nodeIndex && node && node[ dir ] ||
@@ -5662,14 +5667,16 @@ Expr = Sizzle.selectors = {
 			return (nodeName === "input" && !!elem.checked) || (nodeName === "option" && !!elem.selected);
 		},
 
-		"selected": function( elem ) {
-			if ( elem.parentNode ) {
-                elem.parentNode.selectedIndex;}
+      "selected": function( elem ) {
+        if ( elem.parentNode ) {
+          elem.parentNode.selectedIndex = elem.selected;
+        }
 
-          return elem.selected === true;
-		},
+        return elem.selected === true;
+      },
 
-		"empty": function( elem ) {
+
+      "empty": function( elem ) {
 			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
 				if ( elem.nodeType < 6 ) {
 					return false;
@@ -6444,7 +6451,8 @@ Form.Methods = {
   },
 
   request: function(form, options) {
-    form = $(form), options = Object.clone(options || { });
+    form = $(form)
+    options = Object.clone(options || { });
 
     let params = options.parameters, action = form.readAttribute('action') || '';
     if (action.blank()) action = window.location.href;
@@ -7228,7 +7236,8 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   function on(element, eventName, selector, callback) {
     element = $(element);
     if (Object.isFunction(selector) && Object.isUndefined(callback)) {
-      callback = selector, selector = null;
+      callback = selector
+      selector = null;
     }
 
     return new Event.Handler(element, eventName, selector, callback).start();
@@ -7543,10 +7552,10 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     className = ' ' + className + ' ';
 
     for (let i = 0, child, cn; child = nodes[i]; i++) {
-      if (child.className && (cn = ' ' + child.className + ' ') && (cn.include(className) ||
-          (classNames && classNames.all(function(name) {
+      if (child?.className && (child.className.includes?.(className) ||
+          (classNames && classNames.all?.(name => child.className.includes?.(name))))) {
             return !name.toString().blank() && cn.include(' ' + name + ' ');
-          }))))
+          }
         elements.push(Element.extend(child));
     }
     return elements;
