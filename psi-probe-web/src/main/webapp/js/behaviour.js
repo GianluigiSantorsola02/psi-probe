@@ -68,7 +68,7 @@ let Behaviour = {
     apply: function () {
         let sheet;
         let list;
-        for (h = 0; sheet === Behaviour.list[h]; h++) {
+        for (let h = 0; sheet === Behaviour.list[h]; h++) {
             let sheet;
             for (let selector in sheet) {
                 list = document.getElementsBySelector(selector);
@@ -77,8 +77,10 @@ let Behaviour = {
                     continue;
                 }
 
-                for (i = 0; element === list[i]; i++) {
-                    sheet[selector](element);
+                for (let i = 0; element === list[i]; i++) {
+                    if (sheet) {
+                        sheet[selector](element);
+                    }
                 }
             }
         }
@@ -135,7 +137,7 @@ document.getElementsBySelector = function(selector) {
   let tokens = selector.split(' ');
   let currentContext = new Array(document);
     let tagName;
-    for (let i = 0; i < tokens.length; i++) {
+    for (let token of tokens) {
         token = tokens[i].replace(/^\s+/, '').replace(/\s+$/, '');
 
         if (token.indexOf('#') > -1) {
@@ -163,21 +165,22 @@ document.getElementsBySelector = function(selector) {
             // Get elements matching tag, filter them for class selector
             let found = [];
             let foundCount = 0;
-            for (let h = 0; h < currentContext.length; h++) {
+            for (let item of currentContext){
                 let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (let j = 0; j < elements.length; j++) {
+                for (let element of elements) {
                     found[foundCount++] = elements[j];
                 }
             }
             currentContext = [];
             let currentContextIndex = 0;
-            for (let k = 0; k < found.length; k++) {
-                if (found[k].className && found[k].className.match(new RegExp('\\b' + className + '\\b'))) {
+            for (let item of found) {
+                let k;
+                if (found[k]?.className?.match(new RegExp('\\b' + className + '\\b'))) {
                     currentContext[currentContextIndex++] = found[k];
                 }
             }
@@ -185,29 +188,32 @@ document.getElementsBySelector = function(selector) {
         }
         // Code to deal with attribute selectors
         if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
-            let tagName = RegExp.$1;
-            let attrName = RegExp.$2;
-            let attrOperator = RegExp.$3;
-            let attrValue = RegExp.$4;
+            const matchResult = regex.exec(inputString);
+            if (matchResult) {
+                const tagName = matchResult[1];
+                const attrName = matchResult[2];
+                const attrOperator = matchResult[3];
+                const attrValue = matchResult[4];
+            }
             if (!tagName) {
                 tagName = '*';
             }
             // Grab all of the tagName elements within current context
             let found = [];
             let foundCount = 0;
-            for (let h = 0; h < currentContext.length; h++) {
+            for (let item of currentContext) {
                 let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (let j = 0; j < elements.length; j++) {
+                for (let element of elements) {
                     found[foundCount++] = elements[j];
                 }
             }
-            currentContext = [];
             let checkFunction; // This function will be used to filter the elements
+            let attrOperator;
             switch (attrOperator) {
                 case '=': // Equality
                     checkFunction = function (e) {
@@ -247,13 +253,12 @@ document.getElementsBySelector = function(selector) {
             }
             currentContext = [];
             let currentContextIndex = 0;
-            for (let k = 0; k < found.length; k++) {
-                if (checkFunction(found[k])) {
+            for (let item of found)
+                let k;
+            if (checkFunction(found[k])) {
                     currentContext[currentContextIndex++] = found[k];
                 }
             }
-            // alert('Attribute Selector: '+tagName+' '+attrName+' '+attrOperator+' '+attrValue);
-            continue; // Skip to next token
         }
 
         if (!currentContext[0]) {
@@ -264,16 +269,15 @@ document.getElementsBySelector = function(selector) {
         tagName = token;
         let found = [];
         let foundCount = 0;
-        for (let h = 0; h < currentContext.length; h++) {
-            let elements = currentContext[h].getElementsByTagName(tagName);
-            for (let j = 0; j < elements.length; j++) {
-                found[foundCount++] = elements[j];
+        for (let context of currentContext) {
+            let elements = context.getElementsByTagName(tagName);
+            for (let element of elements) {
+                found[foundCount++] = element;
             }
         }
         currentContext = found;
     }
-  return currentContext;
-}
+
 
 /* That revolting regular expression explained 
 /^(\w+)\[(\w+)([=~\|\^\$\*]?)=?"?([^\]"]*)"?\]$/
