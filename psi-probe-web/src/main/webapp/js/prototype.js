@@ -20,7 +20,8 @@
 
 import {Component} from "react";
 import PropTypes from 'prop-types';
-
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
     toJSON: PropTypes.func.isRequired
@@ -103,8 +104,7 @@ let Class = (function() {
   function Subclass() {
 
     let parent = null, properties = $A(arguments);
-    if (Object.isFunction(properties[0]))
-      parent = properties.shift();
+
   }
   function Create() {
     let parent = null, properties = [...arguments];
@@ -254,10 +254,17 @@ let Class = (function() {
     return Str({key: '', holder: {'': value}, stack: []});
   }
 
+
   class Str extends Component {
-    key;
-    holder;
-    stack;
+    static propTypes = {
+      key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      holder: PropTypes.object,
+      stack: PropTypes.array,
+      // Add generic PropTypes for dynamic properties/methods
+      toJSON: PropTypes.func,
+      inspect: PropTypes.func,
+      // Add other dynamic properties/methods here
+    };
 
     render() {
       let key = this.props.key, holder = this.props.holder, stack = this.props.stack;
@@ -414,7 +421,7 @@ let Class = (function() {
     isNumber:      isNumber,
     isUndefined:   isUndefined
   });
-})();
+});
 Object.extend(Function.prototype, (function() {
   let slice = Array.prototype.slice;
 
@@ -463,7 +470,7 @@ Object.extend(Function.prototype, (function() {
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
     return function(event) {
-      let a = update([event || window.event], args);
+      let a = update([(event || window.event)], args);
       return __method.apply(context, a);
     }
   }
@@ -477,7 +484,7 @@ Object.extend(Function.prototype, (function() {
 
   function defer() {
     let args = update([0.01], arguments);
-    return this.delay.apply(this, args);
+    return this.delay(...args);
   }
 
   function wrap(wrapper) {
@@ -491,14 +498,15 @@ Object.extend(Function.prototype, (function() {
   function methodize() {
     if (this._methodized) return this._methodized;
     let __method = this;
-    return this._methodized = function() {
+    this._methodized = () => {
       let a = update([this], arguments);
-      this._methodized = __method.apply(null, a);
+      this._methodized = __method(...a);
       let methodizedResult = this._methodized;
       this._methodized = methodizedResult;
       return methodizedResult;
 
     };
+    return this._methodized;
   }
 
   let extensions = {
