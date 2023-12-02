@@ -194,7 +194,6 @@ let Class = (function() {
       NUMBER_CLASS = '[object Number]',
       STRING_CLASS = '[object String]',
       ARRAY_CLASS = '[object Array]',
-      DATE_CLASS = '[object Date]',
       NATIVE_JSON_STRINGIFY_SUPPORT = window.JSON &&
         typeof JSON.stringify === 'function' &&
         JSON.stringify(0) === '0' &&
@@ -482,7 +481,10 @@ Object.extend(Function.prototype, (function() {
     let __method = this;
     return this._methodized = function() {
       let a = update([this], arguments);
-      return __method.apply(null, a);
+      var methodizedResult = __method.apply(null, a);
+      this._methodized = methodizedResult;
+      return methodizedResult;
+
     };
   }
 
@@ -5662,14 +5664,16 @@ Expr = Sizzle.selectors = {
 			return (nodeName === "input" && !!elem.checked) || (nodeName === "option" && !!elem.selected);
 		},
 
-		"selected": function( elem ) {
-			if ( elem.parentNode ) {
-                elem.parentNode.selectedIndex;}
+      "selected": function( elem ) {
+        if ( elem.parentNode ) {
+          elem.parentNode.selectedIndex = elem.selected;
+        }
 
-          return elem.selected === true;
-		},
+        return elem.selected === true;
+      },
 
-		"empty": function( elem ) {
+
+      "empty": function( elem ) {
 			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
 				if ( elem.nodeType < 6 ) {
 					return false;
