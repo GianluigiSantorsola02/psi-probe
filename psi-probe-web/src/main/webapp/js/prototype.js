@@ -6435,8 +6435,8 @@ Form.Methods = {
     let elements = $(form).getElementsByTagName('*');
     let results = [], serializers = Form.Element.Serializers;
 
-    let element;
-    for (let i = 0; (element = elements[i]); i++) {
+    let element = elements[i];
+    for (let i = 0; element; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
@@ -6979,22 +6979,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED)
     getDOMEventName = Prototype.K;
 
-  function getUniqueElementID2(element) {
-    if (element === window) return 0;
-
-    if (typeof element._prototypeUID === 'undefined')
-      element._prototypeUID = Element.Storage.UID++;
-    return element._prototypeUID;
-  }
-
-  function getUniqueElementID_IE2(element) {
-    if (element === window) return 0;
-    if (element == document) return 1;
-    return element.uniqueID;
-  }
-
-  if ('uniqueID' in DIV)
-    getUniqueElementID2 = getUniqueElementID_IE2;
 
   function isCustomEvent(eventName) {
     return eventName.include(':');
