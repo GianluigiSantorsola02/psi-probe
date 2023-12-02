@@ -2711,10 +2711,13 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     element = $(element);
     let expressions = SLICE.call(arguments, 1).join(', ');
     let siblings = Element.siblings(element), results = [];
-    for (let i = 0, sibling; (sibling = siblings[i]); i++) {
-      if (Prototype.Selector.match(sibling, expressions))
+    let sibling;
+    for (let i = 0; (sibling = siblings[i]); i++) {
+      if (Prototype.Selector.match(sibling, expressions)) {
         results.push(sibling);
+      }
     }
+
 
     return results;
   }
@@ -3047,10 +3050,12 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   let CAMEL_CASED_ATTRIBUTE_NAMES = $w('colSpan rowSpan vAlign dateTime ' +
    'accessKey tabIndex encType maxLength readOnly longDesc frameBorder');
 
-  for (let i = 0, attr; (attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]); i++) {
+  let attr;
+  for (let i = 0; (attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]); i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
+
 
   Object.extend(ATTRIBUTE_TRANSLATIONS.read.values, {
     href:        _getAttr2,
@@ -3448,8 +3453,10 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
       Object.extend(Element.Methods, methods || {});
     } else {
       if (Object.isArray(tagName)) {
-        for (let i = 0, tag; tag = tagName[i]; i++)
+        let tag;
+        for (let i = 0; (tag = tagName[i]); i++) {
           addMethodsToTagName(tag, methods);
+        }
       } else {
         addMethodsToTagName(tagName, methods);
       }
@@ -4100,7 +4107,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     let isInline = (Element.getStyle(element, 'display') === 'inline');
     if (!isInline && element.offsetParent) return selfOrBody(element.offsetParent);
 
-    while ((element = element.parentNode) && element !== document.body) {
+    let elements= element.parentNode;
+    while (elements && element !== document.body) {
       if (Element.getStyle(element, 'position') !== 'static') {
         return selfOrBody(element);
       }
