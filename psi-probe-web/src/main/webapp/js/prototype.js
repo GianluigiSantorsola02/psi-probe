@@ -66,7 +66,7 @@ const Prototype = {
           form = document.createElement('form'),
           isSupported = false;
 
-      if (div['__proto__'] && (div['__proto__'] !== form['__proto__'])) {
+      if (Object.getPrototypeOf(div) && (Object.getPrototypeOf(div) !== Object.getPrototypeOf(form))) {
         isSupported = true;
       }
 
@@ -100,23 +100,31 @@ let Class = (function() {
     return true;
   })();
 
-  function subclass() {}
+  function Subclass() {
+
+    let parent = null, properties = $A(arguments);
+    if (Object.isFunction(properties[0]))
+      parent = properties.shift();
+  }
   function create() {
     let parent = null, properties = $A(arguments);
     if (Object.isFunction(properties[0]))
       parent = properties.shift();
 
     function klass() {
-      this.initialize.apply(this, arguments);
+      this.initialize(...arguments);
     }
+
+
+
 
     Object.extend(klass, Class.Methods);
     klass.superclass = parent;
     klass.subclasses = [];
 
     if (parent) {
-      subclass.prototype = parent.prototype;
-      klass.prototype = new subclass;
+      Subclass.prototype = parent.prototype;
+      klass.prototype = new Subclass;
       parent.subclasses.push(klass);
     }
 
@@ -247,6 +255,10 @@ let Class = (function() {
   }
 
   class Str extends Component {
+    key;
+    holder;
+    stack;
+
     render() {
       let key = this.props.key, holder = this.props.holder, stack = this.props.stack;
       let value = holder[key];
