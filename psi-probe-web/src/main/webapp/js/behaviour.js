@@ -209,9 +209,9 @@ document.getElementsBySelector = function(selector) {
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (let j = 0; j < elements.length; j++) {
+                elements.forEach(item => {
                     found[foundCount++] = elements[j];
-                }
+                });
             });
             let checkFunction; // This function will be used to filter the elements
             let attrOperator;

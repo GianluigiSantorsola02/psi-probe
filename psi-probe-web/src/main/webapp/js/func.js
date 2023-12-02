@@ -9,7 +9,7 @@
  * PURPOSE.
  */
 function inverse($f) {
-	for (let $i = 0; $i < $f.elements.length; $i++) {
+	for (const element of $f.elements) {
 		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = !$f.elements[$i].checked;
 		}
@@ -18,7 +18,7 @@ function inverse($f) {
 }
 
 function checkAll($f) {
-	for (let $i = 0; $i < $f.elements.length; $i++) {
+	for (const element of $f.elements) {
 		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = true;
 		}
@@ -58,7 +58,7 @@ Ajax.ImgUpdater.prototype = {
 function togglePanel(container, remember_url) {
 	if (Element.getStyle(container, "display") === 'none') {
 		if (remember_url) {
-
+			let url = window.location.href;
 		}
 		if (document.getElementById('invisible_' + container)) {
 			Element.hide('invisible_' + container);
@@ -70,7 +70,7 @@ function togglePanel(container, remember_url) {
 		Effect.Grow(container);
 	} else {
 		if (remember_url) {
-
+			let url = window.location.href;
 		}
 		if (document.getElementById('visible_' + container)) {
 			Element.hide('visible_' + container);
@@ -91,7 +91,7 @@ function scaleImage(v, minX, maxX, minY, maxY) {
 		w = w -30;
 		h = h - 100;
 	}
-	for (let i = 0; i < images.length; i++) {
+	for (const image of images) {
 		$(images[i]).setStyle({
 			"width": w + 'px',
 			"height": h + 'px'
@@ -113,7 +113,7 @@ function getWindowHeight() {
 	if (typeof( window.innerHeight ) == 'number') {
 		//Non-IE
 		myHeight = window.innerHeight;
-	} else if (document.documentElement && document.documentElement.clientHeight) {
+	} else if (document.documentElement?.clientHeight) {
 		//IE 6+ in 'standards compliant mode'
 		myHeight = document.documentElement.clientHeight;
 	}
