@@ -918,8 +918,10 @@ let Enumerable = (function() {
     iterator = iterator || Prototype.K;
     let result = false;
     this.each(function(value, index) {
-      if (result = !!iterator.call(context, value, index, this))
+      let result = !!iterator.call(context, value, index, this);
+      if (result) {
         throw $break;
+      }
     }, this);
     return result;
   }
@@ -1456,7 +1458,9 @@ let Hash = Class.create(Enumerable, (function() {
   }
 
   function set(key, value) {
-    return this._object[key] = value;
+    this._object[key] = value;
+    return this._object[key];
+
   }
 
   function get(key) {
@@ -2010,7 +2014,8 @@ Ajax.Updater = Class.create(Ajax.Request, {
 
     if (!options.evalScripts) responseText = responseText.stripScripts();
 
-    if (receiver = $(receiver)) {
+    receiver = $(receiver);
+    if (receiver) {
       if (options.insertion) {
         if (Object.isString(options.insertion)) {
           let insertion = { }; insertion[options.insertion] = responseText;
@@ -2300,8 +2305,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
           element.removeChild(element.firstChild);
 
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-        for (let i = 0, node; node = nodes[i]; i++)
+        for (let i = 0, node; (node = nodes[i]); i++) {
           element.appendChild(node);
+        }
 
       } else if (LINK_ELEMENT_INNERHTML_BUGGY && Object.isString(content) && content.indexOf('<link') > -1) {
         while (element.firstChild)
@@ -2310,7 +2316,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
         let nodes = getContentFromAnonymousElement(tagName,
          content.stripScripts(), true);
 
-        for (let i = 0, node; node = nodes[i]; i++)
+        for (let i = 0, node; (node = nodes[i]); i++)
           element.appendChild(node);
       } else {
         element.innerHTML = content.stripScripts();
@@ -2520,7 +2526,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function clone(element, deep) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
     let clone = element.cloneNode(deep);
     if (!HAS_UNIQUE_ID_PROPERTY) {
       clone._prototypeUID = UNDEFINED;
@@ -2544,7 +2551,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     }
   }
   function purge(element) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
     purgeElement(element);
 
     let descendants = element.getElementsByTagName('*'),
@@ -2672,9 +2680,11 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     expression = expression || 0
     index = index || 0;
 
-    if (Object.isNumber(expression))
+    if (Object.isNumber(expression)){
       index = expression
       expression = '*';
+    }
+
 
     let node = Prototype.Selector.select(expression, element)[index];
     return Element.extend(node);
@@ -2698,7 +2708,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     element = $(element);
     let expressions = SLICE.call(arguments, 1).join(', ');
     let siblings = Element.siblings(element), results = [];
-    for (let i = 0, sibling; sibling = siblings[i]; i++) {
+    for (let i = 0, sibling; (sibling = siblings[i]); i++) {
       if (Prototype.Selector.match(sibling, expressions))
         results.push(sibling);
     }
@@ -2885,7 +2895,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function hasClassName(element, className) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
 
     let elementClassName = element.className;
 
@@ -2896,7 +2907,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function addClassName(element, className) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
+
 
     if (!hasClassName(element, className))
       element.className += (element.className ? ' ' : '') + className;
@@ -2905,7 +2918,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function removeClassName(element, className) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
 
     element.className = element.className.replace(
      getRegExpForClassName(className), ' ').strip();
@@ -2914,8 +2928,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function toggleClassName(element, className, bool) {
-    if (!(element = $(element))) return;
-
+    element = $(element);
+    if (!element) {return;}
     if (Object.isUndefined(bool))
       bool = !hasClassName(element, className);
 
@@ -3030,7 +3044,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   let CAMEL_CASED_ATTRIBUTE_NAMES = $w('colSpan rowSpan vAlign dateTime ' +
    'accessKey tabIndex encType maxLength readOnly longDesc frameBorder');
 
-  for (let i = 0, attr; attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]; i++) {
+  for (let i = 0, attr; (attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]); i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -3254,8 +3268,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
     getUniqueElementID = getUniqueElementID_IE;
 
   function getStorage(element) {
-    if (!(element = $(element))) return;
-
+    element = $(element);
+    if (!element) {return;}
     let uid = getUniqueElementID(element);
 
     if (!Element.Storage[uid])
@@ -3265,7 +3279,8 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function store(element, key, value) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
     let storage = getStorage(element);
     if (arguments.length === 2) {
       storage.update(key);
@@ -3276,7 +3291,9 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
   }
 
   function retrieve(element, key, defaultValue) {
-    if (!(element = $(element))) return;
+    element = $(element);
+    if (!element) {return;}
+
     let storage = getStorage(element), value = storage.get(key);
 
     if (Object.isUndefined(value)) {
