@@ -56,7 +56,7 @@ const Prototype = {
 
     ElementExtensions: (function () {
       const constructor = window.Element || window.HTMLElement;
-      return constructor?.prototype ?? false;
+      return constructor ? constructor.prototype : null;
     })(),
     SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
