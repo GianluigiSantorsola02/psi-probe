@@ -8,17 +8,21 @@
  * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
-function inverse($f) {
-	let f;
-	let elements;
-	elements.forEach(item => {
+const inverse = ({elements}) => {
 
-		if ($f.elements[$i].type === "checkbox") {
-			$f.elements[$i].checked = !$f.elements[$i].checked;
+	if (elements) {
+		if (elements.length > 0) {
+			elements.forEach(item => {
+				if (item.type === "checkbox") {
+					item.checked = !item.checked;
+				}
+			});
 		}
-	});
+	}
+
 	return false;
-}
+};
+
 
 function checkAll($f) {
 	f.elements.forEach(item => {
