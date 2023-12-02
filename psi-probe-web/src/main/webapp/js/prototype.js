@@ -687,7 +687,7 @@ Object.extend(String.prototype, (function() {
     if (!match) return { };
 
     return match[1].split(separator || '&').inject({ }, function(hash, pair) {
-      if ((pair = pair.split('='))[0]) {
+      if ((pair = pair.split('='))?.[0]) {
         let key = decodeURIComponent(pair.shift()),
             value = pair.length > 1 ? pair.join('=') : pair[0];
 
@@ -2305,9 +2305,11 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
           element.removeChild(element.firstChild);
 
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-        for (let i = 0, node; (node = nodes[i]); i++) {
+        let node = nodes[i];
+        for (let i = 0; node; i++) {
           element.appendChild(node);
         }
+
 
       } else if (LINK_ELEMENT_INNERHTML_BUGGY && Object.isString(content) && content.indexOf('<link') > -1) {
         while (element.firstChild)
@@ -2316,6 +2318,7 @@ Ajax.PeriodicalUpdater = Class.create(Ajax.Base, {
         let nodes = getContentFromAnonymousElement(tagName,
          content.stripScripts(), true);
 
+        let node = nodes[i];
         for (let i = 0, node; (node = nodes[i]); i++)
           element.appendChild(node);
       } else {
