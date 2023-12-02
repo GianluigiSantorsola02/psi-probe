@@ -510,8 +510,6 @@ Object.extend(Function.prototype, (function() {
 })(Date.prototype);
 
 
-RegExp.prototype.match = RegExp.prototype.test;
-
 RegExp.escape = function(str) {
   return String(str).replace(/([.*+?^=!:${}()|[\]\\])/g, '\\$1');
 };
@@ -742,7 +740,7 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
+    str = str.replace(/"[^"\\n\\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -3448,16 +3446,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     if (!tagName) {
       Object.extend(Element.Methods, methods || {});
-    } else {
-      if (Object.isArray(tagName)) {
-        let tag;
-        for (let i = 0; (tag = tagName[i]); i++) {
-          addMethodsToTagName(tag, methods);
-        }
-      } else {
-        addMethodsToTagName(tagName, methods);
+    } else if (Object.isArray(tagName)) {
+      let tag;
+      for (let i = 0; (tag = tagName[i]); i++) {
+        addMethodsToTagName(tag, methods);
       }
+    } else {
+      addMethodsToTagName(tagName, methods);
     }
+
 
     let ELEMENT_PROTOTYPE = window.HTMLElement ? HTMLElement.prototype :
      Element.prototype;
