@@ -465,9 +465,10 @@ let Tooltip = {
 				let foundNext = false;
 				let activator = divs.item(i);
 				while (foundNext === false && activator) {
+
 					activator = activator.nextSibling;
 					if (activator?.tagName) {
-						break;
+						foundNext = true;
 					}
 				}
 			} else {
@@ -476,7 +477,8 @@ let Tooltip = {
 				while (foundPrevious === false && activator) {
 					activator = activator.previousSibling;
 					if (activator?.tagName) {
-						break;
+						foundPrevious = true;
+
 					}
 				}
 			}
@@ -534,10 +536,10 @@ let Tooltip = {
 					// Check if the parent is a close element first, if so, we can break
 					// and we still want to close the tooltip
 					if (node.className?.match(close_class)) {
-						break;
+						isWithinTooltip = true;
 					}
 					if (node.className?.match(tooltip_class)) {
-						break;
+						isWithinTooltip = true;
 					}
 					node = node.parentNode;
 				}
