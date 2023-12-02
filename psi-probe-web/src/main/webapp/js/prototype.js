@@ -99,12 +99,6 @@ let Class = (function() {
     }
     return true;
   })();
-
-  function Subclass() {
-
-    let parent = null, properties = $A(arguments);
-
-  }
   function addMethods(source) {
     let ancestor = this.superclass?.prototype;
     let properties;
@@ -673,8 +667,9 @@ Object.extend(String.prototype, (function() {
     let match = this.strip().match(/([^?#]*)(#.*)?$/);
     if (!match) return { };
 
-    return match[1].split(separator || '&').inject({ }, function(hash, pair) {
-      if ((pair = pair.split('='))?.[0]) {
+    return match[1].split(separator || '&').inject({ }, function(hash) {
+      let pair = pair.split('=')?.[0];
+      if (pair) {
         let key = decodeURIComponent(pair.shift()),
             value = pair.length > 1 ? pair.join('=') : pair[0];
 
@@ -754,7 +749,7 @@ Object.extend(String.prototype, (function() {
 
   function evalJSON(sanitize) {
     let json = this.unfilterJSON(),
-        cx = new RegExp("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
+        cx = ("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
     if (cx.test(json)) {
       json = json.replace(cx, function (a) {
         return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
@@ -1049,7 +1044,14 @@ let Enumerable = (function() {
       };
     }, this).sort(function(left, right) {
       let a = left.criteria, b = right.criteria;
-      return a < b ? -1 : a > b ? 1 : 0;
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      } else {
+        return 0;
+      }
+
     }).pluck('value');
   }
 
@@ -2305,10 +2307,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         let nodes = getContentFromAnonymousElement(tagName,
          content.stripScripts(), true);
 
-        let node = nodes[i];
-        for (let i = 0, node; (node = nodes[i]); i++)
-          element.appendChild(node);
-      } else {
+        let element = nodes[0];
+        for (let i = 0; i < nodes.length; i++) {
+          let node = nodes[i];
+          if (node) {
+            element.appendChild(node);
+          }
+        }}
+      else {
         element.innerHTML = content.stripScripts();
       }
     } else {
@@ -2699,12 +2705,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let expressions = SLICE.call(arguments, 1).join(', ');
     let siblings = Element.siblings(element), results = [];
     let sibling;
-    for (let i = 0; (sibling = siblings[i]); i++) {
-      if (Prototype.Selector.match(sibling, expressions)) {
+
+    for (let i = 0; i < siblings.length; i++) {
+      sibling = siblings[i];
+
+      if (sibling && Prototype.Selector.match(sibling, expressions)) {
         results.push(sibling);
       }
     }
-
 
     return results;
   }
@@ -3037,8 +3045,10 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let CAMEL_CASED_ATTRIBUTE_NAMES = $w('colSpan rowSpan vAlign dateTime ' +
    'accessKey tabIndex encType maxLength readOnly longDesc frameBorder');
 
-  let attr;
-  for (let i = 0; (attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]); i++) {
+
+  let i;
+  let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
+  for (i = 0;attr; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
