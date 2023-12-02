@@ -9,9 +9,9 @@
  * PURPOSE.
  */
 function inverse($f) {
-	let elements;
 	let f;
-	f.elements.forEach(item => {
+	let elements;
+	elements.forEach(item => {
 
 		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = !$f.elements[$i].checked;
@@ -61,7 +61,7 @@ Ajax.ImgUpdater.prototype = {
 function togglePanel(container, remember_url) {
 	if (Element.getStyle(container, "display") === 'none') {
 		if (remember_url) {
-			let url = window.location.href;
+			console.log("Remember URL is true and container is hidden");
 		}
 		if (document.getElementById('invisible_' + container)) {
 			Element.hide('invisible_' + container);
@@ -73,7 +73,7 @@ function togglePanel(container, remember_url) {
 		Effect.Grow(container);
 	} else {
 		if (remember_url) {
-			let url = window.location.href;
+			console.log("Remember URL is true and container is visible");
 		}
 		if (document.getElementById('visible_' + container)) {
 			Element.hide('visible_' + container);
@@ -81,10 +81,12 @@ function togglePanel(container, remember_url) {
 		if (document.getElementById('invisible_' + container)) {
 			Element.show('invisible_' + container);
 		}
+
 		Effect.Shrink(container);
 	}
 	return false;
 }
+
 
 function scaleImage(v, minX, maxX, minY, maxY) {
 	let images = document.getElementsByClassName('scale-image');
