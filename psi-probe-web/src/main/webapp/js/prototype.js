@@ -6421,12 +6421,15 @@ Form.Methods = {
 
   getElements: function(form) {
     let elements = $(form).getElementsByTagName('*');
-    let element, results = [], serializers = Form.Element.Serializers;
+    let results = [], serializers = Form.Element.Serializers;
 
-    for (let i = 0; element = elements[i]; i++) {
-      if (serializers[element.tagName.toLowerCase()])
+    let element;
+    for (let i = 0; (element = elements[i]); i++) {
+      if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
+      }
     }
+
     return results;
   },
 
@@ -6436,7 +6439,7 @@ Form.Methods = {
 
     if (!typeName && !name) return $A(inputs).map(Element.extend);
 
-    for (let i = 0, matchingInputs = [], length = inputs.length; i < length; i++) {
+    for (let i = 0,  length = inputs.length; i < length; i++) {
       let input = inputs[i];
       if ((typeName && input.type != typeName) || (name && input.name != name))
         continue;
@@ -6631,7 +6634,7 @@ Form.Element.Serializers = (function() {
     let values, length = element.length;
     if (!length) return null;
 
-    for (let i = 0, values = []; i < length; i++) {
+    for (let i = 0; i < length; i++) {
       let opt = element.options[i];
       if (opt.selected) values.push(optionValue(opt));
     }
@@ -6825,7 +6828,7 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
     let node = event.target, type = event.type,
      currentTarget = event.currentTarget;
 
-    if (currentTarget && currentTarget.tagName) {
+    if (currentTarget?.tagName) {
       if (type === 'load' || type === 'error' ||
         (type === 'click' && currentTarget.tagName.toLowerCase() === 'input'
           && currentTarget.type === 'radio'))
@@ -6964,7 +6967,7 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   if (MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED)
     getDOMEventName = Prototype.K;
 
-  function getUniqueElementID(element) {
+  function getUniqueElementID2(element) {
     if (element === window) return 0;
 
     if (typeof element._prototypeUID === 'undefined')
@@ -6972,14 +6975,14 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
     return element._prototypeUID;
   }
 
-  function getUniqueElementID_IE(element) {
+  function getUniqueElementID_IE2(element) {
     if (element === window) return 0;
     if (element == document) return 1;
     return element.uniqueID;
   }
 
   if ('uniqueID' in DIV)
-    getUniqueElementID = getUniqueElementID_IE;
+    getUniqueElementID2 = getUniqueElementID_IE2;
 
   function isCustomEvent(eventName) {
     return eventName.include(':');
@@ -7365,7 +7368,7 @@ Form.EventObserver = Class.create(Abstract.EventObserver, {
   function createResponderForCustomEvent(uid, eventName, handler) {
     return function(event) {
       let cache = Event.cache[uid];
-      let element =  cache && cache.element;
+      let element = cache?.element;
 
       if (Object.isUndefined(event.eventName))
         return false;
@@ -7580,11 +7583,11 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     className = ' ' + className + ' ';
 
     for (let i = 0, child, cn; child = nodes[i]; i++) {
-      if (child?.className && (child.className.includes?.(className) ||
-          (classNames && classNames.all?.(name => child.className.includes?.(name))))) {
-            return !name.toString().blank() && cn.include(' ' + name + ' ');
-          }
-        elements.push(Element.extend(child));
+      if (child?.className?.includes?.(className) ||
+          (classNames && classNames.all?.(name => child?.className?.includes?.(name)))) {
+        return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
+      }
+      elements.push(Element.extend(child));
     }
     return elements;
   };
