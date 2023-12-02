@@ -7594,9 +7594,10 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     let nodes = $(element).getElementsByTagName('*');
     className = ' ' + className + ' ';
 
-    for (let i = 0, child, cn; child = nodes[i]; i++) {
+      let child = nodes[i];
+    for (let i = 0, cn; child ; i++) {
       if (child?.className?.includes?.(className) ||
-          (classNames && classNames.all?.(name => child?.className?.includes?.(name)))) {
+          classNames?.all?.(name => child?.className?.includes?.(name))) {
         return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
       }
       elements.push(Element.extend(child));
