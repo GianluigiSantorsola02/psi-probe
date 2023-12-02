@@ -9,20 +9,23 @@
  * PURPOSE.
  */
 function inverse($f) {
-	for (const element of $f.elements) {
+	let elements;
+	let f;
+	f.elements.forEach(item => {
+
 		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = !$f.elements[$i].checked;
 		}
-	}
+	});
 	return false;
 }
 
 function checkAll($f) {
-	for (const element of $f.elements) {
+	f.elements.forEach(item => {
 		if ($f.elements[$i].type === "checkbox") {
 			$f.elements[$i].checked = true;
 		}
-	}
+	});
 	return false;
 }
 
@@ -91,12 +94,12 @@ function scaleImage(v, minX, maxX, minY, maxY) {
 		w = w -30;
 		h = h - 100;
 	}
-	for (const image of images) {
+	images.forEach(item => {
 		$(images[i]).setStyle({
 			"width": w + 'px',
 			"height": h + 'px'
 		});
-	}
+	});
 	return v;
 }
 
