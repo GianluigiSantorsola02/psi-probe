@@ -137,8 +137,10 @@ document.getElementsBySelector = function(selector) {
   let tokens = selector.split(' ');
   let currentContext = new Array(document);
     let tagName;
+    let attrName;
+    let attrOperator;
+    let attrValue;
     for (let token of tokens) {
-        token = tokens[i].replace(/^\s+/, '').replace(/\s+$/, '');
 
         if (token.indexOf('#') > -1) {
             // Token is an ID selector
@@ -165,20 +167,20 @@ document.getElementsBySelector = function(selector) {
             // Get elements matching tag, filter them for class selector
             let found = [];
             let foundCount = 0;
-            for (let item of currentContext){
+            for (const item of currentContext) {
                 let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (let element of elements) {
+                for (const element of elements) {
                     found[foundCount++] = elements[j];
                 }
             }
             currentContext = [];
             let currentContextIndex = 0;
-            for (let item of found) {
+            for (const item of found) {
                 let k;
                 if (found[k]?.className?.match(new RegExp('\\b' + className + '\\b'))) {
                     currentContext[currentContextIndex++] = found[k];
@@ -190,10 +192,10 @@ document.getElementsBySelector = function(selector) {
         if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
             const matchResult = regex.exec(inputString);
             if (matchResult) {
-                const tagName = matchResult[1];
-                const attrName = matchResult[2];
-                const attrOperator = matchResult[3];
-                const attrValue = matchResult[4];
+                tagName = matchResult[1];
+                attrName = matchResult[2];
+                attrOperator = matchResult[3];
+                attrValue = matchResult[4];
             }
             if (!tagName) {
                 tagName = '*';
@@ -201,14 +203,14 @@ document.getElementsBySelector = function(selector) {
             // Grab all of the tagName elements within current context
             let found = [];
             let foundCount = 0;
-            for (let item of currentContext) {
+            for (const item of currentContext) {
                 let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
                     elements = currentContext[h].getElementsByTagName(tagName);
                 }
-                for (let element of elements) {
+                for (const element of elements) {
                     found[foundCount++] = elements[j];
                 }
             }
@@ -253,13 +255,13 @@ document.getElementsBySelector = function(selector) {
             }
             currentContext = [];
             let currentContextIndex = 0;
-            for (let item of found)
+            for (const item of found)
                 let k;
             if (checkFunction(found[k])) {
-                    currentContext[currentContextIndex++] = found[k];
-                }
+                currentContext[currentContextIndex++] = found[k];
             }
         }
+    }
 
         if (!currentContext[0]) {
             return;
@@ -269,13 +271,12 @@ document.getElementsBySelector = function(selector) {
         tagName = token;
         let found = [];
         let foundCount = 0;
-        for (let context of currentContext) {
+        for (const context of currentContext) {
             let elements = context.getElementsByTagName(tagName);
-            for (let element of elements) {
+            for (const element of elements) {
                 found[foundCount++] = element;
             }
         }
-        currentContext = found;
     }
 
 
