@@ -179,12 +179,12 @@ document.getElementsBySelector = function(selector) {
             });
             currentContext = [];
             let currentContextIndex = 0;
-            for (const foundElement of found) {
+            found.forEach(item => {
                 let k;
                 if (found[k]?.className?.match(new RegExp('\\b' + className + '\\b'))) {
                     currentContext[currentContextIndex++] = found[k];
                 }
-            }
+            });
             continue; // Skip to next token
         }
         // Code to deal with attribute selectors
@@ -202,7 +202,8 @@ document.getElementsBySelector = function(selector) {
             // Grab all of the tagName elements within current context
             let found = [];
             let foundCount = 0;
-            for (const _ of currentContext) {                let elements;
+            currentContext.forEach(item => {
+                let elements;
                 if (tagName === '*') {
                     elements = getAllChildren(currentContext[h]);
                 } else {
@@ -211,7 +212,7 @@ document.getElementsBySelector = function(selector) {
                 for (let j = 0; j < elements.length; j++) {
                     found[foundCount++] = elements[j];
                 }
-            }
+            });
             let checkFunction; // This function will be used to filter the elements
             let attrOperator;
             switch (attrOperator) {
