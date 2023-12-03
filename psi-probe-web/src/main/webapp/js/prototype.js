@@ -4667,7 +4667,7 @@ let i,
 		"*(?:([*^$|!~]?=)" + whitespace + "*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|(" + identifier + ")|)|)" + whitespace + "*\\]",
 
     pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + String(attributes.replace('3', 8)) + ")*)|.*)\\)|)",
-    rtrim = new RegExp("^(?:" + whitespace + "+)|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
+    rtrim = new RegExp("^(?:" + whitespace + "+)|(?:((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$)", "g"),
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
@@ -4778,14 +4778,13 @@ function Sizzle( selector, context, results, seed ) {
 				return results;
 
 			} else
-              let m = match[3];
-          if (m && support.getElementsByClassName && context.getElementsByClassName) {
+          if (m) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
 		}
 
-      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))
+      if (support?.qsa && (!rbuggyQSA?.test(selector) ))
       {
 			nid = old = expando;
 			newContext = context;
@@ -4843,8 +4842,8 @@ function createCache() {
     if (keys.push(cacheKey) > Expr.cacheLength) {
       delete cache[keys.shift()];
     }
-
-    return (cache[cacheKey] = value);
+  cache[cacheKey] = value;
+    return cache[cacheKey] ;
   }
 
 	return cache;
@@ -4954,10 +4953,12 @@ function createPositionalPseudo( fn ) {
 				i = matchIndexes.length;
 
 			while ( i-- ) {
-				if ( seed[ (j = matchIndexes[i]) ] ) {
-					seed[j] = !(matches[j] = seed[j]);
-				}
-			}
+              let j = matchIndexes[i];
+              if (seed[j]) {
+                seed[j] = !(matches[j] = seed[j]);
+              }
+
+            }
 		});
 	});
 }
