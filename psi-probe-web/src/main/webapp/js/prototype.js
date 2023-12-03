@@ -4667,9 +4667,8 @@ let i,
 	attributes = "\\[" + whitespace + "*(" + characterEncoding + ")" + whitespace +
 		"*(?:([*^$|!~]?=)" + whitespace + "*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|(" + identifier + ")|)|)" + whitespace + "*\\]",
 
-	pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + attributes.replace( 3, 8 ) + ")*)|.*)\\)|)",
-
-    rtrim = new RegExp("^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
+    pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + String(attributes.replace(3, 8)) + ")*)|.*)\\)|)",
+    rtrim = new RegExp("^(?:" + whitespace + "+)|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
@@ -4718,11 +4717,8 @@ let i,
 
 
       try {
-	push.apply(
-		(arr = slice.call( preferredDoc.childNodes )),
-		preferredDoc.childNodes
-	);
-  let index = preferredDoc.childNodes.length;
+        let arr = slice.call(preferredDoc.childNodes);
+        push.apply(arr, preferredDoc.childNodes);
       } catch ( e ) {
 	push = { apply: arr.length ?
 
