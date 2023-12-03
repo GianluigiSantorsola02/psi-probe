@@ -3047,7 +3047,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let i;
   let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
-  for (i = 0;attr; i++) {
+  for (i = 0; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -3449,7 +3449,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       Object.extend(Element.Methods, methods || {});
     } else if (Object.isArray(tagName)) {
       let tag = tagName[i];
-      for (let i = 0; tag && i < tagName.length ; i++) {
+      for (let i = 0;i < tagName.length ; i++) {
         addMethodsToTagName(tag, methods);
       }
     } else {
@@ -6445,7 +6445,7 @@ Form.Methods = {
     let results = [], serializers = Form.Element.Serializers;
 
     let element = elements[i];
-    for (let i = 0; element; i++) {
+    for (let i = 0; i < elements.length; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
@@ -7588,7 +7588,7 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     className = ' ' + className + ' ';
 
       let child = nodes[i];
-    for (let i = 0, cn; child ; i++) {
+    for (let i = 0, cn;  i < nodes.length  ; i++) {
       if (child?.className?.includes?.(className) ||
           classNames?.all?.(name => child?.className?.includes?.(name))) {
         return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
