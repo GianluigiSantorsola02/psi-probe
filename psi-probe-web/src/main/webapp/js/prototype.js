@@ -6334,12 +6334,10 @@ if ( !assert(function( div ) {
           let val = elem.getAttributeNode(name);
           let result;
           if (elem[name] === true) {
-            result = name.toLowerCase();
+            return elem.getAttribute(name.toLowerCase())
           } else {
-            let result = val?.specified ? val.value : null;
+            return val?.specified ? val.value : null;
           }
-          return result;
-
         }
 	});
 }
