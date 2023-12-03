@@ -20,8 +20,8 @@
 
 import {Component} from "react";
 import PropTypes from 'prop-types';
-import React from 'react';
-
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
     toJSON: PropTypes.func.isRequired
@@ -103,7 +103,7 @@ let Class = (function() {
 
   function Subclass() {
 
-    let parent = null;
+    let parent = null, properties = $A(arguments);
 
   }
   function addMethods(source) {
