@@ -740,7 +740,7 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
+    str = str.replace(/"[^"]*"|true|false|null|-?\d+(\.\d*)?(?:[eE][+-]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -2066,12 +2066,19 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function $(element) {
     if (arguments.length > 1) {
-      for (let i = 0, elements = [], length = arguments.length; i < length; i++)
-        elements.push($(arguments[i]));
-      return elements;
-    }
+      function processArguments() {
+        for (let i = 0, length = arguments.length; i < length; i++) {
+          if (Object.isElement(arguments[i])) {
+            arguments[i] = $(arguments[i]);
+          }
+        }
+           $(arguments[i]);
+        }
 
-    if (Object.isString(element))
+      }
+
+
+      if (Object.isString(element))
       element = document.getElementById(element);
     return Element.extend(element);
   }
