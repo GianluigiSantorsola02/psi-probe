@@ -5921,7 +5921,7 @@ function addCombinator( matcher, combinator, base ) {
 		} :
 
 		function( elem, context, xml ) {
-			let oldCache, outerCache,
+			let outerCache,
 				newCache = [ dirruns, doneName ];
 
 			if ( xml ) {
