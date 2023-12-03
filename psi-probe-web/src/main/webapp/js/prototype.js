@@ -2293,7 +2293,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
         let node = nodes[i];
-        for (let i = 0; node; i++) {
+        for (let i = 0; i < nodes.length; i++) {
           element.appendChild(node);
         }
 
@@ -4101,7 +4101,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (!isInline && element.offsetParent) return selfOrBody(element.offsetParent);
 
     let elements= element.parentNode;
-    while (elements && element !== document.body) {
+    while (elements !== document.body) {
       if (Element.getStyle(element, 'position') !== 'static') {
         return selfOrBody(element);
       }
