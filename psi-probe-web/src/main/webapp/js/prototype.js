@@ -5326,13 +5326,20 @@ Sizzle.attr = function( elem, name ) {
 
   let val1 = elem.getAttributeNode(name) ;
 
-  return (val1 && val.specified ?
-      val.value :
-      val !== undefined ?
-          val :
-          support.attributes || !documentIsHTML ?
-              elem.getAttribute(name) :
-              null);
+  let result;
+
+  if (val1 && val.specified) {
+    result = val.value;
+  } else if (val !== undefined) {
+    result = val;
+  } else if (support.attributes || !documentIsHTML) {
+    result = elem.getAttribute(name);
+  } else {
+    result = null;
+  }
+
+  return result;
+
 };
 
 Sizzle.error = function( msg ) {
@@ -5642,7 +5649,8 @@ Expr = Sizzle.selectors = {
 							i = matched.length;
 						while ( i-- ) {
 							idx = indexOf.call( seed, matched[i] );
-							seed[ idx ] = !( matches[ idx ] = matched[i] );
+                            let matchedIndex = idx;
+							seed[ idx ] = !( matchedIndex?. seed[ matchedIndex ] );
 						}
 					}) :
 					function( elem ) {
