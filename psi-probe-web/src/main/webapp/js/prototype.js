@@ -5943,8 +5943,10 @@ function addCombinator( matcher, combinator, base ) {
                           oldCache[0] === dirruns &&
                           oldCache[1] === doneName) {
 
-							return (newCache[ 2 ] = oldCache[ 2 ]);
-						} else {
+                        let newValue = oldCache[2];
+                        newCache[2] = newValue;
+                        return newValue;
+                      } else {
 							outerCache[ dir ] = newCache;
 
                         let newCache = [];
@@ -5992,13 +5994,12 @@ function condense( unmatched, map, filter, context, xml ) {
 		mapped = map != null;
 
 	for ( ; i < len; i++ ) {
-		if ( (elem = unmatched[i]) ) {
-			if ( !filter || filter( elem, context, xml ) ) {
+      let elem = unmatched[i];
+      if (elem && (!filter || filter(elem, context, xml))) {
 				newUnmatched.push( elem );
 				if ( mapped ) {
 					map.push( i );
 				}
-			}
 		}
 	}
 
@@ -6012,79 +6013,77 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 	if ( postFinder && !postFinder[ expando ] ) {
 		postFinder = setMatcher( postFinder, postSelector );
 	}
-	return markFunction(function( seed, results, context, xml ) {
-		let temp, i, elem,
-			preMap = [],
-			postMap = [],
-			preexisting = results.length,
+  return markFunction(function(seed, results, context, xml) {
+    let temp, i, elem,
+        preMap = [],
+        postMap = [],
+        preexisting = results.length;
 
-			elems = seed || multipleContexts( selector || "*", context.nodeType ? [ context ] : context, [] ),
+    let elems = seed || multipleContexts(selector || "*", context.nodeType ? [context] : context, []);
 
-			matcherIn = preFilter && ( seed || !selector ) ?
-				condense( elems, preMap, preFilter, context, xml ) :
-				elems,
+    let matcherIn;
+    if (preFilter && (seed || !selector)) {
+      matcherIn = condense(elems, preMap, preFilter, context, xml);
+    } else {
+      matcherIn = elems;
+    }
 
-			matcherOut = matcher ?
-				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
+    let matcherOut;
+    if (matcher) {
+      matcherOut = postFinder || (seed ? preFilter : preexisting || postFilter) ? [] : results;
+      matcher(matcherIn, matcherOut, context, xml);
+    } else {
+      matcherOut = matcherIn;
+    }
 
-					[] :
+    if (postFilter) {
+      temp = condense(matcherOut, postMap);
+      postFilter(temp, [], context, xml);
 
-					results :
-				matcherIn;
+      i = temp.length;
+      while (i--) {
+        elem = temp[i];
+        if ((elem = matcherOut[elem])) {
+          matcherOut[postMap[i]] = !(matcherIn[postMap[i]] = elem);
+        }
+      }
+    }
 
-		if ( matcher ) {
-			matcher( matcherIn, matcherOut, context, xml );
-		}
+    if (seed) {
+      if (postFinder || preFilter) {
+        if (postFinder) {
+          temp = [];
+          i = matcherOut.length;
+          while (i--) {
+            if ((elem = matcherOut[i])) {
+              temp.push((matcherIn[i] = elem));
+            }
+          }
+          postFinder(null, (matcherOut = []), temp, xml);
+        }
 
-		if ( postFilter ) {
-			temp = condense( matcherOut, postMap );
-			postFilter( temp, [], context, xml );
+        i = matcherOut.length;
+        while (i--) {
+          if ((elem = matcherOut[i]) &&
+              (temp = postFinder ? indexOf.call(seed, elem) : preMap[i]) > -1) {
 
-			i = temp.length;
-			while ( i-- ) {
-              let elem = temp[i]
-				if ( (elem = matcherOut[elem]) ) {
-					matcherOut[ postMap[i] ] = !(matcherIn[ postMap[i] ] = elem);
-				}
-			}
-		}
-
-		if ( seed ) {
-			if ( postFinder || preFilter ) {
-				if ( postFinder ) {
-					temp = [];
-					i = matcherOut.length;
-					while ( i-- ) {
-						if ( (elem = matcherOut[i]) ) {
-							temp.push( (matcherIn[i] = elem) );
-						}
-					}
-					postFinder( null, (matcherOut = []), temp, xml );
-				}
-
-				i = matcherOut.length;
-				while ( i-- ) {
-					if ( (elem = matcherOut[i]) &&
-						(temp = postFinder ? indexOf.call( seed, elem ) : preMap[i]) > -1 ) {
-
-						seed[temp] = !(results[temp] = elem);
-					}
-				}
-			}
-
-		} else {
-			matcherOut = condense(
-				matcherOut === results ?
-					matcherOut.splice( preexisting, matcherOut.length ) :
-					matcherOut
-			);
-			if ( postFinder ) {
-				postFinder( null, results, matcherOut, xml );
-			} else {
-				push.apply( results, matcherOut );
-			}
-		}
-	});
+            seed[temp] = !(results[temp] = elem);
+          }
+        }
+      }
+    } else {
+      matcherOut = condense(
+          matcherOut === results ?
+              matcherOut.splice(preexisting, matcherOut.length) :
+              matcherOut
+      );
+      if (postFinder) {
+        postFinder(null, results, matcherOut, xml);
+      } else {
+        push.apply(results, matcherOut);
+      }
+    }
+  });
 }
 
 function matcherFromTokens( tokens ) {
