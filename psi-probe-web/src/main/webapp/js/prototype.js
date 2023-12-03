@@ -5268,13 +5268,19 @@ setDocument = Sizzle.setDocument = function( node ) {
 			i++;
 		}
 
-		return i ?
-			siblingCheck( ap[i], bp[i] ) :
+      let result;
+      if (i) {
+        result = siblingCheck(ap[i], bp[i]);
+      } else {
+        result = (ap[i] === preferredDoc) ? -1 :
+            (bp[i] === preferredDoc) ? 1 :
+                0;
+      }
 
-			ap[i] === preferredDoc ? -1 :
-			bp[i] === preferredDoc ? 1 :
-			0;
-	};
+      return result;
+
+
+    };
 
 	return doc;
 };
@@ -5288,11 +5294,12 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		setDocument( elem );
 	}
 
-	expr = expr.replace( rattributeQuotes, "='$1']" );
+  expr = expr.replace(rattributeQuotes, "='$1']");
 
-	if ( support.matchesSelector && documentIsHTML?.
-        (!rbuggyMatches || !rbuggyMatches.test?.(expr))?.
-        (!rbuggyQSA || !rbuggyQSA.test?.(expr))) {
+  if (
+      support.matchesSelector &&
+      documentIsHTML?.(!rbuggyMatches || !rbuggyMatches.test?.(expr))?.(!rbuggyQSA || !rbuggyQSA.test?.(expr))
+  ) {
 
 		try {
 			let ret = matches.call( elem, expr );
@@ -5649,8 +5656,8 @@ Expr = Sizzle.selectors = {
 							i = matched.length;
 						while ( i-- ) {
 							idx = indexOf.call( seed, matched[i] );
-                            let matchedIndex = idx;
-							seed[ idx ] = !( matchedIndex?. seed[ matchedIndex ] );
+                          matches[ idx ] = matched[i];
+							seed[ idx ] = !matches[ idx ];
 						}
 					}) :
 					function( elem ) {
@@ -5675,10 +5682,10 @@ Expr = Sizzle.selectors = {
 						i = seed.length;
 
 					while ( i-- ) {
-                      let elem = unmatched[i];
-						if ( elem || !unmatched.has(elem)) {
-                          let elem = matches[i]
-							seed[i] = !elem || elem === true ? elem : elem.toString();
+                      elem = unmatched[i]
+						if ( elem ) {
+                          matches[i] = elem
+							seed[i] = !matches[i];
 						}
 					}
 				}) :
