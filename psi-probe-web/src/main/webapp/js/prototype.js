@@ -4766,19 +4766,20 @@ function Sizzle( selector, context, results, seed ) {
 					} else {
 						return results;
 					}
-				} else {
-					if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
+				} else if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
 						contains( context, elem ) && elem.id === m ) {
 						results.push( elem );
 						return results;
 					}
-				}
+
 
 			} else if ( match[2] ) {
 				push.apply( results, context.getElementsByTagName( selector ) );
 				return results;
 
-			} else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
+			} else
+              let m = match[3];
+          if (m && support.getElementsByClassName && context.getElementsByClassName) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
@@ -4792,9 +4793,9 @@ function Sizzle( selector, context, results, seed ) {
 
 			if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
 				groups = tokenize( selector );
-
-				if ( (old = context.getAttribute("id")) ) {
-					nid = old.replace( rescape, "\\$&" );
+              let old = context.getAttribute("id");
+              if (old) {
+                nid = old.replace(rescape, "\\$&");
 				} else {
 					context.setAttribute( "id", nid );
 				}
@@ -4836,12 +4837,16 @@ function Sizzle( selector, context, results, seed ) {
 function createCache() {
 	let keys = [];
 
-	function cache( key, value ) {
-		if ( keys.push( key + " " ) > Expr.cacheLength ) {
-			delete cache[ keys.shift() ];
-		}
-		return (cache[ key + " " ] = value);
-	}
+  function cache(key, value) {
+    let cacheKey = key + " ";
+
+    if (keys.push(cacheKey) > Expr.cacheLength) {
+      delete cache[keys.shift()];
+    }
+
+    return (cache[cacheKey] = value);
+  }
+
 	return cache;
 }
 
