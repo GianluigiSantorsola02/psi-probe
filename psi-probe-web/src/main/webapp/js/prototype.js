@@ -3639,14 +3639,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       } else {
         let whole;
 
-        if (isHorizontal) {
-          whole = $(context).measure('width');
-        } else if (isVertical) {
-          whole = $(context).measure('height');
-        } else {
-          whole = undefined;
-        }
-
       }
 
 
