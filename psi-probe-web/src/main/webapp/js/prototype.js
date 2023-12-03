@@ -5935,7 +5935,7 @@ function addCombinator( matcher, combinator, base ) {
 			} else {
               let elem = startingElement;
 
-              while (elem) {
+              while ( elem  ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						outerCache = elem[ expando ] || (elem[ expando ] = {});
                       let oldCache  = outerCache[dir];
