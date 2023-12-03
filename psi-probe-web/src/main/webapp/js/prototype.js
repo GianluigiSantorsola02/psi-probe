@@ -5280,8 +5280,8 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
 	expr = expr.replace( rattributeQuotes, "='$1']" );
 
-	if ( support.matchesSelector && documentIsHTML &&
-        (!rbuggyMatches || !rbuggyMatches.test?.(expr)) &&
+	if ( support.matchesSelector && documentIsHTML?.
+        (!rbuggyMatches || !rbuggyMatches.test?.(expr))?.
         (!rbuggyQSA || !rbuggyQSA.test?.(expr))) {
 
 		try {
