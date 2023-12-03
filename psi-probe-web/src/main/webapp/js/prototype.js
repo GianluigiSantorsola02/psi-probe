@@ -148,7 +148,7 @@ let Class = (function() {
     }
   };
 })();
-(function( Object )  {
+(function() {
 
   let _toString = Object.prototype.toString,
       _hasOwnProperty = Object.prototype.hasOwnProperty,
@@ -740,7 +740,7 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?/g, ']');
+    str = str.replace(/"[^"\\n\\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -2293,7 +2293,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
         let node = nodes[i];
-        for (let i = 0; i < nodes.length; i++) {
+        for (let i = 0; node; i++) {
           element.appendChild(node);
         }
 
@@ -3047,7 +3047,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let i;
   let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
-  for (i = 0; attr === CAMEL_CASED_ATTRIBUTE_NAMES[i] ; i++) {
+  for (i = 0;attr; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -3449,7 +3449,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       Object.extend(Element.Methods, methods || {});
     } else if (Object.isArray(tagName)) {
       let tag = tagName[i];
-      for (let i = 0; i < tagName.length ; i++) {
+      for (let i = 0; tag && i < tagName.length ; i++) {
         addMethodsToTagName(tag, methods);
       }
     } else {
@@ -4101,7 +4101,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (!isInline && element.offsetParent) return selfOrBody(element.offsetParent);
 
     let elements= element.parentNode;
-    while (elements !== document.body) {
+    while (elements && element !== document.body) {
       if (Element.getStyle(element, 'position') !== 'static') {
         return selfOrBody(element);
       }
@@ -6445,7 +6445,7 @@ Form.Methods = {
     let results = [], serializers = Form.Element.Serializers;
 
     let element = elements[i];
-    for (let i = 0; element === elements[i] ; i++) {
+    for (let i = 0; element; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
@@ -7588,7 +7588,7 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     className = ' ' + className + ' ';
 
       let child = nodes[i];
-    for (let i = 0, cn;  (cn = ' ' + child.className + ' '); i++) {
+    for (let i = 0, cn; child ; i++) {
       if (child?.className?.includes?.(className) ||
           classNames?.all?.(name => child?.className?.includes?.(name))) {
         return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
