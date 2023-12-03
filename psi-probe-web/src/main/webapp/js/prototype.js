@@ -1,4 +1,4 @@
-// noinspection JSPotentiallyInvalidConstructorUsage
+// noinspection JSPotentiallyInvalidConstructorUsage,UnreachableCodeJS
 
 /*
  * Licensed under the GPL License. You may not use this file except in compliance with the License.
@@ -748,7 +748,7 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
+    str = str.replace(/"[^"]*"|\b(?:true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?)\b/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
