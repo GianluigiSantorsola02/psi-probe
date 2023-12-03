@@ -18,9 +18,8 @@
  *
  *--------------------------------------------------------------------------*/
 
-import {Component} from "react";
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
@@ -100,12 +99,6 @@ let Class = (function() {
     }
     return true;
   })();
-
-  function Subclass() {
-
-    let parent = null, properties = $A(arguments);
-
-  }
   function addMethods(source) {
     let ancestor = this.superclass?.prototype;
     let properties;
@@ -517,8 +510,6 @@ Object.extend(Function.prototype, (function() {
 })(Date.prototype);
 
 
-RegExp.prototype.match = RegExp.prototype.test;
-
 RegExp.escape = function(str) {
   return String(str).replace(/([.*+?^=!:${}()|[\]\\])/g, '\\$1');
 };
@@ -674,8 +665,9 @@ Object.extend(String.prototype, (function() {
     let match = this.strip().match(/([^?#]*)(#.*)?$/);
     if (!match) return { };
 
-    return match[1].split(separator || '&').inject({ }, function(hash, pair) {
-      if ((pair = pair.split('='))?.[0]) {
+    return match[1].split(separator || '&').inject({ }, function(hash) {
+      let pair = pair.split('=')?.[0];
+      if (pair) {
         let key = decodeURIComponent(pair.shift()),
             value = pair.length > 1 ? pair.join('=') : pair[0];
 
@@ -748,14 +740,14 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"]*"|\b(?:true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?)\b/g, ']');
+    str = str.replace(/"[^"]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
 
   function evalJSON(sanitize) {
     let json = this.unfilterJSON(),
-        cx = new RegExp("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
+        cx = ("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
     if (cx.test(json)) {
       json = json.replace(cx, function (a) {
         return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
@@ -1050,7 +1042,14 @@ let Enumerable = (function() {
       };
     }, this).sort(function(left, right) {
       let a = left.criteria, b = right.criteria;
-      return a < b ? -1 : a > b ? 1 : 0;
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      } else {
+        return 0;
+      }
+
     }).pluck('value');
   }
 
@@ -2067,11 +2066,10 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function $(element) {
     if (arguments.length > 1) {
-      const elements = [];
-      for (let i = 0, length = arguments.length; i < length; i++) {
+      for (let i = 0, elements = [], length = arguments.length; i < length; i++)
         elements.push($(arguments[i]));
-      }
       return elements;
+    }
 
     if (Object.isString(element))
       element = document.getElementById(element);
@@ -2295,7 +2293,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
         let node = nodes[i];
-        for (let i = 0; node; i++) {
+        for (let i = 0; i < nodes.length; i++) {
           element.appendChild(node);
         }
 
@@ -2307,10 +2305,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         let nodes = getContentFromAnonymousElement(tagName,
          content.stripScripts(), true);
 
-        let node = nodes[i];
-        for (let i = 0, node; (node = nodes[i]); i++)
-          element.appendChild(node);
-      } else {
+        let element = nodes[0];
+        for (let i = 0; i < nodes.length; i++) {
+          let node = nodes[i];
+          if (node) {
+            element.appendChild(node);
+          }
+        }}
+      else {
         element.innerHTML = content.stripScripts();
       }
     } else {
@@ -2626,7 +2628,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     element = $(element);
     let previous = previousSiblings(element),
      next = nextSiblings(element);
-    return previous.reverse().concat(next);
+    let reversedPrevious = previous.reverse();
+    return reversedPrevious.concat(next);
   }
 
   function match(element, selector) {
@@ -2701,12 +2704,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let expressions = SLICE.call(arguments, 1).join(', ');
     let siblings = Element.siblings(element), results = [];
     let sibling;
-    for (let i = 0; (sibling = siblings[i]); i++) {
-      if (Prototype.Selector.match(sibling, expressions)) {
+
+    for (let i = 0; i < siblings.length; i++) {
+      sibling = siblings[i];
+
+      if (sibling && Prototype.Selector.match(sibling, expressions)) {
         results.push(sibling);
       }
     }
-
 
     return results;
   }
@@ -3039,8 +3044,10 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let CAMEL_CASED_ATTRIBUTE_NAMES = $w('colSpan rowSpan vAlign dateTime ' +
    'accessKey tabIndex encType maxLength readOnly longDesc frameBorder');
 
-  let attr;
-  for (let i = 0; (attr = CAMEL_CASED_ATTRIBUTE_NAMES[i]); i++) {
+
+  let i;
+  let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
+  for (i = 0; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -3440,16 +3447,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     if (!tagName) {
       Object.extend(Element.Methods, methods || {});
-    } else {
-      if (Object.isArray(tagName)) {
-        let tag;
-        for (let i = 0; (tag = tagName[i]); i++) {
-          addMethodsToTagName(tag, methods);
-        }
-      } else {
-        addMethodsToTagName(tagName, methods);
+    } else if (Object.isArray(tagName)) {
+      let tag = tagName[i];
+      for (let i = 0;i < tagName.length ; i++) {
+        addMethodsToTagName(tag, methods);
       }
+    } else {
+      addMethodsToTagName(tagName, methods);
     }
+
 
     let ELEMENT_PROTOTYPE = window.HTMLElement ? HTMLElement.prototype :
      Element.prototype;
@@ -3488,17 +3494,16 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
       GLOBAL.Element.extend.refresh = Prototype.emptyFunction;
     }
-  } else {
-    if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
-      GLOBAL.Element.extend.refresh = function() {
-        if (Prototype.BrowserFeatures.ElementExtensions) return;
-        Object.extend(Methods, Element.Methods);
-        Object.extend(Methods, Element.Methods.Simulated);
+  } else if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
+    GLOBAL.Element.extend.refresh = function() {
+      if (Prototype.BrowserFeatures.ElementExtensions) return;
+      Object.extend(Methods, Element.Methods);
+      Object.extend(Methods, Element.Methods.Simulated);
 
-        EXTENDED = {};
-      };
-    }
+      EXTENDED = {};
+    };
   }
+
 
   function addFormMethods() {
     Object.extend(Form, Form.Methods);
@@ -3522,7 +3527,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-}(this);
+})(this);
 (function() {
 
   function toDecimal(pctString) {
@@ -3613,12 +3618,11 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
           whole = document.viewport.getHeight();
         }
       } else {
-        if (isHorizontal) {
-          whole = $(context).measure('width');
-        } else if (isVertical) {
-          whole = $(context).measure('height');
-        }
+        whole = isHorizontal ? $(context).measure('width') :
+            isVertical ? $(context).measure('height') :
+                undefined;
       }
+
 
       return (whole === null) ? 0 : whole * decimal;
     }
@@ -4097,7 +4101,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (!isInline && element.offsetParent) return selfOrBody(element.offsetParent);
 
     let elements= element.parentNode;
-    while (elements && element !== document.body) {
+    while (elements !== document.body) {
       if (Element.getStyle(element, 'position') !== 'static') {
         return selfOrBody(element);
       }
@@ -4680,26 +4684,28 @@ let i,
 	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
 
 	rsibling = /[+~]/,
-	rescape = /'|\\/g,
+    rescape = /[\\']/g,
 
 	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
 	funescape = function( _, escaped, escapedWhitespace ) {
 		let high = "0x" + escaped - 0x10000;
-		return high !== high || escapedWhitespace ?
-			escaped :
-			high < 0 ?
-				String.fromCharCode( high + 0x10000 ) :
-				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
-	};
+      if (high !== high || escapedWhitespace) {
+        return escaped;
+      } else if (high < 0) {
+        return String.fromCharCode(high + 0x10000);
+      } else {
+        return String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00);
+      }
+    };
 
-try {
+
+      try {
 	push.apply(
 		(arr = slice.call( preferredDoc.childNodes )),
 		preferredDoc.childNodes
 	);
   let index = preferredDoc.childNodes.length;
-  let nodeType = arr[index].nodeType;
-} catch ( e ) {
+      } catch ( e ) {
 	push = { apply: arr.length ?
 
 		function( target, els ) {
@@ -4735,16 +4741,15 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	if ( documentIsHTML && !seed ) {
-
-		if ( (match = rquickExpr.exec( selector )) ) {
-			if ( (m = match[1]) ) {
+        let match = rquickExpr.exec( selector );
+		if (match) {
+          let m = match[1];
+			if (m) {
 				if ( nodeType === 9 ) {
 					elem = context.getElementById( m );
-                  if (elem?.parentNode) {
-						if ( elem.id === m ) {
+                  if (elem?.parentNode &&  elem.id === m ) {
 							results.push( elem );
 							return results;
-						}
 					} else {
 						return results;
 					}
@@ -4766,7 +4771,8 @@ function Sizzle( selector, context, results, seed ) {
 			}
 		}
 
-		if ( support.qsa && (!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
+      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))
+      {
 			nid = old = expando;
 			newContext = context;
 			newSelector = nodeType === 9 && selector;
@@ -5290,13 +5296,15 @@ Sizzle.attr = function( elem, name ) {
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
 
-	return val !== undefined ?
-		val :
-		support.attributes || !documentIsHTML ?
-			elem.getAttribute( name ) :
-			(val = elem.getAttributeNode(name)) && val.specified ?
-				val.value :
-				null;
+  let val1 = elem.getAttributeNode(name) ;
+
+  return (val1 && val.specified ?
+      val.value :
+      val !== undefined ?
+          val :
+          support.attributes || !documentIsHTML ?
+              elem.getAttribute(name) :
+              null);
 };
 
 Sizzle.error = function( msg ) {
@@ -5484,15 +5492,32 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
-				return operator === "=" ? result === check :
-					operator === "!=" ? result !== check :
-					operator === "^=" ? check && result.indexOf( check ) === 0 :
-					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "$=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result + " " ).indexOf( check ) > -1 :
-					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
-					false;
-			};
+              let isEqual = operator === "=";
+              let isNotEqual = operator === "!=";
+              let isStartsWith = operator === "^=";
+              let isContains = operator === "*=";
+              let isEndsWith = operator === "$=";
+              let isSpaceSeparated = operator === "~=";
+              let isHyphenSeparated = operator === "|=";
+
+              if (isEqual) {
+                return result === check;
+              } else if (isNotEqual) {
+                return result !== check;
+              } else if (isStartsWith) {
+                return check && result.indexOf(check) === 0;
+              } else if (isContains) {
+                return check && result.indexOf(check) > -1;
+              } else if (isEndsWith) {
+                return check && result.slice(-check.length) === check;
+              } else if (isSpaceSeparated) {
+                return (" " + result + " ").indexOf(check) > -1;
+              } else if (isHyphenSeparated) {
+                return result === check || result.slice(0, check.length + 1) === check + "-";
+              } else {
+                return false;
+              }
+            };
 		},
 
 		"CHILD": function( type, what, argument, first, last ) {
@@ -6420,7 +6445,7 @@ Form.Methods = {
     let results = [], serializers = Form.Element.Serializers;
 
     let element = elements[i];
-    for (let i = 0; element; i++) {
+    for (let i = 0; i < elements.length; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
@@ -7563,7 +7588,7 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     className = ' ' + className + ' ';
 
       let child = nodes[i];
-    for (let i = 0, cn; child ; i++) {
+    for (let i = 0, cn;  i < nodes.length  ; i++) {
       if (child?.className?.includes?.(className) ||
           classNames?.all?.(name => child?.className?.includes?.(name))) {
         return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
@@ -7668,4 +7693,4 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
       return Prototype.Selector.select(selector, element || document);
     }
   });
-})();})
+})();
