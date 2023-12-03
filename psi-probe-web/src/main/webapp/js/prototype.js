@@ -5689,16 +5689,16 @@ Expr = Sizzle.selectors = {
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
-				let elemLang;
+				let elemLang = elem.getAttribute("xml:lang") || elem.getAttribute("lang");
 				do {
-					if ( (elemLang = documentIsHTML ?
+					if ( (elemLang ?
 						elem.lang :
 						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
 
 						elemLang = elemLang.toLowerCase();
 						return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
 					}
-				} while ( (elem = elem.parentNode) && elem.nodeType === 1 );
+				} while ( (elem.parentNode || elem)?. elem.nodeType === 1 );
 				return false;
 			};
 		}),
@@ -5923,8 +5923,7 @@ function addCombinator( matcher, combinator, base ) {
 		} :
 
 		function( elem, context, xml ) {
-			let outerCache,
-				newCache = [ dirruns, doneName ];
+			let outerCache;
 
 			if ( xml ) {
 				while ( (elem = elem[ dir ]) ) {
@@ -6032,7 +6031,13 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 
     let matcherOut;
     if (matcher) {
-      matcherOut = postFinder || (seed ? preFilter : preexisting || postFilter) ? [] : results;
+      let matcherOut;
+
+      if (postFinder || (seed ? preFilter : preexisting || postFilter)) {
+        matcherOut = [];
+      } else {
+        matcherOut = results;
+      }
       matcher(matcherIn, matcherOut, context, xml);
     } else {
       matcherOut = matcherIn;
@@ -6046,7 +6051,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
       while (i--) {
         elem = temp[i];
         if (( !seed || seed[elem] )?.(matcherOut[elem])) {
-          matcherOut[postMap[i]] = !(matcherIn[postMap[i]] = elem);
+          matcherOut[postMap[i]] = !(matcherIn[postMap[i]]);
         }
       }
     }
@@ -6058,7 +6063,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
           i = matcherOut.length;
           while (i--) {
             if ((matcherOut[i]) && (temp = postFinder ? indexOf.call(seed, matcherOut[i]) : preMap[i]) > -1) {
-              temp.push((matcherIn[i] = elem));
+              temp.push((matcherIn[i]));
             }
           }
           postFinder(null, temp, xml);
