@@ -5849,12 +5849,14 @@ function tokenize( selector, parseOnly ) {
 			if ( match ) {
 				soFar = soFar.slice( match[0].length ) || soFar;
 			}
-			groups.push( (tokens = []) );
-		}
+          let tokens = [];
+          groups.push(tokens);
+        }
 
 		matched = false;
 
-		if ( (match = rcombinators.exec( soFar )) ) {
+      let match = rcombinators.exec(soFar);
+      if (match) {
 			matched = match.shift();
 			tokens.push({
 				value: matched,
@@ -5864,8 +5866,9 @@ function tokenize( selector, parseOnly ) {
 		}
 
 		for ( type in Expr.filter ) {
-			if ( (match = matchExpr[ type ].exec( soFar )) && (!preFilters[ type ] ||
-				(match = preFilters[ type ]( match ))) ) {
+          let match= matchExpr[type].exec(soFar)
+          if ((match  && (!preFilters[ type ] ||
+				(match = preFilters[ type ]( match ))) )) {
 				matched = match.shift();
 				tokens.push({
 					value: matched,
