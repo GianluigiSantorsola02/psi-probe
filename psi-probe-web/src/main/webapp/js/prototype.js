@@ -148,7 +148,7 @@ let Class = (function() {
     }
   };
 })();
-(function() {
+function functionName() {
 
   let _toString = Object.prototype.toString,
       _hasOwnProperty = Object.prototype.hasOwnProperty,
@@ -382,7 +382,7 @@ let Class = (function() {
     isNumber:      isNumber,
     isUndefined:   isUndefined
   });
-});
+};
 Object.extend(Function.prototype, (function() {
   let slice = Array.prototype.slice;
 
