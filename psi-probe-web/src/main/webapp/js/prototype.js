@@ -4778,10 +4778,10 @@ function Sizzle( selector, context, results, seed ) {
 				return results;
 
 			} else
-          if (m) {
+
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
-			}
+
 		}
 
       if (support?.qsa && (!rbuggyQSA?.test(selector) ))
@@ -4954,8 +4954,9 @@ function createPositionalPseudo( fn ) {
 
 			while ( i-- ) {
               let j = matchIndexes[i];
+              matches[j] = seed[j];
               if (seed[j]) {
-                seed[j] = !(matches[j] = seed[j]);
+                seed[j] = !matches[j] ;
               }
 
             }
@@ -5106,8 +5107,9 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	rbuggyQSA = [];
 
-	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
-		assert(function( div ) {
+  support.qsa = rnative.test(doc.querySelectorAll);
+  if (support.qsa) {
+    assert(function( div ) {
 			div.innerHTML = "<select t=''><option selected=''></option></select>";
 
 			if ( div.querySelectorAll("[t^='']").length ) {
@@ -5140,11 +5142,12 @@ setDocument = Sizzle.setDocument = function( node ) {
 			rbuggyQSA.push(",.*:");
 		});
 	}
-
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.webkitMatchesSelector ||
+  matches = docElem.webkitMatchesSelector;
+  support.matchesSelector = rnative.test(matches);
+	if ( (support.matchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector) )) ) {
+		docElem.msMatchesSelector) ) {
 
 		assert(function( div ) {
 			support.disconnectedMatch = matches.call( div, "div" );
