@@ -2628,7 +2628,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     element = $(element);
     let previous = previousSiblings(element),
      next = nextSiblings(element);
-    return previous.reverse().concat(next);
+    let reversedPrevious = previous.reverse();
+    return reversedPrevious.concat(next);
   }
 
   function match(element, selector) {
@@ -3447,8 +3448,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (!tagName) {
       Object.extend(Element.Methods, methods || {});
     } else if (Object.isArray(tagName)) {
-      let tag;
-      for (let i = 0; (tag = tagName[i]); i++) {
+      let tag = tagName[i];
+      for (let i = 0; tag && i < tagName.length ; i++) {
         addMethodsToTagName(tag, methods);
       }
     } else {
@@ -3493,17 +3494,16 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
       GLOBAL.Element.extend.refresh = Prototype.emptyFunction;
     }
-  } else {
-    if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
-      GLOBAL.Element.extend.refresh = function() {
-        if (Prototype.BrowserFeatures.ElementExtensions) return;
-        Object.extend(Methods, Element.Methods);
-        Object.extend(Methods, Element.Methods.Simulated);
+  } else if (typeof GLOBAL !== 'undefined' && GLOBAL.Element && GLOBAL.Element.extend) {
+    GLOBAL.Element.extend.refresh = function() {
+      if (Prototype.BrowserFeatures.ElementExtensions) return;
+      Object.extend(Methods, Element.Methods);
+      Object.extend(Methods, Element.Methods.Simulated);
 
-        EXTENDED = {};
-      };
-    }
+      EXTENDED = {};
+    };
   }
+
 
   function addFormMethods() {
     Object.extend(Form, Form.Methods);
@@ -3618,12 +3618,11 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
           whole = document.viewport.getHeight();
         }
       } else {
-        if (isHorizontal) {
-          whole = $(context).measure('width');
-        } else if (isVertical) {
-          whole = $(context).measure('height');
-        }
+        whole = isHorizontal ? $(context).measure('width') :
+            isVertical ? $(context).measure('height') :
+                undefined;
       }
+
 
       return (whole === null) ? 0 : whole * decimal;
     }
