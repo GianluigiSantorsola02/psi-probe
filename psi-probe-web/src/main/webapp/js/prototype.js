@@ -19,8 +19,9 @@
  *--------------------------------------------------------------------------*/
 
 
-import { Component } from 'react';
+import {Component} from 'react';
 import PropTypes from 'prop-types';
+
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
     toJSON: PropTypes.func.isRequired
@@ -4782,13 +4783,13 @@ function Sizzle( selector, context, results, seed ) {
 				return results;
 
 			}
-            else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
+            else if ( match[3] && support.getElementsByClassName && context.getElementsByClassName ) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
 		}
 
-      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))
+      if (support?.qsa?.(!rbuggyQSA || !rbuggyQSA.test(selector)))
       {
 			nid = old = expando;
 			newContext = context;
@@ -4797,7 +4798,7 @@ function Sizzle( selector, context, results, seed ) {
 			if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
 				groups = tokenize( selector );
 
-				if ( (old = context.getAttribute("id")) ) {
+				if ( context.getAttribute("id") !== old ) {
 					nid = old.replace( rescape, "\\$&" );
 				} else {
 					context.setAttribute( "id", nid );
@@ -4844,8 +4845,10 @@ function createCache() {
 		if ( keys.push( key + " " ) > Expr.cacheLength ) {
 			delete cache[ keys.shift() ];
 		}
-		return (cache[ key + " " ] = value);
-	}
+      let cacheKey = key + " ";
+      return (cache[cacheKey] = value);
+
+    }
 	return cache;
 }
 
@@ -4953,7 +4956,8 @@ function createPositionalPseudo( fn ) {
 				i = matchIndexes.length;
 
 			while ( i-- ) {
-				if ( seed[ (j = matchIndexes[i]) ] ) {
+              let j = matchIndexes[i];
+				if ( seed[j] === undefined ) {
 					seed[j] = !(matches[j] = seed[j]);
 				}
 			}
