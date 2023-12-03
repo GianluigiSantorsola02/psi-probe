@@ -5272,9 +5272,15 @@ setDocument = Sizzle.setDocument = function( node ) {
       if (i) {
         result = siblingCheck(ap[i], bp[i]);
       } else {
-        result = (ap[i] === preferredDoc) ? -1 :
-            (bp[i] === preferredDoc) ? 1 :
-                0;
+        let result;
+
+        if (ap[i] === preferredDoc) {
+          result = -1;
+        } else if (bp[i] === preferredDoc) {
+          result = 1;
+        } else {
+          result = 0;
+        }
       }
 
       return result;
@@ -6227,6 +6233,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				if ( seed ) {
 					if ( matchedCount > 0 ) {
 						while ( i-- ) {
+                          let unmatched = {};
+                          let setMatched = {};
+
                           if (!(unmatched[i] || setMatched[i])) {
                             setMatched[i] = results.pop();
                           }
