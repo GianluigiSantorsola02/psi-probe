@@ -5236,15 +5236,22 @@ setDocument = Sizzle.setDocument = function( node ) {
 			bp = [ b ];
 
 		if ( !aup || !bup ) {
-			return a === doc ? -1 :
-				b === doc ? 1 :
-				aup ? -1 :
-				bup ? 1 :
-				sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
-				0;
+          if (a === doc) {
+            return -1;
+          } else if (b === doc) {
+            return 1;
+          } else if (aup) {
+            return -1;
+          } else if (bup) {
+            return 1;
+          } else if (sortInput) {
+            return indexOf.call(sortInput, a) - indexOf.call(sortInput, b);
+          } else {
+            return 0;
+          }
 
-		} else if ( aup === bup ) {
+
+        } else if ( aup === bup ) {
 			return siblingCheck( a, b );
 		}
 
