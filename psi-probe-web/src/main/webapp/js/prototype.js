@@ -5227,16 +5227,22 @@ setDocument = Sizzle.setDocument = function( node ) {
 			ap = [ a ],
 			bp = [ b ];
 
-		if ( !aup || !bup ) {
-			return a === doc ? -1 :
-				b === doc ? 1 :
-				aup ? -1 :
-				bup ? 1 :
-				sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
-				0;
-
-		} else if ( aup === bup ) {
+      if (!aup || !bup) {
+        if (a === doc) {
+          return -1;
+        } else if (b === doc) {
+          return 1;
+        } else if (aup) {
+          return -1;
+        } else if (bup) {
+          return 1;
+        } else if (sortInput) {
+          return indexOf.call(sortInput, a) - indexOf.call(sortInput, b);
+        } else {
+          return 0;
+        }
+      }
+      else if ( aup === bup ) {
 			return siblingCheck( a, b );
 		}
 
@@ -5682,16 +5688,16 @@ Expr = Sizzle.selectors = {
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
-				let elemLang;
+				let elemLang = elem.getAttribute("xml:lang") || elem.getAttribute("lang");
 				do {
-					if ( (elemLang = documentIsHTML ?
+					if ( (elemLang ?
 						elem.lang :
 						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
 
 						elemLang = elemLang.toLowerCase();
 						return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
 					}
-				} while ( (elem = elem.parentNode) && elem.nodeType === 1 );
+				} while ( (elem.parentNode || elem)?. elem.nodeType === 1 );
 				return false;
 			};
 		}),
@@ -5916,8 +5922,7 @@ function addCombinator( matcher, combinator, base ) {
 		} :
 
 		function( elem, context, xml ) {
-			let outerCache,
-				newCache = [ dirruns, doneName ];
+			let outerCache;
 
 			if ( xml ) {
 				while ( (elem = elem[ dir ]) ) {
@@ -6025,7 +6030,13 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 
     let matcherOut;
     if (matcher) {
-      matcherOut = postFinder || (seed ? preFilter : preexisting || postFilter) ? [] : results;
+      let matcherOut;
+
+      if (postFinder || (seed ? preFilter : preexisting || postFilter)) {
+        matcherOut = [];
+      } else {
+        matcherOut = results;
+      }
       matcher(matcherIn, matcherOut, context, xml);
     } else {
       matcherOut = matcherIn;
@@ -6038,8 +6049,8 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
       i = temp.length;
       while (i--) {
         elem = temp[i];
-        if ((elem = matcherOut[elem])) {
-          matcherOut[postMap[i]] = !(matcherIn[postMap[i]] = elem);
+        if (( !seed || seed[elem] )?.(matcherOut[elem])) {
+          matcherOut[postMap[i]] = !(matcherIn[postMap[i]]);
         }
       }
     }
@@ -6050,16 +6061,16 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
           temp = [];
           i = matcherOut.length;
           while (i--) {
-            if ((elem = matcherOut[i])) {
-              temp.push((matcherIn[i] = elem));
+            if ((matcherOut[i]) && (temp = postFinder ? indexOf.call(seed, matcherOut[i]) : preMap[i]) > -1) {
+              temp.push((matcherIn[i]));
             }
           }
-          postFinder(null, (matcherOut = []), temp, xml);
+          postFinder(null, temp, xml);
         }
 
         i = matcherOut.length;
         while (i--) {
-          if ((elem = matcherOut[i]) &&
+          if ((matcherOut[i] || !preFilter) &&
               (temp = postFinder ? indexOf.call(seed, elem) : preMap[i]) > -1) {
 
             results[temp] = elem;
