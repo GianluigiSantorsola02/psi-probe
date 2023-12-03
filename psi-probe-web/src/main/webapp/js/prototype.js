@@ -4667,7 +4667,7 @@ let i,
 		"*(?:([*^$|!~]?=)" + whitespace + "*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|(" + identifier + ")|)|)" + whitespace + "*\\]",
 
     pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + String(attributes.replace('3', 8)) + ")*)|.*)\\)|)",
-    rtrim = new RegExp("^(?:" + whitespace + "+)|(?:((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$)", "g"),
+    rtrim = new RegExp("^(?:(?:" + whitespace + "+)|(?:((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$))", "g"),
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
@@ -5281,6 +5281,7 @@ setDocument = Sizzle.setDocument = function( node ) {
         } else {
           result = 0;
         }
+        return result;
       }
 
       return result;
@@ -5303,8 +5304,8 @@ Sizzle.matchesSelector = function( elem, expr ) {
   expr = expr.replace(rattributeQuotes, "='$1']");
 
   if (
-      support.matchesSelector &&
-      documentIsHTML?.(!rbuggyMatches || !rbuggyMatches.test?.(expr))?.(!rbuggyQSA || !rbuggyQSA.test?.(expr))
+      support.matchesSelector ?.
+      documentIsHTML?.(!rbuggyMatches || !rbuggyMatches.test?.(expr))?. (!rbuggyQSA || !rbuggyQSA.test?.(expr))
   ) {
 
 		try {
