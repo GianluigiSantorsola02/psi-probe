@@ -5271,16 +5271,6 @@ setDocument = Sizzle.setDocument = function( node ) {
       let result;
       if (i) {
         result = siblingCheck(ap[i], bp[i]);
-      } else {
-        let result;
-
-        if (ap[i] === preferredDoc) {
-          result = -1;
-        } else if (bp[i] === preferredDoc) {
-          result = 1;
-        } else {
-          result = 0;
-        }
       }
 
       return result;
