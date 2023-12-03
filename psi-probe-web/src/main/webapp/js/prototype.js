@@ -6067,7 +6067,8 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
           if ((elem = matcherOut[i]) &&
               (temp = postFinder ? indexOf.call(seed, elem) : preMap[i]) > -1) {
 
-            seed[temp] = !(results[temp] = elem);
+            results[temp] = elem;
+            seed[temp] = !results[temp];
           }
         }
       }
@@ -6101,7 +6102,7 @@ function matcherFromTokens( tokens ) {
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
 			return ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
-				(checkContext = context).nodeType ?
+				(checkContext).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
 		} ];
@@ -6194,9 +6195,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				if ( seed ) {
 					if ( matchedCount > 0 ) {
 						while ( i-- ) {
-							if ( !(unmatched[i] || setMatched[i]) ) {
-								setMatched[i] = pop.call( results );
-							}
+                          if (!(unmatched[i] || setMatched[i])) {
+                            setMatched[i] = results.pop();
+                          }
 						}
 					}
 
