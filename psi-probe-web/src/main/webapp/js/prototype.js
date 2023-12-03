@@ -5884,11 +5884,15 @@ function tokenize( selector, parseOnly ) {
 		}
 	}
 
-	return parseOnly ?
-		soFar.length :
-		soFar ?
-			Sizzle.error( selector ) :
-			tokenCache( selector, groups ).slice( 0 );
+  let result;
+  if (parseOnly) {
+    result = soFar.length;
+  } else if (soFar) {
+    result = tokenCache(selector, groups).slice(0);
+  } else {
+    result = Sizzle.error(selector);
+  }
+    return result;
 }
 
 function toSelector( tokens ) {
@@ -5928,20 +5932,28 @@ function addCombinator( matcher, combinator, base ) {
 					}
 				}
 			} else {
-				while ( (elem = elem[ dir ]) ) {
+              let elem = startingElement;
+
+              while (elem) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						outerCache = elem[ expando ] || (elem[ expando ] = {});
-						if ( (oldCache = outerCache[ dir ]) &&
-							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
+                      let oldCache  = outerCache[dir];
+                      if ((oldCache) &&
+                          oldCache[0] === dirruns &&
+                          oldCache[1] === doneName) {
 
 							return (newCache[ 2 ] = oldCache[ 2 ]);
 						} else {
 							outerCache[ dir ] = newCache;
 
-							if ( (newCache[ 2 ] = matcher( elem, context, xml )) ) {
-								return true;
-							}
-						}
+                        let newCache = [];
+                        newCache[2] = matcher(elem, context, xml);
+
+                        if (newCache[2]) {
+                          return true;
+                        }
+
+                      }
 					}
 				}
 			}
