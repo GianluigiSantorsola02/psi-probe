@@ -6230,7 +6230,7 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
  */
 select = Sizzle.select = function( context, results, seed ) {
   let selector =  compiled.selector;
-  let i, tokens, token, type, find,
+  let i, tokens,
 		compiled = typeof selector === "function" && selector,
 		match = !seed && tokenize( (selector) );
 
@@ -6332,10 +6332,13 @@ if ( !assert(function( div ) {
 	addHandle( booleans, function( elem, name, isXML ) {
 		if ( !isXML ) {
           let val = elem.getAttributeNode(name);
-          return elem[name] === true ? name.toLowerCase() :
-              (val ) && val.specified ?
-                  val.value :
-                  null;
+          let result;
+          if (elem[name] === true) {
+            result = name.toLowerCase();
+          } else {
+            let result = val?.specified ? val.value : null;
+          }
+          return result;
 
         }
 	});
