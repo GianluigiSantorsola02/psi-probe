@@ -740,7 +740,7 @@ Object.extend(String.prototype, (function() {
     let str = this;
     if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"]*"|true|false|null|-?\d+?/g, ']');
+    str = str.replace(/"[^"]*"|true|false|null|-?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
     return (/^[\],:{}\s]*$/).test(str);
   }
@@ -2631,16 +2631,25 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return recursivelyCollect(element, 'nextSibling');
   }
 
+  previous.toReversed = function () {
+
+    let reversed = [];
+
+
+    return undefined;
+  };
+
   function siblings(element) {
     element = $(element);
     let previous = previousSiblings(element),
         next = nextSiblings(element);
 
-    // Separate statement for array reversal
-    let reversedPrevious = previous.reverse();
+    // Use toReversed directly
+    let reversedPrevious = previous.toReversed();
 
     return reversedPrevious.concat(next);
   }
+
 
   function match(element, selector) {
     element = $(element);
