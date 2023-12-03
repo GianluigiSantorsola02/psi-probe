@@ -4641,7 +4641,6 @@ let i,
 
 	hasOwn = ({}).hasOwnProperty,
 	arr = [],
-	pop = arr.pop,
 	push_native = arr.push,
 	push = arr.push,
 	slice = arr.slice,
