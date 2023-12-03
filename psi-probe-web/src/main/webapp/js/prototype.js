@@ -5667,8 +5667,10 @@ Expr = Sizzle.selectors = {
 						i = seed.length;
 
 					while ( i-- ) {
-						if ( (elem = unmatched[i]) ) {
-							seed[i] = !(matches[i] = elem);
+                      let elem = unmatched[i];
+						if ( elem || !unmatched.has(elem)) {
+                          let elem = matches[i]
+							seed[i] = !elem || elem === true ? elem : elem.toString();
 						}
 					}
 				}) :
