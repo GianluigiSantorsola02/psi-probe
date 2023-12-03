@@ -4771,19 +4771,18 @@ function Sizzle( selector, context, results, seed ) {
 					} else {
 						return results;
 					}
-				} else {
-					if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
-						contains( context, elem ) && elem.id === m ) {
+				} else if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
+                    contains( context, elem ) && elem.id === m ){
 						results.push( elem );
 						return results;
-					}
 				}
 
 			} else if ( match[2] ) {
 				push.apply( results, context.getElementsByTagName( selector ) );
 				return results;
 
-			} else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
+			}
+            else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
