@@ -18,9 +18,9 @@
  *
  *--------------------------------------------------------------------------*/
 
-import {Component} from "react";
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+
+
+import  { Component } from 'react';
 import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
@@ -100,12 +100,6 @@ let Class = (function() {
     }
     return true;
   })();
-
-  function Subclass() {
-
-    let parent = null, properties = $A(arguments);
-
-  }
   function addMethods(source) {
     let ancestor = this.superclass?.prototype;
     let properties;
@@ -679,7 +673,7 @@ Object.extend(String.prototype, (function() {
         let key = decodeURIComponent(pair.shift()),
             value = pair.length > 1 ? pair.join('=') : pair[0];
 
-        if (value != undefined) {
+        if (value !== undefined) {
           value = value.gsub('+', ' ');
           value = decodeURIComponent(value);
         }
@@ -791,7 +785,7 @@ Object.extend(String.prototype, (function() {
   }
 
   function empty() {
-    return this == '';
+    return this === '';
   }
 
   function blank() {
@@ -804,7 +798,6 @@ Object.extend(String.prototype, (function() {
 
   return {
     gsub:           gsub,
-    sub:            sub,
     scan:           scan,
     truncate:       truncate,
     strip:          String.prototype.trim || strip,
@@ -850,10 +843,10 @@ let Template = Class.Create({
       if (object == null) return (match[1] + '');
 
       let before = match[1] || '';
-      if (before == '\\') return match[2];
+      if (before === '\\') return match[2];
 
       let ctx = object, expr = match[3],
-          pattern = /^([^.[]+|\[((?:.*?[^\\])?)\])(\.|\[|$)/;
+          pattern = /^([^.[]+|\[((?:.*?[^\\])?)])(\.|\[|$)/;
 
       match = pattern.exec(expr);
       if (match == null) return before;
@@ -861,8 +854,8 @@ let Template = Class.Create({
       while (match != null) {
         let comp = match[1].startsWith('[') ? match[2].replace(/\\\\]/g, ']') : match[1];
         ctx = ctx[comp];
-        if (null == ctx || '' == match[3]) break;
-        expr = expr.substring('[' == match[3] ? match[1].length : match[0].length);
+        if (null == ctx || '' === match[3]) break;
+        expr = expr.substring('[' === match[3] ? match[1].length : match[0].length);
         match = pattern.exec(expr);
       }
 
@@ -870,7 +863,7 @@ let Template = Class.Create({
     });
   }
 });
-Template.Pattern = /(^|.|\r|\n)(#\{(.*?)\})/;
+Template.Pattern = /(^|.|\r|\n)(#\{(.*?)})/;
 
 let $break = { };
 
@@ -879,7 +872,7 @@ let Enumerable = (function() {
     try {
       this._each(iterator, context);
     } catch (e) {
-      if (e != $break) throw e;
+      if (e !== $break) throw e;
     }
     return this;
   }
@@ -958,12 +951,12 @@ let Enumerable = (function() {
   }
 
   function include(object) {
-    if (Object.isFunction(this.indexOf) && this.indexOf(object) != -1)
+    if (Object.isFunction(this.indexOf) && this.indexOf(object) !== -1)
       return true;
 
     let found = false;
     this.each(function(value) {
-      if (value == object) {
+      if (value === object) {
         found = true;
         throw $break;
       }
@@ -1190,7 +1183,7 @@ Array.from = $A;
 
   function uniq(sorted) {
     return this.inject([], function(array, value, index) {
-      if (0 == index || (sorted ? array.last() != value : !array.include(value)))
+      if (0 === index || (sorted ? array.last() !== value : !array.include(value)))
         array.push(value);
       return array;
     });
@@ -1426,7 +1419,7 @@ Array.from = $A;
 })();
 function $H(object) {
   return new Hash(object);
-};
+}
 
 let Hash = Class.Create(Enumerable, (function() {
   function initialize(object) {
@@ -1761,7 +1754,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       this.transport.onreadystatechange = this.onStateChange.bind(this);
       this.setRequestHeaders();
 
-      this.body = this.method == 'post' ? (this.options.postBody || params) : null;
+      this.body = this.method === 'post' ? (this.options.postBody || params) : null;
       this.transport.send(this.body);
 
       /* Force Firefox to handle ready state 4 for synchronous requests */
@@ -1776,7 +1769,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
 
   onStateChange: function() {
     let readyState = this.transport.readyState;
-    if (readyState > 1 && !((readyState == 4) && this._complete))
+    if (readyState > 1 && !((readyState === 4) && this._complete))
       this.respondToReadyState(this.transport.readyState);
   },
 
@@ -1787,7 +1780,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
     };
 
-    if (this.method == 'post') {
+    if (this.method === 'post') {
       headers['Content-type'] = this.options.contentType +
         (this.options.encoding ? '; charset=' + this.options.encoding : '');
 
@@ -1817,7 +1810,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
 
   success: function() {
     let status = this.getStatus();
-    return !status || (status >= 200 && status < 300) || status == 304;
+    return !status || (status >= 200 && status < 300) || status === 304;
   },
 
   getStatus: function() {
@@ -1830,7 +1823,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
   respondToReadyState: function(readyState) {
     let state = Ajax.Request.Events[readyState], response = new Ajax.Response(this);
 
-    if (state == 'Complete') {
+    if (state === 'Complete') {
       try {
         this._complete = true;
         (this.options['on' + response.status]
@@ -1841,7 +1834,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       }
 
       let contentType = response.getHeader('Content-type');
-      if (this.options.evalJS == 'force'
+      if (this.options.evalJS === 'force'
           || (this.options.evalJS && this.isSameOrigin() && contentType
           && contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;.*)?\s*$/i)))
         this.evalResponse();
@@ -1854,7 +1847,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       this.dispatchException(e);
     }
 
-    if (state == 'Complete') {
+    if (state === 'Complete') {
       this.transport.onreadystatechange = Prototype.emptyFunction;
     }
   },
@@ -1905,14 +1898,14 @@ Ajax.Response = Class.Create({
     let transport  = this.transport  = request.transport,
         readyState = this.readyState = transport.readyState;
 
-    if ((readyState > 2 && !Prototype.Browser.IE) || readyState == 4) {
+    if ((readyState > 2 && !Prototype.Browser.IE) || readyState === 4) {
       this.status       = this.getStatus();
       this.statusText   = this.getStatusText();
       this.responseText = String.interpret(transport.responseText);
       this.headerJSON   = this._getHeaderJSON();
     }
 
-    if (readyState == 4) {
+    if (readyState === 4) {
       let xml = transport.responseXML;
       this.responseXML  = Object.isUndefined(xml) ? null : xml;
       this.responseJSON = this._getResponseJSON();
@@ -1966,7 +1959,7 @@ Ajax.Response = Class.Create({
 
   _getResponseJSON: function() {
     let options = this.request.options;
-    if (!options.evalJSON || (options.evalJSON != 'force' &&
+    if (!options.evalJSON || (options.evalJSON !== 'force' &&
       !(this.getHeader('Content-type') || '').include('application/json')) ||
         this.responseText.blank())
           return null;
@@ -2044,7 +2037,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   updateComplete: function(response) {
     if (this.options.decay) {
-      this.decay = (response.responseText == this.lastText ?
+      this.decay = (response.responseText === this.lastText ?
         this.decay * this.options.decay : 1);
 
       this.lastText = response.responseText;
