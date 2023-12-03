@@ -6045,7 +6045,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
       i = temp.length;
       while (i--) {
         elem = temp[i];
-        if ((elem = matcherOut[elem])) {
+        if (( !seed || seed[elem] )?.(matcherOut[elem])) {
           matcherOut[postMap[i]] = !(matcherIn[postMap[i]] = elem);
         }
       }
@@ -6057,16 +6057,16 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
           temp = [];
           i = matcherOut.length;
           while (i--) {
-            if ((elem = matcherOut[i])) {
+            if ((matcherOut[i]) && (temp = postFinder ? indexOf.call(seed, matcherOut[i]) : preMap[i]) > -1) {
               temp.push((matcherIn[i] = elem));
             }
           }
-          postFinder(null, (matcherOut = []), temp, xml);
+          postFinder(null, temp, xml);
         }
 
         i = matcherOut.length;
         while (i--) {
-          if ((elem = matcherOut[i]) &&
+          if ((matcherOut[i] || !preFilter) &&
               (temp = postFinder ? indexOf.call(seed, elem) : preMap[i]) > -1) {
 
             results[temp] = elem;
