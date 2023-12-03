@@ -2067,10 +2067,11 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function $(element) {
     if (arguments.length > 1) {
-      for (let i = 0, elements = [], length = arguments.length; i < length; i++)
+      const elements = [];
+      for (let i = 0, length = arguments.length; i < length; i++) {
         elements.push($(arguments[i]));
+      }
       return elements;
-    }
 
     if (Object.isString(element))
       element = document.getElementById(element);
@@ -3521,7 +3522,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-})(this);
+}(this);
 (function() {
 
   function toDecimal(pctString) {
@@ -7667,4 +7668,4 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
       return Prototype.Selector.select(selector, element || document);
     }
   });
-})();
+})();})
