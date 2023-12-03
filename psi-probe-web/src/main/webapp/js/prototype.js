@@ -5268,13 +5268,19 @@ setDocument = Sizzle.setDocument = function( node ) {
 			i++;
 		}
 
-		return i ?
-			siblingCheck( ap[i], bp[i] ) :
+      let result;
+      if (i) {
+        result = siblingCheck(ap[i], bp[i]);
+      } else {
+        result = (ap[i] === preferredDoc) ? -1 :
+            (bp[i] === preferredDoc) ? 1 :
+                0;
+      }
 
-			ap[i] === preferredDoc ? -1 :
-			bp[i] === preferredDoc ? 1 :
-			0;
-	};
+      return result;
+
+
+    };
 
 	return doc;
 };
@@ -5288,11 +5294,12 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		setDocument( elem );
 	}
 
-	expr = expr.replace( rattributeQuotes, "='$1']" );
+  expr = expr.replace(rattributeQuotes, "='$1']");
 
-	if ( support.matchesSelector && documentIsHTML?.
-        (!rbuggyMatches || !rbuggyMatches.test?.(expr))?.
-        (!rbuggyQSA || !rbuggyQSA.test?.(expr))) {
+  if (
+      support.matchesSelector &&
+      documentIsHTML?.(!rbuggyMatches || !rbuggyMatches.test?.(expr))?.(!rbuggyQSA || !rbuggyQSA.test?.(expr))
+  ) {
 
 		try {
 			let ret = matches.call( elem, expr );
@@ -5326,13 +5333,20 @@ Sizzle.attr = function( elem, name ) {
 
   let val1 = elem.getAttributeNode(name) ;
 
-  return (val1 && val.specified ?
-      val.value :
-      val !== undefined ?
-          val :
-          support.attributes || !documentIsHTML ?
-              elem.getAttribute(name) :
-              null);
+  let result;
+
+  if (val1 && val.specified) {
+    result = val.value;
+  } else if (val !== undefined) {
+    result = val;
+  } else if (support.attributes || !documentIsHTML) {
+    result = elem.getAttribute(name);
+  } else {
+    result = null;
+  }
+
+  return result;
+
 };
 
 Sizzle.error = function( msg ) {
@@ -5642,7 +5656,8 @@ Expr = Sizzle.selectors = {
 							i = matched.length;
 						while ( i-- ) {
 							idx = indexOf.call( seed, matched[i] );
-							seed[ idx ] = !( matches[ idx ] = matched[i] );
+                          matches[ idx ] = matched[i];
+							seed[ idx ] = !matches[ idx ];
 						}
 					}) :
 					function( elem ) {
@@ -5667,8 +5682,10 @@ Expr = Sizzle.selectors = {
 						i = seed.length;
 
 					while ( i-- ) {
-						if ( (elem = unmatched[i]) ) {
-							seed[i] = !(matches[i] = elem);
+                      elem = unmatched[i]
+						if ( elem ) {
+                          matches[i] = elem
+							seed[i] = !matches[i];
 						}
 					}
 				}) :
