@@ -3639,14 +3639,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       } else {
         let whole;
 
-        if (isHorizontal) {
-          whole = $(context).measure('width');
-        } else if (isVertical) {
-          whole = $(context).measure('height');
-        } else {
-          whole = undefined;
-        }
-
       }
 
 
@@ -4677,7 +4669,7 @@ let i,
 
 	pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + attributes.replace( 3, 8 ) + ")*)|.*)\\)|)",
 
-    rtrim = new RegExp("^(?:" + whitespace + "+)|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
+    rtrim = new RegExp("^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
@@ -4726,10 +4718,11 @@ let i,
 
 
       try {
-
-        arr = slice.call(preferredDoc.childNodes);
-        push.apply(arr, preferredDoc.childNodes);
-
+	push.apply(
+		(arr = slice.call( preferredDoc.childNodes )),
+		preferredDoc.childNodes
+	);
+  let index = preferredDoc.childNodes.length;
       } catch ( e ) {
 	push = { apply: arr.length ?
 
@@ -4790,13 +4783,14 @@ function Sizzle( selector, context, results, seed ) {
 				push.apply( results, context.getElementsByTagName( selector ) );
 				return results;
 
-			} else if ((m = match[3]) && support.getElementsByClassName && context.getElementsByClassName) {
+			} else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
 		}
-      let old = context.getAttribute("id");
-      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))       {
+
+      if (support?.qsa && (!rbuggyQSA || !rbuggyQSA.test(selector)))
+      {
 			nid = old = expando;
 			newContext = context;
 			newSelector = nodeType === 9 && selector;
@@ -4804,7 +4798,7 @@ function Sizzle( selector, context, results, seed ) {
 			if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
 				groups = tokenize( selector );
 
-				if (old) {
+				if ( (old = context.getAttribute("id")) ) {
 					nid = old.replace( rescape, "\\$&" );
 				} else {
 					context.setAttribute( "id", nid );
@@ -5891,11 +5885,15 @@ function tokenize( selector, parseOnly ) {
 		}
 	}
 
-	return parseOnly ?
-		soFar.length :
-		soFar ?
-			Sizzle.error( selector ) :
-			tokenCache( selector, groups ).slice( 0 );
+  let result;
+  if (parseOnly) {
+    result = soFar.length;
+  } else if (soFar) {
+    result = tokenCache(selector, groups).slice(0);
+  } else {
+    result = Sizzle.error(selector);
+  }
+    return result;
 }
 
 function toSelector( tokens ) {
@@ -5923,7 +5921,7 @@ function addCombinator( matcher, combinator, base ) {
 		} :
 
 		function( elem, context, xml ) {
-			let oldCache, outerCache,
+			let outerCache,
 				newCache = [ dirruns, doneName ];
 
 			if ( xml ) {
@@ -5935,20 +5933,30 @@ function addCombinator( matcher, combinator, base ) {
 					}
 				}
 			} else {
-				while ( (elem = elem[ dir ]) ) {
+              let elem = startingElement;
+
+              while ( elem  ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						outerCache = elem[ expando ] || (elem[ expando ] = {});
-						if ( (oldCache = outerCache[ dir ]) &&
-							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
+                      let oldCache  = outerCache[dir];
+                      if ((oldCache) &&
+                          oldCache[0] === dirruns &&
+                          oldCache[1] === doneName) {
 
-							return (newCache[ 2 ] = oldCache[ 2 ]);
-						} else {
+                        let newValue = oldCache[2];
+                        newCache[2] = newValue;
+                        return newValue;
+                      } else {
 							outerCache[ dir ] = newCache;
 
-							if ( (newCache[ 2 ] = matcher( elem, context, xml )) ) {
-								return true;
-							}
-						}
+                        let newCache = [];
+                        newCache[2] = matcher(elem, context, xml);
+
+                        if (newCache[2]) {
+                          return true;
+                        }
+
+                      }
 					}
 				}
 			}
@@ -5986,13 +5994,12 @@ function condense( unmatched, map, filter, context, xml ) {
 		mapped = map != null;
 
 	for ( ; i < len; i++ ) {
-		if ( (elem = unmatched[i]) ) {
-			if ( !filter || filter( elem, context, xml ) ) {
+      let elem = unmatched[i];
+      if (elem && (!filter || filter(elem, context, xml))) {
 				newUnmatched.push( elem );
 				if ( mapped ) {
 					map.push( i );
 				}
-			}
 		}
 	}
 
@@ -6006,79 +6013,77 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 	if ( postFinder && !postFinder[ expando ] ) {
 		postFinder = setMatcher( postFinder, postSelector );
 	}
-	return markFunction(function( seed, results, context, xml ) {
-		let temp, i, elem,
-			preMap = [],
-			postMap = [],
-			preexisting = results.length,
+  return markFunction(function(seed, results, context, xml) {
+    let temp, i, elem,
+        preMap = [],
+        postMap = [],
+        preexisting = results.length;
 
-			elems = seed || multipleContexts( selector || "*", context.nodeType ? [ context ] : context, [] ),
+    let elems = seed || multipleContexts(selector || "*", context.nodeType ? [context] : context, []);
 
-			matcherIn = preFilter && ( seed || !selector ) ?
-				condense( elems, preMap, preFilter, context, xml ) :
-				elems,
+    let matcherIn;
+    if (preFilter && (seed || !selector)) {
+      matcherIn = condense(elems, preMap, preFilter, context, xml);
+    } else {
+      matcherIn = elems;
+    }
 
-			matcherOut = matcher ?
-				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
+    let matcherOut;
+    if (matcher) {
+      matcherOut = postFinder || (seed ? preFilter : preexisting || postFilter) ? [] : results;
+      matcher(matcherIn, matcherOut, context, xml);
+    } else {
+      matcherOut = matcherIn;
+    }
 
-					[] :
+    if (postFilter) {
+      temp = condense(matcherOut, postMap);
+      postFilter(temp, [], context, xml);
 
-					results :
-				matcherIn;
+      i = temp.length;
+      while (i--) {
+        elem = temp[i];
+        if ((elem = matcherOut[elem])) {
+          matcherOut[postMap[i]] = !(matcherIn[postMap[i]] = elem);
+        }
+      }
+    }
 
-		if ( matcher ) {
-			matcher( matcherIn, matcherOut, context, xml );
-		}
+    if (seed) {
+      if (postFinder || preFilter) {
+        if (postFinder) {
+          temp = [];
+          i = matcherOut.length;
+          while (i--) {
+            if ((elem = matcherOut[i])) {
+              temp.push((matcherIn[i] = elem));
+            }
+          }
+          postFinder(null, (matcherOut = []), temp, xml);
+        }
 
-		if ( postFilter ) {
-			temp = condense( matcherOut, postMap );
-			postFilter( temp, [], context, xml );
+        i = matcherOut.length;
+        while (i--) {
+          if ((elem = matcherOut[i]) &&
+              (temp = postFinder ? indexOf.call(seed, elem) : preMap[i]) > -1) {
 
-			i = temp.length;
-			while ( i-- ) {
-              let elem = temp[i]
-				if ( (elem = matcherOut[elem]) ) {
-					matcherOut[ postMap[i] ] = !(matcherIn[ postMap[i] ] = elem);
-				}
-			}
-		}
-
-		if ( seed ) {
-			if ( postFinder || preFilter ) {
-				if ( postFinder ) {
-					temp = [];
-					i = matcherOut.length;
-					while ( i-- ) {
-						if ( (elem = matcherOut[i]) ) {
-							temp.push( (matcherIn[i] = elem) );
-						}
-					}
-					postFinder( null, (matcherOut = []), temp, xml );
-				}
-
-				i = matcherOut.length;
-				while ( i-- ) {
-					if ( (elem = matcherOut[i]) &&
-						(temp = postFinder ? indexOf.call( seed, elem ) : preMap[i]) > -1 ) {
-
-						seed[temp] = !(results[temp] = elem);
-					}
-				}
-			}
-
-		} else {
-			matcherOut = condense(
-				matcherOut === results ?
-					matcherOut.splice( preexisting, matcherOut.length ) :
-					matcherOut
-			);
-			if ( postFinder ) {
-				postFinder( null, results, matcherOut, xml );
-			} else {
-				push.apply( results, matcherOut );
-			}
-		}
-	});
+            seed[temp] = !(results[temp] = elem);
+          }
+        }
+      }
+    } else {
+      matcherOut = condense(
+          matcherOut === results ?
+              matcherOut.splice(preexisting, matcherOut.length) :
+              matcherOut
+      );
+      if (postFinder) {
+        postFinder(null, results, matcherOut, xml);
+      } else {
+        push.apply(results, matcherOut);
+      }
+    }
+  });
 }
 
 function matcherFromTokens( tokens ) {
