@@ -5305,7 +5305,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
   if (
       support.matchesSelector ?.
-      documentIsHTML?.(!rbuggyMatches || !rbuggyMatches.test?.(expr))?.(!rbuggyQSA || !rbuggyQSA.test?.(expr))
+      documentIsHTML?.(!rbuggyMatches?.test?.(expr))?.( !rbuggyQSA?.test?.(expr))
   ) {
 
 		try {
