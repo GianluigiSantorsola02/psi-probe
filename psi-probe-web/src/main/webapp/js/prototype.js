@@ -2634,8 +2634,11 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   function siblings(element) {
     element = $(element);
     let previous = previousSiblings(element),
-     next = nextSiblings(element);
+        next = nextSiblings(element);
+
+    // Separate statement for array reversal
     let reversedPrevious = previous.reverse();
+
     return reversedPrevious.concat(next);
   }
 
@@ -3625,9 +3628,16 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
           whole = document.viewport.getHeight();
         }
       } else {
-        whole = isHorizontal ? $(context).measure('width') :
-            isVertical ? $(context).measure('height') :
-                undefined;
+        let whole;
+
+        if (isHorizontal) {
+          whole = $(context).measure('width');
+        } else if (isVertical) {
+          whole = $(context).measure('height');
+        } else {
+          whole = undefined;
+        }
+
       }
 
 
