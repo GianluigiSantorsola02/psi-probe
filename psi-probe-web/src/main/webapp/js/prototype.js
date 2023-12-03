@@ -6009,7 +6009,8 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 
 			i = temp.length;
 			while ( i-- ) {
-				if ( (elem = temp[i]) ) {
+              let elem = temp[i]
+				if ( (elem = matcherOut[elem]) ) {
 					matcherOut[ postMap[i] ] = !(matcherIn[ postMap[i] ] = elem);
 				}
 			}
@@ -6763,7 +6764,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 });
 (function(GLOBAL) {
-  let DIV = document.createElement('div');
   let docEl = document.documentElement;
   let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
    && 'onmouseleave' in docEl;
@@ -7338,7 +7338,8 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-  DIV = null;
+  if (document.addEventListener)
+    document.addEventListener('unload', destroyCache_IE, false);
   docEl = null;
 })(this);
 
