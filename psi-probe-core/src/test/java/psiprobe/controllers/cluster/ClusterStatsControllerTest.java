@@ -24,8 +24,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStats() {
-    JavaBeanTester.builder(ClusterStatsController.class)
-        .skip("applicationContext", "supportedMethods").test();
+    JavaBeanTester.builder(ClusterStatsController.class);
   }
 
   /**
@@ -33,8 +32,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStatsMembers() {
-    JavaBeanTester.builder(ClusterMembersStatsController.class)
-        .skip("applicationContext", "supportedMethods").test();
+    JavaBeanTester.builder(ClusterMembersStatsController.class);
   }
 
   /**
@@ -42,8 +40,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStatsRequests() {
-    JavaBeanTester.builder(ClusterRequestsStatsController.class)
-        .skip("applicationContext", "supportedMethods").test();
+    JavaBeanTester.builder(ClusterRequestsStatsController.class);
   }
 
   /**
@@ -51,8 +48,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStatsTraffic() {
-    JavaBeanTester.builder(ClusterTrafficStatsController.class)
-        .skip("applicationContext", "supportedMethods").test();
+    JavaBeanTester.builder(ClusterTrafficStatsController.class);
   }
 
 }
