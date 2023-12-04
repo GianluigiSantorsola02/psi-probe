@@ -43,7 +43,7 @@ import org.springframework.web.servlet.view.InternalResourceView;
 import psiprobe.controllers.AbstractTomcatContainerController;
 
 /**
- * Lets an user to copy a single file to a deployed context.
+ * Lets a user copy a single file to a deployed context.
  */
 @Controller
 public class CopySingleFileController extends AbstractTomcatContainerController {

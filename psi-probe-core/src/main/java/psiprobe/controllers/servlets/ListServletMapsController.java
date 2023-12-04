@@ -41,8 +41,8 @@ public class ListServletMapsController extends AbstractContextHandlerController 
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     List<Context> ctxs;
     if (context == null) {
