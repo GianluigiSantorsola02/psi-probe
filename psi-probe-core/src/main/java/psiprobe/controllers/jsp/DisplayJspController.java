@@ -42,8 +42,8 @@ public class DisplayJspController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
     boolean compile = ServletRequestUtils.getBooleanParameter(request, "compile", false);
 
     HttpSession session = request.getSession(false);

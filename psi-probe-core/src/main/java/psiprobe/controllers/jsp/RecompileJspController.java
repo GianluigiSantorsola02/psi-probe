@@ -48,8 +48,8 @@ public class RecompileJspController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     HttpSession session = request.getSession(false);
     Summary summary = (Summary) session.getAttribute(DisplayJspController.SUMMARY_ATTRIBUTE);
