@@ -40,8 +40,8 @@ public class ListAppAttributesController extends AbstractContextHandlerControlle
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     List<Attribute> appAttrs = ApplicationUtils.getApplicationAttributes(context);
     ModelAndView mv = new ModelAndView(getViewName(), "appAttributes", appAttrs);

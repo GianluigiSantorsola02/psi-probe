@@ -38,8 +38,8 @@ public class ExpireSessionController extends AbstractContextHandlerController {
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String sessionId = ServletRequestUtils.getStringParameter(request, "sid");
     Session session = context.getManager().findSession(sessionId);

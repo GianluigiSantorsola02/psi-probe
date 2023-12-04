@@ -38,8 +38,8 @@ public class RemoveSessAttributeController extends AbstractContextHandlerControl
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String sid = ServletRequestUtils.getStringParameter(request, "sid");
     String attrName = ServletRequestUtils.getStringParameter(request, "attr");

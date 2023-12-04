@@ -38,8 +38,8 @@ public class ListAppFilterMapsController extends AbstractContextHandlerControlle
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     List<FilterMapping> filterMaps =
         getContainerWrapper().getTomcatContainer().getApplicationFilterMaps(context);
