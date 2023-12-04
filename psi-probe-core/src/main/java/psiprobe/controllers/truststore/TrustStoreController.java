@@ -39,16 +39,15 @@ import java.util.*;
 @Controller
 public class TrustStoreController extends AbstractTomcatContainerController {
 
-  private void loadKeyStore(InputStream fis, char[] password) throws NoSuchAlgorithmException, CertificateException, IOException {
-    KeyStore ks = load(fis, password);
+  private void loadKeyStore(InputStream fis, char[] password) throws KeyStoreException{
   }
 
-  private KeyStore load(InputStream fis, char[] password) {
+  private KeyStore load() {
       return null;
   }
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(TrustStoreController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(TrustStoreController.class);
 
   @RequestMapping(path = "/truststore.htm")
   @Override
@@ -74,8 +73,8 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       if (trustStore != null) {
         try (InputStream fis = Files.newInputStream(Paths.get(trustStore))) {
           loadKeyStore(fis, trustStorePassword != null ? trustStorePassword.toCharArray() : null);
-        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-          logger.error("", e);
+        } catch (IOException e) {
+          mylogger.error("", e);
         }
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
@@ -92,7 +91,7 @@ public class TrustStoreController extends AbstractTomcatContainerController {
         }
       }
     } catch (KeyStoreException e) {
-      logger.error("There was an exception obtaining truststore: ", e);
+      mylogger.error("There was an exception obtaining truststore: ", e);
     }
     ModelAndView mv = new ModelAndView(getViewName());
     mv.addObject("certificates", certificateList);
