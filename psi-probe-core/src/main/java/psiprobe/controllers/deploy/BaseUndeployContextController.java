@@ -57,8 +57,8 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
     try {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null && request.getContextPath().equals(contextName)) {
