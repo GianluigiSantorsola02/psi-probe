@@ -43,8 +43,8 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     if (context != null && !request.getContextPath().equals(contextName)) {
       try {
