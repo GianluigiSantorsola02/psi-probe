@@ -26,8 +26,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.controllers.AbstractContextHandlerController;
 
-import java.util.Locale;
-
 /**
  * Stops a web application.
  */
@@ -45,8 +43,8 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     if (context != null && !request.getContextPath().equals(contextName)) {
       try {
@@ -59,7 +57,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
           getContainerWrapper().getTomcatContainer().stop(contextName);
           MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
+            messageSourceAccessor.getMessage("probe.src.log.stop", name, lookup(contextName));
           } else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
@@ -69,7 +67,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
           getContainerWrapper().getTomcatContainer().start(contextName);
           MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
+            messageSourceAccessor.getMessage("probe.src.log.stop", name, lookup(contextName));
           }  else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
@@ -81,6 +79,10 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
     }
     return new ModelAndView(getViewName(), "available",
         context != null && getContainerWrapper().getTomcatContainer().getAvailable(context));
+  }
+
+  private Context lookup(String contextName) {
+    return getContainerWrapper().getTomcatContainer().findContext(contextName);
   }
 
   @Value("ajax/context_status")

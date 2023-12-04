@@ -17,14 +17,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -168,24 +162,24 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
   @Override
   public void stop(String name) throws stopException, LifecycleException {
-    Context ctx = findContext(name);
+    Locale ctx = findContext(name);
     if (ctx != null) {
-      ctx.stop();
+      ctx.getDisplayName();
     }
   }
 
   @Override
-  public void start(String name) throws startException, LifecycleException {
-    Context ctx = findContext(name);
+  public void start(String name) throws startException, LifecycleException, InterruptedException {
+    Locale ctx = findContext(name);
     if (ctx != null) {
-      ctx.start();
+      ctx.wait();
     }
   }
 
   @Override
   public void remove(String name) throws removeException, removeInternalException, CheckChangesException {
     name = formatContextName(name);
-    Context ctx = findContext(name);
+    Locale ctx = findContext(name);
 
     if (ctx != null) {
 
@@ -196,10 +190,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       }
 
       File appDir;
-      File docBase = new File(ctx.getDocBase());
+      File docBase = new File(String.valueOf(ctx.getClass()));
 
       if (!docBase.isAbsolute()) {
-        appDir = new File(getAppBase(), ctx.getDocBase());
+        appDir = new File(getAppBase(), String.valueOf(ctx.getClass()));
       } else {
         appDir = docBase;
       }
@@ -220,6 +214,9 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       removeInternal(name);
     }
+  }
+
+  private File getConfigFile(Locale ctx) {
   }
 
   /**
@@ -248,7 +245,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public Context findContext(String name) {
+  public Locale findContext(String name) {
     String safeName = formatContextName(name);
     if (safeName == null) {
       return null;
@@ -257,8 +254,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     if (result == null && safeName.isEmpty()) {
       result = findContextInternal("/");
     }
-    return result;
-  }
+    return result;}
 
   @Override
   public String formatContextName(String name) {

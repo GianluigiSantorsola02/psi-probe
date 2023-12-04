@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 import javax.naming.NamingException;
 
@@ -38,10 +39,9 @@ public interface TomcatContainer {
    * Finds a context based on its path.
    *
    * @param name the context path
-   *
    * @return the context deployed to that path
    */
-  Context findContext(String name);
+  Locale findContext(String name);
 
   /**
    * Formats a context name to a path that the container will recognize. Usually this means
@@ -92,7 +92,7 @@ public interface TomcatContainer {
    * @param name the name of the context to start
    *
    */
-  void start(String name) throws StartException, LifecycleException, startException;
+  void start(String name) throws StartException, LifecycleException, startException, InterruptedException;
 
   /**
    * Undeploys a context.
