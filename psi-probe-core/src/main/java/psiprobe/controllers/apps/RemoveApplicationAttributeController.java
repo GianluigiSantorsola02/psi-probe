@@ -37,8 +37,8 @@ public class RemoveApplicationAttributeController extends AbstractContextHandler
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String attrName = ServletRequestUtils.getStringParameter(request, "attr");
     context.getServletContext().removeAttribute(attrName);
