@@ -154,12 +154,12 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   // Checks if DISCARD "work" directory is selected
                     messageSourceAccessor = getMessageSourceAccessor();
                   if (messageSourceAccessor != null) {
-                    String message = messageSourceAccessor.getMessage("probe.src.log.stop", name, Locale.of(contextName));
+                    String message = messageSourceAccessor.getMessage("probe.src.log.stop", name);
                     logger.info(message);
                   }
                   // Checks if RELOAD option is selected
                   if (messageSourceAccessor != null) {
-                    String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.of(contextName));
+                    String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name);
                     logger.info(message);
                   }
                 } else {
