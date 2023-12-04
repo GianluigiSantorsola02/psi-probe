@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -39,12 +40,6 @@ import java.util.*;
 @Controller
 public class TrustStoreController extends AbstractTomcatContainerController {
 
-  private void loadKeyStore(InputStream fis, char[] password) throws KeyStoreException{
-  }
-
-  private KeyStore load() {
-      return null;
-  }
 
   /** The Constant logger. */
   private static final Logger mylogger = LoggerFactory.getLogger(TrustStoreController.class);
@@ -71,11 +66,8 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       String trustStore = System.getProperty("javax.net.ssl.trustStore");
       String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
       if (trustStore != null) {
-        try (InputStream fis = Files.newInputStream(Paths.get(trustStore))) {
-          loadKeyStore(fis, trustStorePassword != null ? trustStorePassword.toCharArray() : null);
-        } catch (IOException e) {
-          mylogger.error("", e);
-        }
+        loadKeyStore(Files.newInputStream(Paths.get(trustStore)), trustStorePassword.toCharArray());
+
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
           attributes = new HashMap<>();
@@ -96,6 +88,17 @@ public class TrustStoreController extends AbstractTomcatContainerController {
     ModelAndView mv = new ModelAndView(getViewName());
     mv.addObject("certificates", certificateList);
     return mv;
+  }
+
+  private void loadKeyStore(InputStream fis, char[] chars) {
+    try {
+      KeyStore ks = KeyStore.getInstance("JKS");
+      ks.load(fis, chars);
+    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+      mylogger.error("", e);
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
   }
 
   @Value("truststore")
