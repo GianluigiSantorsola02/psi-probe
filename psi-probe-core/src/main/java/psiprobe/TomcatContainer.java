@@ -84,7 +84,7 @@ public interface TomcatContainer {
    * @param name the name of the context to stop
    *
    */
-  void stop(String name) throws StopException, LifecycleException;
+  void stop(String name) throws StopException, LifecycleException, stopException;
 
   /**
    * Starts the context with the given name.
@@ -92,7 +92,7 @@ public interface TomcatContainer {
    * @param name the name of the context to start
    *
    */
-  void start(String name) throws StartException, LifecycleException;
+  void start(String name) throws StartException, LifecycleException, startException;
 
   /**
    * Undeploys a context.
@@ -100,7 +100,7 @@ public interface TomcatContainer {
    * @param name the context path
    *
    */
-  void remove(String name) throws RemoveException, AbstractTomcatContainer.removeInternalException, AbstractTomcatContainer.CheckChangesException;
+  void remove(String name) throws RemoveException, AbstractTomcatContainer.removeInternalException, AbstractTomcatContainer.CheckChangesException, removeException;
 
   /**
    * Installs .war file at the given context name.
