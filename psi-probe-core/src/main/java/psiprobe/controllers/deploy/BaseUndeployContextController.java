@@ -71,7 +71,7 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
       String name = auth.getName();
         messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.of(contextName));
+        String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.forLanguageTag(contextName));
         logger.info(message);
       }else {
         logger.info("Failed to get message source accessor. Undeploying {} context.", contextName);
