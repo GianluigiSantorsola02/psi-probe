@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 
 import javax.naming.NamingException;
 
@@ -41,7 +40,7 @@ public interface TomcatContainer {
    * @param name the context path
    * @return the context deployed to that path
    */
-  Locale findContext(String name);
+  Context findContext(String name);
 
   /**
    * Formats a context name to a path that the container will recognize. Usually this means

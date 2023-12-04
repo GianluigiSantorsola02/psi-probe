@@ -162,15 +162,14 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
   @Override
   public void stop(String name) throws stopException, LifecycleException {
-    Locale ctx = findContext(name);
-    if (ctx != null) {
-      ctx.getDisplayName();
-    }
+    boolean ctx = false;
+    if (!ctx) {
+      ctx = findContext(name) != null;}
   }
 
   @Override
   public void start(String name) throws startException, LifecycleException, InterruptedException {
-    Locale ctx = findContext(name);
+    Context ctx = findContext(name);
     if (ctx != null) {
       ctx.wait();
     }
@@ -179,7 +178,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   @Override
   public void remove(String name) throws removeException, removeInternalException, CheckChangesException {
     name = formatContextName(name);
-    Locale ctx = findContext(name);
+    Context ctx = findContext(name);
 
     if (ctx != null) {
 
@@ -216,7 +215,8 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  private File getConfigFile(Locale ctx) {
+  private int getConfigFile(Locale ctx) {
+      return 0;
   }
 
   /**
@@ -245,7 +245,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public Locale findContext(String name) {
+  public Context findContext(String name) {
     String safeName = formatContextName(name);
     if (safeName == null) {
       return null;
