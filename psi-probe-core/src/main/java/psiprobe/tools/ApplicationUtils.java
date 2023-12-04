@@ -468,7 +468,7 @@ public final class ApplicationUtils {
     return containerWrapper.getTomcatContainer().getApplicationFilters(context);
   }
 
-  private static class ApplicationResourcesException extends Exception {
+  public static class ApplicationResourcesException extends Exception {
     public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
       super(errorRetrievingApplicationResources, e);
 

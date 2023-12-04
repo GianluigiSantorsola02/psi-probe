@@ -225,7 +225,7 @@ public class LogResolverBean {
    * @return the log destination
    */
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
-      boolean root, String logName, String logIndex) {
+      boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException {
 
     LogDestination result = null;
     Context ctx = null;
@@ -309,7 +309,12 @@ public class LogResolverBean {
    * @param allAppenders the all appenders
    */
   private void interrogateContext(Context ctx, List<LogDestination> allAppenders) {
-    Application application = ApplicationUtils.getApplication(ctx, getContainerWrapper());
+    Application application = null;
+    try {
+      application = ApplicationUtils.getApplication(ctx, getContainerWrapper());
+    } catch (ApplicationUtils.ApplicationResourcesException e) {
+      throw new RuntimeException(e);
+    }
     ClassLoader cl = ctx.getLoader().getClassLoader();
     Object contextLogger = ctx.getLogger();
     if (contextLogger != null) {
