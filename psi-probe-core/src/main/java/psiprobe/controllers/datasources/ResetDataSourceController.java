@@ -63,8 +63,8 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     // Aggiungi questa parte di codice
     String resourceName = null;
