@@ -36,8 +36,8 @@ public class DiscardCompiledJspController extends AbstractContextHandlerControll
   }
 
   @Override
-  protected ModelAndView handleContext(String contextName, Context context,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleContext(String contextName, Context context,
+                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     getContainerWrapper().getTomcatContainer().discardWorkDir(context);
     return new ModelAndView(new RedirectView(
