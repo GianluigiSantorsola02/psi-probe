@@ -20,9 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.tools.TimeExpression;
 
-/**
- * The Class ClusterStatsController.
- */
 @Controller
 public class ClusterStatsController extends BaseClusterStatsController {
 
