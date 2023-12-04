@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
+import psiprobe.controllers.certificates.KeyStoreLoadException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,14 +92,14 @@ public class TrustStoreController extends AbstractTomcatContainerController {
     return mv;
   }
 
-  private void loadKeyStore(InputStream fis, char[] chars) {
+  private void loadKeyStore(InputStream fis, char[] chars) throws KeyStoreLoadException {
     try {
       KeyStore ks = KeyStore.getInstance("JKS");
       ks.load(fis, chars);
     } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
       mylogger.error("", e);
     } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new KeyStoreLoadException(e.getMessage(), e);
     }
   }
 
