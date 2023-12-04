@@ -57,7 +57,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
           getContainerWrapper().getTomcatContainer().stop(contextName);
           MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name, lookup(contextName));
+            messageSourceAccessor.getMessage("probe.src.log.stop", name);
           } else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
@@ -67,7 +67,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
           getContainerWrapper().getTomcatContainer().start(contextName);
           MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name, lookup(contextName));
+            messageSourceAccessor.getMessage("probe.src.log.stop", name);
           }  else {
             logger.error("Error: getMessageSourceAccessor() returned null!");
             // You can add additional error handling or logging code here
