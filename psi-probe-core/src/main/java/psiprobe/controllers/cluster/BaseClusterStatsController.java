@@ -50,14 +50,6 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
   }
 
   /**
-   * Sets the cluster wrapper.
-   *
-   * @param clusterWrapper the new cluster wrapper
-   */
-  public void setClusterWrapper(ClusterWrapperBean clusterWrapper) {
-  }
-
-  /**
    * Checks if is load members.
    *
    * @return true, if is load members
