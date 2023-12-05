@@ -79,21 +79,21 @@ public class DecoratorController extends PostParameterizableViewController {
 
   private void setVersionAttribute(HttpServletRequest request) throws IOException {
     ApplicationContext context = getApplicationContext();
-    String StringVersion = "version";
+    String String_Version = "version";
 
     if (context != null) {
-      Object versionBean = context.getBean(StringVersion);
+      Object versionBean = context.getBean(String_Version);
 
       if (versionBean instanceof DataHandler) {
         DataHandler properties = (DataHandler) versionBean;
-        request.setAttribute(StringVersion, properties.getContent());
+        request.setAttribute(String_Version, properties.getContent());
       } else {
-        System.out.println("ApplicationContext is null. Cannot retrieve the 'version' bean");
+        logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
       }
 
-      Properties data = (Properties) context.getBean(StringVersion);
+      Properties data = (Properties) context.getBean(String_Version);
       if (data.getProperty("probe.version") != null) {
-        request.setAttribute(StringVersion, data.getProperty("probe.version"));
+        request.setAttribute(String_Version, data.getProperty("probe.version"));
       } else {
         logger.error("Error: 'version' bean is null");
       }
@@ -102,7 +102,7 @@ public class DecoratorController extends PostParameterizableViewController {
     }
   }
 
-  String ServletContextNull = "ServletContext is null. Cannot retrieve the servlet context";
+  String Servlet_Context_Null = "ServletContext is null. Cannot retrieve the servlet context";
 
   private void setContextAttribute(HttpServletRequest request) {
     String attributeName = "attributeName";
@@ -113,7 +113,7 @@ public class DecoratorController extends PostParameterizableViewController {
         request.setAttribute(attributeName, attributeValue);
       }
     } else {
-      System.out.println(ServletContextNull);
+      System.out.println(Servlet_Context_Null);
     }
   }
 
@@ -128,7 +128,7 @@ public class DecoratorController extends PostParameterizableViewController {
         }
       }
     } else {
-      System.out.println(ServletContextNull);
+      System.out.println(Servlet_Context_Null);
     }
     request.setAttribute("lang", lang);
   }
