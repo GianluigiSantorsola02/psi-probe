@@ -92,8 +92,6 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
   }
 
   private File getFileForSmtpAppender() {
-    org.apache.logging.log4j.core.appender.SmtpAppender smtpAppender =
-            (org.apache.logging.log4j.core.appender.SmtpAppender) getTarget();
     Object smtpManager = getProperty(getTarget(), "manager", null, true);
     Object factoryData = getProperty(smtpManager, "data", null, true);
     Object cc = getProperty(factoryData, "cc", null, true);
