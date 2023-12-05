@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -302,13 +303,10 @@ public class ContainerListenerBean implements NotificationListener {
    *
    * @return the connectors
    *
-   * @throws Exception the exception
    */
 
   public synchronized List<Connector> getConnectors(boolean includeRequestProcessors)
-          throws Exception, CustomException {
-
-    boolean workerThreadNameSupported = true;
+          throws CustomException, MalformedObjectNameException, InstanceNotFoundException {
 
     if (!isInitialized()) {
       initialize();
@@ -319,100 +317,96 @@ public class ContainerListenerBean implements NotificationListener {
     MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
 
     for (ThreadPoolObjectName threadPoolObjectName : poolNames) {
-      ObjectName poolName = threadPoolObjectName.getThreadPoolName();
-
-      Connector connector = new Connector();
-
-      String name = poolName.getKeyProperty("name");
-
-      connector.setProtocolHandler(poolName.getKeyProperty("name"));
-
-      if (name.startsWith("\"") && name.endsWith("\"")) {
-        name = name.substring(1, name.length() - 1);
+      try {
+        Connector connector = createConnector(server, threadPoolObjectName, includeRequestProcessors);
+        connectors.add(connector);
+      } catch (Exception e) {
+        throw new CustomException("Failed to create connector", e);
       }
-
-      String[] arr = name.split("-", -1);
-      String port = "-1";
-      if (arr.length == 3) {
-        port = arr[2];
-      }
-
-      if (!"-1".equals(port)) {
-        String str = "Catalina:type=Connector,port=" + port;
-
-        ObjectName objectName = new ObjectName(str);
-
-        // add some useful information for connector list
-        connector.setStatus(JmxTools.getStringAttr(server, objectName, "stateName"));
-        connector.setProtocol(JmxTools.getStringAttr(server, objectName, "protocol"));
-        connector.setSecure(
-            Boolean.parseBoolean(JmxTools.getStringAttr(server, objectName, "secure")));
-        connector.setPort(JmxTools.getIntAttr(server, objectName, "port"));
-        connector.setLocalPort(JmxTools.getIntAttr(server, objectName, "localPort"));
-        connector.setSchema(JmxTools.getStringAttr(server, objectName, "schema"));
-      }
-
-      ObjectName grpName = threadPoolObjectName.getGlobalRequestProcessorName();
-
-      connector.setMaxTime(JmxTools.getLongAttr(server, grpName, "maxTime"));
-      connector.setProcessingTime(JmxTools.getLongAttr(server, grpName, "processingTime"));
-      connector.setBytesReceived(JmxTools.getLongAttr(server, grpName, "bytesReceived"));
-      connector.setBytesSent(JmxTools.getLongAttr(server, grpName, "bytesSent"));
-      connector.setRequestCount(JmxTools.getIntAttr(server, grpName, "requestCount"));
-      connector.setErrorCount(JmxTools.getIntAttr(server, grpName, "errorCount"));
-
-      if (includeRequestProcessors) {
-        List<ObjectName> wrkNames = threadPoolObjectName.getRequestProcessorNames();
-        for (ObjectName wrkName : wrkNames) {
-          RequestProcessor rp = new RequestProcessor();
-          rp.setName(wrkName.getKeyProperty("name"));
-          rp.setStage(JmxTools.getIntAttr(server, wrkName, "stage"));
-          rp.setProcessingTime(JmxTools.getLongAttr(server, wrkName, "requestProcessingTime"));
-          rp.setBytesSent(JmxTools.getLongAttr(server, wrkName, "requestBytesSent"));
-          rp.setBytesReceived(JmxTools.getLongAttr(server, wrkName, "requestBytesReceived"));
-          try {
-            rp.setRemoteAddr(JmxTools.getStringAttr(server, wrkName, "remoteAddr"));
-          } catch (RuntimeOperationsException ex) {
-            logger.trace("", ex);
-          }
-
-          if (rp.getRemoteAddr() != null) {
-            // Show flag as defined in jvm for localhost
-            if (InetAddress.getByName(rp.getRemoteAddr()).isLoopbackAddress()) {
-              rp.setRemoteAddrLocale(new Locale(System.getProperty("user.language"),
-                  System.getProperty("user.country")));
-            } else processCountryResponse();
-          }
-
-          rp.setVirtualHost(JmxTools.getStringAttr(server, wrkName, "virtualHost"));
-          rp.setMethod(JmxTools.getStringAttr(server, wrkName, "method"));
-          rp.setCurrentUri(JmxTools.getStringAttr(server, wrkName, "currentUri"));
-          rp.setCurrentQueryString(
-              JmxTools.getStringAttr(server, wrkName, "currentQueryString"));
-          rp.setProtocol(JmxTools.getStringAttr(server, wrkName, "protocol"));
-
-          // Relies on https://issues.apache.org/bugzilla/show_bug.cgi?id=41128
-          if (workerThreadNameSupported
-              && JmxTools.hasAttribute(server, wrkName, "workerThreadName")) {
-
-            rp.setWorkerThreadName(JmxTools.getStringAttr(server, wrkName, "workerThreadName"));
-            rp.setWorkerThreadNameSupported(true);
-          } else {
-            /*
-             * attribute should consistently either exist or be missing across all the workers
-             * so it does not make sense to check attribute existence if we have found once that
-             * it is not supported
-             */
-            rp.setWorkerThreadNameSupported(false);
-            workerThreadNameSupported = false;
-          }
-          connector.addRequestProcessor(rp);
-        }
-      }
-
-      connectors.add(connector);
     }
+
     return connectors;
+  }
+
+  private Connector createConnector(MBeanServer server, ThreadPoolObjectName threadPoolObjectName,
+                                    boolean includeRequestProcessors) throws MalformedObjectNameException, AttributeNotFoundException, UnknownHostException, CustomException {
+    ObjectName poolName = threadPoolObjectName.getThreadPoolName();
+    Connector connector = new Connector();
+
+    String name = poolName.getKeyProperty("name");
+    connector.setProtocolHandler(poolName.getKeyProperty("name"));
+
+    if (name.startsWith("\"") && name.endsWith("\"")) {
+      name = name.substring(1, name.length() - 1);
+    }
+
+    String[] arr = name.split("-", -1);
+    String port = "-1";
+    if (arr.length == 3) {
+      port = arr[2];
+    }
+
+    if (!"-1".equals(port)) {
+      String str = "Catalina:type=Connector,port=" + port;
+      ObjectName objectName = new ObjectName(str);
+      setConnectorAttributes(server, objectName, connector);
+    }
+
+    if (includeRequestProcessors) {
+      List<ObjectName> wrkNames = threadPoolObjectName.getRequestProcessorNames();
+      for (ObjectName wrkName : wrkNames) {
+        RequestProcessor rp = createRequestProcessor(server, wrkName);
+        connector.addRequestProcessor(rp);
+      }
+    }
+
+    return connector;
+  }
+
+  private void setConnectorAttributes(MBeanServer server, ObjectName objectName, Connector connector) throws AttributeNotFoundException {
+    connector.setStatus(JmxTools.getStringAttr(server, objectName, "stateName"));
+    connector.setProtocol(JmxTools.getStringAttr(server, objectName, "protocol"));
+    connector.setSecure(Boolean.parseBoolean(JmxTools.getStringAttr(server, objectName, "secure")));
+    connector.setPort(JmxTools.getIntAttr(server, objectName, "port"));
+    connector.setLocalPort(JmxTools.getIntAttr(server, objectName, "localPort"));
+    connector.setSchema(JmxTools.getStringAttr(server, objectName, "schema"));
+  }
+
+  private RequestProcessor createRequestProcessor(MBeanServer server, ObjectName wrkName) throws AttributeNotFoundException, UnknownHostException, CustomException {
+    RequestProcessor rp = new RequestProcessor();
+    rp.setName(wrkName.getKeyProperty("name"));
+    rp.setStage(JmxTools.getIntAttr(server, wrkName, "stage"));
+    rp.setProcessingTime(JmxTools.getLongAttr(server, wrkName, "requestProcessingTime"));
+    rp.setBytesSent(JmxTools.getLongAttr(server, wrkName, "requestBytesSent"));
+    rp.setBytesReceived(JmxTools.getLongAttr(server, wrkName, "requestBytesReceived"));
+    try {
+      rp.setRemoteAddr(JmxTools.getStringAttr(server, wrkName, "remoteAddr"));
+    } catch (RuntimeOperationsException ex) {
+      logger.trace("", ex);
+    }
+
+    if (rp.getRemoteAddr() != null) {
+      if (InetAddress.getByName(rp.getRemoteAddr()).isLoopbackAddress()) {
+        rp.setRemoteAddrLocale(new Locale(System.getProperty("user.language"),
+                System.getProperty("user.country")));
+      } else {
+        processCountryResponse();
+      }
+    }
+
+    rp.setVirtualHost(JmxTools.getStringAttr(server, wrkName, "virtualHost"));
+    rp.setMethod(JmxTools.getStringAttr(server, wrkName, "method"));
+    JmxTools.getStringAttr(server, wrkName, "currentUri");
+
+
+    if (JmxTools.hasAttribute(server, wrkName, "workerThreadName")) {
+      rp.setWorkerThreadName(JmxTools.getStringAttr(server, wrkName, "workerThreadName"));
+      rp.setWorkerThreadNameSupported(true);
+    } else {
+      rp.setWorkerThreadNameSupported(false);
+    }
+
+    return rp;
   }
 
   public static class CustomException extends Throwable {

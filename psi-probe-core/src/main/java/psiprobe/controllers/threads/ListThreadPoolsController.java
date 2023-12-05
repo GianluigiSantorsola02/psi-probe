@@ -44,16 +44,18 @@ public class ListThreadPoolsController extends AbstractTomcatContainerController
 
   @Override
   public ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                            HttpServletResponse response) throws Exception {
 
     List<ThreadPool> pools;
     try {
       pools = containerListenerBean.getThreadPools();
     } catch (ContainerListenerBean.ThreadPoolsException e) {
-      throw new RuntimeException(e);
+      return new ModelAndView(getViewName()).addObject("error", e.getMessage());
     }
+
     return new ModelAndView(getViewName()).addObject("pools", pools);
   }
+
 
   @Value("threadpools")
   @Override

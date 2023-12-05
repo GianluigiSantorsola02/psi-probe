@@ -13,20 +13,19 @@ package psiprobe.beans.stats.collectors;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.model.Connector;
 
-import javax.inject.Inject;
-
 /**
  * The Class ConnectorStatsCollectorBean.
  */
 public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The listener bean. */
-  private ContainerListenerBean listenerBean;
+  private final ContainerListenerBean listenerBean ;
 
-  @Inject
-  public void ListenerBean(ContainerListenerBean listenerBean) {
-    this.listenerBean = listenerBean;
+  public ConnectorStatsCollectorBean() {
+    listenerBean = new ContainerListenerBean( null );
   }
+
+
   @Override
   public void collect() throws Throwable {
     for (Connector connector : listenerBean.getConnectors(false)) {
@@ -36,17 +35,6 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
       buildDeltaStats(statName + ".sent", connector.getBytesSent());
       buildDeltaStats(statName + ".received", connector.getBytesReceived());
       buildDeltaStats(statName + ".proc_time", connector.getProcessingTime());
-    }
-  }
-
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
-  public void reset() throws Throwable {
-    for (Connector connector : listenerBean.getConnectors(false)) {
-      reset(connector.getProtocolHandler());
     }
   }
 

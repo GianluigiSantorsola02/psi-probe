@@ -213,15 +213,6 @@ public class RequestProcessor {
   }
 
   /**
-   * Sets the current uri.
-   *
-   * @param currentUri the new current uri
-   */
-  public void setCurrentUri(String currentUri) {
-    this.currentUri = currentUri;
-  }
-
-  /**
    * Gets the current query string.
    *
    * @return the current query string

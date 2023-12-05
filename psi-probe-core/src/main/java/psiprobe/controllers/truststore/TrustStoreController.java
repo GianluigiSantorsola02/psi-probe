@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.controllers.AbstractTomcatContainerController;
-
+import psiprobe.controllers.certificates.KeyStoreLoadException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -39,16 +40,9 @@ import java.util.*;
 @Controller
 public class TrustStoreController extends AbstractTomcatContainerController {
 
-  private void loadKeyStore(InputStream fis, char[] password) throws NoSuchAlgorithmException, CertificateException, IOException {
-    KeyStore ks = load(fis, password);
-  }
-
-  private KeyStore load(InputStream fis, char[] password) {
-      return null;
-  }
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(TrustStoreController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(TrustStoreController.class);
 
   @RequestMapping(path = "/truststore.htm")
   @Override
@@ -72,11 +66,8 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       String trustStore = System.getProperty("javax.net.ssl.trustStore");
       String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
       if (trustStore != null) {
-        try (InputStream fis = Files.newInputStream(Paths.get(trustStore))) {
-          loadKeyStore(fis, trustStorePassword != null ? trustStorePassword.toCharArray() : null);
-        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-          logger.error("", e);
-        }
+        loadKeyStore(Files.newInputStream(Paths.get(trustStore)), trustStorePassword.toCharArray());
+
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
           attributes = new HashMap<>();
@@ -92,11 +83,22 @@ public class TrustStoreController extends AbstractTomcatContainerController {
         }
       }
     } catch (KeyStoreException e) {
-      logger.error("There was an exception obtaining truststore: ", e);
+      mylogger.error("There was an exception obtaining truststore: ", e);
     }
     ModelAndView mv = new ModelAndView(getViewName());
     mv.addObject("certificates", certificateList);
     return mv;
+  }
+
+  private void loadKeyStore(InputStream fis, char[] chars) throws KeyStoreLoadException {
+    try {
+      KeyStore ks = KeyStore.getInstance("JKS");
+      ks.load(fis, chars);
+    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+      mylogger.error("", e);
+    } catch (IOException e) {
+        throw new KeyStoreLoadException(e.getMessage(), e);
+    }
   }
 
   @Value("truststore")
