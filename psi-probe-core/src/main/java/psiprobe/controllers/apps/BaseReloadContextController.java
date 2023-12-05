@@ -40,6 +40,7 @@ public class BaseReloadContextController extends AbstractNoSelfContextHandlerCon
         if (messageSourceAccessor != null) {
           mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
         } else {
+          if (mylogger.isInfoEnabled()) {
           mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
         }
       } catch (NullPointerException ex) {
