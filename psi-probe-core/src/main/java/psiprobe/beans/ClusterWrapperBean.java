@@ -13,9 +13,7 @@ package psiprobe.beans;
 import java.lang.management.ManagementFactory;
 import java.util.Set;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
+import javax.management.*;
 
 import psiprobe.model.jmx.AsyncClusterSender;
 import psiprobe.model.jmx.Cluster;
@@ -40,8 +38,7 @@ public class ClusterWrapperBean {
    *
    * @throws Exception the exception
    */
-  public Cluster getCluster(String serverName, String hostName, boolean loadMembers)
-      throws Exception {
+  public Cluster getCluster(String serverName, String hostName, boolean loadMembers) throws CustomException, MalformedObjectNameException, AttributeNotFoundException, ReflectionException, InstanceNotFoundException, MBeanException {
 
     Cluster cluster = null;
 
@@ -125,25 +122,6 @@ public class ClusterWrapperBean {
           sender.setResend((Boolean) mbeanServer.getAttribute(localSenderOName, "resend"));
           sender.setSuspect((Boolean) mbeanServer.getAttribute(localSenderOName, "suspect"));
 
-          if (sender instanceof PooledClusterSender) {
-            ((PooledClusterSender) sender).setMaxPoolSocketLimit(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "maxPoolSocketLimit"));
-          }
-
-          if (sender instanceof SyncClusterSender) {
-            SyncClusterSender syncSender = (SyncClusterSender) sender;
-            syncSender.setDataFailureCounter(
-                JmxTools.getLongAttr(mbeanServer, localSenderOName, "dataFailureCounter"));
-            syncSender.setDataResendCounter(
-                JmxTools.getLongAttr(mbeanServer, localSenderOName, "dataResendCounter"));
-            syncSender.setSocketOpenCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketOpenCounter"));
-            syncSender.setSocketCloseCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketCloseCounter"));
-            syncSender.setSocketOpenFailureCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketOpenFailureCounter"));
-          }
-
           if (sender instanceof AsyncClusterSender) {
             AsyncClusterSender asyncSender = (AsyncClusterSender) sender;
             asyncSender.setInQueueCounter(
@@ -158,6 +136,8 @@ public class ClusterWrapperBean {
           cluster.getMembers().add(sender);
         }
       }
+    } else {
+      throw new CustomException("Cluster not found.");
     }
     return cluster;
   }
@@ -176,6 +156,12 @@ public class ClusterWrapperBean {
       sender = new ClusterSender();
     }
     return sender;
+  }
+
+  public static class CustomException extends Exception {
+    public CustomException(String message) {
+      super(message);
+    }
   }
 
 }

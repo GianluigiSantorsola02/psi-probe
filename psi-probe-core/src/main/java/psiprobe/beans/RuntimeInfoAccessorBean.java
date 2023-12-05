@@ -36,7 +36,7 @@ public class RuntimeInfoAccessorBean {
    *
    * @throws Exception the exception
    */
-  public RuntimeInformation getRuntimeInformation() throws Exception {
+  public RuntimeInformation getRuntimeInformation() throws getRuntimeInformationException {
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
     RuntimeInformation ri = new RuntimeInformation();
 
@@ -81,5 +81,10 @@ public class RuntimeInfoAccessorBean {
       logger.trace("", e);
       return null;
     }
+  }
+
+  private class getRuntimeInformationException extends Exception {
+
+    private static final long serialVersionUID = 1L;
   }
 }
