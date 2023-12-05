@@ -35,7 +35,7 @@ import java.util.Locale;
 public class AjaxReloadContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(AjaxReloadContextController.class);
+  private static final Logger log = LoggerFactory.getLogger(AjaxReloadContextController.class);
 
   @RequestMapping(path = "/app/reload.ajax")
   @Override
@@ -50,7 +50,7 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
 
     if (context != null && !request.getContextPath().equals(contextName)) {
       try {
-        logger.info("{} requested RELOAD of {}", request.getRemoteAddr(), contextName);
+        log.info("{} requested RELOAD of {}", request.getRemoteAddr(), contextName);
         context.reload();
         // Logging action
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -61,11 +61,11 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
           messageSourceAccessor.getMessage("probe.src.log.reload", name, Locale.of(contextName));
         } else {
 
-          logger.error("Error: getMessageSourceAccessor() returned null!");
+          log.error("Error: getMessageSourceAccessor() returned null!");
 
         }
       } catch (Exception e) {
-        logger.error("Error during ajax request to RELOAD of '{}'", contextName, e);
+        log.error("Error during ajax request to RELOAD of '{}'", contextName, e);
       }
     }
     return new ModelAndView(getViewName(), "available",
