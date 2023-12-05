@@ -29,10 +29,6 @@ public class BaseMemoryStatsController extends ParameterizableViewController {
   /** The jvm memory info accessor bean. */
   private JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean;
 
-  @Inject
-  public void YourClassName(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean) {
-    this.jvmMemoryInfoAccessorBean = jvmMemoryInfoAccessorBean;
-  }
   /** The collection period. */
   private long collectionPeriod;
 
