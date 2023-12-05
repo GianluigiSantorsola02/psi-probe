@@ -283,13 +283,13 @@ public final class Utils {
                   }
 
               }
-              if ("contentType".equals(directiveToken.getText())) {
-                if (directiveTokenizer.hasMore()) {
+              if ("contentType".equals(directiveToken.getText()) && directiveTokenizer.hasMore()) {
+
                   String nextTokenText = directiveTokenizer.nextToken().getText();
                   if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
                     contentType = directiveTokenizer.nextToken().getInnerText();
                   }
-                }
+
               }
 
 
