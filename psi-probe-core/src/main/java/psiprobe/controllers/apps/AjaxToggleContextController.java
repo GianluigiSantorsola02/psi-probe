@@ -86,6 +86,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
       }
     } catch (InterruptedException | LifecycleException | TomcatContainer.StartException | TomcatContainer.StopException e) {
       log.error("Error during ajax request to START/STOP of '{}'", contextName, e);
+      Thread.currentThread().interrupt();
     }
   }
   @Value("ajax/context_status")
