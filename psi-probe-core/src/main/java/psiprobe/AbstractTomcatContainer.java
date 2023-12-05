@@ -154,18 +154,14 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public boolean installContext(String contextName) throws installContextInternalException, CheckChangesException {
+  public boolean installContext(String contextName) throws CheckChangesException {
     contextName = formatContextName(contextName);
     installContextInternal(contextName);
     return findContext(contextName) != null;
   }
 
-  @Override
-  public void stop(String name) throws stopException, LifecycleException {
-    boolean ctx = false;
-    if (!ctx) {
-      ctx = findContext(name) != null;}
-  }
+
+
 
   @Override
   public void start(String name) throws startException, LifecycleException, InterruptedException {
@@ -213,10 +209,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       removeInternal(name);
     }
-  }
-
-  private int getConfigFile(Locale ctx) {
-      return 0;
   }
 
   /**
