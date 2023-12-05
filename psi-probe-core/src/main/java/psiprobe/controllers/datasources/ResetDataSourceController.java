@@ -10,10 +10,6 @@
  */
 package psiprobe.controllers.datasources;
 
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +20,12 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
-
-import static javax.servlet.RequestDispatcher.ERROR_MESSAGE;
 
 /**
  * Resets datasource if the datasource supports it.
@@ -118,9 +114,9 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}) : null;
-      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, ErrorMessage.DEFAULT_ERROR_MESSAGE);
     }
     mylogger.trace("", e);
   }
@@ -130,9 +126,9 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
-      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, ErrorMessage.DEFAULT_ERROR_MESSAGE);
     }
   }
 
@@ -146,13 +142,13 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
-      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+      request.setAttribute(ErrorMessage.ERROR_MESSAGE, ErrorMessage.DEFAULT_ERROR_MESSAGE);
     }
   }
 
-  public class errorMessage {
+  protected class ErrorMessage {
     private static final String ERROR_MESSAGE = "errorMessage";
     private static final String DEFAULT_ERROR_MESSAGE = "errorMessage";
 
