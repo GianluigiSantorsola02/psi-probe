@@ -122,11 +122,6 @@ public class ClusterWrapperBean {
           sender.setResend((Boolean) mbeanServer.getAttribute(localSenderOName, "resend"));
           sender.setSuspect((Boolean) mbeanServer.getAttribute(localSenderOName, "suspect"));
 
-          if (sender instanceof PooledClusterSender) {
-            ((PooledClusterSender) sender).setMaxPoolSocketLimit(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "maxPoolSocketLimit"));
-          }
-
           if (sender instanceof AsyncClusterSender) {
             AsyncClusterSender asyncSender = (AsyncClusterSender) sender;
             asyncSender.setInQueueCounter(
