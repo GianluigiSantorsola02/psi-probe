@@ -10,19 +10,12 @@
  */
 package psiprobe.beans.stats.providers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.XYDataItem;
-
 import psiprobe.model.stats.StatsCollection;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * Retrieves stats series with names that start with the statNamePrefix. Either all matching series
@@ -40,15 +33,6 @@ public class MultipleSeriesProvider extends AbstractSeriesProvider {
 
   /** The moving avg frame. */
   private int movingAvgFrame;
-
-  /**
-   * Gets the stat name prefix.
-   *
-   * @return the stat name prefix
-   */
-  public String getStatNamePrefix() {
-    return statNamePrefix;
-  }
 
   /**
    * Sets the stat name prefix.
