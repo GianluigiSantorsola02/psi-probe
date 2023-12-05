@@ -34,19 +34,16 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
       contextName = getContainerWrapper().getTomcatContainer().formatContextName(contextName);
       context = getContainerWrapper().getTomcatContainer().findContext(contextName);
 
-      if (context != null || isContextOptional()) {
-        try {
-          try {
-            return handleContext(contextName, context, request, response);
-          } catch (BaseViewXmlConfController.DisplayTargetException e) {
-            throw new RuntimeException(e);
-          } catch (BaseViewXmlConfController.UnknownDisplayTargetException e) {
-            throw new RuntimeException(e);
-          }
-        } catch (ViewServletSourceController.FileProcessingException e) {
-          throw new RuntimeException(e);
-        }
+    if (context != null || isContextOptional()) {
+      try {
+        handleContext(contextName, context, request, response);
+      } catch (BaseViewXmlConfController.DisplayTargetException |
+               BaseViewXmlConfController.UnknownDisplayTargetException |
+               ViewServletSourceController.FileProcessingException e) {
+        throw new MyCustomException(String.valueOf(e));
       }
+    }
+
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
     if (contextName != null && messageSourceAccessor != null) {
       request.setAttribute("errorMessage", messageSourceAccessor.getMessage("probe.src.contextDoesntExist", new Object[] {contextName}));
@@ -79,7 +76,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, Exception, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, MyCustomException {
     // Your code logic here
 
     if (context == null) {
@@ -94,6 +91,14 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 
 
       super(message);
+    }
+
+    public MyCustomException() {
+      super();
+    }
+
+    public MyCustomException(BaseViewXmlConfController.DisplayTargetException e) {
+      super(e);
     }
   }
 }
