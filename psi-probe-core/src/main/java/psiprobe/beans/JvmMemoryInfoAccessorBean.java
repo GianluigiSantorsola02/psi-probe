@@ -15,9 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.openmbean.CompositeDataSupport;
 
 import org.slf4j.Logger;
@@ -41,7 +39,7 @@ public class JvmMemoryInfoAccessorBean {
    *
    * @throws Exception the exception
    */
-  public List<MemoryPool> getPools() throws Exception {
+  public List<MemoryPool> getPools() throws ListMemoryPoolException, MalformedObjectNameException, AttributeNotFoundException, ReflectionException, InstanceNotFoundException, MBeanException {
 
     List<MemoryPool> memoryPools = new LinkedList<>();
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -95,5 +93,10 @@ public class JvmMemoryInfoAccessorBean {
 
     return memoryPools;
 
+  }
+
+  private class ListMemoryPoolException extends Exception {
+
+    private static final long serialVersionUID = 1L;
   }
 }
