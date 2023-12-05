@@ -368,4 +368,6 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   public void setXstream(XStream xstream) {
     this.xstream = xstream;
   }
+
+
 }

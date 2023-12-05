@@ -79,10 +79,17 @@ public abstract class AbstractStatsCollectorBean {
 
   /**
    * Collect.
-   *
-   * @throws Exception the exception
    */
-  public abstract void collect() throws Throwable;
+  private void collect() throws CollectCustomException {
+  }
+
+
+
+  static class CollectCustomException extends Throwable {
+    public CollectCustomException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
 
   /**
    * Builds the delta stats.
