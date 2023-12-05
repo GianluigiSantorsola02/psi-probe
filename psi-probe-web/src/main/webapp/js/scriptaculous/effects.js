@@ -625,7 +625,7 @@ Effect.Shake = function(element) {
     duration: 0.5
   }, arguments[1] || {});
   parseFloat(options.distance);
-  parseFloat(options.duration) / 10.0;
+  parseFloat(options.duration);
   element.getStyle('top');
   element.getStyle('left');
 };
