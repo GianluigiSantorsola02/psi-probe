@@ -222,7 +222,14 @@ public class LogResolverBean {
       }
     }
 
+    result = handleLogType(logType, ctx, application, context, root, logName, logIndex);
 
+    return result;
+  }
+
+  private LogDestination handleLogType(String logType, Context ctx, Application application, boolean context,
+                                       boolean root, String logName, String logIndex) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    LogDestination result = null;
     if (logName != null && "stdout".equals(logType)) {
       result = getStdoutLogDestination(logName);
     } else if (ctx != null && "catalina".equals(logType)) {
@@ -234,13 +241,16 @@ public class LogResolverBean {
         result = getLog4J2LogDestination(ctx, application, root, logName, logIndex);
       } else {
         ClassLoader cl = getClassLoader(ctx);
-        if ((root || logName != null)) {
+        if (shouldGetLogDestination(root, logName)) {
           result = getLogDestinationByType(logType, cl, application, root, logName, logIndex);
         }
       }
     }
-
     return result;
+  }
+
+  private boolean shouldGetLogDestination(boolean root, String logName) {
+    return root || logName != null;
   }
 
   private boolean isSupportedLogger(String logType) {
@@ -315,8 +325,9 @@ public class LogResolverBean {
     Application application;
     try {
       application = ApplicationUtils.getApplication(ctx, getContainerWrapper());
-    } catch (ApplicationUtils.ApplicationResourcesException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      logger.debug("getApplication failed", e);
+      application = new Application();
     }
     return application;
   }
@@ -629,10 +640,8 @@ public class LogResolverBean {
       if (log != null) {
         return log.getAppender(appenderName);
       }
-    } catch (Exception e) {
+    } catch (Exception | TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
       logger.debug("getLogbackLogDestination failed", e);
-    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
-        throw new RuntimeException(e);
     }
       return null;
   }
@@ -682,10 +691,8 @@ public class LogResolverBean {
       if (log != null) {
         return log.getAppender(appenderName);
       }
-    } catch (Exception e) {
+    } catch (Exception | TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
       logger.debug("getTomcatSlf4jLogbackLogDestination failed", e);
-    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
-        throw new RuntimeException(e);
     }
       return null;
   }
@@ -811,4 +818,8 @@ public class LogResolverBean {
 
   }
 
+  private class interrogateLog4J2LoggersException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+  }
 }
