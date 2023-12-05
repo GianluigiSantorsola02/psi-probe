@@ -178,7 +178,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public void remove(String name) throws removeException, RemoveInternalException, CheckChangesException {
+  public void remove(String name) throws RemoveException, RemoveInternalException, CheckChangesException {
     name = formatContextName(name);
     Context ctx = findContext(name);
 
