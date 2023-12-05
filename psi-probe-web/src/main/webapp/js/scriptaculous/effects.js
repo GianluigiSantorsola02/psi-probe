@@ -88,10 +88,10 @@ let Effect = {
     spring: function(pos) {
       return 1 - (Math.cos(pos * 4.5 * Math.PI) * Math.exp(-pos * 6));
     },
-    none: function(pos) {
+    none: function() {
       return 0;
     },
-    full: function(pos) {
+    full: function() {
       return 1;
     }
   },
@@ -103,23 +103,6 @@ let Effect = {
     to:         1.0,
     delay:      0.0,
     queue:      'parallel'
-  },
-  tagifyText: function(element) {
-    let tagifyStyle = 'position:relative';
-    if (Prototype.Browser.IE) tagifyStyle += ';zoom:1';
-
-    element = $(element);
-    $A(element.childNodes).each( function(child) {
-      if (child.nodeType===3) {
-        child.nodeValue.toArray().each( function(character) {
-          element.insertBefore(
-            new Element('span', {style: tagifyStyle}).update(
-              character === ' ' ? String.fromCharCode(160) : character),
-              child);
-        });
-        Element.remove(child);
-      }
-    });
   },
   multiple: function(element, effect) {
     let elements;
@@ -306,7 +289,7 @@ Effect.Parallel = Class.create(Effect.Base, {
   update: function(position) {
     this.effects.invoke('render', position);
   },
-  finish: function(position) {
+  finish: function() {
     this.effects.each( function(effect) {
       const duration = 1.0;
       effect.render(duration);
@@ -314,7 +297,7 @@ Effect.Parallel = Class.create(Effect.Base, {
         effect.cancel();
       }
       effect.event('beforeFinish');
-      if (effect.finish) effect.finish(position);
+      if (effect.finish) effect.finish();
       effect.event('afterFinish');
     });
   }
@@ -325,13 +308,9 @@ Effect.Tween = Class.create(Effect.Base, {
     object = Object.isString(object) ? $(object) : object;
     let args = $A(arguments), method = args.last(),
       options = args.length === 5 ? args[3] : null;
-        let boundMethod;
     if (Object.isFunction(object[method])) {
-      boundMethod = object[method].bind(object);
+      object[method].bind(object);
     } else {
-      boundMethod = function(value) {
-        object[method] = value;
-      };
     }
     this.start(Object.extend({ from: from, to: to }, options || { }));
   },
@@ -451,7 +430,7 @@ Effect.Scale = Class.create(Effect.Base, {
       this.element.setStyle({fontSize: this.fontSize * currentScale + this.fontSizeType });
     this.setDimensions(this.dims[0] * currentScale, this.dims[1] * currentScale);
   },
-  finish: function(position) {
+  finish: function() {
     if (this.restoreAfterFinish) this.element.setStyle(this.originalStyle);
   },
   setDimensions: function(height, width) {
@@ -569,10 +548,7 @@ Effect.Puff = function(element) {
       { sync: true, scaleFromCenter: true, scaleContent: true, restoreAfterFinish: true }),
      new Effect.Opacity(element, { sync: true, to: 0.0 } ) ],
      Object.extend({ duration: 1.0,
-      beforeSetupInternal: function(effect) {
-        Position.absolutize(effect.effects[0].element);
-      },
-      afterFinishInternal: function(effect) {
+       afterFinishInternal: function(effect) {
          effect.effects[0].element.hide().setStyle(oldStyle); }
      }, arguments[1] || { })
    );
@@ -655,6 +631,7 @@ Effect.Shake = function(element) {
   element.getStyle('left');
 };
 
+window.opera = undefined;
 Effect.SlideDown = function(element) {
   element = $(element).cleanWhitespace();
   // SlideDown need to have the content of the element wrapped in a container element with fixed height!
@@ -733,13 +710,7 @@ Effect.Grow = function(element) {
     scaleTransition: Effect.Transitions.sinoidal,
     opacityTransition: Effect.Transitions.full
   }, arguments[1] || { });
-  let oldStyle = {
-    top: element.style.top,
-    left: element.style.left,
-    height: element.style.height,
-    width: element.style.width,
-    opacity: element.getInlineOpacity() };
-
+  element.getInlineOpacity();
   let dims = element.getDimensions();
   let initialMoveX, initialMoveY;
   let moveX, moveY;
@@ -830,10 +801,7 @@ Effect.Shrink = function(element) {
       new Effect.Scale(element, window.opera ? 1 : 0, { sync: true, transition: options.scaleTransition, restoreAfterFinish: true}),
       new Effect.Move(element, { x: moveX, y: moveY, sync: true, transition: options.moveTransition })
     ], Object.extend({
-         beforeStartInternal: function(effect) {
-           effect.effects[0].element.makePositioned().makeClipping();
-         },
-         afterFinishInternal: function(effect) {
+        afterFinishInternal: function(effect) {
            effect.effects[0].element.hide().undoClipping().undoPositioned().setStyle(oldStyle); }
        }, options)
   );
@@ -939,7 +907,6 @@ Effect.Morph = Class.create(Effect.Base, {
   update: function(position) {
     let style = { }, transform, i = this.transforms.length;
     while(i--)
-      let transform = this.transforms[i];
       let value;
     if (transform.unit === 'color') {
       const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
@@ -972,16 +939,6 @@ Effect.Transform = Class.create({
       }));
     }.bind(this));
     return this;
-  },
-  play: function(){
-    return new Effect.Parallel(
-      this.tracks.map(function(track){
-        let ids = track.get('ids'), effect = track.get('effect'), options = track.get('options');
-        let elements = [$(ids) || $$(ids)].flatten();
-        return elements.map(function(e){ return new effect(e, Object.extend({ sync:true }, options)) });
-      }).flatten(),
-      this.options
-    );
   }
 });
 
