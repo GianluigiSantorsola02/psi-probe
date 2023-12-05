@@ -83,36 +83,37 @@ public class Log4J2AppenderAccessor extends AbstractLogDestination {
     if (fileName != null) {
       return new File(fileName);
     }
-    // Check for SMTPAppender information
-    File result = null;
+
     if (getTarget() instanceof org.apache.logging.log4j.core.appender.SmtpAppender) {
-      org.apache.logging.log4j.core.appender.SmtpAppender smtpAppender =
-          (org.apache.logging.log4j.core.appender.SmtpAppender) getTarget();
-      Object smtpManager = getProperty(getTarget(), "manager", null, true);
-      Object factoryData = getProperty(smtpManager, "data", null, true);
-      Object cc = getProperty(factoryData, "cc", null, true);
-      Object bcc = getProperty(factoryData, "bcc", null, true);
-      Object from = getProperty(factoryData, "from", null, true);
-      Object subjectSerializer = getProperty(factoryData, "subject", null, true);
-      String subject = null;
-      if (subjectSerializer != null) {
-        Object[] subjectFormatters =
-            (Object[]) getProperty(subjectSerializer, "formatters", null, true);
-        if (subjectFormatters != null) {
-          Object subjectFormatterConverter =
-              getProperty(subjectFormatters[0], "converter", null, true);
-          if (subjectFormatterConverter != null) {
-            subject = (String) getProperty(subjectFormatterConverter, "literal", null, true);
-          }
+      return getFileForSmtpAppender();
+    } else {
+      return getStdoutFile();
+    }
+  }
+
+  private File getFileForSmtpAppender() {
+    Object smtpManager = getProperty(getTarget(), "manager", null, true);
+    Object factoryData = getProperty(smtpManager, "data", null, true);
+    Object cc = getProperty(factoryData, "cc", null, true);
+    Object bcc = getProperty(factoryData, "bcc", null, true);
+    Object from = getProperty(factoryData, "from", null, true);
+    Object subjectSerializer = getProperty(factoryData, "subject", null, true);
+    String subject = null;
+    if (subjectSerializer != null) {
+      Object[] subjectFormatters =
+              (Object[]) getProperty(subjectSerializer, "formatters", null, true);
+      if (subjectFormatters != null) {
+        Object subjectFormatterConverter =
+                getProperty(subjectFormatters[0], "converter", null, true);
+        if (subjectFormatterConverter != null) {
+          subject = (String) getProperty(subjectFormatterConverter, "literal", null, true);
         }
       }
-      result = new File("mailto:" + getProperty(factoryData, "to", "", true)
-          + (from != null ? "&from=" + from : "") + (cc != null ? "&cc=" + cc : "")
-          + (bcc != null ? "&bcc=" + bcc : "") + (subject != null ? "&subject=" + subject : ""));
-    } else {
-      result = getStdoutFile();
     }
-    return result;
+
+    return new File("mailto:" + getProperty(factoryData, "to", "", true)
+            + (from != null ? "&from=" + from : "") + (cc != null ? "&cc=" + cc : "")
+            + (bcc != null ? "&bcc=" + bcc : "") + (subject != null ? "&subject=" + subject : ""));
   }
 
   @Override
