@@ -39,7 +39,7 @@ public class JvmMemoryInfoAccessorBean {
    *
    * @throws Exception the exception
    */
-  public List<MemoryPool> getPools() throws ListMemoryPoolException, MalformedObjectNameException, AttributeNotFoundException, ReflectionException, InstanceNotFoundException, MBeanException {
+  public List<MemoryPool> getPools() throws MalformedObjectNameException, AttributeNotFoundException, ReflectionException, InstanceNotFoundException, MBeanException {
 
     List<MemoryPool> memoryPools = new LinkedList<>();
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
