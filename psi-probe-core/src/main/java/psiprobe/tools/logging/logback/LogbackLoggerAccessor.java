@@ -157,7 +157,7 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
         try {
           return (List<Object>) MethodUtils.invokeMethod(tracker, "allComponents");
         } catch (Exception e) {
-          throw new Logback13LoggerAccessor.SiftedAppendersException("Error retrieving sifted appenders", e);
+          throw new Logback13LoggerAccessor.SiftedAppendersException("Error retrieving sifted appenders");
         }
       }
     }
