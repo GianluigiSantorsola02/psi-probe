@@ -50,12 +50,9 @@ public class ListThreadPoolsController extends AbstractTomcatContainerController
     try {
       pools = containerListenerBean.getThreadPools();
     } catch (ContainerListenerBean.ThreadPoolsException e) {
-      try {
-        throw new ThreadPoolsLoadException("Failed to load thread pools", e);
-      } catch (ThreadPoolsLoadException ex) {
-        throw new RuntimeException(ex);
-      }
+      return new ModelAndView(getViewName()).addObject("error", e.getMessage());
     }
+
     return new ModelAndView(getViewName()).addObject("pools", pools);
   }
 
@@ -66,9 +63,4 @@ public class ListThreadPoolsController extends AbstractTomcatContainerController
     super.setViewName(viewName);
   }
 
-  private static class ThreadPoolsLoadException extends Throwable {
-    public ThreadPoolsLoadException(String failedToLoadThreadPools, ContainerListenerBean.ThreadPoolsException e) {
-      super(failedToLoadThreadPools, e);
-    }
-  }
 }

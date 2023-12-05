@@ -19,8 +19,7 @@ import java.util.Locale;
  */
 public class RequestProcessor {
 
-    public JmxTools setCurrentUri;
-    /** The name. */
+  /** The name. */
   private String name;
 
   /** The stage. */
@@ -213,15 +212,6 @@ public class RequestProcessor {
    */
   public String getCurrentUri() {
     return currentUri;
-  }
-
-  /**
-   * Sets the current uri.
-   *
-   * @param currentUri the new current uri
-   */
-  public void setCurrentUri(String currentUri) {
-    this.currentUri = currentUri;
   }
 
   /**
