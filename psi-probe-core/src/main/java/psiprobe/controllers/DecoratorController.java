@@ -79,21 +79,21 @@ public class DecoratorController extends PostParameterizableViewController {
 
   private void setVersionAttribute(HttpServletRequest request) throws IOException {
     ApplicationContext context = getApplicationContext();
-    String String_Version = "version";
+    String version = "version";
 
     if (context != null) {
-      Object versionBean = context.getBean(String_Version);
+      Object versionBean = context.getBean(version);
 
       if (versionBean instanceof DataHandler) {
         DataHandler properties = (DataHandler) versionBean;
-        request.setAttribute(String_Version, properties.getContent());
+        request.setAttribute(version, properties.getContent());
       } else {
         logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
       }
 
-      Properties data = (Properties) context.getBean(String_Version);
+      Properties data = (Properties) context.getBean(version);
       if (data.getProperty("probe.version") != null) {
-        request.setAttribute(String_Version, data.getProperty("probe.version"));
+        request.setAttribute(version, data.getProperty("probe.version"));
       } else {
         logger.error("Error: 'version' bean is null");
       }
@@ -102,7 +102,7 @@ public class DecoratorController extends PostParameterizableViewController {
     }
   }
 
-  String Servlet_Context_Null = "ServletContext is null. Cannot retrieve the servlet context";
+  String servletcontextnull = "ServletContext is null. Cannot retrieve the servlet context";
 
   private void setContextAttribute(HttpServletRequest request) {
     String attributeName = "attributeName";
@@ -113,7 +113,7 @@ public class DecoratorController extends PostParameterizableViewController {
         request.setAttribute(attributeName, attributeValue);
       }
     } else {
-      System.out.println(Servlet_Context_Null);
+      logger.error(servletcontextnull);
     }
   }
 
@@ -128,7 +128,7 @@ public class DecoratorController extends PostParameterizableViewController {
         }
       }
     } else {
-      System.out.println(Servlet_Context_Null);
+      logger.error(servletcontextnull);
     }
     request.setAttribute("lang", lang);
   }
