@@ -64,13 +64,13 @@ public abstract class AbstractNoSelfContextHandlerController
     try {
       handleContextAction(contextName, request);
       executeAction(contextName);
-    } catch (Exception | ContainerListenerBean.CustomExceptionException e) {
+    } catch (InterruptedException | ContainerListenerBean.CustomExceptionException e) {
       request.setAttribute("errorMessage", e.getMessage());
       mylogger.error("Error during invocation", e);
       return new ModelAndView(new InternalResourceView(getViewName()));
     }
 
-      return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
+    return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
             + (isPassQueryString() ? "?" + request.getQueryString() : "")));
   }
 
