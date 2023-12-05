@@ -20,11 +20,11 @@ import psiprobe.model.Connector;
 import psiprobe.model.RequestProcessor;
 import psiprobe.tools.TimeExpression;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-
-import static psiprobe.beans.ContainerListenerBean.CustomException;
 
 /**
  * The Class ListConnectorsController.
@@ -92,14 +92,15 @@ public class ListConnectorsController extends AbstractTomcatContainerController 
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws CustomException {
 
     boolean workerThreadNameSupported = false;
     List<Connector> connectors;
     try {
       connectors = containerListenerBean.getConnectors(includeRequestProcessors);
-    } catch (CustomException e) {
-      throw new RuntimeException(e);
+    } catch (ContainerListenerBean.CustomException | MalformedObjectNameException |
+             InstanceNotFoundException e) {
+      throw new CustomException("Failed to get connectors", e);
     }
 
     if (!connectors.isEmpty()) {
@@ -111,8 +112,14 @@ public class ListConnectorsController extends AbstractTomcatContainerController 
     }
 
     return new ModelAndView(getViewName()).addObject("connectors", connectors)
-        .addObject("workerThreadNameSupported", workerThreadNameSupported)
-        .addObject("collectionPeriod", getCollectionPeriod());
+            .addObject("workerThreadNameSupported", workerThreadNameSupported)
+            .addObject("collectionPeriod", getCollectionPeriod());
+  }
+
+  static class CustomException extends Exception {
+    public CustomException(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 
   @Value("connectors")
