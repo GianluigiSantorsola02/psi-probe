@@ -81,18 +81,9 @@ let Effect = {
     sinoidal: function(pos) {
       return (-Math.cos(pos*Math.PI)/2) + .5;
     },
-    reverse: function(pos) {
-      return 1-pos;
-    },
     flicker: function() {
       let pos = ((-Math.cos(Math.PI * pos)/4) + .75) + Math.random()/4;
       return pos > 1 ? 1 : pos;
-    },
-    wobble: function(pos) {
-      return (-Math.cos(pos*Math.PI*(9*pos))/2) + .5;
-    },
-    pulse: function(pos, pulses) {
-      return (-Math.cos((pos*((pulses||5)-.5)*2)*Math.PI)/2) + .5;
     },
     spring: function(pos) {
       return 1 - (Math.cos(pos * 4.5 * Math.PI) * Math.exp(-pos * 6));
@@ -621,7 +612,7 @@ Effect.BlindDown = function(element) {
 
 Effect.SwitchOff = function(element) {
   element = $(element);
-  let oldOpacity = element.getInlineOpacity();
+  element.getInlineOpacity();
   return new Effect.Appear(element, Object.extend({
     duration: 0.4,
     from: 0,
@@ -658,12 +649,10 @@ Effect.Shake = function(element) {
     distance: 20,
     duration: 0.5
   }, arguments[1] || {});
-  let distance = parseFloat(options.distance);
-  let split = parseFloat(options.duration) / 10.0;
-  let oldStyle = {
-    top: element.getStyle('top'),
-    left: element.getStyle('left') };
-
+  parseFloat(options.distance);
+  parseFloat(options.duration) / 10.0;
+  element.getStyle('top');
+  element.getStyle('left');
 };
 
 Effect.SlideDown = function(element) {
@@ -867,11 +856,6 @@ Effect.Pulsate = function(element) {
 
 Effect.Fold = function(element) {
   element = $(element);
-  let oldStyle = {
-    top: element.style.top,
-    left: element.style.left,
-    width: element.style.width,
-    height: element.style.height };
   element.makeClipping();
   return new Effect.Scale(element, 5, Object.extend({
     scaleContent: false,
@@ -930,7 +914,7 @@ Effect.Morph = Class.create(Effect.Base, {
         if (Prototype.Browser.IE && (!this.element.currentStyle.hasLayout))
           this.element.setStyle({zoom: 1});
       } else if (Element.CSS_LENGTH.test(value)) {
-        let components = value.match(/^([0-9]?[0-9]+)(.*)$/);
+        let components = value.match(/^(\d?\d)(.*)$/);
           value = parseFloat(components[1]);
           unit = (components.length === 3) ? components[2] : null;
       }
@@ -955,8 +939,8 @@ Effect.Morph = Class.create(Effect.Base, {
   update: function(position) {
     let style = { }, transform, i = this.transforms.length;
     while(i--)
-      const transform = this.transforms[i];
-    let value;
+      let transform = this.transforms[i];
+      let value;
     if (transform.unit === 'color') {
       const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
       const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
@@ -1016,23 +1000,6 @@ Element.CSS_LENGTH = /^([+]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
 
 
 String.__parseStyleElement = document.createElement('div');
-function parseStyleString(styleString) {
-  let styleRules = $H();
-  let style = Prototype.Browser.WebKit
-      ? new Element('div', { style: styleString })?.style
-      : (String.__parseStyleElement.innerHTML = '<div style="' + styleString + '"></div>',
-          String.__parseStyleElement.childNodes[0]?.style);
-
-  Element.CSS_PROPERTIES.each(function(property){
-    if (style[property]) styleRules.set(property, style[property]);
-  });
-
-  if (Prototype.Browser.IE && styleString.include('opacity'))
-    styleRules.set('opacity', styleString.match(/opacity:\s*([01]?(?:\.\d*)?)/)[1]);
-
-  return styleRules;
-}
-
 if (document.defaultView?.getComputedStyle) {
   Element.getStyles = function(element) {
     let css = document.defaultView.getComputedStyle($(element), null);
@@ -1053,22 +1020,6 @@ if (document.defaultView?.getComputedStyle) {
     return styles;
   };
 }
-
-Effect.Methods = {
-  morph: function(element, style) {
-    element = $(element);
-    return element;
-  },
-  visualEffect: function(element, effect, options) {
-    element = $(element);
-    let s = effect.dasherize().camelize(), klass = s.charAt(0).toUpperCase() + s.substring(1);
-    return element;
-  },
-  highlight: function(element, options) {
-    element = $(element);
-    return element;
-  }
-};
 
 $w('fade appear grow shrink fold blindUp blindDown slideUp slideDown '+
   'pulsate shake puff squish switchOff dropOut').each(
