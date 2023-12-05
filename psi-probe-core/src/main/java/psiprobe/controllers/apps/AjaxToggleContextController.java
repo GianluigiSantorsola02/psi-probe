@@ -81,10 +81,6 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
         context != null && getContainerWrapper().getTomcatContainer().getAvailable(context));
   }
 
-  private Context lookup(String contextName) {
-    return getContainerWrapper().getTomcatContainer().findContext(contextName);
-  }
-
   @Value("ajax/context_status")
   @Override
   public void setViewName(String viewName) {
