@@ -85,7 +85,6 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
     } catch (UnsupportedEncodingException e) {
       mylogger.error("Unsupported encoding: {}", e.getMessage());
     }
-    super.doDispatch(httpServletRequest, httpServletResponse);
   }
 
   @Override
