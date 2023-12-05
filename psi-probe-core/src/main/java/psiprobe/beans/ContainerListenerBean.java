@@ -38,20 +38,30 @@ import java.util.*;
  */
 public class ContainerListenerBean implements NotificationListener {
 
-  /** The Constant logger. */
+  /**
+   * The Constant logger.
+   */
   private static final Logger logger = LoggerFactory.getLogger(ContainerListenerBean.class);
 
-  /** The allowed operation. */
+  /**
+   * The allowed operation.
+   */
   private final Set<String> allowedOperation =
-      new HashSet<>(Arrays.asList("start", "stop", "pause", "resume"));
+          new HashSet<>(Arrays.asList("start", "stop", "pause", "resume"));
 
-  /** The pool names. */
+  /**
+   * The pool names.
+   */
   private List<ThreadPoolObjectName> poolNames;
 
-  /** The executor names. */
+  /**
+   * The executor names.
+   */
   private List<ObjectName> executorNames;
 
-  /** Used to obtain required {@link MBeanServer} instance. */
+  /**
+   * Used to obtain required {@link MBeanServer} instance.
+   */
   private ContainerWrapperBean containerWrapper;
 
   public ContainerListenerBean(ContainerWrapperBean containerWrapper) {
@@ -89,7 +99,6 @@ public class ContainerListenerBean implements NotificationListener {
    * Finds ThreadPoolObjectName by its string name.
    *
    * @param name - pool name
-   *
    * @return null if the input name is null or ThreadPoolObjectName is not found
    */
   private ThreadPoolObjectName findPool(String name) {
@@ -102,6 +111,7 @@ public class ContainerListenerBean implements NotificationListener {
     }
     return null;
   }
+
   private void processCountryResponse() throws CustomException {
     try (DatabaseReader reader = new DatabaseReader.Builder(new File(
             Objects.requireNonNull(getClass().getClassLoader().getResource("GeoLite2-Country.mmdb")).toURI()))
@@ -116,7 +126,7 @@ public class ContainerListenerBean implements NotificationListener {
       logger.trace("", e);
     } catch (IOException | GeoIp2Exception | URISyntaxException e) {
 
-        throw new CustomException("An error occurred.", e);
+      throw new CustomException("An error occurred.", e);
 
     }
   }
@@ -125,7 +135,7 @@ public class ContainerListenerBean implements NotificationListener {
    * Handles creation and deletion of new "worker" threads.
    *
    * @param notification the notification
-   * @param object the object
+   * @param object       the object
    */
   @Override
   public synchronized void handleNotification(Notification notification, Object object) {
@@ -134,7 +144,7 @@ public class ContainerListenerBean implements NotificationListener {
     }
 
     if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())
-        || MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
+            || MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
 
       ObjectName objectName = ((MBeanServerNotification) notification).getMBeanName();
       if ("RequestProcessor".equals(objectName.getKeyProperty("type"))) {
@@ -155,15 +165,15 @@ public class ContainerListenerBean implements NotificationListener {
    * searching MBean server over and over again.
    *
    * @throws MalformedObjectNameException the malformed object name exception
-   * @throws InstanceNotFoundException the instance not found exception
+   * @throws InstanceNotFoundException    the instance not found exception
    */
   private synchronized void initialize()
-      throws MalformedObjectNameException, InstanceNotFoundException {
+          throws MalformedObjectNameException, InstanceNotFoundException {
 
     MBeanServer server = getContainerWrapper().getResourceResolver().getMBeanServer();
     String serverName = getContainerWrapper().getTomcatContainer().getName();
     Set<ObjectInstance> threadPools =
-        server.queryMBeans(new ObjectName(serverName + ":type=ThreadPool,name=\"*\""), null);
+            server.queryMBeans(new ObjectName(serverName + ":type=ThreadPool,name=\"*\""), null);
     poolNames = new ArrayList<>(threadPools.size());
     for (ObjectInstance threadPool : threadPools) {
 
@@ -174,9 +184,9 @@ public class ContainerListenerBean implements NotificationListener {
 
       threadPoolObjectName.setThreadPoolName(threadPoolName);
       ObjectName grpName = server
-          .getObjectInstance(new ObjectName(
-              threadPoolName.getDomain() + ":type=GlobalRequestProcessor,name=" + name))
-          .getObjectName();
+              .getObjectInstance(new ObjectName(
+                      threadPoolName.getDomain() + ":type=GlobalRequestProcessor,name=" + name))
+              .getObjectName();
       threadPoolObjectName.setGlobalRequestProcessorName(grpName);
 
       /*
@@ -184,7 +194,7 @@ public class ContainerListenerBean implements NotificationListener {
        * relevant workers within the loop
        */
       Set<ObjectInstance> workers = server.queryMBeans(
-          new ObjectName(threadPoolName.getDomain() + ":type=RequestProcessor,*"), null);
+              new ObjectName(threadPoolName.getDomain() + ":type=RequestProcessor,*"), null);
 
       for (ObjectInstance worker : workers) {
         ObjectName wrkName = worker.getObjectName();
@@ -197,7 +207,7 @@ public class ContainerListenerBean implements NotificationListener {
     }
 
     Set<ObjectInstance> executors =
-        server.queryMBeans(new ObjectName(serverName + ":type=Executor,*"), null);
+            server.queryMBeans(new ObjectName(serverName + ":type=Executor,*"), null);
     executorNames = new ArrayList<>(executors.size());
     for (ObjectInstance executor : executors) {
       ObjectName executorName = executor.getObjectName();
@@ -206,7 +216,7 @@ public class ContainerListenerBean implements NotificationListener {
 
     // Register with MBean server
     server.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"),
-        this, null, null);
+            this, null, null);
 
   }
 
@@ -214,7 +224,6 @@ public class ContainerListenerBean implements NotificationListener {
    * Gets the thread pools.
    *
    * @return the thread pools
-   *
    */
   public synchronized List<ThreadPool> getThreadPools() throws ThreadPoolsException {
     List<ThreadPool> result;
@@ -274,8 +283,7 @@ public class ContainerListenerBean implements NotificationListener {
    * Toggle connector status.
    *
    * @param operation the operation
-   * @param port the port
-   *
+   * @param port      the port
    */
   public synchronized void toggleConnectorStatus(String operation, String port) throws ConnectorStatusException {
     try {
@@ -300,9 +308,7 @@ public class ContainerListenerBean implements NotificationListener {
    * Gets the connectors.
    *
    * @param includeRequestProcessors the include request processors
-   *
    * @return the connectors
-   *
    */
 
   public synchronized List<Connector> getConnectors(boolean includeRequestProcessors)
@@ -426,4 +432,9 @@ public class ContainerListenerBean implements NotificationListener {
       super(message);
     }
   }
+
+  public static class CustomExceptionException extends Throwable {
+
+  }
 }
+
