@@ -147,10 +147,9 @@ public class TomcatSlf4jLogback13LoggerAccessor extends DefaultAccessor {
    *
    * @return the sifted appenders
    *
-   * @throws SiftedAppendersException the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object> getSiftedAppenders(Object appender) throws SiftedAppendersException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+  private List<Object> getSiftedAppenders(Object appender) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
     if (appender instanceof org.apache.tomcat.util.res.StringManager) {
 
       Object tracker = MethodUtils.invokeMethod(appender, "getAppenderTracker");
