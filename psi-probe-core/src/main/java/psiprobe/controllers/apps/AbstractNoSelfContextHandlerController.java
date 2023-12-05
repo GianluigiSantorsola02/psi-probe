@@ -64,7 +64,7 @@ public abstract class AbstractNoSelfContextHandlerController
     try {
       handleContextAction(contextName, request);
       executeAction(contextName);
-    } catch (InterruptedException | ContainerListenerBean.CustomExceptionException e) {
+    } catch ( ContainerListenerBean.CustomExceptionException e) {
       request.setAttribute("errorMessage", e.getMessage());
       mylogger.error("Error during invocation", e);
       return new ModelAndView(new InternalResourceView(getViewName()));
