@@ -12,7 +12,9 @@ package psiprobe.beans;
 
 import java.lang.management.ManagementFactory;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class RuntimeInfoAccessorBean {
    *
    * @throws Exception the exception
    */
-  public RuntimeInformation getRuntimeInformation() throws getRuntimeInformationException {
+  public RuntimeInformation getRuntimeInformation() throws RuntimeInformationException {
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
     RuntimeInformation ri = new RuntimeInformation();
 
@@ -76,14 +78,14 @@ public class RuntimeInfoAccessorBean {
       }
 
       return ri;
-    } catch (Exception e) {
+    } catch (MalformedObjectNameException | AttributeNotFoundException e) {
       logger.debug("OS information is unavailable");
       logger.trace("", e);
       return null;
     }
   }
 
-  private class getRuntimeInformationException extends Exception {
+  private static class RuntimeInformationException extends Exception {
 
     private static final long serialVersionUID = 1L;
   }
