@@ -33,12 +33,15 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
+import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.naming.ContextBindings;
 import org.apache.naming.factory.ResourceLinkFactory;
 import org.apache.tomcat.util.descriptor.web.ContextResourceLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.util.ClassUtils;
 
 import psiprobe.beans.ResourceResolverBean;
@@ -52,6 +55,7 @@ import psiprobe.model.jsp.Summary;
  */
 public abstract class AbstractTomcatContainer implements TomcatContainer {
 
+  private static final Marker DELETE_LOG_MESSAGE = MarkerFactory.getMarker("DELETE");
   /** The logger. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -167,9 +171,9 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public void start(String name) throws startException, LifecycleException, InterruptedException {
     Context ctx = findContext(name);
     synchronized (ctx == null ? this : ctx) {
-      if (ctx != null) {
+      while (ctx != null) {
         ctx.wait();
-      }
+        ctx = findContext(name);}
     }
   }
 
@@ -195,17 +199,17 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
         appDir = docBase;
       }
 
-      logger.debug("Deleting '{}'", appDir.getAbsolutePath());
+      logger.debug(DELETE_LOG_MESSAGE, appDir.getAbsolutePath());
       Utils.delete(appDir);
 
       String warFilename = formatContextFilename(name);
       File warFile = new File(getAppBase(), warFilename + ".war");
-      logger.debug("Deleting '{}'", warFile.getAbsolutePath());
+      logger.debug(DELETE_LOG_MESSAGE, warFile.getAbsolutePath());
       Utils.delete(warFile);
 
       File configFile = getConfigFile(ctx);
       if (configFile != null) {
-        logger.debug("Deleting '{}'", configFile.getAbsolutePath());
+        logger.debug(DELETE_LOG_MESSAGE, configFile.getAbsolutePath());
         Utils.delete(configFile);
       }
 
@@ -323,44 +327,17 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     if (null != servletConfig) {
       if (summary != null) {
         synchronized (servletConfig) {
-          ServletContext sctx = context.getServletContext();
-          Options opt = new EmbeddedServletOptions(servletConfig, sctx);
-
-          JspRuntimeContext jrctx = new JspRuntimeContext(sctx, opt);
-
-          try (URLClassLoader classLoader =
-              new URLClassLoader(new URL[0], context.getLoader().getClassLoader())) {
-            for (String name : names) {
-              long time = System.currentTimeMillis();
-              JspCompilationContext jcctx =
-                  createJspCompilationContext(name, opt, sctx, jrctx, classLoader);
-
-              compileItem(summary.getItems().get(name), name, jcctx);
-              ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(classLoader);
-              try {
-                Item item = summary.getItems().get(name);
-                if (item != null) {
-                  item.setCompileTime(System.currentTimeMillis() - time);
-                } else {
-                  logger.error("{} is not on the summary list, ignored", name);
-                }
-              } finally {
-                ClassUtils.overrideThreadContextClassLoader(prevCl);
-              }
-            }
-          } catch (IOException e) {
-            this.logger.error("", e);
-          } finally {
-            jrctx.destroy();
-          }
+          processSummaryItems(servletConfig, context, summary);
         }
       } else {
         logger.error("summary is null for '{}', request ignored", context.getName());
       }
     } else {
       logger.error(NO_JSP_SERVLET, context.getName());
-    }
-  }
+    }  }
+
+  protected abstract void processSummaryItems(ServletConfig servletConfig, Context context, Summary summary);
+
   private void compileItem(Item item, String name, JspCompilationContext jcctx) {
     try {
       ServletConfig servletConfig = (ServletConfig) item.getContext().findChild("jsp");
@@ -550,65 +527,66 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
     if (paths != null) {
       for (String name : paths) {
-        boolean isJsp =
-                name.endsWith(".jsp") || name.endsWith(".jspx") || params.getOptions().getJspConfig().isJspPage(name);
-
-        if (isJsp) {
-          JspCompilationContext jcctx =
-                  createJspCompilationContext(name, params.getOptions(), sctx, params.getJspRuntimeContext(), params.getClassLoader());
-          ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(params.getClassLoader());
-          try {
-            Item item = params.getSummary().getItems().get(name);
-
-            if (item == null) {
-              item = new Item();
-              item.setName(name);
-            }
-
-
-            item.setCompileTime(-1);
-
-            Long[] objects = this.getResourceAttributes(name, params.getContext());
-            item.setSize(objects[0]);
-            item.setLastModified(objects[1]);
-
-            long time = System.currentTimeMillis();
-            try {
-              org.apache.jasper.compiler.Compiler compiler = jcctx.createCompiler();
-              if (params.isCompile()) {
-                compiler.compile();
-                item.setState(Item.STATE_READY);
-                item.setException(null);
-              } else if (!compiler.isOutDated()) {
-                item.setState(Item.STATE_READY);
-                item.setException(null);
-              } else if (item.getState() != Item.STATE_FAILED) {
-                item.setState(Item.STATE_OOD);
-                item.setException(null);
-              }
-              logger.info("Compiled '{}': OK", name);
-            } catch (Exception e) {
-              item.setState(Item.STATE_FAILED);
-              item.setException(e);
-              logger.info("Compiled '{}': FAILED", name, e);
-            }
-            if (params.isCompile()) {
-              item.setCompileTime(System.currentTimeMillis() - time);
-            }
-            item.setMissing(false);
-            params.getSummary().getItems().put(name, item);
-          } finally {
-            ClassUtils.overrideThreadContextClassLoader(prevCl);
-          }
-        } else {
-          compileItem(name, params);
-        }
+        compileItemHelper(name, params);
       }
     } else {
       logger.debug("getResourcePaths() is null for '{}'. Empty dir? Or Tomcat bug?", jspName);
     }
   }
-  /**
+
+  private void compileItemHelper(String name, CompileItemParams params) {
+    boolean isJsp =
+            name.endsWith(".jsp") || name.endsWith(".jspx") || params.getOptions().getJspConfig().isJspPage(name);
+
+    if (isJsp) {
+      ServletContext sctx = null;
+      JspCompilationContext jcctx =
+              createJspCompilationContext(name, params.getOptions(), sctx, params.getJspRuntimeContext(), params.getClassLoader());
+      ClassLoader prevCl = ClassUtils.overrideThreadContextClassLoader(params.getClassLoader());
+      try {
+        Item item = getItem(name, params);
+
+        // Set item properties
+
+        long time = System.currentTimeMillis();
+        try {
+          Compiler compiler = jcctx.createCompiler();
+          if (params.isCompile()) {
+            compiler.compile();
+          } else if (!compiler.isOutDated()) {
+            return;
+          } else if (item.getState() != Item.STATE_FAILED) {
+            item.setState(Item.STATE_OOD);
+          }
+          logger.info("Compiled '{}': OK", name);
+        } catch (Exception e) {
+          logger.error("Compiled '{}': FAILED", name, e);
+          item.setException(e);
+          item.setState(Item.STATE_FAILED);
+        }
+        if (params.isCompile()) {
+          item.setCompileTime(System.currentTimeMillis() - time);
+        }
+        item.setMissing(false);
+        params.getSummary().getItems().put(name, item);
+      } finally {
+        ClassUtils.overrideThreadContextClassLoader(prevCl);
+      }
+    } else {
+      compileItem(name, params);
+    }
+  }
+
+  private Item getItem(String name, CompileItemParams params) {
+    Item item = params.getSummary().getItems().get(name);
+
+    if (item == null) {
+      item = new Item();
+      item.setName(name);
+    }
+
+    return item;
+  }  /**
    * Find context internal.
    *
    * @param name the context name
