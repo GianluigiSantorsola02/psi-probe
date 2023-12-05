@@ -38,7 +38,7 @@ import psiprobe.model.sql.DataSourceTestInfo;
 public class CachedRecordSetController extends PostParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(CachedRecordSetController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(CachedRecordSetController.class);
 
   @RequestMapping(path = "/sql/cachedRecordset.ajax")
   @Override
@@ -46,10 +46,11 @@ public class CachedRecordSetController extends PostParameterizableViewController
       throws Exception {
     return super.handleRequest(request, response);
   }
+  private static final String MESSAGE_FAILED = "Failed to get message source accessor. Failure in cached result set test.";
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
 
     int rowsPerPage = ServletRequestUtils.getIntParameter(request, "rowsPerPage", 0);
     List<Map<String, String>> results = null;
@@ -57,25 +58,13 @@ public class CachedRecordSetController extends PostParameterizableViewController
     HttpSession sess = request.getSession(false);
     String errorMessageString = "errorMessage";
     String probeSrcString = "probe.src.dataSourceTest.cachedResultSet.failure";
-    if (sess == null) {
-      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-      if (messageSourceAccessor != null) {
-        request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
-      } else {
-        request.setAttribute(errorMessageString, "Failed to get message source accessor. Failure in cached result set test.");
-      }      logger.error("Cannot retrieve a cached result set. Http session is NULL.");
-    } else {
-      DataSourceTestInfo sessData =
-          (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
 
+    if (sess == null) {
+      handleSessionNull(request, errorMessageString, probeSrcString);
+    } else {
+      DataSourceTestInfo sessData = (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
       if (sessData == null) {
-        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-        if (messageSourceAccessor != null) {
-          request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
-        } else {
-          request.setAttribute(errorMessageString, "Failed to get message source accessor. Failure in cached result set test.");
-        }        logger.error("Cannot retrieve a cached result set. {} session attribute is NULL.",
-            DataSourceTestInfo.DS_TEST_SESS_ATTR);
+        handleSessionDataNull(request, errorMessageString, probeSrcString);
       } else {
         synchronized (sess) {
           sessData.setRowsPerPage(rowsPerPage);
@@ -84,25 +73,49 @@ public class CachedRecordSetController extends PostParameterizableViewController
         results = sessData.getResults();
 
         if (results == null) {
-          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-          if (messageSourceAccessor != null) {
-            request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
-          } else {
-            request.setAttribute(errorMessageString, "Failed to get message source accessor. Failure in cached result set test.");
-          }
-          logger.error("Cached results set is NULL.");
+          handleResultsNull(request, errorMessageString, probeSrcString);
         } else {
           rowsAffected = results.size();
         }
       }
     }
 
-      assert results != null;
-      ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()), "results", results);
+    assert results != null;
+    ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()), "results", results);
     mv.addObject("rowsAffected", String.valueOf(rowsAffected));
     mv.addObject("rowsPerPage", String.valueOf(rowsPerPage));
 
     return mv;
+  }
+
+  private void handleSessionNull(HttpServletRequest request, String errorMessageString, String probeSrcString) {
+    MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+    if (messageSourceAccessor != null) {
+      request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
+    } else {
+      request.setAttribute(errorMessageString, MESSAGE_FAILED);
+    }
+    mylogger.error("Cannot retrieve a cached result set. Http session is NULL.");
+  }
+
+  private void handleSessionDataNull(HttpServletRequest request, String errorMessageString, String probeSrcString) {
+    MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+    if (messageSourceAccessor != null) {
+      request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
+    } else {
+      request.setAttribute(errorMessageString, MESSAGE_FAILED);
+    }
+    mylogger.error("Cannot retrieve a cached result set. {} session attribute is NULL.", DataSourceTestInfo.DS_TEST_SESS_ATTR);
+  }
+
+  private void handleResultsNull(HttpServletRequest request, String errorMessageString, String probeSrcString) {
+    MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+    if (messageSourceAccessor != null) {
+      request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(probeSrcString));
+    } else {
+      request.setAttribute(errorMessageString, MESSAGE_FAILED);
+    }
+    mylogger.error("Cached results set is NULL.");
   }
 
   @Value("ajax/sql/recordset")
