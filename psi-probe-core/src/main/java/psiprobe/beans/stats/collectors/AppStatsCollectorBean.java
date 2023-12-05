@@ -37,11 +37,6 @@ public class AppStatsCollectorBean extends AbstractStatsCollectorBean
   /** The container wrapper. */
   private ContainerWrapperBean containerWrapper;
 
-  @Inject
-  public void CointanerWrapper(ContainerWrapperBean containerWrapper) {
-    this.containerWrapper = containerWrapper;
-  }
-
   /** The servlet context. */
   private ServletContext servletContext;
 

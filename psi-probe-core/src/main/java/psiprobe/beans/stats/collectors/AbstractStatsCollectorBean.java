@@ -77,6 +77,8 @@ public abstract class AbstractStatsCollectorBean {
     this.listeners = listeners;
   }
 
+  public abstract void collect() throws Exception;
+
 
   /**
    * Collect.
