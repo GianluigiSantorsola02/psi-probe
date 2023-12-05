@@ -80,7 +80,7 @@ public abstract class AbstractStatsCollectorBean {
   /**
    * Collect.
    */
-  private void collect() throws CollectCustomException {
+  private void collect() {
   }
 
 
@@ -204,22 +204,23 @@ public abstract class AbstractStatsCollectorBean {
    */
   protected void buildTimePercentageStats(long value, long time)
       throws InterruptedException {
+  String name = "os.cpu";
 
-    Entry entry = previousData2D.get("os.cpu");
+    Entry entry = previousData2D.get(name);
     if (entry == null) {
       entry = new Entry();
       entry.value = value;
       entry.time = time;
-      previousData2D.put("os.cpu", entry);
+      previousData2D.put(name, entry);
     } else {
       double valueDelta = (double) value - entry.value;
       double timeDelta = (double) time - entry.time;
       double statValue = valueDelta * 100 / timeDelta;
       statsCollection.lockForUpdate();
       try {
-        List<XYDataItem> stats = statsCollection.getStats("os.cpu");
+        List<XYDataItem> stats = statsCollection.getStats(name);
         if (stats == null) {
-          stats = statsCollection.newStats("os.cpu", maxSeries);
+          stats = statsCollection.newStats(name, maxSeries);
         }
         stats.add(stats.size(), new XYDataItem(time, statValue));
         houseKeepStats(stats);
