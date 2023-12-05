@@ -53,18 +53,18 @@ public class AjaxUptimeController extends ParameterizableViewController {
     if (request != null) {
       request.setAttribute(UPTIME_HOUR, uptimeDays);
     } else {
-      System.out.println(REQUEST_NULL);
+      logger.error(REQUEST_NULL);
     }
     if (request != null) {
         request.setAttribute(UPTIME_HOUR, uptimeHours);
       }
      else {
-      System.out.println(REQUEST_NULL);
+      logger.error(REQUEST_NULL);
     }
      if (request!=null) {
        request.setAttribute("uptime_mins", uptimeMins);
      } else {
-       System.out.println(REQUEST_NULL);
+       logger.error(REQUEST_NULL);
      }
 
     return new ModelAndView(Objects.requireNonNull(getViewName()));
