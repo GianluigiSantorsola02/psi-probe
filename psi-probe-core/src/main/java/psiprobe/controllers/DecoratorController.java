@@ -79,20 +79,21 @@ public class DecoratorController extends PostParameterizableViewController {
 
   private void setVersionAttribute(HttpServletRequest request) throws IOException {
     ApplicationContext context = getApplicationContext();
+    String StringVersion = "version";
 
     if (context != null) {
-      Object versionBean = context.getBean("version");
+      Object versionBean = context.getBean(StringVersion);
 
       if (versionBean instanceof DataHandler) {
         DataHandler properties = (DataHandler) versionBean;
-        request.setAttribute("version", properties.getContent());
+        request.setAttribute(StringVersion, properties.getContent());
       } else {
         System.out.println("ApplicationContext is null. Cannot retrieve the 'version' bean");
       }
 
-      Properties data = (Properties) context.getBean("version");
+      Properties data = (Properties) context.getBean(StringVersion);
       if (data.getProperty("probe.version") != null) {
-        request.setAttribute("version", data.getProperty("probe.version"));
+        request.setAttribute(StringVersion, data.getProperty("probe.version"));
       } else {
         logger.error("Error: 'version' bean is null");
       }
@@ -100,6 +101,8 @@ public class DecoratorController extends PostParameterizableViewController {
       logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
     }
   }
+
+  String ServletContextNull = "ServletContext is null. Cannot retrieve the servlet context";
 
   private void setContextAttribute(HttpServletRequest request) {
     String attributeName = "attributeName";
@@ -110,7 +113,7 @@ public class DecoratorController extends PostParameterizableViewController {
         request.setAttribute(attributeName, attributeValue);
       }
     } else {
-      System.out.println("ServletContext is null. Cannot retrieve the servlet context");
+      System.out.println(ServletContextNull);
     }
   }
 
@@ -125,7 +128,7 @@ public class DecoratorController extends PostParameterizableViewController {
         }
       }
     } else {
-      logger.error("ServletContext is null. Cannot retrieve the servlet context");
+      System.out.println(ServletContextNull);
     }
     request.setAttribute("lang", lang);
   }
