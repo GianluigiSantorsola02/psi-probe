@@ -82,7 +82,7 @@ public class ZoomChartController extends ParameterizableViewController {
     }
 
     // Add your error handling or logging code here
-    System.err.println("Error: The super handleRequestInternal returned null!");
+  logger.error("Error: The super handleRequestInternal returned null!");
     // You can also throw an exception or perform any other appropriate action
 
     // Return null or provide an alternative action based on your requirements
