@@ -29,6 +29,8 @@ import psiprobe.controllers.AbstractContextHandlerController;
 
 import java.util.Objects;
 
+import static javax.servlet.RequestDispatcher.ERROR_MESSAGE;
+
 /**
  * Resets datasource if the datasource supports it.
  */
@@ -112,26 +114,25 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   }
 
   private void handleResetException(HttpServletRequest request, String resourceName, NamingException e) {
-    String errorMessageString = "errorMessage";
+
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}) : null;
-      request.setAttribute(errorMessageString, message);
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessageString, "Default error message");
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
     }
     mylogger.trace("", e);
   }
 
   private void handleResetFailure(HttpServletRequest request) {
-    String errorMessageString = "errorMessage";
 
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
-      request.setAttribute(errorMessageString, message);
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessageString, "Default error message");
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
     }
   }
 
@@ -141,14 +142,21 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   }
 
   private void handleResetException(HttpServletRequest request) {
-    String errorMessageString = "errorMessage";
 
     if (getMessageSourceAccessor() != null) {
       MessageSourceAccessor accessor = getMessageSourceAccessor();
       String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
-      request.setAttribute(errorMessageString, message);
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
     } else {
-      request.setAttribute(errorMessageString, "Default error message");
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
     }
+  }
+
+  public class errorMessage {
+    private static final String ERROR_MESSAGE = "errorMessage";
+    private static final String DEFAULT_ERROR_MESSAGE = "errorMessage";
+
+
+    // Rest of your code
   }
 }
