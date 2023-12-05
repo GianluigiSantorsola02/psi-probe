@@ -29,16 +29,20 @@ import psiprobe.controllers.AbstractContextHandlerController;
 
 import java.util.Objects;
 
+import static javax.servlet.RequestDispatcher.ERROR_MESSAGE;
+
 /**
  * Resets datasource if the datasource supports it.
  */
+
+
 @Controller
 public class ResetDataSourceController extends AbstractContextHandlerController {
 
   /**
    * The Constant logger.
    */
-  private static final Logger logger = LoggerFactory.getLogger(ResetDataSourceController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(ResetDataSourceController.class);
 
   /**
    * The replace pattern.
@@ -65,65 +69,94 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
+    String resourceName = getResourceName(request);
+    String redirectUrl = getRedirectUrl(request);
 
-    // Aggiungi questa parte di codice
+    resetResource(context, resourceName, request);
+    handleResetErrors(request);
+
+    mylogger.debug("Redirected to {}", redirectUrl);
+    return new ModelAndView(new RedirectView(redirectUrl));
+  }
+
+  private String getResourceName(HttpServletRequest request) {
     String resourceName = null;
     if (request != null) {
-      resourceName = ServletRequestUtils.getStringParameter(request, "resource", null);
+      resourceName = ServletRequestUtils.getStringParameter(request, "resource", "");
     }
+    return resourceName;
+  }
 
-      assert request != null;
-      String referer = Objects.requireNonNull(request).getHeader("Referer");
+  private String getRedirectUrl(HttpServletRequest request) {
+    String referer = Objects.requireNonNull(request).getHeader("Referer");
     String redirectUrl;
     if (referer != null) {
       redirectUrl = referer.replaceAll(replacePattern, "");
     } else {
       redirectUrl = request.getContextPath() + getViewName();
     }
+    return redirectUrl;
+  }
 
+  private void resetResource(Context context, String resourceName, HttpServletRequest request) {
     if (resourceName != null && context != null && getContainerWrapper() != null) {
       boolean reset = false;
       try {
         reset = getContainerWrapper().getResourceResolver().resetResource(context, resourceName,
-            getContainerWrapper());
+                getContainerWrapper());
       } catch (NamingException e) {
-        if (getMessageSourceAccessor() != null) {
-          MessageSourceAccessor accessor = getMessageSourceAccessor();
-          String message = null;
-          if (accessor != null) {
-            message = accessor.getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName});
-          }          request.setAttribute("errorMessage", message);
-        } else {
-          request.setAttribute("errorMessage", "Default error message");
-        }
-        logger.trace("", e);
+        handleResetException(request, resourceName, e);
       }
       if (!reset) {
-        if (getMessageSourceAccessor() != null) {
-          MessageSourceAccessor accessor = getMessageSourceAccessor();
-          if (accessor != null) {
-            String message = accessor.getMessage("probe.src.reset.datasource");
-            request.setAttribute("errorMessage", message);
-          } else {
-            request.setAttribute("errorMessage", "Default error message");
-
-          }
-        }
+        handleResetFailure(request);
       }
     }
-    logger.debug("Redirected to {}", redirectUrl);
-    return new ModelAndView(new RedirectView(redirectUrl));
+  }
 
-    // @Override
-    // protected boolean isContextOptional() {
-    // return !getContainerWrapper().getResourceResolver().supportsPrivateResources();
-    // }
-    //
-    // @Value("/resources.htm")
-    // @Override
-    // public void setViewName(String viewName) {
-    // super.setViewName(viewName);
-    // }
+  private void handleResetException(HttpServletRequest request, String resourceName, NamingException e) {
 
+    if (getMessageSourceAccessor() != null) {
+      MessageSourceAccessor accessor = getMessageSourceAccessor();
+      String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource.notfound", new Object[] {resourceName}) : null;
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+    } else {
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+    }
+    mylogger.trace("", e);
+  }
+
+  private void handleResetFailure(HttpServletRequest request) {
+
+    if (getMessageSourceAccessor() != null) {
+      MessageSourceAccessor accessor = getMessageSourceAccessor();
+      String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+    } else {
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+    }
+  }
+
+  private void handleResetErrors(HttpServletRequest request) {
+    handleResetException(request);
+    handleResetFailure(request);
+  }
+
+  private void handleResetException(HttpServletRequest request) {
+
+    if (getMessageSourceAccessor() != null) {
+      MessageSourceAccessor accessor = getMessageSourceAccessor();
+      String message = accessor != null ? accessor.getMessage("probe.src.reset.datasource") : null;
+      request.setAttribute(errorMessage.ERROR_MESSAGE, message);
+    } else {
+      request.setAttribute(errorMessage.ERROR_MESSAGE, errorMessage.DEFAULT_ERROR_MESSAGE);
+    }
+  }
+
+  public class errorMessage {
+    private static final String ERROR_MESSAGE = "errorMessage";
+    private static final String DEFAULT_ERROR_MESSAGE = "errorMessage";
+
+
+    // Rest of your code
   }
 }
