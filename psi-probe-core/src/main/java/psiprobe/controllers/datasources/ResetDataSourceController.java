@@ -64,7 +64,7 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) {
     String resourceName = getResourceName(request);
     String redirectUrl = getRedirectUrl(request);
 
@@ -148,11 +148,9 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
     }
   }
 
-  protected class ErrorMessage {
+  protected static class ErrorMessage {
     private static final String ERROR_MESSAGE = "errorMessage";
     private static final String DEFAULT_ERROR_MESSAGE = "errorMessage";
 
-
-    // Rest of your code
   }
 }
