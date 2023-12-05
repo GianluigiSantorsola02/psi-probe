@@ -26,6 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.controllers.AbstractContextHandlerController;
 
+import java.util.Locale;
+
 /**
  * Reloads application context.
  */
@@ -56,9 +58,9 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
         String name = auth.getName();
         MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
         if (messageSourceAccessor != null) {
-          logger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
+          messageSourceAccessor.getMessage("probe.src.log.reload", name, Locale.of(contextName));
         } else {
-          // Handle the case when getMessageSourceAccessor() returns null
+
           logger.error("Error: getMessageSourceAccessor() returned null!");
 
         }
