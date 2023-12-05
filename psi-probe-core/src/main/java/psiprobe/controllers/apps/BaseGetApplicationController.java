@@ -10,20 +10,17 @@
  */
 package psiprobe.controllers.apps;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.beans.ResourceResolver;
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.Application;
 import psiprobe.model.stats.StatsCollection;
 import psiprobe.tools.ApplicationUtils;
-import psiprobe.tools.SecurityUtils;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Retrieves Application model object populated with application information.
@@ -100,9 +97,6 @@ public class BaseGetApplicationController extends AbstractContextHandlerControll
   @Override
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-    boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
-        && SecurityUtils.hasAttributeValueRole(getServletContext());
 
     ResourceResolver resourceResolver = getContainerWrapper().getResourceResolver();
     Application app = ApplicationUtils.getApplication(context,

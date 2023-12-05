@@ -149,7 +149,8 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   String name = auth.getName();
                   MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
                   if (messageSourceAccessor != null) {
-                    logger.info(messageSourceAccessor.getMessage("probe.src.log.copyfile"), name, contextName);
+                    String message = messageSourceAccessor.getMessage("probe.src.log.deploy", name);
+                    logger.info(message);
                   }
                   // Checks if DISCARD "work" directory is selected
                     messageSourceAccessor = getMessageSourceAccessor();
