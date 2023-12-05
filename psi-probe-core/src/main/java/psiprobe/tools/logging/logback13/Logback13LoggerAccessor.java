@@ -156,7 +156,7 @@ public class Logback13LoggerAccessor extends DefaultAccessor {
     return Collections.emptyList();
   }
   public static class SiftedAppendersException extends Exception {
-    public SiftedAppendersException(String message, Exception e) {
+    public SiftedAppendersException(String message) {
       super(message);
     }
   }

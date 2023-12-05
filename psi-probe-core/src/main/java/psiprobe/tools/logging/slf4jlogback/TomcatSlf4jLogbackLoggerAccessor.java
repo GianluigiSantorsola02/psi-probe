@@ -159,7 +159,7 @@ public class TomcatSlf4jLogbackLoggerAccessor extends DefaultAccessor {
       }
       return Collections.emptyList();
     } catch (Exception e) {
-      throw new Logback13LoggerAccessor.SiftedAppendersException("Error getting sifted appenders", e);
+      throw new Logback13LoggerAccessor.SiftedAppendersException("Error getting sifted appenders");
     }
   }
   /**
