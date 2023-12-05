@@ -355,7 +355,7 @@ public class LogResolverBean {
   }
 
   public void interrogateLog4J2Loggers(ClassLoader cl, ServletContext servletContext,
-                                        Application application, List<LogDestination> allAppenders) throws interrogateLog4J2LoggersException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+                                        Application application, List<LogDestination> allAppenders) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
     Log4J2LoggerContextAccessor loggerContextAccessor = getWebLoggerContextAccessor(cl, servletContext);
     List<Object> loggerContexts = getLoggerContexts(cl);
 
@@ -818,7 +818,7 @@ public class LogResolverBean {
 
   }
 
-  private class interrogateLog4J2LoggersException extends Exception {
+  private class InterrogateLog4J2LoggersException extends Exception {
 
     private static final long serialVersionUID = 1L;
   }
