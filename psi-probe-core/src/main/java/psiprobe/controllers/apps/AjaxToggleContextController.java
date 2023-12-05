@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import psiprobe.TomcatContainer;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 /**
@@ -33,7 +35,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
 public class AjaxToggleContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(AjaxToggleContextController.class);
+  private static final Logger log = LoggerFactory.getLogger(AjaxToggleContextController.class);
 
   @RequestMapping(path = "/app/toggle.ajax")
   @Override
@@ -46,41 +48,46 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    if (context != null && !request.getContextPath().equals(contextName)) {
-      try {
-        // Logging action
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // get username logger
-        String name = auth.getName();
-        if (context.getState().isAvailable()) {
-          logger.info("{} requested STOP of {}", request.getRemoteAddr(), contextName);
-          getContainerWrapper().getTomcatContainer().stop(contextName);
-          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-          if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name);
-          } else {
-            logger.error("Error: getMessageSourceAccessor() returned null!");
-            // You can add additional error handling or logging code here
-          }
-        } else {
-          logger.info("{} requested START of {}", request.getRemoteAddr(), contextName);
-          getContainerWrapper().getTomcatContainer().start(contextName);
-          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-          if (messageSourceAccessor != null) {
-            messageSourceAccessor.getMessage("probe.src.log.stop", name);
-          }  else {
-            logger.error("Error: getMessageSourceAccessor() returned null!");
-            // You can add additional error handling or logging code here
-          }
-        }
-      } catch (Exception e) {
-        logger.error("Error during ajax request to START/STOP of '{}'", contextName, e);
-      }
+    if (shouldHandleContext(context, request, contextName)) {
+      handleContextAction(contextName, context, request);
     }
+
     return new ModelAndView(getViewName(), "available",
-        context != null && getContainerWrapper().getTomcatContainer().getAvailable(context));
+            context != null && getContainerWrapper().getTomcatContainer().getAvailable(context));
   }
 
+  private boolean shouldHandleContext(Context context, HttpServletRequest request, String contextName) {
+    return context != null && !request.getContextPath().equals(contextName);
+  }
+
+  private void handleContextAction(String contextName, Context context, HttpServletRequest request) {
+    try {
+      // Logging action
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+      // get username logger
+      String name = auth.getName();
+      boolean isStartAction = context.getState().isAvailable();
+      String action = isStartAction ? "START" : "STOP";
+
+      log.info("{} requested {} of {}", request.getRemoteAddr(), action, contextName);
+
+      if (isStartAction) {
+        getContainerWrapper().getTomcatContainer().start(contextName);
+      } else {
+        getContainerWrapper().getTomcatContainer().stop(contextName);
+      }
+
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        messageSourceAccessor.getMessage("probe.src.log." + action.toLowerCase(), name);
+      } else {
+        log.error("Error: getMessageSourceAccessor() returned null!");
+        // You can add additional error handling or logging code here
+      }
+    } catch (InterruptedException | LifecycleException | TomcatContainer.StartException | TomcatContainer.StopException e) {
+      log.error("Error during ajax request to START/STOP of '{}'", contextName, e);
+    }
+  }
   @Value("ajax/context_status")
   @Override
   public void setViewName(String viewName) {
