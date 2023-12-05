@@ -113,10 +113,10 @@ let Effect = {
     else
       elements = $(element).childNodes;
 
-    let options = Object.extend({
+    Object.extend({
       speed: 0.1,
       delay: 0.0
-    }, arguments[2] || { });
+    }, arguments[2] || {});
     $A(elements).each( function(element, index) {
 
     });
@@ -129,7 +129,7 @@ let Effect = {
   toggle: function(element, effect, options) {
     element = $(element);
     effect  = (effect || 'appear').toLowerCase();
-    
+
     return Effect[ Effect.PAIRS[ effect ][ element.visible() ? 1 : 0 ] ](element, Object.extend({
       queue: { position:'end', scope:(element.id || 'global'), limit: 1 }
     }, options || {}));
