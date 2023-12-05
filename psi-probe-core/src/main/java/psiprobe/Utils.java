@@ -274,14 +274,14 @@ public final class Utils {
               && "page".equals(directiveTokenizer.nextToken().getText())) {
             while (directiveTokenizer.hasMore()) {
               Token directiveToken = directiveTokenizer.nextToken();
-              if ("pageEncoding".equals(directiveToken.getText())) {
-                if (directiveTokenizer.hasMore()) {
+              if ("pageEncoding".equals(directiveToken.getText()) && directiveTokenizer.hasMore()) {
+
                   String nextTokenText = directiveTokenizer.nextToken().getText();
                   if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
                     encoding = directiveTokenizer.nextToken().getInnerText();
                     break;
                   }
-                }
+
               }
               if ("contentType".equals(directiveToken.getText())) {
                 if (directiveTokenizer.hasMore()) {
