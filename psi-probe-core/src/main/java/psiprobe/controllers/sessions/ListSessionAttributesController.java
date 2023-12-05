@@ -43,8 +43,6 @@ public class ListSessionAttributesController extends AbstractContextHandlerContr
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     boolean privileged = SecurityUtils.hasAttributeValueRole(getServletContext());
-    boolean calcSize =
-        privileged && ServletRequestUtils.getBooleanParameter(request, "size", false);
     String sid = ServletRequestUtils.getStringParameter(request, "sid");
 
     ApplicationSession appSession = ApplicationUtils
