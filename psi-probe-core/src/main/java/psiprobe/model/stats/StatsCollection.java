@@ -11,23 +11,6 @@
 package psiprobe.model.stats;
 
 import com.thoughtworks.xstream.XStream;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
-import javax.inject.Inject;
-
 import org.jfree.data.xy.XYDataItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +20,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.WebApplicationContext;
-
 import psiprobe.tools.UpdateCommitLock;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static jdk.internal.vm.StackChunk.init;
 
 /**
  * The Class StatsCollection.
@@ -64,12 +57,13 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   private File contextTempDir;
 
   /** The max files. */
-  private int maxFiles = 2;
+  private final int maxFiles = 2;
 
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
 
-  public StatsCollection() {
+  public StatsCollection(boolean b) {
+    init( );
   }
 
   /**
@@ -80,55 +74,6 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   @Value("stats.xml")
   public void setSwapFileName(String swapFileName) {
     this.swapFileName = swapFileName;
-  }
-
-  /**
-   * Gets the storage path.
-   *
-   * @return the storage path
-   */
-  public String getStoragePath() {
-    return storagePath;
-  }
-
-  /**
-   * Sets the storage path. The default location for the stat files is
-   * $CALALINA_BASE/work/&lt;hostname&gt;/&lt;context_name&gt;. Use this property to override it.
-   *
-   * @param storagePath the new storage path
-   */
-  // TODO We should make this configurable
-  public void setStoragePath(String storagePath) {
-    this.storagePath = storagePath;
-  }
-
-  /**
-   * Checks if is collected.
-   *
-   * @param statsName the stats name
-   *
-   * @return true, if is collected
-   */
-  public synchronized boolean isCollected(String statsName) {
-    return statsData.get(statsName) != null;
-  }
-
-  /**
-   * Gets the max files.
-   *
-   * @return the max files
-   */
-  public int getMaxFiles() {
-    return maxFiles;
-  }
-
-  /**
-   * Sets the max files.
-   *
-   * @param maxFiles the new max files
-   */
-  public void setMaxFiles(int maxFiles) {
-    this.maxFiles = maxFiles > 0 ? maxFiles : 2;
   }
 
   /**
@@ -363,10 +308,6 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
       logger.error(
           "ServletContext is null. Cannot retrieve the 'javax.servlet.context.tempdir' attribute");
     }
-  }
-
-  public void setXstream(XStream xstream) {
-    this.xstream = xstream;
   }
 
 
