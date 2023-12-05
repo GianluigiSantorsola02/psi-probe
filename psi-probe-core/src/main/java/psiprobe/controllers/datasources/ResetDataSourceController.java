@@ -149,6 +149,10 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   }
 
   protected static class ErrorMessage {
+
+    private ErrorMessage() {
+      super();
+    }
     private static final String ERROR_MESSAGE = "errorMessage";
     private static final String DEFAULT_ERROR_MESSAGE = "errorMessage";
 
