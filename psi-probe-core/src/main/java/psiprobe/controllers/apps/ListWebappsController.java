@@ -46,9 +46,6 @@ public class ListWebappsController extends AbstractTomcatContainerController {
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-      boolean calcSize = ServletRequestUtils.getBooleanParameter(request, "size", false)
-              && SecurityUtils.hasAttributeValueRole(getServletContext());
-
       List<Context> apps;
       ServletContext servletContext = null;
       try {
