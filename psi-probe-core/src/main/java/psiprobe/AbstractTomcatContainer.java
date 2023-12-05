@@ -168,7 +168,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
 
   @Override
-  public void start(String name) throws startException, LifecycleException, InterruptedException {
+  public void start(String name) throws StartException, LifecycleException, InterruptedException {
     Context ctx = findContext(name);
     synchronized (ctx == null ? this : ctx) {
       while (ctx != null) {
