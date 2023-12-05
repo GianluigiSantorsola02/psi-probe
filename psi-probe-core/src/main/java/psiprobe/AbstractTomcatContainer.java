@@ -168,7 +168,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
 
   @Override
-  public void start(String name) throws startException, LifecycleException, InterruptedException {
+  public void start(String name) throws StartException, LifecycleException, InterruptedException {
     Context ctx = findContext(name);
     synchronized (ctx == null ? this : ctx) {
       while (ctx != null) {
@@ -178,7 +178,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public void remove(String name) throws removeException, RemoveInternalException, CheckChangesException {
+  public void remove(String name) throws RemoveException, RemoveInternalException, CheckChangesException {
     name = formatContextName(name);
     Context ctx = findContext(name);
 
