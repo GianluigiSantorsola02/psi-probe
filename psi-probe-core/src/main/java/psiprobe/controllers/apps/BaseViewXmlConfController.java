@@ -11,6 +11,7 @@
 package psiprobe.controllers.apps;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -84,33 +85,13 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
       throw new DisplayTargetException("Display target is not set for " + getClass().getName());
     }
 
-    String xmlPath;
-    File xmlFile;
     ModelAndView mv = new ModelAndView(getViewName());
+    File xmlFile;
 
     if (TARGET_WEB_XML.equals(displayTarget)) {
-      ServletContext sctx = context.getServletContext();
-      xmlPath = sctx.getRealPath("/WEB-INF/web.xml");
-      xmlFile = new File(xmlPath);
-      mv.addObject("fileDesc", 104);
-
-      MessageSourceAccessor accessor = getMessageSourceAccessor();
-      if (accessor != null) {
-        String message = accessor.getMessage("probe.src.app.viewxmlconf.webxml.desc");
-        mv.addObject("message", message);
-      } else {
-        theLogger.debug("MessageSourceAccessor is null");
-      }
+      xmlFile = handleWebXmlDisplayTarget(context, mv);
     } else if (TARGET_CONTEXT_XML.equals(displayTarget)) {
-      xmlFile = getContainerWrapper().getTomcatContainer().getConfigFile(context);
-      if (xmlFile != null) {
-        xmlPath = xmlFile.getPath();
-      } else {
-        xmlPath = null;
-      }
-      MessageSourceAccessor accessor = getMessageSourceAccessor();
-      String message = (accessor != null) ? accessor.getMessage("probe.src.app.viewxmlconf.contextxml.desc") : "";
-      mv.addObject("fileDesc", message);
+      xmlFile = handleContextXmlDisplayTarget(context, mv);
     } else {
       throw new UnknownDisplayTargetException("Unknown display target " + getDisplayTarget());
     }
@@ -119,22 +100,53 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
     mv.addObject("downloadUrl", downloadUrl);
 
     if (xmlFile != null) {
-      mv.addObject("fileName", xmlFile.getName());
-      if (xmlFile.exists()) {
-        try (InputStream fis = Files.newInputStream(xmlFile.toPath())) {
-          String encoding = Charset.defaultCharset().displayName();
-          mv.addObject("content", Utils.highlightStream(TARGET_WEB_XML, fis, "xml",
-              encoding == null ? "ISO-8859-1" : encoding));
-        }
-      } else {
-        theLogger.debug("File {} of {} application does not exists.", xmlPath, contextName);
-      }
+      handleXmlFile(xmlFile, mv, contextName);
     } else {
-      theLogger.debug("Cannot determine path to {} file of {} application.", getDisplayTarget(),
-          contextName);
+      theLogger.debug("Cannot determine path to {} file of {} application.", getDisplayTarget(), contextName);
     }
 
     return mv;
+  }
+
+  private File handleWebXmlDisplayTarget(Context context, ModelAndView mv) {
+    ServletContext sctx = context.getServletContext();
+    String xmlPath = sctx.getRealPath("/WEB-INF/web.xml");
+    File xmlFile = new File(xmlPath);
+    mv.addObject("fileDesc", 104);
+
+    MessageSourceAccessor accessor = getMessageSourceAccessor();
+    if (accessor != null) {
+      String message = accessor.getMessage("probe.src.app.viewxmlconf.webxml.desc");
+      mv.addObject("message", message);
+    } else {
+      theLogger.debug("MessageSourceAccessor is null");
+    }
+
+    return xmlFile;
+  }
+
+  private File handleContextXmlDisplayTarget(Context context, ModelAndView mv) {
+    File xmlFile = getContainerWrapper().getTomcatContainer().getConfigFile(context);
+    String message = "";
+    MessageSourceAccessor accessor = getMessageSourceAccessor();
+    if (accessor != null) {
+      message = accessor.getMessage("probe.src.app.viewxmlconf.contextxml.desc");
+    }
+    mv.addObject("fileDesc", message);
+
+    return xmlFile;
+  }
+
+  private void handleXmlFile(File xmlFile, ModelAndView mv, String contextName) throws IOException {
+    mv.addObject("fileName", xmlFile.getName());
+    if (xmlFile.exists()) {
+      try (InputStream fis = Files.newInputStream(xmlFile.toPath())) {
+        String encoding = Charset.defaultCharset().displayName();
+        mv.addObject("content", Utils.highlightStream(TARGET_WEB_XML, fis, "xml", encoding == null ? "ISO-8859-1" : encoding));
+      }
+    } else {
+      theLogger.debug("File {} of {} application does not exists.", xmlFile.getPath(), contextName);
+    }
   }
 
   public static class DisplayTargetException extends Throwable {
