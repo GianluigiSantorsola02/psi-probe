@@ -10,7 +10,9 @@
  */
 package psiprobe.controllers;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Locale;
@@ -58,15 +60,24 @@ public class DecoratorController extends PostParameterizableViewController {
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
+    setHostnameAttribute(request);
+    setVersionAttribute(request);
+    setContextAttribute(request);
+    setLanguageAttribute(request);
+    return super.handleRequestInternal(request, response);
+  }
 
+  private void setHostnameAttribute(HttpServletRequest request) {
     try {
       request.setAttribute("hostname", InetAddress.getLocalHost().getHostName());
     } catch (UnknownHostException e) {
       request.setAttribute("hostname", "unknown");
       logger.trace("", e);
     }
+  }
 
+  private void setVersionAttribute(HttpServletRequest request) throws IOException {
     ApplicationContext context = getApplicationContext();
 
     if (context != null) {
@@ -80,35 +91,35 @@ public class DecoratorController extends PostParameterizableViewController {
       }
 
       Properties data = (Properties) context.getBean("version");
-        if (data.getProperty("probe.version") != null) {
-            request.setAttribute("version", data.getProperty("probe.version"));
-        } else {
-            // Handle the case when 'data' is null
-            logger.error("Error: 'version' bean is null");
-        }
+      if (data.getProperty("probe.version") != null) {
+        request.setAttribute("version", data.getProperty("probe.version"));
+      } else {
+        logger.error("Error: 'version' bean is null");
+      }
     } else {
       logger.error("ApplicationContext is null. Cannot retrieve the 'version' bean");
     }
+  }
 
-    String lang = "en";
-    if (getServletContext() != null) {
-      String attributeName = "attributeName";
-      ServletContext servletContext = getServletContext();
-      if (servletContext != null) {
-        Object attributeValue = servletContext.getAttribute(attributeName);
-        if (attributeValue != null) {
-          request.setAttribute(attributeName, attributeValue);
-        }
-      } else {
-        System.out.println( "ServletContext is null. Cannot retrieve the servlet context");
+  private void setContextAttribute(HttpServletRequest request) {
+    String attributeName = "attributeName";
+    ServletContext servletContext = getServletContext();
+    if (servletContext != null) {
+      Object attributeValue = servletContext.getAttribute(attributeName);
+      if (attributeValue != null) {
+        request.setAttribute(attributeName, attributeValue);
       }
     } else {
-      logger.error("ServletContext is null. Cannot retrieve the servlet context");
+      System.out.println("ServletContext is null. Cannot retrieve the servlet context");
     }
+  }
 
-    if (getServletContext() != null) {
+  private void setLanguageAttribute(HttpServletRequest request) throws MalformedURLException {
+    String lang = "en";
+    ServletContext servletContext = getServletContext();
+    if (servletContext != null) {
       for (String fileName : getMessageFileNamesForLocale(request.getLocale())) {
-        if (getServletContext().getResource(fileName + ".properties") != null) {
+        if (servletContext.getResource(fileName + ".properties") != null) {
           lang = fileName.substring(messagesBasename.length() + 1);
           break;
         }
@@ -117,10 +128,7 @@ public class DecoratorController extends PostParameterizableViewController {
       logger.error("ServletContext is null. Cannot retrieve the servlet context");
     }
     request.setAttribute("lang", lang);
-
-    return super.handleRequestInternal(request, response);
   }
-
   /**
    * Gets the message file names for locale.
    *
