@@ -23,7 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class BaseReloadContextController extends AbstractNoSelfContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(BaseReloadContextController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(BaseReloadContextController.class);
 
   @Override
   protected void executeAction(String contextName) {
@@ -33,14 +33,14 @@ public class BaseReloadContextController extends AbstractNoSelfContextHandlerCon
 
       // Logging action
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-      // get username logger
+      // get username mylogger
       String name = auth.getName();
       try {
         MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
         if (messageSourceAccessor != null) {
-          logger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
+          mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
         } else {
-          logger.info("Failed to get message source accessor. Reloading {} context.", contextName);
+          mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
         }
       } catch (NullPointerException ex) {
         throw new IllegalStateException("Null message source accessor", ex);
