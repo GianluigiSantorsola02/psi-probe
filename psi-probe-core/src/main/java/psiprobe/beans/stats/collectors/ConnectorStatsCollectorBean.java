@@ -13,15 +13,17 @@ package psiprobe.beans.stats.collectors;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.model.Connector;
 
-import javax.inject.Inject;
-
 /**
  * The Class ConnectorStatsCollectorBean.
  */
 public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
 
   /** The listener bean. */
-  private ContainerListenerBean listenerBean;
+  private final ContainerListenerBean listenerBean ;
+
+  public ConnectorStatsCollectorBean() {
+    listenerBean = new ContainerListenerBean( null );
+  }
 
 
   @Override
@@ -36,26 +38,6 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
     }
   }
 
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
-  private void reset() throws CustomException {
-    try {
-      for (Connector connector : listenerBean.getConnectors(false)) {
-        reset(connector.getProtocolHandler());
-      }
-    } catch (Exception | ContainerListenerBean.CustomException e) {
-      throw new CustomException("Failed to reset connectors", e);
-    }
-  }
-
-  static class CustomException extends Throwable {
-    public CustomException(String message, Throwable cause) {
-      super(message, cause);
-    }
-  }
   /**
    * Reset.
    *
