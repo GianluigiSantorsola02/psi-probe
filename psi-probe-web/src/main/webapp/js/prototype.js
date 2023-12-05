@@ -3547,6 +3547,949 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     window.attachEvent('onunload', destroyCache_IE);
 
 })(this);
+(function() {
+
+  function toDecimal(pctString) {
+    let match = pctString.match(/^(\d+)%?$/i);
+    if (!match) return null;
+    return (Number(match[1]) / 100);
+  }
+
+  function getRawStyle(element, style) {
+    element = $(element);
+
+    let value = element.style[style];
+    if (!value || value === 'auto') {
+      let css = document.defaultView.getComputedStyle(element, null);
+      value = css ? css[style] : null;
+    }
+
+    if (style === 'opacity') return value ? parseFloat(value) : 1.0;
+    return value === 'auto' ? null : value;
+  }
+
+  function getRawStyle_IE(element, style) {
+    let value = element.style[style];
+    if (!value && element.currentStyle) {
+      value = element.currentStyle[style];
+    }
+    return value;
+  }
+
+  function getContentWidth(element, context) {
+    let boxWidth = element.offsetWidth;
+
+    let bl = getPixelValue(element, 'borderLeftWidth',  context) || 0;
+    let br = getPixelValue(element, 'borderRightWidth', context) || 0;
+    let pl = getPixelValue(element, 'paddingLeft',      context) || 0;
+    let pr = getPixelValue(element, 'paddingRight',     context) || 0;
+
+    return boxWidth - bl - br - pl - pr;
+  }
+
+  if (!Object.isUndefined(document.documentElement.currentStyle) && !Prototype.Browser.Opera) {
+    getRawStyle = getRawStyle_IE;
+  }
+
+
+  function getPixelValue(value, property, context) {
+    let element = null;
+    if (Object.isElement(value)) {
+      element = value;
+      value = getRawStyle(element, property);
+    }
+
+    if (value === null || Object.isUndefined(value)) {
+      return null;
+    }
+
+    if ((/^(?:-)?\d+(\.\d+)?(px)?$/i).test(value)) {
+      return window.parseFloat(value);
+    }
+
+    let isPercentage = value.include('%'), isViewport = (context === document.viewport);
+
+    if (/\d/.test(value) && element && element.runtimeStyle && !(isPercentage && isViewport)) {
+      let style = element.style.left, rStyle = element.runtimeStyle.left;
+      element.runtimeStyle.left = element.currentStyle.left;
+      element.style.left = value || 0;
+      value = element.style.pixelLeft;
+      element.style.left = style;
+      element.runtimeStyle.left = rStyle;
+
+      return value;
+    }
+
+    if (element && isPercentage) {
+      context = context || element.parentNode;
+      let decimal = toDecimal(value), whole = null;
+
+      let isHorizontal = property.include('left') || property.include('right') ||
+          property.include('width');
+
+      let isVertical   = property.include('top') || property.include('bottom') ||
+          property.include('height');
+
+      if (context === document.viewport) {
+        if (isHorizontal) {
+          whole = document.viewport.getWidth();
+        } else if (isVertical) {
+          whole = document.viewport.getHeight();
+        }
+      } else {
+        let whole;
+
+      }
+
+
+      return (whole === null) ? 0 : whole * decimal;
+    }
+
+    return 0;
+  }
+  function isDisplayed(element) {
+    while (element?.parentNode) {
+      let display = element.getStyle('display');
+      if (display === 'none') {
+        return false;
+      }
+      element = $(element.parentNode);
+    }
+    return true;
+  }
+
+  let hasLayout = Prototype.K;
+  if ('currentStyle' in document.documentElement) {
+    hasLayout = function(element) {
+      if (!element.currentStyle.hasLayout) {
+        element.style.zoom = 1;
+      }
+      return element;
+    };
+  }
+
+  function cssNameFor(key) {
+    if (key.include('border')) key = key + '-width';
+    return key.camelize();
+  }
+
+  Element.Layout = Class.Create(Hash, {
+    initialize: function($super, element, preCompute) {
+      $super();
+      this.element = $(element);
+
+      Element.Layout.PROPERTIES.each( function(property) {
+        this._set(property, null);
+      }, this);
+
+      if (preCompute) {
+        this._preComputing = true;
+        this._begin();
+        Element.Layout.PROPERTIES.each( this._compute, this );
+        this._end();
+        this._preComputing = false;
+      }
+    },
+
+    _set: function(property, value) {
+      return Hash.prototype.set.call(this, property, value);
+    },
+
+    set: function(property, value) {
+      throw new Error("Properties of Element.Layout are read-only.");
+    },
+
+
+    get: function($super, property) {
+      let value = $super(property);
+      return value === null ? this._compute(property) : value;
+    },
+
+    _begin: function() {
+      if (this._isPrepared()) return;
+
+      let element = this.element;
+      if (isDisplayed(element)) {
+        this._setPrepared(true);
+        return;
+      }
+
+
+      let originalStyles = {
+        position:   element.style.position   || '',
+        width:      element.style.width      || '',
+        visibility: element.style.visibility || '',
+        display:    element.style.display    || ''
+      };
+
+      element.store('prototype_original_styles', originalStyles);
+
+      let position = getRawStyle(element, 'position'), width = element.offsetWidth;
+
+      if (width === 0 || width === null) {
+        element.style.display = 'block';
+        width = element.offsetWidth;
+      }
+
+      let context = (position === 'fixed') ? document.viewport :
+          element.parentNode;
+
+      let tempStyles = {
+        visibility: 'hidden',
+        display:    'block'
+      };
+
+      if (position !== 'fixed') tempStyles.position = 'absolute';
+
+      element.setStyle(tempStyles);
+
+      let positionedWidth = element.offsetWidth, newWidth;
+      if (width && (positionedWidth === width)) {
+        newWidth = getContentWidth(element, context);
+      } else if (position === 'absolute' || position === 'fixed') {
+        newWidth = getContentWidth(element, context);
+      } else {
+        let parent = element.parentNode, pLayout = $(parent).getLayout();
+
+        newWidth = pLayout.get('width') -
+            this.get('margin-left') -
+            this.get('border-left') -
+            this.get('padding-left') -
+            this.get('padding-right') -
+            this.get('border-right') -
+            this.get('margin-right');
+      }
+
+      element.setStyle({ width: newWidth + 'px' });
+
+      this._setPrepared(true);
+    },
+
+    _end: function() {
+      let element = this.element;
+      let originalStyles = element.retrieve('prototype_original_styles');
+      element.store('prototype_original_styles', null);
+      element.setStyle(originalStyles);
+      this._setPrepared(false);
+    },
+
+    _compute: function(property) {
+      let COMPUTATIONS = Element.Layout.COMPUTATIONS;
+      if (!(property in COMPUTATIONS)) {
+        throw new Error("Property not found.");
+      }
+
+
+      return this._set(property, COMPUTATIONS[property].call(this, this.element));
+    },
+
+    _isPrepared: function() {
+      return this.element.retrieve('prototype_element_layout_prepared', false);
+    },
+
+    _setPrepared: function(bool) {
+      return this.element.store('prototype_element_layout_prepared', bool);
+    },
+
+    toObject: function() {
+      let args = $A(arguments);
+      let keys = (args.length === 0) ? Element.Layout.PROPERTIES :
+          args.join(' ').split(' ');
+      let obj = {};
+      keys.each( function(key) {
+        if (!Element.Layout.PROPERTIES.include(key)) return;
+        let value = this.get(key);
+        if (value != null) obj[key] = value;
+      }, this);
+      return obj;
+    },
+
+    toHash: function() {
+      let obj = this.toObject.apply(this, arguments);
+      return new Hash(obj);
+    },
+
+    toCSS: function() {
+      let args = $A(arguments);
+      let keys = (args.length === 0) ? Element.Layout.PROPERTIES :
+          args.join(' ').split(' ');
+      let css = {};
+
+      keys.each( function(key) {
+        if (!Element.Layout.PROPERTIES.include(key)) return;
+        if (Element.Layout.COMPOSITE_PROPERTIES.include(key)) return;
+
+        let value = this.get(key);
+        if (value != null) css[cssNameFor(key)] = value + 'px';
+      }, this);
+      return css;
+    },
+
+    inspect: function() {
+      return "#<Element.Layout>";
+    }
+  });
+
+  Object.extend(Element.Layout, {
+    PROPERTIES: $w('height width top left right bottom border-left border-right border-top border-bottom padding-left padding-right padding-top padding-bottom margin-top margin-bottom margin-left margin-right padding-box-width padding-box-height border-box-width border-box-height margin-box-width margin-box-height'),
+
+    COMPOSITE_PROPERTIES: $w('padding-box-width padding-box-height margin-box-width margin-box-height border-box-width border-box-height'),
+
+    COMPUTATIONS: {
+      'height': function(element) {
+        if (!this._preComputing) this._begin();
+
+        let bHeight = this.get('border-box-height');
+        if (bHeight <= 0) {
+          if (!this._preComputing) this._end();
+          return 0;
+        }
+
+        let bTop = this.get('border-top'),
+            bBottom = this.get('border-bottom');
+
+        let pTop = this.get('padding-top'),
+            pBottom = this.get('padding-bottom');
+
+        if (!this._preComputing) this._end();
+
+        return bHeight - bTop - bBottom - pTop - pBottom;
+      },
+
+      'width': function(element) {
+        if (!this._preComputing) this._begin();
+
+        let bWidth = this.get('border-box-width');
+        if (bWidth <= 0) {
+          if (!this._preComputing) this._end();
+          return 0;
+        }
+
+        let bLeft = this.get('border-left'),
+            bRight = this.get('border-right');
+
+        let pLeft = this.get('padding-left'),
+            pRight = this.get('padding-right');
+
+        if (!this._preComputing) this._end();
+        return bWidth - bLeft - bRight - pLeft - pRight;
+      },
+
+      'padding-box-height': function(element) {
+        let height = this.get('height'),
+            pTop = this.get('padding-top'),
+            pBottom = this.get('padding-bottom');
+
+        return height + pTop + pBottom;
+      },
+
+      'padding-box-width': function(element) {
+        let width = this.get('width'),
+            pLeft = this.get('padding-left'),
+            pRight = this.get('padding-right');
+
+        return width + pLeft + pRight;
+      },
+
+      'border-box-height': function(element) {
+        if (!this._preComputing) this._begin();
+        let height = element.offsetHeight;
+        if (!this._preComputing) this._end();
+        return height;
+      },
+
+      'border-box-width': function(element) {
+        if (!this._preComputing) this._begin();
+        let width = element.offsetWidth;
+        if (!this._preComputing) this._end();
+        return width;
+      },
+
+      'margin-box-height': function(element) {
+        let bHeight = this.get('border-box-height'),
+            mTop = this.get('margin-top'),
+            mBottom = this.get('margin-bottom');
+
+        if (bHeight <= 0) return 0;
+
+        return bHeight + mTop + mBottom;
+      },
+
+      'margin-box-width': function(element) {
+        let bWidth = this.get('border-box-width'),
+            mLeft = this.get('margin-left'),
+            mRight = this.get('margin-right');
+
+        if (bWidth <= 0) return 0;
+
+        return bWidth + mLeft + mRight;
+      },
+
+      'top': function(element) {
+        let offset = element.positionedOffset();
+        return offset.top;
+      },
+
+      'bottom': function(element) {
+        let offset = element.positionedOffset(),
+            parent = element.getOffsetParent(),
+            pHeight = parent.measure('height');
+
+        let mHeight = this.get('border-box-height');
+
+        return pHeight - mHeight - offset.top;
+      },
+
+      'left': function(element) {
+        let offset = element.positionedOffset();
+        return offset.left;
+      },
+
+      'right': function(element) {
+        let offset = element.positionedOffset(),
+            parent = element.getOffsetParent(),
+            pWidth = parent.measure('width');
+
+        let mWidth = this.get('border-box-width');
+
+        return pWidth - mWidth - offset.left;
+      },
+
+      'padding-top': function(element) {
+        return getPixelValue(element, 'paddingTop');
+      },
+
+      'padding-bottom': function(element) {
+        return getPixelValue(element, 'paddingBottom');
+      },
+
+      'padding-left': function(element) {
+        return getPixelValue(element, 'paddingLeft');
+      },
+
+      'padding-right': function(element) {
+        return getPixelValue(element, 'paddingRight');
+      },
+
+      'border-top': function(element) {
+        return getPixelValue(element, 'borderTopWidth');
+      },
+
+      'border-bottom': function(element) {
+        return getPixelValue(element, 'borderBottomWidth');
+      },
+
+      'border-left': function(element) {
+        return getPixelValue(element, 'borderLeftWidth');
+      },
+
+      'border-right': function(element) {
+        return getPixelValue(element, 'borderRightWidth');
+      },
+
+      'margin-top': function(element) {
+        return getPixelValue(element, 'marginTop');
+      },
+
+      'margin-bottom': function(element) {
+        return getPixelValue(element, 'marginBottom');
+      },
+
+      'margin-left': function(element) {
+        return getPixelValue(element, 'marginLeft');
+      },
+
+      'margin-right': function(element) {
+        return getPixelValue(element, 'marginRight');
+      }
+    }
+  });
+
+  if ('getBoundingClientRect' in document.documentElement) {
+    Object.extend(Element.Layout.COMPUTATIONS, {
+      'right': function(element) {
+        let parent = hasLayout(element.getOffsetParent());
+        let rect = element.getBoundingClientRect(),
+            pRect = parent.getBoundingClientRect();
+
+        return (pRect.right - rect.right).round();
+      },
+
+      'bottom': function(element) {
+        let parent = hasLayout(element.getOffsetParent());
+        let rect = element.getBoundingClientRect(),
+            pRect = parent.getBoundingClientRect();
+
+        return (pRect.bottom - rect.bottom).round();
+      }
+    });
+  }
+
+  Element.Offset = Class.Create({
+    initialize: function(left, top) {
+      this.left = left.round();
+      this.top  = top.round();
+
+      this[0] = this.left;
+      this[1] = this.top;
+    },
+
+    relativeTo: function(offset) {
+      return new Element.Offset(
+          this.left - offset.left,
+          this.top  - offset.top
+      );
+    },
+
+    inspect: function() {
+      return "#<Element.Offset left: #{left} top: #{top}>".interpolate(this);
+    },
+
+    toString: function() {
+      return "[#{left}, #{top}]".interpolate(this);
+    },
+
+    toArray: function() {
+      return [this.left, this.top];
+    }
+  });
+
+  function getLayout(element, preCompute) {
+    return new Element.Layout(element, preCompute);
+  }
+
+  function measure(element, property) {
+    return $(element).getLayout().get(property);
+  }
+
+  function getHeight(element) {
+    return Element.getDimensions(element).height;
+  }
+
+  function getWidth(element) {
+    return Element.getDimensions(element).width;
+  }
+
+  function getDimensions(element) {
+    element = $(element);
+    let display = Element.getStyle(element, 'display');
+
+    if (display && display !== 'none') {
+      return { width: element.offsetWidth, height: element.offsetHeight };
+    }
+
+    let style = element.style;
+    let originalStyles = {
+      visibility: style.visibility,
+      position:   style.position,
+      display:    style.display
+    };
+
+    let newStyles = {
+      visibility: 'hidden',
+      display:    'block'
+    };
+
+    if (originalStyles.position !== 'fixed')
+      newStyles.position = 'absolute';
+
+    Element.setStyle(element, newStyles);
+
+    let dimensions = {
+      width:  element.offsetWidth,
+      height: element.offsetHeight
+    };
+
+    Element.setStyle(element, originalStyles);
+
+    return dimensions;
+  }
+
+  function getOffsetParent(element) {
+    element = $(element);
+
+    function selfOrBody(element) {
+      return isHtml(element) ? $(document.body) : $(element);
+    }
+
+    if (isDocument(element) || isDetached(element) || isBody(element) || isHtml(element))
+      return $(document.body);
+
+    let isInline = (Element.getStyle(element, 'display') === 'inline');
+    if (!isInline && element.offsetParent) return selfOrBody(element.offsetParent);
+
+    let elements= element.parentNode;
+    while (elements !== document.body) {
+      if (Element.getStyle(element, 'position') !== 'static') {
+        return selfOrBody(element);
+      }
+    }
+
+    return $(document.body);
+  }
+
+
+  function cumulativeOffset(element) {
+    element = $(element);
+    let valueT = 0, valueL = 0;
+    if (element.parentNode) {
+      do {
+        valueT += element.offsetTop  || 0;
+        valueL += element.offsetLeft || 0;
+        element = element.offsetParent;
+      } while (element);
+    }
+    return new Element.Offset(valueL, valueT);
+  }
+
+  function positionedOffset(element) {
+    element = $(element);
+
+    let layout = element.getLayout();
+
+    let valueT = 0, valueL = 0;
+    do {
+      valueT += element.offsetTop  || 0;
+      valueL += element.offsetLeft || 0;
+      element = element.offsetParent;
+      if (element) {
+        if (isBody(element)) break;
+        let p = Element.getStyle(element, 'position');
+        if (p !== 'static') break;
+      }
+    } while (element);
+
+    valueL -= layout.get('margin-left');
+    valueT -= layout.get('margin-top');
+
+    return new Element.Offset(valueL, valueT);
+  }
+
+  function cumulativeScrollOffset(element) {
+    let valueT = 0, valueL = 0;
+    do {
+      if (element === document.body) {
+        let bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
+        valueT += !Object.isUndefined(window.pageYOffset) ? window.pageYOffset : bodyScrollNode.scrollTop || 0;
+        valueL += !Object.isUndefined(window.pageXOffset) ? window.pageXOffset : bodyScrollNode.scrollLeft || 0;
+        break;
+      } else {
+        valueT += element.scrollTop  || 0;
+        valueL += element.scrollLeft || 0;
+        element = element.parentNode;
+      }
+    } while (element);
+    return new Element.Offset(valueL, valueT);
+  }
+
+  function viewportOffset(forElement) {
+    let valueT = 0, valueL = 0, docBody = document.body;
+
+    forElement = $(forElement);
+    let element = forElement;
+    do {
+      valueT += element.offsetTop  || 0;
+      valueL += element.offsetLeft || 0;
+      if (element.offsetParent == docBody &&
+          Element.getStyle(element, 'position') == 'absolute') break;
+    } while (element = element.offsetParent);
+
+    element = forElement;
+    do {
+      if (element != docBody) {
+        valueT -= element.scrollTop  || 0;
+        valueL -= element.scrollLeft || 0;
+      }
+    } while (element = element.parentNode);
+    return new Element.Offset(valueL, valueT);
+  }
+
+  function absolutize(element) {
+    element = $(element);
+
+    if (Element.getStyle(element, 'position') === 'absolute') {
+      return element;
+    }
+
+    let offsetParent = getOffsetParent(element);
+    let eOffset = element.viewportOffset(),
+        pOffset = offsetParent.viewportOffset();
+
+    let offset = eOffset.relativeTo(pOffset);
+    let layout = element.getLayout();
+
+    element.store('prototype_absolutize_original_styles', {
+      position: element.getStyle('position'),
+      left:     element.getStyle('left'),
+      top:      element.getStyle('top'),
+      width:    element.getStyle('width'),
+      height:   element.getStyle('height')
+    });
+
+    element.setStyle({
+      position: 'absolute',
+      top:    offset.top + 'px',
+      left:   offset.left + 'px',
+      width:  layout.get('width') + 'px',
+      height: layout.get('height') + 'px'
+    });
+
+    return element;
+  }
+
+  function relativize(element) {
+    element = $(element);
+    if (Element.getStyle(element, 'position') === 'relative') {
+      return element;
+    }
+
+    let originalStyles =
+        element.retrieve('prototype_absolutize_original_styles');
+
+    if (originalStyles) element.setStyle(originalStyles);
+    return element;
+  }
+
+
+  function scrollTo(element) {
+    element = $(element);
+    let pos = Element.cumulativeOffset(element);
+    window.scrollTo(pos.left, pos.top);
+    return element;
+  }
+
+
+  function makePositioned(element) {
+    element = $(element);
+    let position = Element.getStyle(element, 'position'), styles = {};
+    if (position === 'static' || !position) {
+      styles.position = 'relative';
+      if (Prototype.Browser.Opera) {
+        styles.top  = 0;
+        styles.left = 0;
+      }
+      Element.setStyle(element, styles);
+      Element.store(element, 'prototype_made_positioned', true);
+    }
+    return element;
+  }
+
+  function undoPositioned(element) {
+    element = $(element);
+    let storage = Element.getStorage(element),
+        madePositioned = storage.get('prototype_made_positioned');
+
+    if (madePositioned) {
+      storage.unset('prototype_made_positioned');
+      Element.setStyle(element, {
+        position: '',
+        top:      '',
+        bottom:   '',
+        left:     '',
+        right:    ''
+      });
+    }
+    return element;
+  }
+
+  function makeClipping(element) {
+    element = $(element);
+
+    let storage = Element.getStorage(element),
+        madeClipping = storage.get('prototype_made_clipping');
+
+    if (Object.isUndefined(madeClipping)) {
+      let overflow = Element.getStyle(element, 'overflow');
+      storage.set('prototype_made_clipping', overflow);
+      if (overflow !== 'hidden')
+        element.style.overflow = 'hidden';
+    }
+
+    return element;
+  }
+
+  function undoClipping(element) {
+    element = $(element);
+    let storage = Element.getStorage(element),
+        overflow = storage.get('prototype_made_clipping');
+
+    if (!Object.isUndefined(overflow)) {
+      storage.unset('prototype_made_clipping');
+      element.style.overflow = overflow || '';
+    }
+
+    return element;
+  }
+
+  function clonePosition(element, source, options) {
+    options = Object.extend({
+      setLeft:    true,
+      setTop:     true,
+      setWidth:   true,
+      setHeight:  true,
+      offsetTop:  0,
+      offsetLeft: 0
+    }, options || {});
+
+    let docEl = document.documentElement;
+
+    source  = $(source);
+    element = $(element);
+    let p, delta, layout, styles = {};
+
+    if (options.setLeft || options.setTop) {
+      p = Element.viewportOffset(source);
+      delta = [0, 0];
+      if (Element.getStyle(element, 'position') === 'absolute') {
+        let parent = Element.getOffsetParent(element);
+        if (parent !== document.body) delta = Element.viewportOffset(parent);
+      }
+    }
+
+    function pageScrollXY() {
+      let x = 0, y = 0;
+      if (Object.isNumber(window.pageXOffset)) {
+        x = window.pageXOffset;
+        y = window.pageYOffset;
+      } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+        x = document.body.scrollLeft;
+        y = document.body.scrollTop;
+      } else if (docEl && (docEl.scrollLeft || docEl.scrollTop)) {
+        x = docEl.scrollLeft;
+        y = docEl.scrollTop;
+      }
+      return { x: x, y: y };
+    }
+
+    let pageXY = pageScrollXY();
+
+
+    if (options.setWidth || options.setHeight) {
+      layout = Element.getLayout(source);
+    }
+
+    if (options.setLeft)
+      styles.left = (p[0] + pageXY.x - delta[0] + options.offsetLeft) + 'px';
+    if (options.setTop)
+      styles.top  = (p[1] + pageXY.y - delta[1] + options.offsetTop)  + 'px';
+    element.getLayout();
+    if (options.setWidth) {
+      styles.width = layout.get('width')  + 'px';
+    }
+    if (options.setHeight) {
+      styles.height = layout.get('height') + 'px';
+    }
+
+    return Element.setStyle(element, styles);
+  }
+
+
+  if (Prototype.Browser.IE) {
+    getOffsetParent = getOffsetParent.wrap(
+        function(proceed, element) {
+          element = $(element);
+
+          if (isDocument(element) || isDetached(element) || isBody(element) || isHtml(element))
+            return $(document.body);
+
+          let position = element.getStyle('position');
+          if (position !== 'static') return proceed(element);
+
+          element.setStyle({ position: 'relative' });
+          let value = proceed(element);
+          element.setStyle({ position: position });
+          return value;
+        }
+    );
+
+    positionedOffset = positionedOffset.wrap(function(proceed, element) {
+      element = $(element);
+      if (!element.parentNode) return new Element.Offset(0, 0);
+      let position = element.getStyle('position');
+      if (position !== 'static') return proceed(element);
+
+      let offsetParent = element.getOffsetParent();
+      if (offsetParent && offsetParent.getStyle('position') === 'fixed')
+        hasLayout(offsetParent);
+
+      element.setStyle({ position: 'relative' });
+      let value = proceed(element);
+      element.setStyle({ position: position });
+      return value;
+    });
+  } else if (Prototype.Browser.Webkit) {
+    cumulativeOffset = function(element) {
+      element = $(element);
+      let valueT = 0, valueL = 0;
+      do {
+        valueT += element.offsetTop  || 0;
+        valueL += element.offsetLeft || 0;
+        if (element.offsetParent == document.body) {
+          if (Element.getStyle(element, 'position') == 'absolute') break;
+        }
+
+        element = element.offsetParent;
+      } while (element);
+
+      return new Element.Offset(valueL, valueT);
+    };
+  }
+
+
+  Element.addMethods({
+    getLayout:              getLayout,
+    measure:                measure,
+    getWidth:               getWidth,
+    getHeight:              getHeight,
+    getDimensions:          getDimensions,
+    getOffsetParent:        getOffsetParent,
+    cumulativeOffset:       cumulativeOffset,
+    positionedOffset:       positionedOffset,
+    cumulativeScrollOffset: cumulativeScrollOffset,
+    viewportOffset:         viewportOffset,
+    absolutize:             absolutize,
+    relativize:             relativize,
+    scrollTo:               scrollTo,
+    makePositioned:         makePositioned,
+    undoPositioned:         undoPositioned,
+    makeClipping:           makeClipping,
+    undoClipping:           undoClipping,
+    clonePosition:          clonePosition
+  });
+
+  function isBody(element) {
+    return element.nodeName.toUpperCase() === 'BODY';
+  }
+
+  function isHtml(element) {
+    return element.nodeName.toUpperCase() === 'HTML';
+  }
+
+  function isDocument(element) {
+    return element.nodeType === Node.DOCUMENT_NODE;
+  }
+
+  function isDetached(element) {
+    return element !== document.body &&
+        !Element.descendantOf(element, document.body);
+  }
+
+  if ('getBoundingClientRect' in document.documentElement) {
+    Element.addMethods({
+      viewportOffset: function(element) {
+        element = $(element);
+        if (isDetached(element)) return new Element.Offset(0, 0);
+
+        let rect = element.getBoundingClientRect(),
+            docEl = document.documentElement;
+        return new Element.Offset(rect.left - docEl.clientLeft,
+            rect.top - docEl.clientTop);
+      }
+    });
+  }
+
+
+})();
 
 (function() {
 
