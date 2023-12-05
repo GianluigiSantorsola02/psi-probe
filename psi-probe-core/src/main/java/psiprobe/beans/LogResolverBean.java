@@ -207,7 +207,7 @@ public class LogResolverBean {
   }
 
 
-  public String log4j2String = "log4j2String";
+  static public String log4j2String = "log4j2String";
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
                                           boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -296,7 +296,6 @@ public class LogResolverBean {
   private void interrogateContext(Context ctx, List<LogDestination> allAppenders) {
     Application application = getApplication(ctx);
 
-    ClassLoader cl = ctx.getLoader().getClassLoader();
     Object contextLogger = ctx.getLogger();
 
     if (contextLogger != null) {
@@ -305,8 +304,6 @@ public class LogResolverBean {
       } else if (isCatalinaLogger(contextLogger)) {
         interrogateCatalinaLogger(ctx, application, allAppenders);
       }
-
-      ServletContext servletContext = ctx.getServletContext();
 
     }
 
@@ -346,8 +343,8 @@ public class LogResolverBean {
     allAppenders.add(catalinaAccessor);
   }
 
-  private void interrogateLog4J2Loggers(ClassLoader cl, ServletContext servletContext,
-                                        Application application, List<LogDestination> allAppenders) throws Exception {
+  public void interrogateLog4J2Loggers(ClassLoader cl, ServletContext servletContext,
+                                        Application application, List<LogDestination> allAppenders) throws interrogateLog4J2LoggersException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
     Log4J2LoggerContextAccessor loggerContextAccessor = getWebLoggerContextAccessor(cl, servletContext);
     List<Object> loggerContexts = getLoggerContexts(cl);
 
@@ -375,7 +372,10 @@ public class LogResolverBean {
     }
   }
 
+static void  interrogateLog4J2LoggersException(){
 
+
+}
 
   /**
    * Interrogate class loader.
@@ -775,9 +775,9 @@ public class LogResolverBean {
    * @return the logback tomcat juli log destination
    */
   private LogDestination getLogback13TomcatJuliLogDestination(ClassLoader cl,
-      Application application, boolean root, String logName, String appenderName) {
+      Application application, boolean root, String logName, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-    try {
+
       TomcatSlf4jLogback13FactoryAccessor manager = new TomcatSlf4jLogback13FactoryAccessor(cl);
       manager.setApplication(application);
       TomcatSlf4jLogback13LoggerAccessor log =
@@ -785,9 +785,7 @@ public class LogResolverBean {
       if (log != null) {
         return log.getAppender(appenderName);
       }
-    }catch (Exception ignored) {
 
-    }
     return null;
   }
 
