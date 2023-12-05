@@ -79,9 +79,7 @@ public class RuntimeInfoAccessorBean {
 
       return ri;
     } catch (MalformedObjectNameException | AttributeNotFoundException e) {
-      logger.debug("OS information is unavailable");
-      logger.trace("", e);
-      return null;
+      throw new RuntimeInformationException();
     }
   }
 
