@@ -207,7 +207,7 @@ public class LogResolverBean {
   }
 
 
-  static public String log4j2String = "log4j2String";
+  static private final String log4j2String = "log4j2String";
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
                                           boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -370,79 +370,6 @@ public class LogResolverBean {
         }
       }
     }
-  }
-
-static void  interrogateLog4J2LoggersException(){
-
-
-}
-
-  /**
-   * Interrogate class loader.
-   *
-   * @param cl the cl
-   * @param application the application
-   * @param appenders the appenders
-   */
-  private void interrogateClassLoader(ClassLoader cl, Application application,
-                                      List<LogDestination> appenders) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-
-    String applicationName =
-        application != null ? "application \"" + application.getName() + "\"" : "server";
-
-    // check for JDK loggers
-    try {
-      Jdk14ManagerAccessor jdk14accessor = new Jdk14ManagerAccessor(cl);
-      jdk14accessor.setApplication(application);
-      appenders.addAll(jdk14accessor.getHandlers());
-    } catch (Exception e) {
-      logger.debug("Could not resolve JDK loggers for '{}'", applicationName, e);
-    }
-
-    // check for Log4J loggers
-    try {
-      Log4JManagerAccessor log4JAccessor = new Log4JManagerAccessor(cl);
-      log4JAccessor.setApplication(application);
-      appenders.addAll(log4JAccessor.getAppenders());
-    } catch (Exception | SLF4JBridgeException e) {
-      logger.debug("Could not resolve log4j loggers for '{}'", applicationName, e);
-    }
-
-      // check for Logback loggers
-    try {
-      LogbackFactoryAccessor logbackAccessor = new LogbackFactoryAccessor(cl);
-      logbackAccessor.setApplication(application);
-      appenders.addAll(logbackAccessor.getAppenders());
-    } catch (Exception | TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
-      logger.debug("Could not resolve logback loggers for '{}'", applicationName, e);
-    }
-
-      // check for Logback 1.3 loggers
-    try {
-      Logback13FactoryAccessor logback13Accessor = new Logback13FactoryAccessor(cl);
-      logback13Accessor.setApplication(application);
-      appenders.addAll(logback13Accessor.getAppenders());
-    } catch (Exception e) {
-      logger.debug("Could not resolve logback 1.3 loggers for '{}'", applicationName, e);
-    }
-
-    // check for tomcat-slf4j-logback loggers
-    try {
-      TomcatSlf4jLogbackFactoryAccessor tomcatSlf4jLogbackAccessor =
-          new TomcatSlf4jLogbackFactoryAccessor(cl);
-      tomcatSlf4jLogbackAccessor.setApplication(application);
-      appenders.addAll(tomcatSlf4jLogbackAccessor.getAppenders());
-    } catch (Exception e) {
-      logger.debug("Could not resolve tomcat-slf4j-logback loggers for '{}'", applicationName, e);
-    } catch (TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
-        throw new RuntimeException(e);
-    }
-
-      // check for tomcat-slf4j-logback 1.3 loggers
-    TomcatSlf4jLogback13FactoryAccessor tomcatSlf4jLogback13Accessor =
-        new TomcatSlf4jLogback13FactoryAccessor(cl);
-    tomcatSlf4jLogback13Accessor.setApplication(application);
-    appenders.addAll(tomcatSlf4jLogback13Accessor.getAppenders());
   }
 
   /**
