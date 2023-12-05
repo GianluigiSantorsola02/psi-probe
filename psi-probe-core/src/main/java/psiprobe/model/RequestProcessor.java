@@ -10,6 +10,8 @@
  */
 package psiprobe.model;
 
+import psiprobe.tools.JmxTools;
+
 import java.util.Locale;
 
 /**
@@ -17,7 +19,8 @@ import java.util.Locale;
  */
 public class RequestProcessor {
 
-  /** The name. */
+    public JmxTools setCurrentUri;
+    /** The name. */
   private String name;
 
   /** The stage. */
