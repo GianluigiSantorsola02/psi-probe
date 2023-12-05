@@ -207,7 +207,7 @@ public class LogResolverBean {
   }
 
 
-  static private final String log4j2String = "log4j2String";
+  static private final String LOG_4J2_STRING = "log4j2String";
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
                                           boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -228,9 +228,9 @@ public class LogResolverBean {
     } else if (ctx != null && "catalina".equals(logType)) {
       result = getCatalinaLogDestination(ctx, application);
     } else if (logIndex != null && isSupportedLogger(logType)) {
-      if (context && ctx != null && !log4j2String.equals(logType)) {
+      if (context && ctx != null && !LOG_4J2_STRING.equals(logType)) {
         result = getCommonsLogDestination(ctx, application, logIndex);
-      } else if (ctx != null && log4j2String.equals(logType)) {
+      } else if (ctx != null && LOG_4J2_STRING.equals(logType)) {
         result = getLog4J2LogDestination(ctx, application, root, logName, logIndex);
       } else {
         ClassLoader cl = getClassLoader(ctx);
@@ -244,7 +244,7 @@ public class LogResolverBean {
   }
 
   private boolean isSupportedLogger(String logType) {
-    List<String> supportedLoggers = Arrays.asList("jdk", "log4j", log4j2String, "logback", "logback13",
+    List<String> supportedLoggers = Arrays.asList("jdk", "log4j", LOG_4J2_STRING, "logback", "logback13",
             "tomcatSlf4jLogback", "tomcatSlf4jLogback13");
     return supportedLoggers.contains(logType);
   }
