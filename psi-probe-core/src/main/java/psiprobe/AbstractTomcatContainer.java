@@ -154,29 +154,27 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
 
   @Override
-  public boolean installContext(String contextName) throws installContextInternalException, CheckChangesException {
+  public boolean installContext(String contextName) throws CheckChangesException {
     contextName = formatContextName(contextName);
     installContextInternal(contextName);
     return findContext(contextName) != null;
   }
 
-  @Override
-  public void stop(String name) throws stopException, LifecycleException {
-    boolean ctx = false;
-    if (!ctx) {
-      ctx = findContext(name) != null;}
-  }
+
+
 
   @Override
   public void start(String name) throws startException, LifecycleException, InterruptedException {
     Context ctx = findContext(name);
-    if (ctx != null) {
-      ctx.wait();
+    synchronized (ctx == null ? this : ctx) {
+      if (ctx != null) {
+        ctx.wait();
+      }
     }
   }
 
   @Override
-  public void remove(String name) throws removeException, removeInternalException, CheckChangesException {
+  public void remove(String name) throws removeException, RemoveInternalException, CheckChangesException {
     name = formatContextName(name);
     Context ctx = findContext(name);
 
@@ -213,10 +211,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       removeInternal(name);
     }
-  }
-
-  private int getConfigFile(Locale ctx) {
-      return 0;
   }
 
   /**
@@ -333,10 +327,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
           Options opt = new EmbeddedServletOptions(servletConfig, sctx);
 
           JspRuntimeContext jrctx = new JspRuntimeContext(sctx, opt);
-          /*
-           * we need to pass context classloader here, so the jsps can reference /WEB-INF/classes
-           * and /WEB-INF/lib. JspCompilationContext would only take URLClassLoader, so we fake it
-           */
+
           try (URLClassLoader classLoader =
               new URLClassLoader(new URL[0], context.getLoader().getClassLoader())) {
             for (String name : names) {
@@ -639,7 +630,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     try {
       Boolean result = (Boolean) mbeanServer.invoke(deployerOName, "isServiced", new String[] {name},
               new String[] {String.class.getName()});
-      if (!result) {
+      if (!result  && name != null) {
         mbeanServer.invoke(deployerOName, "addServiced", new String[] {name},
                 new String[] {String.class.getName()});
         try {
@@ -711,10 +702,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
 
-  static class removeInternalException extends Exception {
+  static class RemoveInternalException extends Exception {
 
   }
 
-  static class installContextInternalException extends Exception {
+  static class InstallContextInternalException extends Exception {
   }
 }

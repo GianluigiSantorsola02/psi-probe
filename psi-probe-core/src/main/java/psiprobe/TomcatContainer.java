@@ -99,7 +99,7 @@ public interface TomcatContainer {
    * @param name the context path
    *
    */
-  void remove(String name) throws RemoveException, AbstractTomcatContainer.removeInternalException, AbstractTomcatContainer.CheckChangesException, removeException;
+  void remove(String name) throws RemoveException, AbstractTomcatContainer.RemoveInternalException, AbstractTomcatContainer.CheckChangesException, removeException;
 
   /**
    * Installs .war file at the given context name.
@@ -157,7 +157,7 @@ public interface TomcatContainer {
    * @return {@code true} if deployment was successful
    *
    */
-  boolean installContext(String contextName) throws InstallContextException, AbstractTomcatContainer.installContextInternalException, AbstractTomcatContainer.CheckChangesException;
+  boolean installContext(String contextName) throws InstallContextException, AbstractTomcatContainer.InstallContextInternalException, AbstractTomcatContainer.CheckChangesException;
 
   /**
    * Lists and optionally compiles all JSPs for the given context. Compilation details are added to
