@@ -10,8 +10,6 @@
  */
 package psiprobe.model;
 
-import psiprobe.tools.JmxTools;
-
 import java.util.Locale;
 
 /**
