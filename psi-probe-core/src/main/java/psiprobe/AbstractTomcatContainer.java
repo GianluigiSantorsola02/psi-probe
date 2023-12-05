@@ -186,7 +186,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       try {
         stop(name);
-      } catch (Exception e) {
+      } catch (InterruptedException | StopException | LifecycleException e) {
         logger.info("Stopping '{}' threw this exception:", name, e);
       }
 
