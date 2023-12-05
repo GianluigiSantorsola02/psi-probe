@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -21,6 +22,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import psiprobe.TomcatContainer;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 /**
@@ -30,7 +33,7 @@ public abstract class AbstractNoSelfContextHandlerController
     extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger =
+  private static final Logger mylogger =
       LoggerFactory.getLogger(AbstractNoSelfContextHandlerController.class);
 
   /** The pass query string. */
@@ -59,27 +62,30 @@ public abstract class AbstractNoSelfContextHandlerController
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     try {
-      try {
-        if (request.getContextPath().equals(contextName)) {
-          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-          if (messageSourceAccessor == null) {
-            throw new IllegalStateException("Failed to get message source accessor");
-          }
-
-          throw new IllegalStateException(messageSourceAccessor.getMessage("probe.src.contextAction.cannotActOnSelf"));
-        }
-      } catch (NullPointerException ex) {
-        throw new IllegalStateException("Null context path or context name", ex);
-      }
-
+      handleContextAction(contextName, request);
       executeAction(contextName);
-    } catch (Exception e) {
+    } catch (Exception | ContainerListenerBean.CustomExceptionException e) {
       request.setAttribute("errorMessage", e.getMessage());
-      logger.error("Error during invocation", e);
+      mylogger.error("Error during invocation", e);
       return new ModelAndView(new InternalResourceView(getViewName()));
     }
-    return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
-        + (isPassQueryString() ? "?" + request.getQueryString() : "")));
+
+      return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
+            + (isPassQueryString() ? "?" + request.getQueryString() : "")));
+  }
+
+  private void handleContextAction(String contextName, HttpServletRequest request) {
+    try {
+      if (request.getContextPath().equals(contextName)) {
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor == null) {
+          throw new IllegalStateException("Failed to get message source accessor");
+        }
+        throw new IllegalStateException(messageSourceAccessor.getMessage("probe.src.contextAction.cannotActOnSelf"));
+      }
+    } catch (NullPointerException ex) {
+      throw new IllegalStateException("Null context path or context name", ex);
+    }
   }
 
   /**
@@ -89,6 +95,6 @@ public abstract class AbstractNoSelfContextHandlerController
    *
    * @throws Exception the exception
    */
-  protected abstract void executeAction(String contextName) throws Exception;
+  protected abstract void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException, LifecycleException, TomcatContainer.StartException, InterruptedException, TomcatContainer.StopException;
 
 }

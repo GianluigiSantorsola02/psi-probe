@@ -10,11 +10,14 @@
  */
 package psiprobe.controllers.apps;
 
+import org.apache.catalina.LifecycleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import psiprobe.TomcatContainer;
+import psiprobe.beans.ContainerListenerBean;
 
 /**
  * Starts a web application.
@@ -25,7 +28,7 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
   private static final Logger logger = LoggerFactory.getLogger(BaseStartContextController.class);
 
   @Override
-  protected void executeAction(String contextName) throws Exception {
+  protected void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException, LifecycleException, TomcatContainer.StartException, InterruptedException {
     getContainerWrapper().getTomcatContainer().start(contextName);
 
     // Logging action

@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Controller;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 
 /**
@@ -49,7 +50,7 @@ public class ResetAppStatsController extends AbstractNoSelfContextHandlerControl
   }
 
   @Override
-  protected void executeAction(String contextName) throws Exception {
+  protected void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException {
     statsCollector.reset(contextName);
   }
 
