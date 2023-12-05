@@ -211,7 +211,7 @@ public class LogResolverBean {
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
                                           boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-    LogDestination result = null;
+    LogDestination result;
     Context ctx = null;
     Application application = null;
 
