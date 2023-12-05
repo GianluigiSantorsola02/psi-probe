@@ -80,8 +80,7 @@ public abstract class AbstractStatsCollectorBean {
   /**
    * Collect.
    */
-  private void collect() {
-  }
+
 
 
 
