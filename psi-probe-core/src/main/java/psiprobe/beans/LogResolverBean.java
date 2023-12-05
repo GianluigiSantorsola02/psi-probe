@@ -207,7 +207,7 @@ public class LogResolverBean {
   }
 
 
-  static private final String LOG_4J2_STRING = "log4j2String";
+   private static final String LOG_4J2_STRING = "log4j2String";
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
                                           boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
