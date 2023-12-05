@@ -10,6 +10,7 @@
  */
 package psiprobe;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletConfig;
@@ -39,13 +40,10 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
   private static final long serialVersionUID = 1L;
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ProbeServlet.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(ProbeServlet.class);
 
-  // Dichiarazione della variabile wrapper come static final
   private static final Wrapper wrapper = null;
 
-  // Rimozione dell'attributo transient
-  // private transient Wrapper wrapper;
 
   @Override
   public Wrapper getWrapper() {
@@ -54,8 +52,7 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
 
   @Override
   public void setWrapper(Wrapper wrapper) {
-    // Rimozione della riga this.wrapper = wrapper;
-    logger.info("setWrapper() called");
+    mylogger.info("setWrapper() called");
   }
 
   /**
@@ -68,10 +65,7 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    if (wrapper == null) {
       throw new ServletException("Wrapper is null");
-    }
-    getContainerWrapperBean().setWrapper(wrapper);
   }
 
   /**
@@ -85,9 +79,12 @@ public class ProbeServlet extends DispatcherServlet implements ContainerServlet 
    */
   @Override
   protected void doDispatch(HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse) throws Exception {
-    httpServletRequest.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    super.doDispatch(httpServletRequest, httpServletResponse);
+                            HttpServletResponse httpServletResponse) throws Exception {
+    try {
+      httpServletRequest.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      mylogger.error("Unsupported encoding: {}", e.getMessage());
+    }
   }
 
   @Override

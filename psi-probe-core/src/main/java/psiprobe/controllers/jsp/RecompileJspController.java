@@ -38,7 +38,7 @@ import psiprobe.model.jsp.Summary;
 public class RecompileJspController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(RecompileJspController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(RecompileJspController.class);
 
   @RequestMapping(path = "/app/recompile.htm")
   @Override
@@ -65,16 +65,12 @@ public class RecompileJspController extends AbstractContextHandlerController {
       request.getSession(false).setAttribute(DisplayJspController.SUMMARY_ATTRIBUTE, summary);
     } else if (summary != null && contextName.equals(summary.getName())) {
       String name = null;
-      name = ServletRequestUtils.getStringParameter(request, "source", null);
+      name = ServletRequestUtils.getStringParameter(request, "source", "");
 
-      if (name != null) {
         List<String> names = new ArrayList<>();
         names.add(name);
         getContainerWrapper().getTomcatContainer().recompileJsps(context, summary, names);
         request.getSession(false).setAttribute(DisplayJspController.SUMMARY_ATTRIBUTE, summary);
-      } else {
-        logger.error("source is not passed, nothing to do");
-      }
     }
     return new ModelAndView(new RedirectView(request.getContextPath()
         + ServletRequestUtils.getStringParameter(request, "view", getViewName()) + "?"

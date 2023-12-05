@@ -58,7 +58,7 @@ import psiprobe.model.sql.DataSourceTestInfo;
 public class ExecuteSqlController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ExecuteSqlController.class);
+  private static final Logger mylogger = LoggerFactory.getLogger(ExecuteSqlController.class);
 
   @RequestMapping(path = "/sql/record1set.ajax")
   @Override
@@ -72,6 +72,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
+    String errorString = "Error during resource lookup.";
     String sql = ServletRequestUtils.getStringParameter(request, "sql", "");
     final String errorMessageString = "errorMessage";
     if (sql.isEmpty() || sql.trim().isEmpty()) {
@@ -81,7 +82,7 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
             messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.required"));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
+        request.setAttribute(errorMessageString, errorString);
       }
       return new ModelAndView(getViewName());
     }
@@ -120,9 +121,9 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
             "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
         // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
+        request.setAttribute(errorMessageString, errorString);
       }
-      logger.trace("", e);
+      mylogger.trace("", e);
     }
 
     if (dataSource == null) {
@@ -131,8 +132,8 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
         request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(
             "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       } else {
-        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute(errorMessageString, "Errore durante l'accesso al messaggio di origine.");
+
+        request.setAttribute(errorMessageString, errorString);
       }
     } else {
       List<Map<String, String>> results = null;
@@ -217,12 +218,12 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
         if (messageSourceAccessor != null) {
           String message = messageSourceAccessor.getMessage("probe.src.dataSourceTest.sql.failure",
               new Object[] {e.getMessage()});
-          logger.error(message, e);
+          mylogger.error(message, e);
           request.setAttribute(errorMessageString, message);
         } else {
           // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-          String errorMessage = "Errore durante l'accesso al messaggio di origine.";
-          logger.error(errorMessage, e);
+          String errorMessage = "Error during resource lookup.";
+          mylogger.error(errorMessage, e);
 
           request.setAttribute(errorMessageString, errorMessage);
         }
