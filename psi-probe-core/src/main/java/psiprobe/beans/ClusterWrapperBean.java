@@ -130,20 +130,6 @@ public class ClusterWrapperBean {
                 JmxTools.getIntAttr(mbeanServer, localSenderOName, "maxPoolSocketLimit"));
           }
 
-          if (sender instanceof SyncClusterSender) {
-            SyncClusterSender syncSender = (SyncClusterSender) sender;
-            syncSender.setDataFailureCounter(
-                JmxTools.getLongAttr(mbeanServer, localSenderOName, "dataFailureCounter"));
-            syncSender.setDataResendCounter(
-                JmxTools.getLongAttr(mbeanServer, localSenderOName, "dataResendCounter"));
-            syncSender.setSocketOpenCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketOpenCounter"));
-            syncSender.setSocketCloseCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketCloseCounter"));
-            syncSender.setSocketOpenFailureCounter(
-                JmxTools.getIntAttr(mbeanServer, localSenderOName, "socketOpenFailureCounter"));
-          }
-
           if (sender instanceof AsyncClusterSender) {
             AsyncClusterSender asyncSender = (AsyncClusterSender) sender;
             asyncSender.setInQueueCounter(
