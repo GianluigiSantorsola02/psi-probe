@@ -244,8 +244,7 @@ public class ResourceResolverBean implements ResourceResolver {
         }
       } catch (NamingException e) {
         // Handle the NamingException
-        logger.error("Error occurred during JNDI lookup: " + e.getMessage());
-        // You can add additional error handling or logging code here
+        logger.error("Error occurred during JNDI lookup: {}", e.getMessage());        // You can add additional error handling or logging code here
       }
       if (obj instanceof DataSource) {
         return (DataSource) obj;
