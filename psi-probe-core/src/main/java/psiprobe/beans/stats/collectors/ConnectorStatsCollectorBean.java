@@ -23,10 +23,7 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
   /** The listener bean. */
   private ContainerListenerBean listenerBean;
 
-  @Inject
-  public void ListenerBean(ContainerListenerBean listenerBean) {
-    this.listenerBean = listenerBean;
-  }
+
   @Override
   public void collect() throws Throwable {
     for (Connector connector : listenerBean.getConnectors(false)) {
@@ -44,12 +41,21 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
    *
    * @throws Exception the exception
    */
-  public void reset() throws Throwable {
-    for (Connector connector : listenerBean.getConnectors(false)) {
-      reset(connector.getProtocolHandler());
+  private void reset() throws CustomException {
+    try {
+      for (Connector connector : listenerBean.getConnectors(false)) {
+        reset(connector.getProtocolHandler());
+      }
+    } catch (Exception | ContainerListenerBean.CustomException e) {
+      throw new CustomException("Failed to reset connectors", e);
     }
   }
 
+  static class CustomException extends Throwable {
+    public CustomException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
   /**
    * Reset.
    *
