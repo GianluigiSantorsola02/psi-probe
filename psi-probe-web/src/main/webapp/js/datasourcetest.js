@@ -107,7 +107,6 @@ function testConnction() {
 	$('rowsAffected').innerHTML = "";
 	$('pagebanner').innerHTML = "";
 	$('pagelinks').innerHTML = "";
-	let params = Form.serialize(formId);
 
 }
 
@@ -116,7 +115,6 @@ function executeSql() {
 	Element.show(ajaxActivityId);
 	Element.hide(metaDataH3Id);
 	Element.show(resultsH3Id);
-	let params = Form.serialize(formId);
 }
 
 function setupPaginationLinks(req, obj) {
@@ -136,7 +134,6 @@ function setupPaginationLinks(req, obj) {
 		lnk.onclick = function() {
 			Element.show(ajaxActivityId);
 			Element.show(resultsH3Id);
-			let p = Form.serialize(formId);
 			return false;
 		}
 	});
@@ -221,28 +218,32 @@ function hideOptions() {
 function setupShortcuts() {
 	let rules = {
 		'body': function(element) {
-			element.onkeydown = function() {
-				let sUserAgent = navigator.userAgent;
-				let isIE = sUserAgent.indexOf('compatible') > -1 && sUserAgent.indexOf('MSIE') > -1;
-				let e;
+			element.onkeydown = function(event) {
+				let e = event || window.event;
 
-				if (isIE) {
-					e = window.event;
-				} else {
-					e = arguments[0];
+				function isEnterKeyPressed() {
+					return e.keyCode === 13 && e.ctrlKey && !e.altKey && !e.shiftKey;
 				}
 
-				if (e.keyCode == 13 && e.ctrlKey && ! e.altKey && ! e.shiftKey) {
+				function isDownKeyPressed() {
+					return e.keyCode === 40 && e.ctrlKey && !e.altKey && !e.shiftKey;
+				}
+
+				function isUpKeyPressed() {
+					return e.keyCode === 38 && e.ctrlKey && !e.altKey && !e.shiftKey;
+				}
+
+				if (isEnterKeyPressed()) {
 					executeSql();
 					$('sql').focus();
-				} else if (e.keyCode == 40 && e.ctrlKey && ! e.altKey && ! e.shiftKey) {
+				} else if (isDownKeyPressed()) {
 					if (historyVisible) {
 						hideQueryHistory();
 					} else {
 						showQueryHistory();
 					}
 					$('sql').focus();
-				} else if (e.keyCode == 38 && e.ctrlKey && ! e.altKey && ! e.shiftKey) {
+				} else if (isUpKeyPressed()) {
 					if (optionsVisible) {
 						hideOptions();
 						$('sql').focus();
@@ -251,7 +252,7 @@ function setupShortcuts() {
 						$('sql').focus();
 					}
 				}
-			}
+			};
 		}
 	};
 
