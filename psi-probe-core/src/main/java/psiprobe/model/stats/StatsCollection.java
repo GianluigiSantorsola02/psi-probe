@@ -9,7 +9,6 @@
  * PURPOSE.
  */
 package psiprobe.model.stats;
-
 import com.thoughtworks.xstream.XStream;
 import org.jfree.data.xy.XYDataItem;
 import org.slf4j.Logger;
