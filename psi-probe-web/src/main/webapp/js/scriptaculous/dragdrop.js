@@ -720,69 +720,46 @@ const Sortable = {
   let: oldParentNode,
 
   onHover: function(element, dropon, overlap) {
-
     if(Element.isParent(dropon, element)) return;
 
     if(overlap > .33 && overlap < .66 && Sortable.options(dropon).tree) {
-      Sortable.mark(dropon, 'after');
-      if(dropon.nextSibling !== element) {
-       let oldParentNode = element.parentNode;
-        element.style.visibility = "hidden"; // fix gecko rendering
-        dropon.parentNode.insertBefore(element, dropon.nextSibling);
-        if(dropon.parentNode!==oldParentNode)
-          Sortable.options(oldParentNode).onChange(element);
-        Sortable.options(dropon.parentNode).onChange(element);
-      }
-
-    } else if(overlap>0.5) {
-      Sortable.mark(dropon, 'before');
-      if(dropon.previousSibling !== element) {
-        oldParentNode = element.parentNode;
-        element.style.visibility = "hidden"; // fix gecko rendering
-        dropon.parentNode.insertBefore(element, dropon);
-        if(dropon.parentNode!==oldParentNode)
-          Sortable.options(oldParentNode).onChange(element);
-        Sortable.options(dropon.parentNode).onChange(element);
-      }
+      this.moveElementAfter(dropon, element);
+    } else if(overlap > 0.5) {
+      this.moveElementBefore(dropon, element);
     } else {
-      Sortable.mark(dropon, 'after');
-      let nextElement = dropon.nextSibling || null;
-      if(nextElement !== element) {
-        element.style.visibility = "hidden"; // fix gecko rendering
-        dropon.parentNode.insertBefore(element, nextElement);
-        if(dropon.parentNode!==oldParentNode)
-          Sortable.options(oldParentNode).onChange(element);
-        Sortable.options(dropon.parentNode).onChange(element);
-      }
+      this.moveElementAfter(dropon, element);
     }
   },
 
+  moveElementBefore: function(dropon, element) {
+    if(dropon.previousSibling !== element) {
+      let oldParentNode = element.parentNode;
+      element.style.visibility = "hidden";
+      dropon.parentNode.insertBefore(element, dropon);
+      if(dropon.parentNode !== oldParentNode) {
+        Sortable.options(oldParentNode).onChange(element);
+      }
+      Sortable.options(dropon.parentNode).onChange(element);
+    }
+  },
+
+  moveElementAfter: function(dropon, element) {
+    Sortable.mark(dropon, 'after');
+    let nextElement = dropon.nextSibling || null;
+    if(nextElement !== element) {
+      element.style.visibility = "hidden";
+      dropon.parentNode.insertBefore(element, nextElement);
+    } else if(dropon.parentNode !== oldParentNode) {
+      Sortable.options(oldParentNode).onChange(element);
+    }
+    Sortable.options(dropon.parentNode).onChange(element);
+  },
   onEmptyHover: function(element, dropon, overlap) {
     const oldParentNode = element.parentNode;
     const droponOptions = Sortable.options(dropon);
 
     if(!Element.isParent(dropon, element)) {
-      let index;
-
-      const children = Sortable.findElements(dropon, {tag: droponOptions.tag, only: droponOptions.only});
-      let child = null;
-
-      if(children) {
-        let offset = Element.offsetSize(dropon, droponOptions.overlap) * (1.0 - overlap);
-
-        for (index = 0; index < children.length; index += 1) {
-          if (offset - Element.offsetSize (children[index], droponOptions.overlap) >= 0) {
-            offset -= Element.offsetSize (children[index], droponOptions.overlap);
-          } else if (offset - (Element.offsetSize (children[index], droponOptions.overlap) / 2) >= 0) {
-            child = index + 1 < children.length ? children[index + 1] : null;
-            break;
-          } else {
-            child = children[index];
-            break;
-          }
-        }
-      }
-
+      const child = this.findNextChildElement(dropon, droponOptions, overlap);
       dropon.insertBefore(element, child);
 
       Sortable.options(oldParentNode).onChange(element);
@@ -790,6 +767,30 @@ const Sortable = {
     }
   },
 
+  findNextChildElement: function(dropon, droponOptions, overlap) {
+    let index;
+    const children = Sortable.findElements(dropon, {tag: droponOptions.tag, only: droponOptions.only});
+    let child = null;
+
+    if(children) {
+      let offset = Element.offsetSize(dropon, droponOptions.overlap) * (1.0 - overlap);
+
+      for(index = 0; index < children.length; index += 1) {
+        const childOffsetSize = Element.offsetSize(children[index], droponOptions.overlap);
+        if(offset - childOffsetSize >= 0) {
+          offset -= childOffsetSize;
+        } else if(offset - (childOffsetSize / 2) >= 0) {
+          child = index + 1 < children.length ? children[index + 1] : null;
+          break;
+        } else {
+          child = children[index];
+          break;
+        }
+      }
+    }
+
+    return child;
+  },
   unmark: function() {
     if(Sortable._marker) Sortable._marker.hide();
   },
