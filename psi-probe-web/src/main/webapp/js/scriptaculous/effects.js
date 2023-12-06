@@ -203,47 +203,56 @@ Effect.Queues = {
 Effect.Queue = Effect.Queues.get('global');
 
 Effect.Base = Class.create({
-  position: null,
-  start: function(options) {
-    if (options && options.transition === false) options.transition = Effect.Transitions.linear;
-    this.options      = Object.extend(Object.extend({ },Effect.DefaultOptions), options || { });
+  position: null,start: function(options) {
+    this.options = Object.extend(Object.extend({}, Effect.DefaultOptions), options || {});
     this.currentFrame = 0;
-    this.state        = 'idle';
-    this.startOn      = this.options.delay*1000;
-    this.finishOn     = this.startOn+(this.options.duration*1000);
-    this.fromToDelta  = this.options.to-this.options.from;
-    this.totalTime    = this.finishOn-this.startOn;
-    this.totalFrames  = this.options.fps*this.options.duration;
+    this.state = 'idle';
+    this.startOn = this.options.delay * 1000;
+    this.finishOn = this.startOn + (this.options.duration * 1000);
+    this.fromToDelta = this.options.to - this.options.from;
+    this.totalTime = this.finishOn - this.startOn;
+    this.totalFrames = this.options.fps * this.options.duration;
 
-    this.render = (function() {
-      function dispatch(effect, eventName) {
-        if (effect.options[eventName + 'Internal'])
-          effect.options[eventName + 'Internal'](effect);
-        if (effect.options[eventName])
-          effect.options[eventName](effect);
-      }
+    this.render = this.createRenderFunction();
 
-      return function(pos) {
-        if (this.state === "idle") {
-          this.state = "running";
-          dispatch(this, 'beforeSetup');
-          if (this.setup) this.setup();
-          dispatch(this, 'afterSetup');
-        }
-        if (this.state === "running") {
-          pos = (this.options.transition(pos) * this.fromToDelta) + this.options.from;
-          this.position = pos;
-          dispatch(this, 'beforeUpdate');
-          if (this.update) this.update(pos);
-          dispatch(this, 'afterUpdate');
-        }
-      };
-    })();
+    this.setupAndRun();
 
     this.event('beforeStart');
     if (!this.options.sync)
       Effect.Queues.get(Object.isString(this.options.queue) ?
-        'global' : this.options.queue.scope).add(this);
+          'global' : this.options.queue.scope).add(this);
+  },
+
+  createRenderFunction: function() {
+    return function(pos) {
+      if (this.state === "idle") {
+        this.state = "running";
+        this.dispatch('beforeSetup');
+        if (this.setup) this.setup();
+        this.dispatch('afterSetup');
+      }
+      if (this.state === "running") {
+        pos = (this.options.transition(pos) * this.fromToDelta) + this.options.from;
+        this.position = pos;
+        this.dispatch('beforeUpdate');
+        if (this.update) this.update(pos);
+        this.dispatch('afterUpdate');
+      }
+    }.bind(this);
+  },
+
+  dispatch: function(eventName) {
+    if (this.options[eventName + 'Internal'])
+      this.options[eventName + 'Internal'](this);
+    if (this.options[eventName])
+      this.options[eventName](this);
+  },
+
+  setupAndRun: function() {
+    if (this.options && this.options.transition === false) {
+      this.options.transition = Effect.Transitions.linear;
+    }
+    this.render(0);
   },
   loop: function(timePos) {
     if (timePos >= this.startOn) {
@@ -275,7 +284,7 @@ Effect.Base = Class.create({
   },
   inspect: function() {
     let data = $H();
-    for(property in this)
+    for(let property in this)
       if (!Object.isFunction(this[property])) data.set(property, this[property]);
     return '#<Effect:' + data.inspect() + ',options:' + $H(this.options).inspect() + '>';
   }
@@ -432,21 +441,40 @@ Effect.Scale = Class.create(Effect.Base, {
   finish: function() {
     if (this.restoreAfterFinish) this.element.setStyle(this.originalStyle);
   },
-  setDimensions: function(height, width) {
-    let d = { };
-    if (this.options.scaleX) d.width = width.round() + 'px';
-    if (this.options.scaleY) d.height = height.round() + 'px';
+  setDimensions:function(height, width) {
+    let d = {};
+
+    if (this.options.scaleX) {
+      d.width = width.round() + 'px';
+    }
+
+    if (this.options.scaleY) {
+      d.height = height.round() + 'px';
+    }
+
     if (this.options.scaleFromCenter) {
-      let topd  = (height - this.dims[0])/2;
-      let leftd = (width  - this.dims[1])/2;
+      let topd = (height - this.dims[0]) / 2;
+      let leftd = (width - this.dims[1]) / 2;
+
       if (this.elementPositioning === 'absolute') {
-        if (this.options.scaleY) d.top = this.originalTop-topd + 'px';
-        if (this.options.scaleX) d.left = this.originalLeft-leftd + 'px';
+        if (this.options.scaleY) {
+          d.top = this.originalTop - topd + 'px';
+        }
+
+        if (this.options.scaleX) {
+          d.left = this.originalLeft - leftd + 'px';
+        }
       } else {
-        if (this.options.scaleY) d.top = -topd + 'px';
-        if (this.options.scaleX) d.left = -leftd + 'px';
+        if (this.options.scaleY) {
+          d.top = -topd + 'px';
+        }
+
+        if (this.options.scaleX) {
+          d.left = -leftd + 'px';
+        }
       }
     }
+
     this.element.setStyle(d);
   }
 });
@@ -716,29 +744,24 @@ Effect.Grow = function(element) {
 
   switch (options.direction) {
     case 'top-left':
-      initialMoveX = initialMoveY = moveX = moveY = 0;
+      initialMoveX = initialMoveY  = 0;
       break;
     case 'top-right':
       initialMoveX = dims.width;
-      initialMoveY = moveY = 0;
-      moveX = -dims.width;
+      initialMoveY  = 0;
       break;
     case 'bottom-left':
       initialMoveX = moveX = 0;
       initialMoveY = dims.height;
-      moveY = -dims.height;
       break;
     case 'bottom-right':
       initialMoveX = dims.width;
       initialMoveY = dims.height;
-      moveX = -dims.width;
-      moveY = -dims.height;
+
       break;
     case 'center':
       initialMoveX = dims.width / 2;
       initialMoveY = dims.height / 2;
-      moveX = -dims.width / 2;
-      moveY = -dims.height / 2;
       break;
   }
 
@@ -790,8 +813,7 @@ Effect.Shrink = function(element) {
       moveY = dims.height;
       break;
     case 'center':
-      moveX = dims.width / 2;
-      moveY = dims.height / 2;
+
       break;
   }
 
@@ -831,7 +853,7 @@ Effect.Fold = function(element) {
   }}, arguments[1] || { }));
 };
 
-this.element.currentStyle = undefined;
+element.currentStyle = undefined;
 Effect.Morph = Class.create(Effect.Base, {
   initialize: function(element) {
     this.element = $(element);
@@ -907,7 +929,7 @@ Effect.Morph = Class.create(Effect.Base, {
     let style = { }, transform, i = this.transforms.length;
     while(i--)
       let value;
-    if (transform.unit === 'color') {
+    if (transform && transform.unit === 'color') {
       const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
       const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
       const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
@@ -952,8 +974,7 @@ Element.CSS_PROPERTIES = $w(
   'outlineWidth paddingBottom paddingLeft paddingRight paddingTop ' +
   'right textIndent top width wordSpacing zIndex');
 
-Element.CSS_LENGTH = /^([+]?(\d*\.\d+|\d+)(em|ex|px|in|cm|mm|pt|pc)|0)$/;
-
+Element.CSS_LENGTH = /^[+\d.]+(em|ex|px|in|cm|mm|pt|pc|0)$/;
 
 String.__parseStyleElement = document.createElement('div');
 if (document.defaultView?.getComputedStyle) {

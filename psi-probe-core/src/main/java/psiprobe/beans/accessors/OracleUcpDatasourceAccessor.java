@@ -58,8 +58,7 @@ public class OracleUcpDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return (resource instanceof PoolDataSource)
-        && ((resource instanceof PoolDataSourceImpl) || (resource instanceof PoolXADataSourceImpl));
+    return resource instanceof PoolDataSourceImpl;
   }
 
 }
