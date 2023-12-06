@@ -32,6 +32,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStatsMembers() {
+
     JavaBeanTester.builder(ClusterMembersStatsController.class);
   }
 
@@ -48,6 +49,7 @@ class ClusterStatsControllerTest {
    */
   @Test
   void javabeanTesterClusterStatsTraffic() {
+
     JavaBeanTester.builder(ClusterTrafficStatsController.class);
   }
 
