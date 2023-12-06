@@ -13,6 +13,7 @@ package psiprobe.controllers.apps;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,12 +42,10 @@ public class BaseReloadContextController extends AbstractNoSelfContextHandlerCon
           mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
         } else {
           if (mylogger.isInfoEnabled()) {
-          mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
+            mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
+          }
         }
-      } catch (NullPointerException ex) {
-        throw new IllegalStateException("Null message source accessor", ex);
+      } catch (IllegalStateException e) {
+        throw new IllegalStateException("Failed to get message source accessor. Reloading " + contextName, e);
       }
-    }
-  }
-
-}
+    }}}
