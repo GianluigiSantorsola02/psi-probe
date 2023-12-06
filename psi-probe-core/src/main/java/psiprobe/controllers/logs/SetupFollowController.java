@@ -24,6 +24,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import psiprobe.beans.ApplicationCreationException;
 import psiprobe.tools.logging.LogDestination;
 
 /**
@@ -41,7 +42,7 @@ public class SetupFollowController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException {
+      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException, ApplicationCreationException {
 
     File logFile = logDest.getFile();
     List<LogDestination> sources = getLogResolver().getLogSources(logFile);

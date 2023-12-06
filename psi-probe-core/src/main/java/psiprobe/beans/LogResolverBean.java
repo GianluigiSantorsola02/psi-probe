@@ -10,22 +10,12 @@
  */
 package psiprobe.beans;
 
-import java.io.File;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
-
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Loader;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import psiprobe.model.Application;
 import psiprobe.model.DisconnectedLogDestination;
 import psiprobe.tools.ApplicationUtils;
@@ -53,6 +43,13 @@ import psiprobe.tools.logging.slf4jlogback.TomcatSlf4jLogbackLoggerAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13FactoryAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13LoggerAccessor;
 
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+
 /**
  * The Class LogResolverBean.
  */
@@ -64,10 +61,6 @@ public class LogResolverBean {
   /** The container wrapper. */
   private ContainerWrapperBean containerWrapper;
 
-  @Inject
-  public void cointaner(ContainerWrapperBean containerWrapper) {
-    this.containerWrapper = containerWrapper;
-  }
   /** The stdout files. */
   private List<String> stdoutFiles = new ArrayList<>();
 
@@ -107,7 +100,7 @@ public class LogResolverBean {
    *
    * @return the log destinations
    */
-  public List<LogDestination> getLogDestinations(boolean all) {
+  public List<LogDestination> getLogDestinations(boolean all) throws ApplicationCreationException {
     List<LogDestination> allAppenders = getAllLogDestinations();
 
     if (allAppenders.isEmpty()) {
@@ -137,7 +130,7 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources(File logFile) {
+  public List<LogDestination> getLogSources(File logFile) throws ApplicationCreationException {
     List<LogDestination> filtered = new LinkedList<>();
     List<LogDestination> sources = getLogSources();
     for (LogDestination dest : sources) {
@@ -153,7 +146,7 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources() {
+  public List<LogDestination> getLogSources() throws ApplicationCreationException {
     List<LogDestination> sources = new LinkedList<>();
 
     List<LogDestination> allAppenders = getAllLogDestinations();
@@ -175,7 +168,7 @@ public class LogResolverBean {
    *
    * @return the all log destinations
    */
-  private List<LogDestination> getAllLogDestinations() {
+  private List<LogDestination> getAllLogDestinations() throws ApplicationCreationException {
     if (!Instruments.isInitialized()) {
       return Collections.emptyList();
     }
@@ -303,7 +296,7 @@ public class LogResolverBean {
    * @param ctx the ctx
    * @param allAppenders the all appenders
    */
-  private void interrogateContext(Context ctx, List<LogDestination> allAppenders) {
+  private void interrogateContext(Context ctx, List<LogDestination> allAppenders) throws ApplicationCreationException {
     Application application = getApplication(ctx);
 
     Object contextLogger = ctx.getLogger();
@@ -321,13 +314,13 @@ public class LogResolverBean {
       interrogateCommonsLogger(ctx, application, allAppenders);}
   }
 
-  private Application getApplication(Context ctx) {
+  private Application getApplication(Context ctx) throws ApplicationCreationException {
     Application application;
     try {
       application = ApplicationUtils.getApplication(ctx, getContainerWrapper());
     } catch (Exception e) {
       logger.debug("getApplication failed", e);
-      application = new Application();
+      throw new ApplicationCreationException("Failed to create the application");
     }
     return application;
   }
@@ -818,8 +811,4 @@ public class LogResolverBean {
 
   }
 
-  private class InterrogateLog4J2LoggersException extends Exception {
-
-    private static final long serialVersionUID = 1L;
-  }
 }
