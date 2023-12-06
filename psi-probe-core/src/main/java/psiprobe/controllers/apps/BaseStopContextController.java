@@ -40,8 +40,8 @@ public class BaseStopContextController extends AbstractNoSelfContextHandlerContr
       logger.info(messageSourceAccessor.getMessage("probe.src.log.stop"), name, contextName);
     } else {
       if (logger.isInfoEnabled()) {
-      logger.info("Failed to get message source accessor. Stopping {} context.", contextName);
+        logger.info("Failed to get message source accessor. Stopping {} context.", contextName);
+      }
     }
   }
-
 }

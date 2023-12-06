@@ -24,7 +24,9 @@ import psiprobe.beans.ContainerListenerBean;
  */
 public class BaseStartContextController extends AbstractNoSelfContextHandlerController {
 
-  /** The Constant logger. */
+  /**
+   * The Constant logger.
+   */
   private static final Logger logger = LoggerFactory.getLogger(BaseStartContextController.class);
 
   @Override
@@ -37,11 +39,12 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
     String name = auth.getName();
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
     if (messageSourceAccessor != null) {
-      logger.info(messageSourceAccessor. getMessage("probe.src.log.reload"), name, contextName);
+      logger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
     } else {
-      if(logger.isInfoEnabled()) {
-      logger.info("Failed to get message source accessor. Starting {} context.", contextName);
+      if (logger.isInfoEnabled()) {
+        logger.info("Failed to get message source accessor. Starting {} context.", contextName);
+      }
     }
-  }
 
+  }
 }
