@@ -44,9 +44,9 @@ public class RememberVisibilityController extends AbstractController {
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
                                                HttpServletResponse response) throws Exception {
 
-    String cookieName = ServletRequestUtils.getStringParameter(request, "cookieName");
+    String cookieName = "cookieName";
     String state = ServletRequestUtils.getStringParameter(request, "state");
-    if (cookieName != null && state != null) {
+    if (state != null) {
       // Validate and sanitize the cookie name
       cookieName = sanitizeCookieName(cookieName);
 
