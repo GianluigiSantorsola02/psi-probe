@@ -36,8 +36,9 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 
     if (context != null || isContextOptional()) {
       try {
-        handleContext(contextName, context, request, response);
-      } catch (BaseViewXmlConfController.DisplayTargetException |
+        return handleContext(contextName, context, request, response);
+
+     } catch (BaseViewXmlConfController.DisplayTargetException |
                BaseViewXmlConfController.UnknownDisplayTargetException |
                ViewServletSourceController.FileProcessingException e) {
         throw new MyCustomException(String.valueOf(e));

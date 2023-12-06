@@ -59,18 +59,19 @@ public abstract class AbstractNoSelfContextHandlerController
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) {
 
     try {
       handleContextAction(contextName, request);
       executeAction(contextName);
-    } catch ( ContainerListenerBean.CustomExceptionException e) {
+    } catch (ContainerListenerBean.CustomExceptionException | LifecycleException | TomcatContainer.StartException |
+             TomcatContainer.StopException | InterruptedException e) {
       request.setAttribute("errorMessage", e.getMessage());
       mylogger.error("Error during invocation", e);
       return new ModelAndView(new InternalResourceView(getViewName()));
     }
 
-    return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
+      return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
             + (isPassQueryString() ? "?" + request.getQueryString() : "")));
   }
 
@@ -93,7 +94,6 @@ public abstract class AbstractNoSelfContextHandlerController
    *
    * @param contextName the context name
    *
-   * @throws Exception the exception
    */
   protected abstract void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException, LifecycleException, TomcatContainer.StartException, InterruptedException, TomcatContainer.StopException;
 
