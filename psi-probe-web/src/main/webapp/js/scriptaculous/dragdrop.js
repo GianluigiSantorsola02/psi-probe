@@ -167,16 +167,9 @@ const Draggables = {
       this.activeDraggable = draggable;
     }
   },
-
-  deactivate: function () {
-    this.activeDraggable = null;
-  },
-
   updateDrag: function (event) {
     if (!this.activeDraggable) return;
     const pointer = [Event.pointerX(event), Event.pointerY(event)];
-    // Mozilla-based browsers fire successive mousemove events with
-    // the same coordinates, prevent needless redrawing (moz bug?)
     if (this._lastPointer && (this._lastPointer.inspect() === pointer.inspect())) return;
     this._lastPointer = pointer;
 
@@ -325,7 +318,6 @@ const Draggable = Class.create({
       this.delta = this.currentDelta();
 
     if (this.options.zindex) {
-      this.originalZ = parseInt(Element.getStyle(this.element, 'z-index') || 0);
       this.element.style.zIndex = this.options.zindex;
     }
 
@@ -390,102 +382,86 @@ const Draggable = Class.create({
 
     Event.stop(event);
   },
-
-  finishDrag: function (event, success) {
-    this.dragging = false;
-
-    if (this.options.quiet) {
-      Position.prepare();
-      const pointer = [Event.pointerX(event), Event.pointerY(event)];
-      Droppables.show(pointer, this.element);
-    }
-
-    if (this.options.ghosting) {
-      if (!this._originallyAbsolute)
-        Position.relativize(this.element);
-      delete this._originallyAbsolute;
-      Element.remove(this._clone);
-      this._clone = null;
-    }
-
-    function handleDropped() {
-      let dropped = false;
-      if (success) {
-        dropped = Droppables.fire(event, this.element);
-        if (!dropped) dropped = false;
-      }
-      if (dropped && this.options.onDropped) this.options.onDropped(this.element);
-    }
-
-    handleDropped();
-
-    Draggables.notify('onEnd', this, event);
-
-    let revert = this.options.revert;
-    if (Object.isFunction(revert)) revert = revert(this.element);
-
-    const d = this.currentDelta();
-    if (revert && this.options.reverteffect) {
-      if (dropped === 0 || revert !== 'failure')
-        this.options.reverteffect(this.element, d[1] - this.delta[1], d[0] - this.delta[0]);
-    } else {
-      this.delta = d;
-    }
-
-    if (this.options.zindex)
-      this.element.style.zIndex = this.originalZ;
-
-    if (this.options.endeffect)
-      this.options.endeffect(this.element);
-
-    Draggables.deactivate(this);
-    Droppables.reset();
-  },
-  draw: function (point) {
+  draw: function(point) {
     const pos = this.element.cumulativeOffset();
-    if (this.options.ghosting) {
-      const r = Position.realOffset(this.element);
-      pos[0] += r[0] - Position.deltaX;
-      pos[1] += r[1] - Position.deltaY;
+    if(this.options.ghosting) {
+      pos[0] += this.calculateOffsetX();
+      pos[1] += this.calculateOffsetY();
     }
 
     const d = this.currentDelta();
     pos[0] -= d[0];
     pos[1] -= d[1];
 
-    if (this.options.scroll && (this.options.scroll !== window && this._isScrollChild)) {
+    this.adjustForScroll(pos);
+
+    let p = this.calculatePosition(point, pos);
+
+    this.applySnap(p);
+
+    this.applyConstraint(p);
+
+    const style = this.element.style;
+    if(!this.options.constraint || this.options.constraint === 'horizontal') {
+      style.left = p[0] + "px";
+    }
+    if(!this.options.constraint || this.options.constraint === 'vertical') {
+      style.top = p[1] + "px";
+    }
+
+    if(style.visibility === "hidden") {
+      style.visibility = ""; // fix gecko rendering
+    }
+  },
+
+  calculateOffsetX: function() {
+    const r = Position.realOffset(this.element);
+    return r[0] - Position.deltaX;
+  },
+
+  calculateOffsetY: function() {
+    const r = Position.realOffset(this.element);
+    return r[1] - Position.deltaY;
+  },
+
+  adjustForScroll: function(pos) {
+    if(this.options.scroll && (this.options.scroll !== window && this._isScrollChild)) {
       pos[0] -= this.options.scroll.scrollLeft - this.originalScrollLeft;
       pos[1] -= this.options.scroll.scrollTop - this.originalScrollTop;
     }
-
-    let p = [0, 1].map(function (i) {
-      return (point[i] - pos[i] - this.offset[i])
-    }.bind(this));
-
-    if (this.options.snap) {
-      if (Object.isFunction(this.options.snap)) {
-        p = this.options.snap(p[0], p[1], this);
-      } else if (Object.isArray(this.options.snap)) {
-          p = p.map(function (v, i) {
-            return (v / this.options.snap[i]).round() * this.options.snap[i]
-          }.bind(this));
-        } else {
-          p = p.map(function (v) {
-            return (v / this.options.snap).round() * this.options.snap
-          }.bind(this));
-        }
-      }
-
-
-    const style = this.element.style;
-    if ((!this.options.constraint) || (this.options.constraint === 'horizontal'))
-      style.left = p[0] + "px";
-    if ((!this.options.constraint) || (this.options.constraint === 'vertical'))
-      style.top = p[1] + "px";
-
-    if (style.visibility === "hidden") style.visibility = ""; // fix gecko rendering
   },
 
+  calculatePosition: function(point, pos) {
+    return [0, 1].map(function(i) {
+      return point[i] - pos[i] - this.offset[i];
+    }.bind(this));
+  },
+
+  applySnap: function(p) {
+    if(this.options.snap) {
+      if(Object.isFunction(this.options.snap)) {
+        this.options.snap(p[0], p[1], this);
+      } else if(Object.isArray(this.options.snap)) {
+        p.map(function (v, i) {
+          return (v / this.options.snap[i]).round() * this.options.snap[i];
+        }.bind(this));
+      } else {
+        p.map(function (v) {
+          return (v / this.options.snap).round() * this.options.snap;
+        }.bind(this));
+      }
+    }
+  },
+
+  applyConstraint: function(p) {
+    const style = this.element.style;
+    if(this.options.constraint !== 'vertical') {
+      style.left = p[0] + "px";
+    }
+    if(this.options.constraint !== 'horizontal') {
+      style.top = p[1] + "px";
+    }
+  },
   stopScrolling: function () {
     if (this.scrollInterval) {
       clearInterval(this.scrollInterval);
@@ -678,10 +654,6 @@ const Sortable = {
     (options.elements || this.findElements(element, options) || []).each(function(e, i) {
       let handle = options.handles ? $(options.handles[i]) : selectedElement;
 
-      if (!options.handle) {
-        selectedElement = e;
-      }
-
       options.draggables.push(
           new Draggable(e, Object.extend(options_for_draggable, { handle: handle }))
       );
@@ -692,7 +664,7 @@ const Sortable = {
     });
 
     if(options.tree) {
-      (this.findTreeElements(element, options) || []).each(function(e) {
+      (this.findTreeElements(element, options)).each(function(e) {
         this.addDroppable(e, options_for_tree);
         e.treeNode = element;
         options.droppables.push(e);
@@ -821,8 +793,8 @@ const Sortable = {
   _tree: function(element, options, parent) {
     let children = Sortable.findElements(element, options) || [];
 
-    for(let i = 0; i < children.length; ++i) {
-      let match = children[i].id.match(options.format);
+    for(const childElement of children) {
+      let match = childElement.id.match(options.format);
 
       if (!match) continue;
 
@@ -832,16 +804,13 @@ const Sortable = {
         parent: parent,
         children: [],
         position: parent.children.length,
-        container: $(children[i]).down(options.treeTag)
+        container: $(childElement).down(options.treeTag)
       };
-
-      /* Get the element containing the children and recurse over it */
       if (child.container)
         this._tree(child.container, options, child);
 
-      parent.children.push (child);
+      parent.children.push(child);
     }
-
     return parent;
   },
 
