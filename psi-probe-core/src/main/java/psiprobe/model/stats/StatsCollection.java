@@ -57,7 +57,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   private File contextTempDir;
 
   /** The max files. */
-  private static final int maxFiles = 2;
+  private static final int MAX_FILES = 2;
 
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
@@ -170,7 +170,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
    * @param index the index
    */
   private void shiftFiles(int index) {
-    if (index >= maxFiles - 1) {
+    if (index >= MAX_FILES - 1) {
       try {
         if (Files.exists(Paths.get(makeFile().getAbsolutePath() + "." + index))) {
           Files.delete(Paths.get(makeFile().getAbsolutePath() + "." + index));
@@ -283,14 +283,10 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
    */
   @Override
   public synchronized void afterPropertiesSet() {
-    int index = 0;
     Map<String, List<XYDataItem>> stats;
 
-      do {
-          File file = index == 0 ? makeFile() : new File(makeFile().getAbsolutePath() + "." + index);
-          stats = deserialize(file);
-          index += 1;
-      } while (stats == null && index < maxFiles - 1);
+      File file = makeFile();
+      stats = deserialize(file);
 
     if (stats != null) {
       statsData = stats;
