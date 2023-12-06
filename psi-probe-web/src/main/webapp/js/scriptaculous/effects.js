@@ -741,7 +741,6 @@ Effect.Grow = function(element) {
   element.getInlineOpacity();
   let dims = element.getDimensions();
   let initialMoveX, initialMoveY;
-  let moveX;
 
   switch (options.direction) {
     case 'top-left':
@@ -927,34 +926,31 @@ Effect.Morph = Class.create(Effect.Base, {
     });
   },
   update: function(position) {
-    let style = { }, transform, i = this.transforms.length;
-    while(i--)
-      let value;
-    if (transform && transform.unit === 'color') {
-      const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
-      const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
-      const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
-      value = '#' + r + g + b;
-    } else {
+    let style = {};
+    let transform;
+    let i = this.transforms.length;
+
+    while (i--) {
+      let value = '';
+
       if (transform && transform.unit === 'color') {
-        // Code to execute if transform is not null or undefined and transform.unit is 'color'
-      } else {
-        let value = '';
+        const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
+        const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
+        const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
+        value = '#' + r + g + b;
+      } else if (transform) {
+        value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3);
 
-        if (transform) {
-          value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3);
-
-          if (transform.unit !== null) {
-            value += transform.unit;
-          }else{
-            value += 'px';
-          }
+        if (transform.unit !== null) {
+          value += transform.unit;
+        } else {
+          value += 'px';
         }
+      }
 
+      style[transform.style] = value;
+    }
 
-      }    }
-
-    style[transform.style] = value;
     this.element.setStyle(style, true);
   }
 });
