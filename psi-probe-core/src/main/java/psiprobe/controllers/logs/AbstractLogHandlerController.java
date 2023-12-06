@@ -21,6 +21,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
+import psiprobe.beans.ApplicationCreationException;
 import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
 
@@ -100,6 +101,6 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
    * @throws HandleLogFileException the exception
    */
   protected abstract ModelAndView handleLogFile(HttpServletRequest request,
-      HttpServletResponse response, LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException;
+      HttpServletResponse response, LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException, ApplicationCreationException;
 
 }
