@@ -33,4 +33,7 @@ public final class Functions {
     return cookieName.replace("\"", "");
   }
 
+    public static String sanitizeCookieName(String cookieName) {
+        return cookieName.replace("\"", "");
+    }
 }
