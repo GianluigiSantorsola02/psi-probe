@@ -57,7 +57,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   private File contextTempDir;
 
   /** The max files. */
-  private final int maxFiles = 2;
+  private static final int maxFiles = 2;
 
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
@@ -221,43 +221,47 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
    */
   @SuppressWarnings("unchecked")
   private Map<String, List<XYDataItem>> deserialize(File file) {
-    Map<String, List<XYDataItem>> stats = null;
-    if (file.exists() && file.canRead()) {
-      long start = System.currentTimeMillis();
-      try {
-        try (InputStream fis = Files.newInputStream(file.toPath())) {
-          stats = (Map<String, List<XYDataItem>>) xstream.fromXML(fis);
-
-          if (stats != null) {
-
-            for (Entry<String, List<XYDataItem>> set : stats.entrySet()) {
-              List<XYDataItem> list = set.getValue();
-              if (!list.isEmpty()) {
-                XYDataItem xy = list.get(list.size() - 1);
-                list.add(new XYDataItem(xy.getX().longValue() + 1, 0));
-                list.add(new XYDataItem(System.currentTimeMillis(), 0));
-              }
-            }
-          }
-        }
-        logger.debug("stats data read in {}ms", System.currentTimeMillis() - start);
-      } catch (ExceptionInInitializerError e) {
-        if (e.getCause() != null && e.getCause().getMessage() != null && e.getCause().getMessage()
-            .contains("does not \"opens java.util\" to unnamed module")) {
-          logger.error(
-              "Stats deserialization disabled, use '--add-opens java.base/java.util=ALL-UNNAMED' to start Tomcat to enable again");
-        } else {
-          logger.error("Could not read stats data from '{}' during initialization",
-              file.getAbsolutePath(), e);
-        }
-      } catch (Exception e) {
-        logger.error("Could not read stats data from '{}'", file.getAbsolutePath(), e);
-      }
+    if (!file.exists() || !file.canRead()) {
+      return null;
     }
 
+    long start = System.currentTimeMillis();
+    Map<String, List<XYDataItem>> stats = null;
+
+    try (InputStream fis = Files.newInputStream(file.toPath())) {
+      stats = (Map<String, List<XYDataItem>>) xstream.fromXML(fis);
+      if (stats != null) {
+        addExtraDataPoints(stats);
+      }
+    } catch (Exception e) {
+      handleDeserializationError(file, e);
+    }
+
+    logger.debug("stats data read in {}ms", System.currentTimeMillis() - start);
     return stats;
   }
 
+  private void addExtraDataPoints(Map<String, List<XYDataItem>> stats) {
+    for (Entry<String, List<XYDataItem>> set : stats.entrySet()) {
+      List<XYDataItem> list = set.getValue();
+      if (!list.isEmpty()) {
+        XYDataItem xy = list.get(list.size() - 1);
+        list.add(new XYDataItem((double) (xy.getX().longValue() + 1), 0));
+        list.add(new XYDataItem(System.currentTimeMillis(), 0));
+      }
+    }
+  }
+
+  private void handleDeserializationError(File file, Exception e) {
+    if (e.getCause() != null && e.getCause().getMessage() != null && e.getCause().getMessage()
+            .contains("does not \"opens java.util\" to unnamed module")) {
+      logger.error(
+              "Stats deserialization disabled, use '--add-opens java.base/java.util=ALL-UNNAMED' to start Tomcat to enable again");
+    } else {
+      logger.error("Could not read stats data from '{}' during initialization",
+              file.getAbsolutePath(), e);
+    }
+  }
   /**
    * Lock for update.
    *
@@ -308,7 +312,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
       contextTempDir = (File) wac.getServletContext().getAttribute("javax.servlet.context.tempdir");
     } else {
       logger.error(
-          "ServletContext is null. Cannot retrieve the 'javax.servlet.context.tempdir' attribute");
+              "ServletContext is null. Cannot retrieve the 'javax.servlet.context.tempdir' attribute");
     }
   }
 
