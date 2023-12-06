@@ -63,7 +63,7 @@ const Droppables = {
   },
 
   isAffected: function (point, element, drop) {
-    let Position;
+    let Position = window.Position;
     return (
         (drop.element !== element) &&
         ((!drop._containers) ||
@@ -73,7 +73,7 @@ const Droppables = {
                 function (v) {
                   return drop.accept.include(v)
                 }))) &&
-        (window.Position && Position.within(drop.element, point[0], point[1])))
+        (Position.within(drop.element, point[0], point[1])))
   },
 
   deactivate: function (drop) {
@@ -481,13 +481,11 @@ const Draggable = Class.create({
     const current = new Date();
     const delta = current - this.lastScrolled;
     this.lastScrolled = current;
-    if (this.options.scroll === window) {
-      with (this._getWindowScroll(this.options.scroll)) {
+    if (this.options.scroll === window && this._getWindowScroll(this.options.scroll)) {
         if (this.scrollSpeed[0] || this.scrollSpeed[1]) {
           const d = delta / 1000;
           this.options.scroll.scrollTo(left + d * this.scrollSpeed[0], top + d * this.scrollSpeed[1]);
         }
-      }
     } else {
       this.options.scroll.scrollLeft += this.scrollSpeed[0] * delta / 1000;
       this.options.scroll.scrollTop += this.scrollSpeed[1] * delta / 1000;
@@ -512,7 +510,7 @@ const Draggable = Class.create({
 
   _getWindowScroll: function (w) {
     let T, L, W, H;
-    with (w.document) {
+    if(w.document && w.document.documentElement) {
       if (w.document.documentElement && documentElement.scrollTop) {
         T = documentElement.scrollTop;
         L = documentElement.scrollLeft;
