@@ -374,10 +374,6 @@ let Tooltip = {
 			Tooltip.init(activator);
 		}
 
-		if (divs.length <= 0) {
-			return;
-		}
-
 		if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
 			Tooltip.hideEvent.push("mouseout");
 		}
@@ -460,7 +456,7 @@ let Tooltip = {
 		}
 
 		try {
-			if (directHit && (activator.Tooltip.style.visibility === 'hidden' || activator.Tooltip.style.display === 'none')) {
+			if (directHit?.(activator.Tooltip.style.visibility === 'hidden' || activator.Tooltip.style.display === 'none')) {
 				Tooltip._show(activator, event);
 			} else {
 				Tooltip._hide(activator, event);
@@ -468,13 +464,6 @@ let Tooltip = {
 		} catch (e) {
 			Tooltip._hide(activator, event);
 		}
-
-		event.cancelBubble = true;
-		try {
-			event.stopPropagation();
-		} catch (e) {}
-
-		return false;
 	}
 };
 
