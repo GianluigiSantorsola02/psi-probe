@@ -303,63 +303,63 @@ let Tooltip = {
 	 *
 	 * @return void
 	 */
-	setup: function () {
-		let match_class = /^?tooltip?(.*)$/i;
-		let match_for = /^.*?for_?.*$/i;
-		let divs = document.getElementsByTagName('div');
-
-		function processDiv(div) {
-			let activator = div;
-			if (!activator) {
-				return;
-			}
-
-			activator.Tooltip = div;
-			if (!activator.id) {
-				activator.id = "tt" + i;
-			}
-			activator.Tooltip.activator = activator.id;
-			Tooltip.init(activator);
-		}
-
-		if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
-			Tooltip.hideEvent.push("mouseout");
-		}
-
-		if (Tooltip.autoHideClick) {
-			Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
-		}
-
-		for (let i = 0; i < divs.length; i++) {
-			let div = divs.item(i);
-			if (!match_class.exec(div.className)) {
-				continue;
-			}
-
-			let for_result = match_for.exec(div.className);
-			if (for_result && for_result.length > 0) {
-				let foundNext = false;
-				let activator = div;
-				while (foundNext === false && activator) {
-					activator = activator.nextSibling;
-					if (activator?.tagName) {
-						foundNext = true;
-					}
-				}
-			} else {
-				let foundPrevious = false;
-				let activator = div;
-				while (foundPrevious === false && activator) {
-					activator = activator.previousSibling;
-					if (activator?.tagName) {
-						foundPrevious = true;
-					}
-				}
-			}
-
-			processDiv(div);
-		}
-	},
+	// setup: function () {
+	// 	let match_class = /^?tooltip?(.*)$/i;
+	// 	let match_for = /^.*?for_?.*$/i;
+	// 	let divs = document.getElementsByTagName('div');
+	//
+	// 	function processDiv(div) {
+	// 		let activator = div;
+	// 		if (!activator) {
+	// 			return;
+	// 		}
+	//
+	// 		activator.Tooltip = div;
+	// 		if (!activator.id) {
+	// 			activator.id = "tt" + i;
+	// 		}
+	// 		activator.Tooltip.activator = activator.id;
+	// 		Tooltip.init(activator);
+	// 	}
+	//
+	// 	if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
+	// 		Tooltip.hideEvent.push("mouseout");
+	// 	}
+	//
+	// 	if (Tooltip.autoHideClick) {
+	// 		Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
+	// 	}
+	//
+	// 	for (let i = 0; i < divs.length; i++) {
+	// 		let div = divs.item(i);
+	// 		if (!match_class.exec(div.className)) {
+	// 			continue;
+	// 		}
+	//
+	// 		let for_result = match_for.exec(div.className);
+	// 		if (for_result && for_result.length > 0) {
+	// 			let foundNext = false;
+	// 			let activator = div;
+	// 			while (foundNext === false && activator) {
+	// 				activator = activator.nextSibling;
+	// 				if (activator?.tagName) {
+	// 					foundNext = true;
+	// 				}
+	// 			}
+	// 		} else {
+	// 			let foundPrevious = false;
+	// 			let activator = div;
+	// 			while (foundPrevious === false && activator) {
+	// 				activator = activator.previousSibling;
+	// 				if (activator?.tagName) {
+	// 					foundPrevious = true;
+	// 				}
+	// 			}
+	// 		}
+	//
+	// 		processDiv(div);
+	// 	}
+	// },
 	/**
 	 * @let string|Array An event name or an array of event names on which to trigger showing the Tooltip
 	 */
