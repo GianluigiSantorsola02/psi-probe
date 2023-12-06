@@ -241,10 +241,7 @@ public class ResourceResolverBean implements ResourceResolver {
         logger.error("Error: Context is null. Unable to perform JNDI lookup.");
         // You can add additional error handling or logging code here
       }
-      if (obj instanceof DataSource) {
-        return (DataSource) obj;
-      }
-      return null;
+        return null;
     } finally {
       if (context != null) {
         containerWrapper.getTomcatContainer().unbindFromContext(context);
