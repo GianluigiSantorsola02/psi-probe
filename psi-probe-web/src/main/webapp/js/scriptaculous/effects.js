@@ -441,7 +441,7 @@ Effect.Scale = Class.create(Effect.Base, {
   finish: function() {
     if (this.restoreAfterFinish) this.element.setStyle(this.originalStyle);
   },
-  setDimensions:function(height, width) {
+  setDimensions: function(height, width) {
     let d = {};
 
     if (this.options.scaleX) {
@@ -452,26 +452,27 @@ Effect.Scale = Class.create(Effect.Base, {
       d.height = height.round() + 'px';
     }
 
-    if (this.options.scaleFromCenter) {
+    if (this.options.scaleFromCenter && this.elementPositioning === 'absolute') {
       let topd = (height - this.dims[0]) / 2;
       let leftd = (width - this.dims[1]) / 2;
 
-      if (this.elementPositioning === 'absolute') {
-        if (this.options.scaleY) {
-          d.top = this.originalTop - topd + 'px';
-        }
+      if (this.options.scaleY) {
+        d.top = this.originalTop - topd + 'px';
+      }
 
-        if (this.options.scaleX) {
-          d.left = this.originalLeft - leftd + 'px';
-        }
-      } else {
-        if (this.options.scaleY) {
-          d.top = -topd + 'px';
-        }
+      if (this.options.scaleX) {
+        d.left = this.originalLeft - leftd + 'px';
+      }
+    } else if (this.options.scaleFromCenter) {
+      let topd = (height - this.dims[0]) / 2;
+      let leftd = (width - this.dims[1]) / 2;
 
-        if (this.options.scaleX) {
-          d.left = -leftd + 'px';
-        }
+      if (this.options.scaleY) {
+        d.top = -topd + 'px';
+      }
+
+      if (this.options.scaleX) {
+        d.left = -leftd + 'px';
       }
     }
 
@@ -740,7 +741,6 @@ Effect.Grow = function(element) {
   element.getInlineOpacity();
   let dims = element.getDimensions();
   let initialMoveX, initialMoveY;
-  let moveX, moveY;
 
   switch (options.direction) {
     case 'top-left':
@@ -751,7 +751,7 @@ Effect.Grow = function(element) {
       initialMoveY  = 0;
       break;
     case 'bottom-left':
-      initialMoveX = moveX = 0;
+      initialMoveX = 0;
       initialMoveY = dims.height;
       break;
     case 'bottom-right':
@@ -926,19 +926,31 @@ Effect.Morph = Class.create(Effect.Base, {
     });
   },
   update: function(position) {
-    let style = { }, transform, i = this.transforms.length;
-    while(i--)
-      let value;
-    if (transform && transform.unit === 'color') {
-      const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
-      const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
-      const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
-      value = '#' + r + g + b;
-    } else {
-      value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3) + (transform.unit === null ? '' : transform.unit);
+    let style = {};
+    let transform;
+    let i = this.transforms.length;
+
+    while (i--) {
+      let value = '';
+
+      if (transform && transform.unit === 'color') {
+        const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
+        const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
+        const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
+        value = '#' + r + g + b;
+      } else if (transform) {
+        value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3);
+
+        if (transform.unit !== null) {
+          value += transform.unit;
+        } else {
+          value += 'px';
+        }
+      }
+
+      style[transform.style] = value;
     }
 
-    style[transform.style] = value;
     this.element.setStyle(style, true);
   }
 });
