@@ -179,7 +179,6 @@ Object.extend(Function.prototype, (function() {
     return names.length === 1 && !names[0] ? [] : names;
   }
 
-
   function bind(context) {
     if (arguments.length < 2 && Object.isUndefined(arguments[0]))
       return this;
@@ -187,11 +186,7 @@ Object.extend(Function.prototype, (function() {
     if (!Object.isFunction(this))
       throw new TypeError("The object is not callable.");
 
-    let nop = function() {
-      nop.prototype   = this.prototype;
-      bound.prototype = new nop();
-
-      return bound;};
+    let nop = createNopPrototype(this);
     let __method = this, args = slice.call(arguments, 1);
 
     let bound = function() {
@@ -200,16 +195,26 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(c, a);
     };
 
+    return bound;
+  }
 
+  function createNopPrototype(fn) {
+    let nop = function() {
+      nop.prototype = fn.prototype;
+      bound.prototype = new nop();
+      return bound;
+    };
+    return nop;
   }
 
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
     return function(event) {
-      let a = update([(event || window.event)], args);
+      let a = update([(event || window.Event)], args);
       return __method.apply(context, a);
-    }
+    };
   }
+
   function delay(timeout) {
     let __method = this, args = slice.call(arguments, 1);
     timeout = timeout * 1000;
@@ -228,19 +233,18 @@ Object.extend(Function.prototype, (function() {
     return function() {
       let a = update([__method.bind(this)], arguments);
       return wrapper.apply(this, a);
-    }
+    };
   }
 
   function methodize() {
     if (this._methodized) return this._methodized;
     let __method = this;
-    this._methodized = () => {
+    this._methodized = function() {
       let a = update([this], arguments);
       this._methodized = __method(...a);
       let methodizedResult = this._methodized;
       this._methodized = methodizedResult;
       return methodizedResult;
-
     };
     return this._methodized;
   }
@@ -254,12 +258,12 @@ Object.extend(Function.prototype, (function() {
     methodize:           methodize
   };
 
-  if (!Function.prototype.bind)
+  if (!Function.prototype.bind) {
     extensions.bind = bind;
+  }
 
   return extensions;
 })());
-
 
 
 (function(proto) {
@@ -751,8 +755,6 @@ let Enumerable = (function() {
     return this.map();
   }
 
-
-
   function size() {
     return this.toArray().length;
   }
@@ -760,14 +762,6 @@ let Enumerable = (function() {
   function inspect() {
     return '#<Enumerable:' + this.toArray().inspect() + '>';
   }
-
-
-
-
-
-
-
-
 
   return {
     each:       each,
@@ -862,7 +856,6 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-
   function clone() {
     return slice.call(this, 0);
   }
@@ -1141,7 +1134,9 @@ let Hash = Class.Create(Enumerable, (function() {
 
   }
 
-
+  function merge(object) {
+    return this.clone().update(object);
+  }
 
   function update(object) {
     return new Hash(object).inject(this, function(result, pair) {
@@ -1228,15 +1223,21 @@ Object.extend(Number.prototype, (function() {
     return '0'.times(length - string.length) + string;
   }
 
-
+  function abs() {
+    return Math.abs(this);
+  }
 
   function round() {
     return Math.round(this);
   }
 
+  function ceil() {
+    return Math.ceil(this);
+  }
 
-
-
+  function floor() {
+    return Math.floor(this);
+  }
 
   return {
     toColorPart:    toColorPart,
@@ -2186,6 +2187,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 
 
+  function ancestors(element) {
+    return recursivelyCollect(element, 'parentNode');
+  }
+
+  function descendants(element) {
+    return Element.select(element, '*');
+  }
+
   function firstDescendant(element) {
     element = $(element).firstChild;
     while (element && element.nodeType !== Node.ELEMENT_NODE)
@@ -2302,7 +2311,22 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return Prototype.Selector.select(expressions, element);
   }
 
+  function adjacent(element) {
+    element = $(element);
+    let expressions = SLICE.call(arguments, 1).join(', ');
+    let siblings = Element.siblings(element), results = [];
+    let sibling;
 
+    for (let i = 0; i < siblings.length; i++) {
+      sibling = siblings[i];
+
+      if (sibling && Prototype.Selector.match(sibling, expressions)) {
+        results.push(sibling);
+      }
+    }
+
+    return results;
+  }
 
   function descendantOf_DOM(element, ancestor) {
     element = $(element)
@@ -2506,6 +2530,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return element;
   }
 
+  function toggleClassName(element, className, bool) {
+    element = $(element);
+    if (!element) {return;}
+    if (Object.isUndefined(bool))
+      bool = !hasClassName(element, className);
+
+    let method = Element[bool ? 'addClassName' : 'removeClassName'];
+    return method(element, className);
+  }
 
   let ATTRIBUTE_TRANSLATIONS = {};
 
