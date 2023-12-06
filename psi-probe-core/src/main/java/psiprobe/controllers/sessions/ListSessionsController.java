@@ -83,7 +83,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
     searchInfo.setIdleTimeTo(StringUtils
             .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeTo")));
     searchInfo.setAttrName(StringUtils.trimToNull(ServletRequestUtils
-            .getStringParameter(request,"searchAttrName")));
+            .getStringParameter(request,"searchAttrName", SessionSearchInfo.ACTION_NONE)));
 
     return searchInfo;
   }
