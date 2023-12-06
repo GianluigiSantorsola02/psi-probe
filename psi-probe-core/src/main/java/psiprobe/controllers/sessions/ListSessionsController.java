@@ -70,8 +70,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
     SessionSearchInfo searchInfo = new SessionSearchInfo();
     searchInfo.setSearchAction(StringUtils.trimToNull(ServletRequestUtils
             .getStringParameter(request, "searchAction", SessionSearchInfo.ACTION_NONE)));
-    searchInfo.setSessionId(StringUtils
-            .trimToNull(ServletRequestUtils.getStringParameter(request, "searchSessionId")));
+    String sessionId = StringUtils.trimToNull( "searchSessionId");
     searchInfo.setLastIp(
             StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchLastIP")));
     searchInfo.setAgeFrom(
