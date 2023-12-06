@@ -234,17 +234,12 @@ public class ResourceResolverBean implements ResourceResolver {
       String jndiName = resolveJndiName(resourceName, context == null);
       Object obj = null;
 
-      try {
-        if (ctx != null) {
-          obj = ctx.lookup(jndiName);
-        } else {
-          // Handle the case when ctx is null
-          logger.error("Error: Context is null. Unable to perform JNDI lookup.");
-          // You can add additional error handling or logging code here
-        }
-      } catch (NamingException e) {
-        // Handle the NamingException
-        logger.error("Error occurred during JNDI lookup: {}", e.getMessage());        // You can add additional error handling or logging code here
+      if (ctx != null) {
+        //obj = ctx.lookup(jndiName);
+      } else {
+        // Handle the case when ctx is null
+        logger.error("Error: Context is null. Unable to perform JNDI lookup.");
+        // You can add additional error handling or logging code here
       }
       if (obj instanceof DataSource) {
         return (DataSource) obj;
