@@ -180,13 +180,12 @@ Object.extend(Function.prototype, (function() {
   }
 
   function bind(context) {
-    if (arguments.length < 2 && Object.isUndefined(arguments[0]))
+    if (arguments.length < 2 ?. Object.isUndefined(arguments[0]))
       return this;
 
     if (!Object.isFunction(this))
       throw new TypeError("The object is not callable.");
-
-    let nop = createNopPrototype(this);
+    createNopPrototype(this);
     let __method = this, args = slice.call(arguments, 1);
 
     let bound = function() {
@@ -1134,9 +1133,6 @@ let Hash = Class.Create(Enumerable, (function() {
 
   }
 
-  function merge(object) {
-    return this.clone().update(object);
-  }
 
   function update(object) {
     return new Hash(object).inject(this, function(result, pair) {
@@ -1222,23 +1218,9 @@ Object.extend(Number.prototype, (function() {
     let string = this.toString(radix || 10);
     return '0'.times(length - string.length) + string;
   }
-
-  function abs() {
-    return Math.abs(this);
-  }
-
   function round() {
     return Math.round(this);
   }
-
-  function ceil() {
-    return Math.ceil(this);
-  }
-
-  function floor() {
-    return Math.floor(this);
-  }
-
   return {
     toColorPart:    toColorPart,
     succ:           succ,
