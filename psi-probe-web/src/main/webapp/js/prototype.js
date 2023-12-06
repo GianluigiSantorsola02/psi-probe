@@ -751,16 +751,7 @@ let Enumerable = (function() {
     return this.map();
   }
 
-  function zip() {
-    let iterator = Prototype.K, args = $A(arguments);
-    if (Object.isFunction(args.last()))
-      iterator = args.pop();
 
-    let collections = [this].concat(args).map($A);
-    return this.map(function(value, index) {
-      return iterator(collections.pluck(index));
-    });
-  }
 
   function size() {
     return this.toArray().length;
@@ -871,13 +862,7 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-  function uniq(sorted) {
-    return this.inject([], function(array, value, index) {
-      if (0 == index || (sorted ? array.last() != value : !array.include(value)))
-        array.push(value);
-      return array;
-    });
-  }
+
   function clone() {
     return slice.call(this, 0);
   }
@@ -1156,9 +1141,7 @@ let Hash = Class.Create(Enumerable, (function() {
 
   }
 
-  function merge(object) {
-    return this.clone().update(object);
-  }
+
 
   function update(object) {
     return new Hash(object).inject(this, function(result, pair) {
@@ -1245,21 +1228,15 @@ Object.extend(Number.prototype, (function() {
     return '0'.times(length - string.length) + string;
   }
 
-  function abs() {
-    return Math.abs(this);
-  }
+
 
   function round() {
     return Math.round(this);
   }
 
-  function ceil() {
-    return Math.ceil(this);
-  }
 
-  function floor() {
-    return Math.floor(this);
-  }
+
+
 
   return {
     toColorPart:    toColorPart,
@@ -2209,14 +2186,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 
 
-  function ancestors(element) {
-    return recursivelyCollect(element, 'parentNode');
-  }
-
-  function descendants(element) {
-    return Element.select(element, '*');
-  }
-
   function firstDescendant(element) {
     element = $(element).firstChild;
     while (element && element.nodeType !== Node.ELEMENT_NODE)
@@ -2333,22 +2302,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return Prototype.Selector.select(expressions, element);
   }
 
-  function adjacent(element) {
-    element = $(element);
-    let expressions = SLICE.call(arguments, 1).join(', ');
-    let siblings = Element.siblings(element), results = [];
-    let sibling;
 
-    for (let i = 0; i < siblings.length; i++) {
-      sibling = siblings[i];
-
-      if (sibling && Prototype.Selector.match(sibling, expressions)) {
-        results.push(sibling);
-      }
-    }
-
-    return results;
-  }
 
   function descendantOf_DOM(element, ancestor) {
     element = $(element)
@@ -2552,15 +2506,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return element;
   }
 
-  function toggleClassName(element, className, bool) {
-    element = $(element);
-    if (!element) {return;}
-    if (Object.isUndefined(bool))
-      bool = !hasClassName(element, className);
-
-    let method = Element[bool ? 'addClassName' : 'removeClassName'];
-    return method(element, className);
-  }
 
   let ATTRIBUTE_TRANSLATIONS = {};
 
