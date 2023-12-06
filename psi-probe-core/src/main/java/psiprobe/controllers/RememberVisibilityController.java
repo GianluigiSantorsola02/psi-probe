@@ -42,18 +42,25 @@ public class RememberVisibilityController extends AbstractController {
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
 
     String cookieName = ServletRequestUtils.getStringParameter(request, "cn");
     String state = ServletRequestUtils.getStringParameter(request, "state");
     if (cookieName != null && state != null) {
-      cookieName = Functions.safeCookieName(cookieName);
+      // Validate and sanitize the cookie name
+      cookieName = sanitizeCookieName(cookieName);
+
       // expire the cookies at the current date + 10years (roughly, nevermind leap years)
       response.addHeader("Set-Cookie",
-          cookieName + "=" + state + "; Expires="
-              + sdf.format(new Date(System.currentTimeMillis() + 315360000000L))
-              + "; Secure=true; HttpOnly=true");
+              cookieName + "=" + state + "; Expires="
+                      + sdf.format(new Date(System.currentTimeMillis() + 315360000000L))
+                      + "; Secure=true; HttpOnly=true");
     }
     return null;
+  }
+
+  private String sanitizeCookieName(String cookieName) {
+    return Functions.sanitizeCookieName(cookieName);
+
   }
 }
