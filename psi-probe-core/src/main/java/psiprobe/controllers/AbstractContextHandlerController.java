@@ -17,6 +17,7 @@ import org.apache.catalina.Context;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.controllers.jsp.ViewServletSourceController;
 
@@ -39,8 +40,8 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
         return handleContext(contextName, context, request, response);
 
      } catch (BaseViewXmlConfController.DisplayTargetException |
-               BaseViewXmlConfController.UnknownDisplayTargetException |
-               ViewServletSourceController.FileProcessingException e) {
+              BaseViewXmlConfController.UnknownDisplayTargetException |
+              ViewServletSourceController.FileProcessingException | ContainerListenerBean.CustomException e) {
         throw new MyCustomException(String.valueOf(e));
       }
     }
@@ -77,7 +78,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, InterruptedException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, InterruptedException, ContainerListenerBean.CustomException {
     // Your code logic here
 
 
