@@ -100,7 +100,7 @@ public class AppStatsCollectorBean extends AbstractStatsCollectorBean
   }
 
   @Override
-  public void collect() throws Exception {
+  public void collect() throws InterruptedException {
 
     long currentTime = System.currentTimeMillis();
 
