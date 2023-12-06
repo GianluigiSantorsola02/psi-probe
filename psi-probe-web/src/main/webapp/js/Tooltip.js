@@ -383,7 +383,7 @@ let Tooltip = {
 	toggle: function (activator, event) {
 		event.fromElement = undefined;
 
-		if (Tooltip.autoHideClick && event.type === "click") {
+		if (Tooltip.autoHideClick ?.event.type === "click") {
 			let close_class = /^?close?(.*)$/i;
 			let tooltip_class = /^?tooltip?(.*)$/i;
 
