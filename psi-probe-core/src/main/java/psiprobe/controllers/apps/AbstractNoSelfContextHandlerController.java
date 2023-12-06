@@ -65,11 +65,14 @@ public abstract class AbstractNoSelfContextHandlerController
       handleContextAction(contextName, request);
       executeAction(contextName);
     } catch (ContainerListenerBean.CustomExceptionException | LifecycleException | TomcatContainer.StartException |
-             TomcatContainer.StopException | InterruptedException e) {
-      request.setAttribute("errorMessage", e.getMessage());
-      mylogger.error("Error during invocation", e);
-      return new ModelAndView(new InternalResourceView(getViewName()));
-    }
+  TomcatContainer.StopException e) {
+    request.setAttribute("errorMessage", e.getMessage());
+    mylogger.error("Error during invocation", e);
+    return new ModelAndView(new InternalResourceView(getViewName()));
+  } catch (InterruptedException e) {
+    request.setAttribute("errorMessage", e.getMessage());
+    mylogger.error("Error during invocation", e);
+  }
 
       return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
             + (isPassQueryString() ? "?" + request.getQueryString() : "")));
