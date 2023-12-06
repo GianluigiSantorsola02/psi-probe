@@ -164,8 +164,8 @@ Object.extend(Function.prototype, (function() {
 
   function argumentNames() {
     let names = this.toString().match(/^\s*function[^(]*\(([^)]*)\)/)[1]
-      .replace(/\/\/.*?[\r\n]|\/\*(?:.|[\r\n])*?\*\//g, '')
-      .replace(/\s+/g, '').split(',');
+        .replace(/\/\/[^\r\n]*|\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//g, '')
+        .replace(/\s+/g, '').split(',');
     return names.length === 1 && !names[0] ? [] : names;
   }
 
@@ -393,11 +393,10 @@ Object.extend(String.prototype, (function() {
   }
 
   function strip() {
-    return this.replace(/^\s+/, '').replace(/\s+$/, '');
-  }
+  return this.replace(/^\s+/g, '').replace(/\s+$/g, '')  }
 
   function stripTags() {
-    return this.replace(/<[^>]*>|<\/\w+>/gi, '');
+    return this.replace(/<[^>]+>|<\/\w+>/gi, '')
 
   }
 
@@ -427,7 +426,7 @@ Object.extend(String.prototype, (function() {
 
 
   function toQueryParams(separator) {
-    let match = this.strip().match(/([^?#]*)(#.*)?$/);
+    let match = this.strip().match(/(^|[^?#])([^#]*)(#.*)?$/)
     if (!match) return { };
 
     return match[1].split(separator || '&').inject({ }, function(hash) {
@@ -476,8 +475,9 @@ Object.extend(String.prototype, (function() {
 
   function underscore() {
     return this.replace(/::/g, '/')
-               .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-               .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+        .replace(/([A-Z])([A-Z][a-z])/g, function(match, group1, group2) {
+          return group1 + '_' + group2.toLowerCase();
+        })               .replace(/([a-z\d])([A-Z])/g, '$1_$2')
                .replace(/-/g, '_')
                .toLowerCase();
   }
@@ -1598,7 +1598,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       let contentType = response.getHeader('Content-type');
       if (this.options.evalJS == 'force'
           || (this.options.evalJS && this.isSameOrigin() && contentType
-          && contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;.*)?\s*$/i)))
+          && contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i)))
         this.evalResponse();
     }
 
@@ -4426,7 +4426,7 @@ let i,
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
-	rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"]*?)" + whitespace + "*\\]", "g" ),
+	rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)" + whitespace + "*\\]", "g" ),
 
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
