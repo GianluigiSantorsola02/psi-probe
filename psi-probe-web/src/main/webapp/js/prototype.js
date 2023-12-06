@@ -7182,11 +7182,11 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   let docEl = document.documentElement;
   let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
-    && 'onmouseleave' in docEl;
+      && 'onmouseleave' in docEl;
 
   function isSimulatedMouseEnterLeaveEvent(eventName) {
     return !MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED &&
-     (eventName === 'mouseenter' || eventName === 'mouseleave');
+        (eventName === 'mouseenter' || eventName === 'mouseleave');
   }
 
   function createResponder(uid, eventName, handler) {
@@ -7195,10 +7195,16 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     if (isSimulatedMouseEnterLeaveEvent(eventName))
       return createMouseEnterLeaveResponder(uid, eventName, handler);
 
+    return createDefaultResponder(uid, eventName, handler);
+  }
+
+  function createDefaultResponder(uid, eventName, handler) {
     return function(event) {
       if (!Event.cache) return;
 
-      let element = Event.cache[uid].element;
+      let element = Event.cache[uid]?.element;
+      if (!element) return;
+
       Event.extend(event, element);
       handler.call(element, event);
     };
@@ -7206,8 +7212,11 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   function createResponderForCustomEvent(uid, eventName, handler) {
     return function(event) {
+      if (!Event.cache) return false;
+
       let cache = Event.cache[uid];
       let element = cache?.element;
+      if (!element) return false;
 
       if (Object.isUndefined(event.eventName))
         return false;
@@ -7222,7 +7231,8 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   function createMouseEnterLeaveResponder(uid, eventName, handler) {
     return function(event) {
-      let element = Event.cache[uid].element;
+      let element = Event.cache[uid]?.element;
+      if (!element) return;
 
       Event.extend(event, element);
       let parent = event.relatedTarget;
@@ -7234,7 +7244,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
       if (parent === element) return;
       handler.call(element, event);
-    }
+    };
   }
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
