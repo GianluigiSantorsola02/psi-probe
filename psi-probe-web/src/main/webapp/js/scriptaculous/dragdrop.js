@@ -510,7 +510,7 @@ const Draggable = Class.create({
 
   _getWindowScroll: function (w) {
     let T, L, W, H;
-    if(w === w.document.documentElement) {
+    if(w === w.document.documentElement || w === w.document.body) {
       if (w.document.documentElement && documentElement.scrollTop) {
         T = documentElement.scrollTop;
         L = documentElement.scrollLeft;
