@@ -572,7 +572,7 @@ const Draggable = Class.create({
 Draggable._dragging = { };
 
 const Sortable = {
-  SERIALIZE_RULE: /^[^_]([A-Za-z0-9_]*)(.*)$/,
+  SERIALIZE_RULE: /^[^_](\w*)(.*)$/,
 
   sortables: { },
 
@@ -899,27 +899,6 @@ const Sortable = {
       return item.id.match(options.format) ? item.id.match(options.format)[1] : '';
     });
   },
-
-  setSequence: function(element, new_sequence) {
-    element = $(element);
-    let options = Object.extend(this.options(element), arguments[2] || { });
-
-    let nodeMap = { };
-    this.findElements(element, options).each( function(n) {
-        if (n.id.match(options.format))
-            nodeMap[n.id.match(options.format)[1]] = [n, n.parentNode];
-        n.parentNode.removeChild(n);
-    });
-
-    new_sequence.each(function(ident) {
-      let n = nodeMap[ident];
-      if (n) {
-        n[1].appendChild(n[0]);
-        delete nodeMap[ident];
-      }
-    });
-  },
-
   serialize: function(element) {
     element = $(element);
     let options = Object.extend(Sortable.options(element), arguments[1] || { });
