@@ -34,7 +34,7 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
    * @return a list of {@link LogbackAppenderAccessor}s
    */
   @SuppressWarnings("unchecked")
-  public List<LogbackAppenderAccessor> getAppenders() {
+  public List<LogbackAppenderAccessor> getAppenders() throws InvalidAppenderTypeException {
     List<LogbackAppenderAccessor> appenders = new ArrayList<>();
     try {
       for (Object appender : Collections.list(Iterators.asEnumeration(
@@ -54,7 +54,7 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
     } catch (Exception e) {
       logger.error("{}#getAppenders() failed", getTarget().getClass().getName(), e);
     } catch (InvalidAppenderTypeException e) {
-        throw new RuntimeException(e);
+        throw new  InvalidAppenderTypeException(e);
     }
       return appenders;
   }
@@ -78,7 +78,7 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
         }
       }
       return wrapAppender(appender);
-    } catch (Exception e) {
+    } catch (Exception | InvalidAppenderTypeException e) {
       logger.error("{}#getAppender() failed", getTarget().getClass().getName(), e);
     }
     return null;
@@ -202,6 +202,10 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
 
   private static class InvalidAppenderTypeException extends Throwable {
     public InvalidAppenderTypeException(String invalidAppenderType) {
+    }
+
+    public InvalidAppenderTypeException(InvalidAppenderTypeException e) {
+      super(e);
     }
   }
 }

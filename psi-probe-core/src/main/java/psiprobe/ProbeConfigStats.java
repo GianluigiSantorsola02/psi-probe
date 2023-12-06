@@ -48,7 +48,7 @@ public class ProbeConfigStats {
   @Bean(name = "statsCollection")
   public StatsCollection getStatsCollection() {
     logger.debug("Instantiated statsCollection");
-    return new StatsCollection();
+    return new StatsCollection( true );
   }
 
   /**
