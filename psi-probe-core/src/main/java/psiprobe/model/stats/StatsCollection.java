@@ -31,7 +31,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static jdk.internal.vm.StackChunk.init;
+import static sun.tools.jconsole.OutputViewer.init;
+
 
 /**
  * The Class StatsCollection.
