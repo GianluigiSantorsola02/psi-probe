@@ -5963,7 +5963,7 @@ function addCombinator( matcher, combinator, base ) {
 						if ( matcher( elem, context, xml ) ) {
 							return true;
 						}
-					}
+                    }
 				}
 			} else {
               let elem = startingElement;
