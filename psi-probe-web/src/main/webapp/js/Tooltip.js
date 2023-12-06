@@ -49,20 +49,20 @@ let Tooltip = {
 	_attachEvent: function (element, event) {
 		const eventHandlers = {
 			toggle: function (e) {
-				Tooltip.toggle(element, e, true);
+				Tooltip.toggle(element, e);
 				return false;
 			},
 			load: function () {
 				Tooltip.setup();
 			},
 			click: function (e) {
-				Tooltip.toggle(element, e, true);
+				Tooltip.toggle(element, e);
 			},
 			follow: function (e) {
 				Tooltip._follow(element, e);
 			},
 			clickanywhere: function (e) {
-				Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false);
+				Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e);
 			}
 		};
 
@@ -186,68 +186,6 @@ let Tooltip = {
 		} catch (e) {
 		}
 	},
-
-	/**
-	 * Show the Tooltip
-	 *
-	 * Displays the Tooltip and sets the hide events up. You should never need to call this manually.
-	 *
-	 * @param activator Activator Element
-	 * @param event
-	 * @private
-	 * @return void
-	 */
-	_show: (activator, event) => {
-		if (Tooltip.autoHideClick && window._currentTT) {
-			Tooltip._hide(document.getElementById(window._currentTT), event, true);
-		}
-
-		window._currentTT = activator.id;
-
-		function isVisibleEvent() {
-			return !(ignore_event === true || (typeof Tooltip.showEvent === "string") || (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array && Tooltip.showEvent.includes(event.type)));
-		}
-
-		let ignore_event = false;
-		if (!isVisibleEvent()) {
-			return;
-		}
-
-		activator.Tooltip.isVisible = true;
-		if (Tooltip.autoFollowMouse || Tooltip.autoMoveToCursor) {
-			Tooltip._follow(activator, event);
-		}
-
-		try {
-			if (typeof Effect) {
-				Element.setOpacity(activator.Tooltip, 0.1);
-				activator.Tooltip.style.visibility = "visible";
-				Tooltip.showMethod(activator.Tooltip, {duration: Tooltip.fade});
-			} else {
-				activator.Tooltip.style.visibility = "visible";
-			}
-		} catch (e) {
-			try {
-				activator.Tooltip.style.visibility = "visible";
-			} catch (e) {
-				// DEBUG alert(tooltip.id);
-			}
-		}
-
-		if (Tooltip.autoFollowMouse) {
-			Tooltip._attachEvent(activator, "follow");
-		}
-
-		if (Tooltip.autoHideTimeout && !Tooltip.autoFollowMouse) {
-			activator.timer = setTimeout(function () {
-				try {
-					Tooltip.hideMethod(activator.Tooltip, {duration: Tooltip.fade});
-				} catch (e) {
-					activator.Tooltip.style.visibility = "hidden";
-				}
-			}, Tooltip.autoHideTimeout * 1000);
-		}
-	},
 	/**
 	 * Manually add a Tooltip
 	 *
@@ -365,67 +303,63 @@ let Tooltip = {
 	 *
 	 * @return void
 	 */
-	setup: function () {
-		let match_class = /^?tooltip?(.*)$/i;
-		let match_for = /^.*?for_?.*$/i;
-		let divs = document.getElementsByTagName('div');
-
-		function processDiv(div) {
-			let activator = div;
-			if (!activator) {
-				return;
-			}
-
-			activator.Tooltip = div;
-			if (!activator.id) {
-				activator.id = "tt" + i;
-			}
-			activator.Tooltip.activator = activator.id;
-			Tooltip.init(activator);
-		}
-
-		if (divs.length <= 0) {
-			return;
-		}
-
-		if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
-			Tooltip.hideEvent.push("mouseout");
-		}
-
-		if (Tooltip.autoHideClick) {
-			Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
-		}
-
-		for (let i = 0; i < divs.length; i++) {
-			let div = divs.item(i);
-			if (!match_class.exec(div.className)) {
-				continue;
-			}
-
-			let for_result = match_for.exec(div.className);
-			if (for_result && for_result.length > 0) {
-				let foundNext = false;
-				let activator = div;
-				while (foundNext === false && activator) {
-					activator = activator.nextSibling;
-					if (activator?.tagName) {
-						foundNext = true;
-					}
-				}
-			} else {
-				let foundPrevious = false;
-				let activator = div;
-				while (foundPrevious === false && activator) {
-					activator = activator.previousSibling;
-					if (activator?.tagName) {
-						foundPrevious = true;
-					}
-				}
-			}
-
-			processDiv(div);
-		}
-	},
+	// setup: function () {
+	// 	let match_class = /^?tooltip?(.*)$/i;
+	// 	let match_for = /^.*?for_?.*$/i;
+	// 	let divs = document.getElementsByTagName('div');
+	//
+	// 	function processDiv(div) {
+	// 		let activator = div;
+	// 		if (!activator) {
+	// 			return;
+	// 		}
+	//
+	// 		activator.Tooltip = div;
+	// 		if (!activator.id) {
+	// 			activator.id = "tt" + i;
+	// 		}
+	// 		activator.Tooltip.activator = activator.id;
+	// 		Tooltip.init(activator);
+	// 	}
+	//
+	// 	if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
+	// 		Tooltip.hideEvent.push("mouseout");
+	// 	}
+	//
+	// 	if (Tooltip.autoHideClick) {
+	// 		Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
+	// 	}
+	//
+	// 	for (let i = 0; i < divs.length; i++) {
+	// 		let div = divs.item(i);
+	// 		if (!match_class.exec(div.className)) {
+	// 			continue;
+	// 		}
+	//
+	// 		let for_result = match_for.exec(div.className);
+	// 		if (for_result && for_result.length > 0) {
+	// 			let foundNext = false;
+	// 			let activator = div;
+	// 			while (foundNext === false && activator) {
+	// 				activator = activator.nextSibling;
+	// 				if (activator?.tagName) {
+	// 					foundNext = true;
+	// 				}
+	// 			}
+	// 		} else {
+	// 			let foundPrevious = false;
+	// 			let activator = div;
+	// 			while (foundPrevious === false && activator) {
+	// 				activator = activator.previousSibling;
+	// 				if (activator?.tagName) {
+	// 					foundPrevious = true;
+	// 				}
+	// 			}
+	// 		}
+	//
+	// 		processDiv(div);
+	// 	}
+	// },
 	/**
 	 * @let string|Array An event name or an array of event names on which to trigger showing the Tooltip
 	 */
@@ -443,20 +377,13 @@ let Tooltip = {
 	 *
 	 * @param activator Activator Element
 	 * @param event
-	 * @param directHit
 	 * @return void
 	 */
 
-	toggle: function (activator, event, directHit) {
+	toggle: function (activator, event) {
 		event.fromElement = undefined;
 
-		try {
-			if (activator === 1) {
-				activator = document.getElementById(window._currentTT);
-			}
-		} catch (e) {}
-
-		if (Tooltip.autoHideClick && event.type === "click") {
+		if (Tooltip.autoHideClick ?.event.type === "click") {
 			let close_class = /^?close?(.*)$/i;
 			let tooltip_class = /^?tooltip?(.*)$/i;
 
@@ -472,28 +399,10 @@ let Tooltip = {
 
 			if (!isWithinTooltip(event.target)) {
 				Tooltip._hide(activator, event, true);
-				return;
+
 			}
 		}
-
-		try {
-			if (directHit && (activator.Tooltip.style.visibility === 'hidden' || activator.Tooltip.style.display === 'none')) {
-				Tooltip._show(activator, event);
-			} else {
-				Tooltip._hide(activator, event);
-			}
-		} catch (e) {
-			Tooltip._hide(activator, event);
-		}
-
-		event.cancelBubble = true;
-		try {
-			event.stopPropagation();
-		} catch (e) {}
-
-		return false;
-	}
-};
+	}};
 
 // Start the Tooltips in motion
 try {
