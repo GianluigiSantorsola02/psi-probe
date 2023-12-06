@@ -219,7 +219,7 @@ function setupShortcuts() {
 	let rules = {
 		'body': function(element) {
 			element.onkeydown = function(event) {
-				let e = event || window.event;
+				let e = event;
 
 				function isEnterKeyPressed() {
 					return e.keyCode === 13 && e.ctrlKey && !e.altKey && !e.shiftKey;
@@ -235,23 +235,21 @@ function setupShortcuts() {
 
 				if (isEnterKeyPressed()) {
 					executeSql();
-					$('sql').focus();
 				} else if (isDownKeyPressed()) {
 					if (historyVisible) {
 						hideQueryHistory();
 					} else {
 						showQueryHistory();
 					}
-					$('sql').focus();
 				} else if (isUpKeyPressed()) {
 					if (optionsVisible) {
 						hideOptions();
-						$('sql').focus();
 					} else {
 						showOptions();
-						$('sql').focus();
 					}
 				}
+
+				$('sql').focus();
 			};
 		}
 	};
