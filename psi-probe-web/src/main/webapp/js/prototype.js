@@ -1337,11 +1337,6 @@ Ajax.Responders = {
     if (!this.include(responder))
       this.responders.push(responder);
   },
-
-  unregister: function(responder) {
-    this.responders = this.responders.without(responder);
-  },
-
   dispatch: function(callback, request, transport, json) {
     this.each(function(responder) {
       if (Object.isFunction(responder[callback])) {
@@ -1572,7 +1567,6 @@ Ajax.Response = Class.Create({
     if (readyState == 4) {
       let xml = transport.responseXML;
       this.responseXML  = Object.isUndefined(xml) ? null : xml;
-      this.responseJSON = this._getResponseJSON();
     }
   },
 
@@ -1589,13 +1583,6 @@ Ajax.Response = Class.Create({
   },
 
   getHeader: Ajax.Request.prototype.getHeader,
-
-  getAllHeaders: function() {
-    try {
-      return this.getAllResponseHeaders();
-    } catch (e) { return null }
-  },
-
   getResponseHeader: function(name) {
     return this.transport.getResponseHeader(name);
   },
@@ -1615,20 +1602,6 @@ Ajax.Response = Class.Create({
 
     try {
       return json.evalJSON(this.request.options.sanitizeJSON ||
-        !this.request.isSameOrigin());
-    } catch (e) {
-      this.request.dispatchException(e);
-    }
-  },
-
-  _getResponseJSON: function() {
-    let options = this.request.options;
-    if (!options.evalJSON || (options.evalJSON != 'force' &&
-      !(this.getHeader('Content-type') || '').include('application/json')) ||
-        this.responseText.blank())
-          return null;
-    try {
-      return this.responseText.evalJSON(options.sanitizeJSON ||
         !this.request.isSameOrigin());
     } catch (e) {
       this.request.dispatchException(e);
@@ -1723,20 +1696,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function $(element) {
-    if (arguments.length > 1) {
-      function processArguments() {
-        for (let i = 0, length = arguments.length; i < length; i++) {
-          if (Object.isElement(arguments[i])) {
-            arguments[i] = $(arguments[i]);
-          }
-        }
-           $(arguments[i]);
-        }
-
-      }
-
-
-      if (Object.isString(element))
+    if (Object.isString(element))
       element = document.getElementById(element);
     return Element.extend(element);
   }
@@ -1771,8 +1731,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function shouldUseCreationCache(tagName, attributes) {
     if (tagName === 'select') return false;
-    if ('type' in attributes) return false;
-    return true;
+    return !('type' in attributes);
+
   }
 
   let HAS_EXTENDED_CREATE_ELEMENT_SYNTAX = (function(){
@@ -1880,7 +1840,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let SELECT_ELEMENT_INNERHTML_BUGGY = (function(){
     let el = document.createElement("select"),
-        isBuggy = true;
+        isBuggy;
     el.innerHTML = "<option value=\"test\">test</option>";
     isBuggy = el?.options?.[0]?.nodeName?.toUpperCase() !== "OPTION";
 
@@ -2209,19 +2169,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       delete Element.Storage[uid];
     }
   }
-  function purge(element) {
-    element = $(element);
-    if (!element) {return;}
-    purgeElement(element);
-
-    let descendants = element.getElementsByTagName('*'),
-     i = descendants.length;
-
-    while (i--) purgeElement(descendants[i]);
-
-    return null;
-  }
-
   Object.extend(methods, {
     remove:  remove,
     update:  update,
@@ -2396,7 +2343,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     element = $(element)
     ancestor = $(ancestor);
     if (!element || !ancestor) return false;
-    while (element = element.parentNode)
+    while (element === element.parentNode)
       if (element === ancestor) return true;
     return false;
   }
@@ -2427,21 +2374,12 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   Object.extend(methods, {
-    recursivelyCollect:   recursivelyCollect,
-    ancestors:            ancestors,
-    descendants:          descendants,
-    firstDescendant:      firstDescendant,
-    immediateDescendants: immediateDescendants,
-    previousSiblings:     previousSiblings,
-    nextSiblings:         nextSiblings,
     siblings:             siblings,
     match:                match,
     up:                   up,
     down:                 down,
-    previous:             previous,
     next:                 next,
     select:               select,
-    adjacent:             adjacent,
     descendantOf:         descendantOf,
 
     getElementsBySelector: select,
@@ -2766,8 +2704,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     classNames:      classNames,
     hasClassName:    hasClassName,
     addClassName:    addClassName,
-    removeClassName: removeClassName,
-    toggleClassName: toggleClassName
+    removeClassName: removeClassName
   });
 
 
@@ -2785,7 +2722,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function setStyle(element, styles) {
     element = $(element);
-    let elementStyle = element.style, match;
+    let elementStyle = element.style;
 
     if (Object.isString(styles)) {
       elementStyle.cssText += ';' + styles;
@@ -3260,7 +3197,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       return null;
     }
 
-    if ((/^(?:-)?\d+(\.\d+)?(px)?$/i).test(value)) {
+    if ((/^?\d+(\.\d+)?(px)?$/i).test(value)) {
       return window.parseFloat(value);
     }
 
@@ -3294,11 +3231,13 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
           whole = document.viewport.getHeight();
         }
       } else {
-        let whole;
+        if (isHorizontal) {
+          whole = context.getWidth();
+        } else if (isVertical) {
+          whole = context.getHeight();
+        }
 
       }
-
-
       return (whole === null) ? 0 : whole * decimal;
     }
 
@@ -3460,28 +3399,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       }, this);
       return obj;
     },
-
-    toHash: function() {
-      let obj = this.toObject.apply(this, arguments);
-      return new Hash(obj);
-    },
-
-    toCSS: function() {
-      let args = $A(arguments);
-      let keys = (args.length === 0) ? Element.Layout.PROPERTIES :
-          args.join(' ').split(' ');
-      let css = {};
-
-      keys.each( function(key) {
-        if (!Element.Layout.PROPERTIES.include(key)) return;
-        if (Element.Layout.COMPOSITE_PROPERTIES.include(key)) return;
-
-        let value = this.get(key);
-        if (value != null) css[cssNameFor(key)] = value + 'px';
-      }, this);
-      return css;
-    },
-
     inspect: function() {
       return "#<Element.Layout>";
     }
