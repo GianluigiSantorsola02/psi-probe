@@ -7183,10 +7183,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
       && 'onmouseleave' in docEl;
 
-  function isSimulatedMouseEnterLeaveEvent(eventName) {
-    return !MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED &&
-        (eventName === 'mouseenter' || eventName === 'mouseleave');
-  }
 
   function createResponder(uid, eventName, handler) {
     if (Event._isCustomEvent(eventName)) {
@@ -7200,36 +7196,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return createDefaultResponder(uid, eventName, handler);
   }
 
-  function createDefaultResponder(uid, eventName, handler) {
-    return function(event) {
-      if (!Event.cache) return;
 
-      let element = Event.cache[uid]?.element;
-      if (!element) return;
 
-      Event.extend(event, element);
-      handler.call(element, event);
-    };
-  }
 
-  function createResponderForCustomEvent(uid, eventName, handler) {
-    return function(event) {
-      if (!Event.cache) return false;
-
-      let cache = Event.cache[uid];
-      let element = cache?.element;
-      if (!element) return false;
-
-      if (Object.isUndefined(event.eventName))
-        return false;
-
-      if (event.eventName !== eventName)
-        return false;
-
-      Event.extend(event, element);
-      handler.call(element, event);
-    };
-  }
 
   function createMouseEnterLeaveResponder(uid, eventName, handler) {
     return function(event) {
