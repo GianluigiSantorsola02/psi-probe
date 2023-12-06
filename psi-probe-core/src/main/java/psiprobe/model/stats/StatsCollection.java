@@ -223,9 +223,8 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   @SuppressWarnings("unchecked")
   private Map<String, List<XYDataItem>> deserialize(File file) {
     if (!file.exists() || !file.canRead()) {
-      return null;
+      return Collections.emptyMap();
     }
-
     long start = System.currentTimeMillis();
     Map<String, List<XYDataItem>> stats = null;
 

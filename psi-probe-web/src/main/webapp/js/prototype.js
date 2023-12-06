@@ -4426,8 +4426,7 @@ let i,
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
-	rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)" + whitespace + "*\\]", "g" ),
-
+    rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)" + whitespace + "*\\]", "g" ),
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
@@ -5733,6 +5732,7 @@ function addCombinator( matcher, combinator, base ) {
 
                         let newValue = oldCache[2];
                         newCache[2] = newValue;
+                        elem = false;
                         return newValue;
                       } else {
 							outerCache[ dir ] = newCache;
@@ -5741,7 +5741,6 @@ function addCombinator( matcher, combinator, base ) {
                         newCache[2] = matcher(elem, context, xml);
 
                         if (newCache[2]) {
-                          elem = false;
                           return true;
                         }
 
