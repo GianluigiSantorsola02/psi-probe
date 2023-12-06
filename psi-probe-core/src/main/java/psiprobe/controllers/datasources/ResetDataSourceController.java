@@ -46,9 +46,9 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   private String replacePattern;
 
   /**
-   * Sets the replace pattern.
+   * Sets the replacement pattern.
    *
-   * @param replacePattern the new replace pattern
+   * @param replacePattern the new replacement pattern
    */
   @Value("^http(s)?://[a-zA-Z\\-\\.0-9]+(:[0-9]+)?")
   public void setReplacePattern(String replacePattern) {
