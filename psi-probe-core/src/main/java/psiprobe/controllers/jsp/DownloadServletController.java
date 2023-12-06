@@ -40,7 +40,7 @@ public class DownloadServletController extends AbstractContextHandlerController 
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException {
 
     String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
 
@@ -53,7 +53,7 @@ public class DownloadServletController extends AbstractContextHandlerController 
           try {
             Utils.sendFile(request, response, servletFile);
           } catch (IOException e) {
-              throw new RuntimeException(e);
+              throw new ViewServletSourceController.FileProcessingException(servletName, e);
           }
         }
       }
