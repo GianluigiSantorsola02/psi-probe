@@ -7175,7 +7175,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   docEl = null;
 })(this);
 
-(function(GLOBAL) {
+((function(GLOBAL) {
   /* Code for creating leak-free event responders is based on work by
    John-David Dalton. */
 
@@ -7189,10 +7189,13 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function createResponder(uid, eventName, handler) {
-    if (Event._isCustomEvent(eventName))
+    if (Event._isCustomEvent(eventName)) {
       return createResponderForCustomEvent(uid, eventName, handler);
-    if (isSimulatedMouseEnterLeaveEvent(eventName))
+    }
+
+    if (isSimulatedMouseEnterLeaveEvent(eventName)) {
       return createMouseEnterLeaveResponder(uid, eventName, handler);
+    }
 
     return createDefaultResponder(uid, eventName, handler);
   }
@@ -7252,7 +7255,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     Event._createResponder = createResponder;
   }
   docEl = null;
-})(this);
+}))(this);
 
 (function(GLOBAL) {
   /* Support for the DOMContentLoaded event is based on work by Dan Webb,
