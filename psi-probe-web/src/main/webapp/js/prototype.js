@@ -3274,12 +3274,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       return element;
     };
   }
-
-  function cssNameFor(key) {
-    if (key.include('border')) key = key + '-width';
-    return key.camelize();
-  }
-
   Element.Layout = Class.Create(Hash, {
     initialize: function($super, element, preCompute) {
       $super();
@@ -3755,8 +3749,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     do {
       if (element === document.body) {
         let bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
-        valueT += !Object.isUndefined(window.pageYOffset) ? window.pageYOffset : bodyScrollNode.scrollTop || 0;
-        valueL += !Object.isUndefined(window.pageXOffset) ? window.pageXOffset : bodyScrollNode.scrollLeft || 0;
+        valueT += !Object.isUndefined(window.screenY) ? window.screenY : bodyScrollNode.scrollTop || 0;
+        valueL += !Object.isUndefined(window.screenX) ? window.screenX : bodyScrollNode.scrollLeft || 0;
         break;
       } else {
         valueT += element.scrollTop  || 0;
@@ -3933,9 +3927,9 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     function pageScrollXY() {
       let x = 0, y = 0;
-      if (Object.isNumber(window.pageXOffset)) {
-        x = window.pageXOffset;
-        y = window.pageYOffset;
+      if (Object.isNumber(window.screenX)) {
+        x = window.screenX;
+        y = window.screenY;
       } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
         x = document.body.scrollLeft;
         y = document.body.scrollTop;
@@ -4100,9 +4094,9 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 
   function getScrollOffsets() {
-    let x = window.pageXOffset || document.documentElement.scrollLeft ||
+    let x = window.screenX || document.documentElement.scrollLeft ||
      document.body.scrollLeft;
-    let y = window.pageYOffset || document.documentElement.scrollTop ||
+    let y = window.screenY || document.documentElement.scrollTop ||
      document.body.scrollTop;
 
     return new Element.Offset(x, y);
@@ -4532,7 +4526,7 @@ function createPositionalPseudo( fn ) {
 	return markFunction(function( argument ) {
 		argument = +argument;
 		return markFunction(function( seed, matches ) {
-			let j,
+			let
 				matchIndexes = fn( [], seed.length, argument ),
 				i = matchIndexes.length;
 
@@ -5712,7 +5706,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 }
 
 function matcherFromTokens( tokens ) {
-	let checkContext, matcher, j,
+	let checkContext, j,
 		len = tokens.length,
 		leadingRelative = Expr.relative[ tokens[0].type ],
 		implicitRelative = leadingRelative || Expr.relative[" "],
@@ -6150,11 +6144,11 @@ Form.Methods = {
 
 
 Form.Element = {
-  focus: function(element) {
-    $(element).focus();
-    return element;
+  serialize: function(element) {
+    element = $(element);
+    let method = element.tagName.toLowerCase();
+    return Form.Element.Serializers[method](element);
   },
-
   select: function(element) {
     $(element).select();
     return element;
@@ -6950,9 +6944,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
    John-David Dalton. */
 }))(this);
 
-(function(GLOBAL) {
-  /* Support for the DOMContentLoaded event is based on work by Dan Webb,
-     Matthias Miller, Dean Edwards, John Resig, and Diego Perini. */
+(function() {
 
   let TIMER;
 
@@ -7003,24 +6995,9 @@ Element.addMethods();
 
 Hash.toQueryString = Object.toQueryString;
 
-let Toggle = { display: Element.toggle };
-
 Element.addMethods({
   childOf: Element.Methods.descendantOf
 });
-
-let Insertion = {
-  Before: function(element, content) {
-    return Element.insert(element, {before:content});
-  },
-
-  Top: function(element, content) {
-    return Element.insert(element, {top:content});
-  },
-  After: function(element, content) {
-    return Element.insert(element, {after:content});
-  }
-};
 new Error('"throw $continue" is deprecated, use "return" instead');
 let Position = {
   includeScrollOffsets: false,
