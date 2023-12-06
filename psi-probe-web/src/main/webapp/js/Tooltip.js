@@ -213,11 +213,6 @@ let Tooltip = {
 			return;
 		}
 
-		activator.Tooltip.isVisible = true;
-		if (Tooltip.autoFollowMouse || Tooltip.autoMoveToCursor) {
-			Tooltip._follow(activator, event);
-		}
-
 		try {
 			if (typeof Effect !== "undefined") {
 				Element.setOpacity(activator.Tooltip, 0.1);
@@ -232,10 +227,6 @@ let Tooltip = {
 			} catch (e) {
 				// DEBUG alert(tooltip.id);
 			}
-		}
-
-		if (Tooltip.autoFollowMouse) {
-			Tooltip._attachEvent(activator, "follow");
 		}
 
 		if (Tooltip.autoHideTimeout && !Tooltip.autoFollowMouse) {
