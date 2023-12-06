@@ -7175,55 +7175,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   docEl = null;
 })(this);
 
-((function(GLOBAL) {
+((function() {
   /* Code for creating leak-free event responders is based on work by
    John-David Dalton. */
-
-  let docEl = document.documentElement;
-  let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
-      && 'onmouseleave' in docEl;
-
-
-  function createResponder(uid, eventName, handler) {
-    if (Event._isCustomEvent(eventName)) {
-      return createResponderForCustomEvent(uid, eventName, handler);
-    }
-
-    if (isSimulatedMouseEnterLeaveEvent(eventName)) {
-      return createMouseEnterLeaveResponder(uid, eventName, handler);
-    }
-
-    return createDefaultResponder(uid, eventName, handler);
-  }
-
-
-
-
-
-  function createMouseEnterLeaveResponder(uid, eventName, handler) {
-    return function(event) {
-      let element = Event.cache[uid]?.element;
-      if (!element) return;
-
-      Event.extend(event, element);
-      let parent = event.relatedTarget;
-
-      while (parent && parent !== element) {
-        try { parent = parent.parentNode; }
-        catch(e) { parent = element; }
-      }
-
-      if (parent === element) return;
-      handler.call(element, event);
-    };
-  }
-
-  if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
-    GLOBAL.Event._createResponder = createResponder;
-  } else {
-    Event._createResponder = createResponder;
-  }
-  docEl = null;
 }))(this);
 
 (function(GLOBAL) {
