@@ -13,6 +13,7 @@ package psiprobe;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.xstream.XStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -48,7 +49,9 @@ public class ProbeConfigStats {
   @Bean(name = "statsCollection")
   public StatsCollection getStatsCollection() {
     logger.debug("Instantiated statsCollection");
-    return new StatsCollection( true );
+    String storagePath = "";
+    XStream xstream = new XStream();
+    return new StatsCollection(xstream, storagePath);
   }
 
   /**
