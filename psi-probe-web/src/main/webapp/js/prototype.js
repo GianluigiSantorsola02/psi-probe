@@ -5986,6 +5986,7 @@ function addCombinator( matcher, combinator, base ) {
                         newCache[2] = matcher(elem, context, xml);
 
                         if (newCache[2]) {
+                          elem = false;
                           return true;
                         }
 
