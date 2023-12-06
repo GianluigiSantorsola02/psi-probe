@@ -435,6 +435,7 @@ let Tooltip = {
 
 	toggle: function (activator, event, directHit) {
 		event.fromElement = undefined;
+
 		if (Tooltip.autoHideClick && event.type === "click") {
 			let close_class = /^?close?(.*)$/i;
 			let tooltip_class = /^?tooltip?(.*)$/i;
@@ -454,18 +455,7 @@ let Tooltip = {
 				return;
 			}
 		}
-
-		try {
-			if (directHit?.(activator.Tooltip.style.visibility === 'hidden' || activator.Tooltip.style.display === 'none')) {
-				Tooltip._show(activator, event);
-			} else {
-				Tooltip._hide(activator, event);
-			}
-		} catch (e) {
-			Tooltip._hide(activator, event);
-		}
-	}
-};
+	}};
 
 // Start the Tooltips in motion
 try {
