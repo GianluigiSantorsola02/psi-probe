@@ -10,32 +10,30 @@
  */
 package psiprobe.controllers.sessions;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.ApplicationSession;
 import psiprobe.model.Attribute;
 import psiprobe.model.SessionSearchInfo;
 import psiprobe.tools.ApplicationUtils;
-import psiprobe.tools.SecurityUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Controller
 public class ListSessionsController extends AbstractContextHandlerController {
@@ -51,27 +49,50 @@ public class ListSessionsController extends AbstractContextHandlerController {
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+    SessionSearchInfo searchInfo = createSessionSearchInfo(request);
+    HttpSession sess = request.getSession(false);
+    handleSearchInfo(searchInfo, sess);
+    List<Context> ctxs = getContexts(context);
+    List<ApplicationSession> sessionList = getSessionList(ctxs, searchInfo);
+
+    handleEmptySessionList(sessionList, searchInfo, sess);
+
+    ModelAndView modelAndView = new ModelAndView(getViewName(), "sessions", sessionList);
+    modelAndView.addObject("searchInfo", searchInfo);
+
+    return modelAndView;
+  }
+
+  private void handleEmptySessionList(List<ApplicationSession> sessionList, SessionSearchInfo searchInfo, HttpSession sess) {
+    if (sessionList.isEmpty()) {
+      sess.setAttribute("searchInfo", searchInfo);
+    }
+  }
+
+  private SessionSearchInfo createSessionSearchInfo(HttpServletRequest request) throws ServletRequestBindingException {
     SessionSearchInfo searchInfo = new SessionSearchInfo();
     searchInfo.setSearchAction(StringUtils.trimToNull(ServletRequestUtils
-        .getStringParameter(request, "searchAction", SessionSearchInfo.ACTION_NONE)));
-    HttpSession sess = request.getSession(false);
+            .getStringParameter(request, "searchAction", SessionSearchInfo.ACTION_NONE)));
+    searchInfo.setSessionId(StringUtils
+            .trimToNull(ServletRequestUtils.getStringParameter(request, "searchSessionId")));
+    searchInfo.setLastIp(
+            StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchLastIP")));
+    searchInfo.setAgeFrom(
+            StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeFrom")));
+    searchInfo.setAgeTo(
+            StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeTo")));
+    searchInfo.setIdleTimeFrom(StringUtils
+            .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeFrom")));
+    searchInfo.setIdleTimeTo(StringUtils
+            .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeTo")));
+    searchInfo.setAttrName(StringUtils
+            .trimToNull(ServletRequestUtils.getStringParameter(request, "searchAttrName")));
 
+    return searchInfo;
+  }
+
+  private void handleSearchInfo(SessionSearchInfo searchInfo, HttpSession sess) {
     if (searchInfo.isApply()) {
-      searchInfo.setSessionId(StringUtils
-          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchSessionId")));
-      searchInfo.setLastIp(
-          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchLastIP")));
-
-      searchInfo.setAgeFrom(
-          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeFrom")));
-      searchInfo.setAgeTo(
-          StringUtils.trimToNull(ServletRequestUtils.getStringParameter(request, "searchAgeTo")));
-      searchInfo.setIdleTimeFrom(StringUtils
-          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeFrom")));
-      searchInfo.setIdleTimeTo(StringUtils
-          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchIdleTimeTo")));
-      searchInfo.setAttrName(StringUtils
-          .trimToNull(ServletRequestUtils.getStringParameter(request, "searchAttrName")));
       if (sess != null) {
         sess.setAttribute(SessionSearchInfo.SESS_ATTR_NAME, searchInfo);
       }
@@ -80,13 +101,15 @@ public class ListSessionsController extends AbstractContextHandlerController {
         sess.removeAttribute(SessionSearchInfo.SESS_ATTR_NAME);
       } else {
         SessionSearchInfo ss =
-            (SessionSearchInfo) sess.getAttribute(SessionSearchInfo.SESS_ATTR_NAME);
+                (SessionSearchInfo) sess.getAttribute(SessionSearchInfo.SESS_ATTR_NAME);
         if (ss != null) {
           searchInfo = ss;
         }
       }
     }
+  }
 
+  private List<Context> getContexts(Context context) {
     List<Context> ctxs;
     if (context == null) {
       ctxs = getContainerWrapper().getTomcatContainer().findContexts();
@@ -94,16 +117,19 @@ public class ListSessionsController extends AbstractContextHandlerController {
       ctxs = new ArrayList<>();
       ctxs.add(context);
     }
+    return ctxs;
+  }
 
+  private List<ApplicationSession> getSessionList(List<Context> ctxs, SessionSearchInfo searchInfo) {
     List<ApplicationSession> sessionList = new ArrayList<>();
 
     for (Context ctx : ctxs) {
       if (ctx != null && ctx.getManager() != null
-          && (!searchInfo.isApply() || searchInfo.isUseSearch())) {
+              && (!searchInfo.isApply() || searchInfo.isUseSearch())) {
         Session[] sessions = ctx.getManager().findSessions();
         for (Session session : sessions) {
           ApplicationSession appSession =
-              ApplicationUtils.getApplicationSession(session, searchInfo.isUseAttr());
+                  ApplicationUtils.getApplicationSession(session, searchInfo.isUseAttr());
           if (appSession != null && matchSession(appSession, searchInfo)) {
             if (ctx.getName() != null) {
               appSession.setApplicationName(!ctx.getName().isEmpty() ? ctx.getName() : "/");
@@ -114,16 +140,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
       }
     }
 
-    if (sessionList.isEmpty() && searchInfo.isApply()) {
-      synchronized (Objects.requireNonNull(sess)) {
-        populateSearchMessages(searchInfo);
-      }
-    }
-
-    ModelAndView modelAndView = new ModelAndView(getViewName(), "sessions", sessionList);
-    modelAndView.addObject("searchInfo", searchInfo);
-
-    return modelAndView;
+    return sessionList;
   }
 
   /**
