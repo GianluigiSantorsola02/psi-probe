@@ -19,7 +19,6 @@
  *--------------------------------------------------------------------------*/
 
 
-import { Component } from 'react';
 import PropTypes from 'prop-types';
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
@@ -369,29 +368,10 @@ Object.extend(String.prototype, (function() {
     }
     return result;
   }
-
-  function sub(pattern, replacement, count) {
-    replacement = prepareReplacement(replacement);
-    count = Object.isUndefined(count) ? 1 : count;
-
-    return this.gsub(pattern, function(match) {
-      if (--count < 0) return match[0];
-      return replacement(match);
-    });
-  }
-
   function scan(pattern, iterator) {
     this.gsub(pattern, iterator);
     return String(this);
   }
-
-  function truncate(length, truncation) {
-    length = length || 30;
-    truncation = Object.isUndefined(truncation) ? '...' : truncation;
-    return this.length > length ?
-      this.slice(0, length - truncation.length) + truncation : String(this);
-  }
-
   function strip() {
   return this.replace(/^\s+/g, '').replace(/\s+$/g, '')  }
 
@@ -472,20 +452,6 @@ Object.extend(String.prototype, (function() {
   function capitalize() {
     return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
   }
-
-  function underscore() {
-    return this.replace(/::/g, '/')
-        .replace(/([A-Z])([A-Z][a-z])/g, function(match, group1, group2) {
-          return group1 + '_' + group2.toLowerCase();
-        })               .replace(/([a-z\d])([A-Z])/g, '$1_$2')
-               .replace(/-/g, '_')
-               .toLowerCase();
-  }
-
-  function dasherize() {
-    return this.replace(/_/g, '-');
-  }
-
   function inspect(useDoubleQuotes) {
     const escapedString = this.replace(/\\/g, function (character) {
       if (character in String.specialChar) {
@@ -606,7 +572,7 @@ let Template = Class.Create({
       if (before == '\\') return match[2];
 
       let ctx = object, expr = match[3],
-          pattern = /^([^.[]+|\[((?:.*?[^\\])?)\])(\.|\[|$)/;
+          pattern = /^([^.[]+|\[((?:.*?[^\\])?))(\.|\[|$)/;
 
       match = pattern.exec(expr);
       if (match == null) return before;
@@ -623,7 +589,7 @@ let Template = Class.Create({
     });
   }
 });
-Template.Pattern = /(^|.|\r|\n)(#\{(.*?)\})/;
+Template.Pattern = /(^|.|\r|\n)(#\{(.*?))/;
 
 let $break = { };
 
@@ -636,15 +602,6 @@ let Enumerable = (function() {
     }
     return this;
   }
-
-  function eachSlice(number, iterator, context) {
-    let index = -number, slices = [], array = this.toArray();
-    if (number < 1) return array;
-    while ((index += number) < array.length)
-      slices.push(array.slice(index, index+number));
-    return slices.collect(iterator, context);
-  }
-
   function all(iterator, context) {
     iterator = iterator || Prototype.K;
     let result = true;
@@ -695,21 +652,6 @@ let Enumerable = (function() {
     }, this);
     return results;
   }
-
-  function grep(filter, iterator, context) {
-    iterator = iterator || Prototype.K;
-    let results = [];
-
-    if (Object.isString(filter))
-      filter = new RegExp(RegExp.escape(filter));
-
-    this.each(function(value, index) {
-      if (filter.match(value))
-        results.push(iterator.call(context, value, index, this));
-    }, this);
-    return results;
-  }
-
   function include(object) {
     if (Object.isFunction(this.indexOf) && this.indexOf(object) != -1)
       return true;
@@ -723,15 +665,6 @@ let Enumerable = (function() {
     });
     return found;
   }
-
-  function inGroupsOf(number, fillWith) {
-    fillWith = Object.isUndefined(fillWith) ? null : fillWith;
-    return this.eachSlice(number, function(slice) {
-      while(slice.length < number) slice.push(fillWith);
-      return slice;
-    });
-  }
-
   function inject(memo, iterator, context) {
     this.each(function(value, index) {
       memo = iterator.call(context, memo, value, index, this);
@@ -767,17 +700,6 @@ let Enumerable = (function() {
     }, this);
     return result;
   }
-
-  function partition(iterator, context) {
-    iterator = iterator || Prototype.K;
-    let trues = [], falses = [];
-    this.each(function(value, index) {
-      (iterator.call(context, value, index, this) ?
-        trues : falses).push(value);
-    }, this);
-    return [trues, falses];
-  }
-
   function pluck(property) {
     let results = [];
     this.each(function(value) {
@@ -847,7 +769,6 @@ let Enumerable = (function() {
 
   return {
     each:       each,
-    eachSlice:  eachSlice,
     all:        all,
     every:      all,
     any:        any,
@@ -869,7 +790,6 @@ let Enumerable = (function() {
     sortBy:     sortBy,
     toArray:    toArray,
     entries:    toArray,
-    zip:        zip,
     size:       size,
     inspect:    inspect,
     find:       detect
@@ -940,11 +860,6 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-
-  function reverse(inline) {
-    return (inline === false ? this.toArray() : this)._reverse();
-  }
-
   function uniq(sorted) {
     return this.inject([], function(array, value, index) {
       if (0 == index || (sorted ? array.last() != value : !array.include(value)))
@@ -952,14 +867,6 @@ Array.from = $A;
       return array;
     });
   }
-
-  function intersect(array) {
-    return this.uniq().findAll(function(item) {
-      return array.indexOf(item) !== -1;
-    });
-  }
-
-
   function clone() {
     return slice.call(this, 0);
   }
@@ -1163,7 +1070,6 @@ Array.from = $A;
     compact:   compact,
     flatten:   flatten,
     without:   without,
-    uniq:      uniq,
     clone:     clone,
     toArray:   clone,
     size:      size,
@@ -1181,7 +1087,7 @@ Array.from = $A;
 })();
 function $H(object) {
   return new Hash(object);
-};
+}
 
 let Hash = Class.Create(Enumerable, (function() {
   function initialize(object) {
@@ -1300,7 +1206,6 @@ let Hash = Class.Create(Enumerable, (function() {
     keys:                   keys,
     values:                 values,
     index:                  index,
-    merge:                  merge,
     update:                 update,
     toQueryString:          toQueryString,
     inspect:                inspect,
@@ -1350,10 +1255,7 @@ Object.extend(Number.prototype, (function() {
     succ:           succ,
     times:          times,
     toPaddedString: toPaddedString,
-    abs:            abs,
-    round:          round,
-    ceil:           ceil,
-    floor:          floor
+    round:          round
   };
 })());
 
@@ -6286,23 +6188,6 @@ Form.Methods = {
 
     return results;
   },
-
-  getInputs: function(form, typeName, name) {
-    form = $(form);
-    let inputs = form.getElementsByTagName('input');
-
-    if (!typeName && !name) return $A(inputs).map(Element.extend);
-
-    for (let i = 0,  length = inputs.length; i < length; i++) {
-      let input = inputs[i];
-      if ((typeName && input.type != typeName) || (name && input.name != name))
-        continue;
-      matchingInputs.push(Element.extend(input));
-    }
-
-    return matchingInputs;
-  },
-
   disable: function(form) {
     form = $(form);
     Form.getElements(form).invoke('disable');
@@ -6327,14 +6212,6 @@ Form.Methods = {
       return /^(?:input|select|textarea)$/i.test(element.tagName);
     });
   },
-
-  focusFirstElement: function(form) {
-    form = $(form);
-    let element = form.findFirstElement();
-    if (element) element.activate();
-    return form;
-  },
-
   request: function(form, options) {
     form = $(form)
     options = Object.clone(options || { });
@@ -6403,10 +6280,6 @@ Form.Element.Methods = {
     return element;
   },
 
-  present: function(element) {
-    return $(element).value != '';
-  },
-
   activate: function(element) {
     element = $(element);
     try {
@@ -6430,14 +6303,6 @@ Form.Element.Methods = {
     return element;
   }
 };
-
-/*--------------------------------------------------------------------------*/
-
-let Field = Form.Element;
-
-let $F = Form.Element.Methods.getValue;
-
-/*--------------------------------------------------------------------------*/
 
 Form.Element.Serializers = (function() {
   function input(element, value) {
@@ -6501,11 +6366,8 @@ Form.Element.Serializers = (function() {
 
   return {
     input:         input,
-    inputSelector: inputSelector,
     textarea:      valueSelector,
     select:        select,
-    selectOne:     selectOne,
-    selectMany:    selectMany,
     optionValue:   optionValue,
     button:        valueSelector
   };
@@ -6666,11 +6528,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function isLeftClick(event)   { return _isButton(event, 0) }
-
-  function isMiddleClick(event) { return _isButton(event, 1) }
-
-  function isRightClick(event)  { return _isButton(event, 2) }
-
   function element(event) {
     return Element.extend(_element(event));
   }
@@ -6735,9 +6592,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   Event.Methods = {
     isLeftClick:   isLeftClick,
-    isMiddleClick: isMiddleClick,
-    isRightClick:  isRightClick,
-
     element:     element,
     findElement: findElement,
 
@@ -6772,8 +6626,10 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     }
 
     let additionalMethods = {
-      stopPropagation: function() { this.cancelBubble = true },
-      preventDefault:  function() { this.returnValue = false },
+      stopPropagation: function() {
+      },
+      preventDefault:  function() {
+      },
       inspect: function() { return '[object Event]' }
     };
 
@@ -7247,18 +7103,11 @@ let Insertion = {
   Top: function(element, content) {
     return Element.insert(element, {top:content});
   },
-
-  Bottom: function(element, content) {
-    return Element.insert(element, {bottom:content});
-  },
-
   After: function(element, content) {
     return Element.insert(element, {after:content});
   }
 };
-
-let $continue = new Error('"throw $continue" is deprecated, use "return" instead');
-
+new Error('"throw $continue" is deprecated, use "return" instead');
 let Position = {
   includeScrollOffsets: false,
 
@@ -7442,11 +7291,6 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
           return Element.extend(element);
         }
       }
-    },
-
-    findChildElements: function(element, expressions) {
-      let selector = expressions.toArray().join(', ');
-      return Prototype.Selector.select(selector, element || document);
     }
   });
 })();
