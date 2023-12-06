@@ -14,7 +14,6 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -30,9 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Controller
@@ -103,8 +100,14 @@ public class ListSessionsController extends AbstractContextHandlerController {
         SessionSearchInfo ss =
                 (SessionSearchInfo) sess.getAttribute(SessionSearchInfo.SESS_ATTR_NAME);
         if (ss != null) {
-          searchInfo = ss;
-        }
+          searchInfo.setSearchAction(ss.getSearchAction());
+          searchInfo.setSessionId(ss.getSessionId());
+          searchInfo.setLastIp(ss.getLastIp());
+          searchInfo.setAgeFrom(ss.getAgeFrom());
+          searchInfo.setAgeTo(ss.getAgeTo());
+          searchInfo.setIdleTimeFrom(ss.getIdleTimeFrom());
+          searchInfo.setIdleTimeTo(ss.getIdleTimeTo());
+          searchInfo.setAttrName(ss.getAttrName());}
       }
     }
   }
@@ -124,16 +127,12 @@ public class ListSessionsController extends AbstractContextHandlerController {
     List<ApplicationSession> sessionList = new ArrayList<>();
 
     for (Context ctx : ctxs) {
-      if (ctx != null && ctx.getManager() != null
-              && (!searchInfo.isApply() || searchInfo.isUseSearch())) {
-        Session[] sessions = ctx.getManager().findSessions();
+      if (shouldAddSessions(ctx, searchInfo)) {
+        Session[] sessions = getSessions(ctx);
         for (Session session : sessions) {
-          ApplicationSession appSession =
-                  ApplicationUtils.getApplicationSession(session, searchInfo.isUseAttr());
+          ApplicationSession appSession = getApplicationSession(session, searchInfo);
           if (appSession != null && matchSession(appSession, searchInfo)) {
-            if (ctx.getName() != null) {
-              appSession.setApplicationName(!ctx.getName().isEmpty() ? ctx.getName() : "/");
-            }
+            setApplicationName(appSession, ctx);
             sessionList.add(appSession);
           }
         }
@@ -143,58 +142,21 @@ public class ListSessionsController extends AbstractContextHandlerController {
     return sessionList;
   }
 
-  /**
-   * Populate search messages.
-   *
-   * @param searchInfo the search info
-   */
-  private void populateSearchMessages(SessionSearchInfo searchInfo) {
-    MessageSourceAccessor msa = getMessageSourceAccessor();
-    if (msa != null) {
-      msa.getMessage("probe.src.dataSourceTest.sql.required");
-    }
-    searchInfo.getErrorMessages().clear();
+  private boolean shouldAddSessions(Context ctx, SessionSearchInfo searchInfo) {
+    return ctx != null && ctx.getManager() != null && (!searchInfo.isApply() || searchInfo.isUseSearch());
+  }
 
-    if (searchInfo.isEmpty()) {
-        assert msa != null;
-        searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.empty"));
-    } else if (searchInfo.isValid()) {
-        assert msa != null;
-        searchInfo.setInfoMessage(msa.getMessage("probe.src.sessions.search.results.empty"));
-    } else {
-      if (!searchInfo.isSessionIdValid()) {
-          assert msa != null;
-          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.sessionId",
-            new Object[] {searchInfo.getSessionIdMsg()}));
-      }
-      if (!searchInfo.isAttrNameValid()) {
-        for (String message : searchInfo.getAttrNameMsgs()) {
-            assert msa != null;
-            searchInfo.addErrorMessage(
-              msa.getMessage("probe.src.sessions.search.invalid.attrName", new Object[] {message}));
-        }
-      }
-      if (!searchInfo.isAgeFromValid()) {
-          assert msa != null;
-          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageFrom"));
-      }
-      if (!searchInfo.isAgeToValid()) {
-          assert msa != null;
-          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.ageTo"));
-      }
-      if (!searchInfo.isIdleTimeFromValid()) {
-          assert msa != null;
-          searchInfo
-            .addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.idleTimeFrom"));
-      }
-      if (!searchInfo.isIdleTimeToValid()) {
-          assert msa != null;
-          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid.idleTimeTo"));
-      }
-      if (searchInfo.getErrorMessages().isEmpty()) {
-          assert msa != null;
-          searchInfo.addErrorMessage(msa.getMessage("probe.src.sessions.search.invalid"));
-      }
+  private Session[] getSessions(Context ctx) {
+    return ctx.getManager().findSessions();
+  }
+
+  private ApplicationSession getApplicationSession(Session session, SessionSearchInfo searchInfo) {
+    return ApplicationUtils.getApplicationSession(session, searchInfo.isUseAttr());
+  }
+
+  private void setApplicationName(ApplicationSession appSession, Context ctx) {
+    if (ctx.getName() != null) {
+      appSession.setApplicationName(!ctx.getName().isEmpty() ? ctx.getName() : "/");
     }
   }
 
@@ -207,56 +169,91 @@ public class ListSessionsController extends AbstractContextHandlerController {
    * @return true, if successful
    */
   private boolean matchSession(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    if (!searchInfo.isUseSearch()) {
+      return true;
+    }
+
     boolean sessionMatches = true;
-    if (searchInfo.isUseSearch()) {
-      if (searchInfo.isUseSessionId() && appSession.getId() != null) {
-        sessionMatches = searchInfo.getSessionIdPattern().matcher(appSession.getId()).matches();
-      }
-      if (sessionMatches && searchInfo.isUseAgeFrom()) {
-        sessionMatches = appSession.getAge() >= searchInfo.getAgeFromSec().longValue() * 1000;
-      }
-      if (sessionMatches && searchInfo.isUseAgeTo()) {
-        sessionMatches = appSession.getAge() <= searchInfo.getAgeToSec().longValue() * 1000;
-      }
-      if (sessionMatches && searchInfo.isUseIdleTimeFrom()) {
-        sessionMatches =
-            appSession.getIdleTime() >= searchInfo.getIdleTimeFromSec().longValue() * 1000;
-      }
-      if (sessionMatches && searchInfo.isUseIdleTimeTo()) {
-        sessionMatches =
-            appSession.getIdleTime() <= searchInfo.getIdleTimeToSec().longValue() * 1000;
-      }
-      if (searchInfo.isUseLastIp() && appSession.getLastAccessedIp() != null) {
-        sessionMatches = appSession.getLastAccessedIp().contains(searchInfo.getLastIp());
-      }
 
-      if (sessionMatches && searchInfo.isUseAttrName()) {
-        boolean attrMatches = false;
-        List<Pattern> namePatterns = new ArrayList<>(searchInfo.getAttrNamePatterns());
-        for (Attribute attr : appSession.getAttributes()) {
-          String attrName = attr.getName();
-
-          if (attrName != null) {
-            for (Iterator<Pattern> it = namePatterns.iterator(); it.hasNext();) {
-              if (it.next().matcher(attrName).matches()) {
-                it.remove();
-              }
-            }
-
-            if (namePatterns.isEmpty()) {
-              attrMatches = true;
-              break;
-            }
-          }
-        }
-
-        sessionMatches = attrMatches;
-      }
+    if (searchInfo.isUseSessionId()) {
+      sessionMatches = matchesSessionId(appSession, searchInfo);
+    }
+    if (sessionMatches && searchInfo.isUseAgeFrom()) {
+      sessionMatches = matchesAgeFrom(appSession, searchInfo);
+    }
+    if (sessionMatches && searchInfo.isUseAgeTo()) {
+      sessionMatches = matchesAgeTo(appSession, searchInfo);
+    }
+    if (sessionMatches && searchInfo.isUseIdleTimeFrom()) {
+      sessionMatches = matchesIdleTimeFrom(appSession, searchInfo);
+    }
+    if (sessionMatches && searchInfo.isUseIdleTimeTo()) {
+      sessionMatches = matchesIdleTimeTo(appSession, searchInfo);
+    }
+    if (searchInfo.isUseLastIp()) {
+      sessionMatches = matchesLastIp(appSession, searchInfo);
+    }
+    if (sessionMatches && searchInfo.isUseAttrName()) {
+      sessionMatches = matchesAttrName(appSession, searchInfo);
     }
 
     return sessionMatches;
   }
 
+  private boolean matchesSessionId(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    String sessionId = appSession.getId();
+    if (sessionId != null) {
+      return searchInfo.getSessionIdPattern().matcher(sessionId).matches();
+    }
+    return true;
+  }
+
+  private boolean matchesAgeFrom(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    long age = appSession.getAge();
+    long ageFrom = searchInfo.getAgeFromSec().longValue() * 1000;
+    return age >= ageFrom;
+  }
+
+  private boolean matchesAgeTo(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    long age = appSession.getAge();
+    long ageTo = searchInfo.getAgeToSec().longValue() * 1000;
+    return age <= ageTo;
+  }
+
+  private boolean matchesIdleTimeFrom(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    long idleTime = appSession.getIdleTime();
+    long idleTimeFrom = searchInfo.getIdleTimeFromSec().longValue() * 1000;
+    return idleTime >= idleTimeFrom;
+  }
+
+  private boolean matchesIdleTimeTo(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    long idleTime = appSession.getIdleTime();
+    long idleTimeTo = searchInfo.getIdleTimeToSec().longValue() * 1000;
+    return idleTime <= idleTimeTo;
+  }
+
+  private boolean matchesLastIp(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    String lastIp = appSession.getLastAccessedIp();
+    if (lastIp != null) {
+      return lastIp.contains(searchInfo.getLastIp());
+    }
+    return true;
+  }
+
+  private boolean matchesAttrName(ApplicationSession appSession, SessionSearchInfo searchInfo) {
+    List<Pattern> namePatterns = searchInfo.getAttrNamePatterns();
+    for (Attribute attr : appSession.getAttributes()) {
+      String attrName = attr.getName();
+      if (attrName != null) {
+        for (Pattern pattern : namePatterns) {
+          if (pattern.matcher(attrName).matches()) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
   @Override
   protected boolean isContextOptional() {
     return true;
