@@ -205,7 +205,7 @@ let Tooltip = {
 		window._currentTT = activator.id;
 
 		function isVisibleEvent() {
-			return !(ignore_event === true || (typeof Tooltip.showEvent === "string") || (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array && Tooltip.showEvent.includes(event.type)));
+			return !(ignore_event === true || typeof Tooltip.showEvent === "string" || (Tooltip.showEvent.constructor === Array && Tooltip.showEvent.includes(event.type)));
 		}
 
 		let ignore_event = false;
@@ -219,7 +219,7 @@ let Tooltip = {
 		}
 
 		try {
-			if (typeof Effect) {
+			if (typeof Effect !== "undefined") {
 				Element.setOpacity(activator.Tooltip, 0.1);
 				activator.Tooltip.style.visibility = "visible";
 				Tooltip.showMethod(activator.Tooltip, {duration: Tooltip.fade});
@@ -239,7 +239,7 @@ let Tooltip = {
 		}
 
 		if (Tooltip.autoHideTimeout && !Tooltip.autoFollowMouse) {
-			activator.timer = setTimeout(function () {
+			activator.timer = setTimeout(() => {
 				try {
 					Tooltip.hideMethod(activator.Tooltip, {duration: Tooltip.fade});
 				} catch (e) {
@@ -247,8 +247,7 @@ let Tooltip = {
 				}
 			}, Tooltip.autoHideTimeout * 1000);
 		}
-	},
-	/**
+	},	/**
 	 * Manually add a Tooltip
 	 *
 	 * When passed an Activator and Tooltip element or ID, it is setup as a Tooltip
