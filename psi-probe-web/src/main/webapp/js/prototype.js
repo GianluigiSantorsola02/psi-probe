@@ -2328,8 +2328,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     wrap:    wrap,
     cleanWhitespace: cleanWhitespace,
     empty:   empty,
-    clone:   clone,
-    purge:   purge
+    clone:   clone
   });
 
 
