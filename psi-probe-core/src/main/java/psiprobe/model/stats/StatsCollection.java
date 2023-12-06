@@ -45,13 +45,13 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   private Map<String, List<XYDataItem>> statsData = new TreeMap<>();
 
   /** The xstream. */
-  private XStream xstream;
+  private final XStream xstream;
 
   /** The swap file name. */
   private String swapFileName;
 
   /** The storage path. */
-  private String storagePath;
+  private final String storagePath;
 
   /** The context temp dir. */
   private File contextTempDir;
@@ -62,7 +62,9 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
 
-  public StatsCollection(boolean b) {
+  public StatsCollection(XStream xstream, String storagePath) {
+    this.xstream = xstream;
+    this.storagePath = storagePath;
     init( );
   }
 
