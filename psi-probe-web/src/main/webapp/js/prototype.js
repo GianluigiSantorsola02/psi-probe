@@ -4129,6 +4129,13 @@ Prototype._original_property = window.Sizzle;
   }
 })();
 
+class setFilters {
+  constructor(Expr) {
+    this.Expr = <Expr></Expr>
+  }
+
+}
+
 /*!
  * Sizzle CSS Selector Engine v1.10.18
  * https://github.com/jquery/sizzle/wiki
@@ -4709,7 +4716,7 @@ setDocument = Sizzle.setDocument = function( node ) {
           return a === bup || !!( bup && bup.nodeType === 1 && (
 				adown.contains ?
 					adown.contains( bup ) :
-					a.compareDocumentPosition && a.compareDocumentPosition( bup ) && 16
+					a.compareDocumentPosition ?. a.compareDocumentPosition( bup ) && 16
 			));
 		} :
 		function( a, b ) {
@@ -5399,7 +5406,6 @@ for ( i in { submit: true, reset: true } ) {
 	Expr.pseudos[ i ] = createButtonPseudo( i );
 }
 
-function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new setFilters( Expr );
 
