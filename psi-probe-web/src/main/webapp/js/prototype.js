@@ -2328,8 +2328,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     wrap:    wrap,
     cleanWhitespace: cleanWhitespace,
     empty:   empty,
-    clone:   clone,
-    purge:   purge
+    clone:   clone
   });
 
 
@@ -7508,19 +7507,6 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
   });
 
   Object.extend(Selector, {
-    matchElements: function(elements, expression) {
-      let match = Prototype.Selector.match,
-          results = [];
-
-      for (let i = 0, length = elements.length; i < length; i++) {
-        let element = elements[i];
-        if (match(element, expression)) {
-          results.push(Element.extend(element));
-        }
-      }
-      return results;
-    },
-
     findElement: function(elements, expression, index) {
       index = index || 0;
       let matchIndex = 0, element;
