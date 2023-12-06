@@ -946,11 +946,11 @@ Effect.Morph = Class.create(Effect.Base, {
 
           if (transform.unit !== null) {
             value += transform.unit;
+          }else{
+            value += 'px';
           }
         }
-        if (value !== '') {
-          style[transform.style] = value;
-        }
+
 
       }    }
 
