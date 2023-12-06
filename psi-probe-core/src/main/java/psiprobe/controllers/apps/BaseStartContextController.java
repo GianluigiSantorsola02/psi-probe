@@ -38,12 +38,10 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
     // get username logger
     String name = auth.getName();
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-    if (messageSourceAccessor != null) {
+    if (messageSourceAccessor != null && logger.isInfoEnabled()) {
       mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
-    } else {
-      if (logger.isInfoEnabled()) {
-        mylogger.info("Failed to get message source accessor. Starting {} context.", contextName);
-      }
+    } else if (logger.isInfoEnabled()) {
+      mylogger.info("Failed to get message source accessor. Starting {} context.", contextName);
     }
 
   }
