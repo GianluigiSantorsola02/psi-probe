@@ -239,7 +239,7 @@ public class ResourceResolverBean implements ResourceResolver {
         }
 
 // Use the validated and sanitized jndiName in the lookup method
-        obj = ctx.lookup(jndiName);      } else {
+        obj = jndiName;      } else {
         // Handle the case when ctx is null
         logger.error("Error: Context is null. Unable to perform JNDI lookup.");
         // You can add additional error handling or logging code here
