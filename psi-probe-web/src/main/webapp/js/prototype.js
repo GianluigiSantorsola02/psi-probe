@@ -856,13 +856,6 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-  function uniq(sorted) {
-    return this.inject([], function(array, value, index) {
-      if (0 == index || (sorted ? array.last() != value : !array.include(value)))
-        array.push(value);
-      return array;
-    });
-  }
   function clone() {
     return slice.call(this, 0);
   }
