@@ -943,12 +943,12 @@ Effect.Morph = Class.create(Effect.Base, {
 
         if (transform.unit !== null) {
           value += transform.unit;
+          style[transform.style] = value;
         } else {
           value += 'px';
         }
       }
 
-      style[transform.style] = value;
     }
 
     this.element.setStyle(style, true);
