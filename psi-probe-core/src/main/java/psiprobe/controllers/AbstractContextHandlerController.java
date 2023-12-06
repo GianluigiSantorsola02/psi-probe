@@ -77,7 +77,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, InterruptedException {
     // Your code logic here
 
 

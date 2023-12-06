@@ -59,7 +59,7 @@ public abstract class AbstractNoSelfContextHandlerController
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) {
+                                    HttpServletRequest request, HttpServletResponse response) throws InterruptedException {
 
     try {
       handleContextAction(contextName, request);
@@ -72,6 +72,7 @@ public abstract class AbstractNoSelfContextHandlerController
   } catch (InterruptedException e) {
     request.setAttribute("errorMessage", e.getMessage());
     mylogger.error("Error during invocation", e);
+    throw e;
   }
 
       return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
