@@ -9,7 +9,6 @@
  * PURPOSE.
  */
 package psiprobe.model.stats;
-
 import com.thoughtworks.xstream.XStream;
 import org.jfree.data.xy.XYDataItem;
 import org.slf4j.Logger;
@@ -31,7 +30,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static jdk.internal.vm.StackChunk.init;
+import static sun.tools.jconsole.OutputViewer.init;
+
 
 /**
  * The Class StatsCollection.
