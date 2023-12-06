@@ -10,12 +10,10 @@
  */
 package psiprobe.beans.accessors;
 
-import psiprobe.model.DataSourceInfo;
-
 import oracle.ucp.jdbc.JDBCConnectionPoolStatistics;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
-import oracle.ucp.jdbc.PoolXADataSourceImpl;
+import psiprobe.model.DataSourceInfo;
 
 /**
  * Accesses an Oracle Universal Connection Pool (UCP) resource.
