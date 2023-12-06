@@ -179,7 +179,6 @@ Object.extend(Function.prototype, (function() {
     return names.length === 1 && !names[0] ? [] : names;
   }
 
-
   function bind(context) {
     if (arguments.length < 2 && Object.isUndefined(arguments[0]))
       return this;
@@ -187,11 +186,7 @@ Object.extend(Function.prototype, (function() {
     if (!Object.isFunction(this))
       throw new TypeError("The object is not callable.");
 
-    let nop = function() {
-      nop.prototype   = this.prototype;
-      bound.prototype = new nop();
-
-      return bound;};
+    let nop = createNopPrototype(this);
     let __method = this, args = slice.call(arguments, 1);
 
     let bound = function() {
@@ -200,16 +195,26 @@ Object.extend(Function.prototype, (function() {
       return __method.apply(c, a);
     };
 
+    return bound;
+  }
 
+  function createNopPrototype(fn) {
+    let nop = function() {
+      nop.prototype = fn.prototype;
+      bound.prototype = new nop();
+      return bound;
+    };
+    return nop;
   }
 
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
     return function(event) {
-      let a = update([(event || window.event)], args);
+      let a = update([(event || window.Event)], args);
       return __method.apply(context, a);
-    }
+    };
   }
+
   function delay(timeout) {
     let __method = this, args = slice.call(arguments, 1);
     timeout = timeout * 1000;
@@ -228,19 +233,18 @@ Object.extend(Function.prototype, (function() {
     return function() {
       let a = update([__method.bind(this)], arguments);
       return wrapper.apply(this, a);
-    }
+    };
   }
 
   function methodize() {
     if (this._methodized) return this._methodized;
     let __method = this;
-    this._methodized = () => {
+    this._methodized = function() {
       let a = update([this], arguments);
       this._methodized = __method(...a);
       let methodizedResult = this._methodized;
       this._methodized = methodizedResult;
       return methodizedResult;
-
     };
     return this._methodized;
   }
@@ -254,12 +258,12 @@ Object.extend(Function.prototype, (function() {
     methodize:           methodize
   };
 
-  if (!Function.prototype.bind)
+  if (!Function.prototype.bind) {
     extensions.bind = bind;
+  }
 
   return extensions;
 })());
-
 
 
 (function(proto) {
@@ -751,17 +755,6 @@ let Enumerable = (function() {
     return this.map();
   }
 
-  function zip() {
-    let iterator = Prototype.K, args = $A(arguments);
-    if (Object.isFunction(args.last()))
-      iterator = args.pop();
-
-    let collections = [this].concat(args).map($A);
-    return this.map(function(value, index) {
-      return iterator(collections.pluck(index));
-    });
-  }
-
   function size() {
     return this.toArray().length;
   }
@@ -769,14 +762,6 @@ let Enumerable = (function() {
   function inspect() {
     return '#<Enumerable:' + this.toArray().inspect() + '>';
   }
-
-
-
-
-
-
-
-
 
   return {
     each:       each,
