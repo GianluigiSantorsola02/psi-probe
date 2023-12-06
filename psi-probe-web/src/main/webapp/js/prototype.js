@@ -6964,16 +6964,15 @@ Hash.toQueryString = Object.toQueryString;
 Element.addMethods({
   childOf: Element.Methods.descendantOf
 });
-new Error('"throw $continue" is deprecated, use "return" instead');
 let Position = {
   includeScrollOffsets: false,
 
   prepare: function() {
-    this.deltaX =  window.pageXOffset
+    this.deltaX =  window.screenX
                 || document.documentElement.scrollLeft
                 || document.body.scrollLeft
                 || 0;
-    this.deltaY =  window.pageYOffset
+    this.deltaY =  window.screenY
                 || document.documentElement.scrollTop
                 || document.body.scrollTop
                 || 0;
@@ -7044,39 +7043,42 @@ let Position = {
 
 /*--------------------------------------------------------------------------*/
 
-if (!document.getElementsByClassName) document.getElementsByClassName = function(instanceMethods){
-  function iter(name) {
-    return name.blank() ? null : "[contains(concat(' ', @class, ' '), ' " + name + " ')]";
+if (!document.getElementsByClassName) document.getElementsByClassName = function getElementsByClassName(className, parentElement) {
+  parentElement = parentElement || document.body;
+  if (Prototype.BrowserFeatures.XPath) {
+    return getElementsByClassNameXPath(parentElement, className);
+  } else {
+    return getElementsByClassNameLegacy(parentElement, className);
   }
+}
 
-  instanceMethods.getElementsByClassName = Prototype.BrowserFeatures.XPath ?
-  function(element, className) {
-    className = className.toString().strip();
-    let cond = /\s/.test(className) ? $w(className).map(iter).join('') : iter(className);
-    return cond ? document._getElementsByXPath('.//*' + cond, element) : [];
-  } : function(element, className) {
-    className = className.toString().strip();
-    let elements = [], classNames = (/\s/.test(className) ? $w(className) : null);
-    if (!classNames && !className) return elements;
+function getElementsByClassNameXPath(element, className) {
+  className = className.toString().strip();
+  let cond = /\s/.test(className) ? $w(className).map(iter).join('') : iter(className);
+  return cond ? document._getElementsByXPath('.//*' + cond, element) : [];
+}
 
-    let nodes = $(element).getElementsByTagName('*');
-    className = ' ' + className + ' ';
+function getElementsByClassNameLegacy(element, className) {
+  className = className.toString().strip();
+  let elements = [];
+  let classNames = /\s/.test(className) ? $w(className) : null;
+  if (!classNames && !className) return elements;
 
-      let child = nodes[i];
-    for (let i = 0, cn;  i < nodes.length  ; i++) {
-      if (child?.className?.includes?.(className) ||
-          classNames?.all?.(name => child?.className?.includes?.(name))) {
-        return !name.toString()?.blank() && cn?.includes?.(' ' + name + ' ');
-      }
+  let nodes = $(element).getElementsByTagName('*');
+  className = ' ' + className + ' ';
+
+  for (let i = 0; i < nodes.length; i++) {
+    let child = nodes[i];
+    if (
+        child?.className?.includes?.(className) ||
+        (classNames && classNames.all((name) => child?.className?.includes?.(name)))
+    ) {
       elements.push(Element.extend(child));
     }
-    return elements;
-  };
+  }
 
-  return function(className, parentElement) {
-    return $(parentElement || document.body).getElementsByClassName(className);
-  };
-}(Element.Methods);
+  return elements;
+}
 
 /*--------------------------------------------------------------------------*/
 
@@ -7098,12 +7100,12 @@ Element.ClassNames.prototype = {
 
   add: function(classNameToAdd) {
     if (this.include(classNameToAdd)) return;
-    this.set($A(this).concat(classNameToAdd).join(' '));
+    this.set($A(this).concat(classNameToAdd))
   },
 
   remove: function(classNameToRemove) {
     if (!this.include(classNameToRemove)) return;
-    this.set($A(this).without(classNameToRemove).join(' '));
+    this.set($A(this).without(classNameToRemove));
   },
 
   toString: function() {
@@ -7141,13 +7143,12 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
   Object.extend(Selector, {
     findElement: function(elements, expression, index) {
       index = index || 0;
-      let matchIndex = 0, element;
-      for (let i = 0, length = elements.length; i < length; i++) {
-        element = elements[i];
+      let matchIndex = 0;
+      return elements.find((element) => {
         if (Prototype.Selector.match(element, expression) && index === matchIndex++) {
           return Element.extend(element);
         }
-      }
+      });
     }
   });
 })();
