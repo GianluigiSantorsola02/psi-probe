@@ -20,6 +20,17 @@
 
 
 import PropTypes from 'prop-types';
+
+PropTypes.arrayOf = function (shape) {
+  return PropTypes.arrayOf(PropTypes.shape(shape));
+};
+PropTypes.func =  function (shape) {
+  return PropTypes.func(PropTypes.shape(shape));
+};
+PropTypes.func.isRequired = undefined;
+let ComponentName = PropTypes.shape({
+  toJSON: PropTypes.func.isRequired
+});
 ComponentName.propTypes = {
   key: PropTypes.arrayOf(PropTypes.shape({
     toJSON: PropTypes.func.isRequired
@@ -1515,7 +1526,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
     const m = this.url.match(/^\s*https?:\/\/[^]*/);
     return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
       protocol: location.protocol,
-      domain: document.domain,
+      domain: document.body,
       port: location.port ? ':' + location.port : ''
     }));
   },
@@ -4308,7 +4319,7 @@ let i,
 }
 
 function Sizzle( selector, context, results, seed ) {
-	let match, elem, m, nodeType,
+	let  elem, nodeType,
 		i, groups, old, nid, newContext, newSelector;
 
 	if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
@@ -4560,8 +4571,8 @@ isXML = Sizzle.isXML = function( elem ) {
 
 /**
  * Sets document-related letiables once based on the current document
- * @param {Element|Object} [doc] An element or document object to use to set the document
  * @returns {Object} Returns the current document
+ * @param node
  */
 setDocument = Sizzle.setDocument = function( node ) {
 	let hasCompare,
@@ -4744,7 +4755,7 @@ setDocument = Sizzle.setDocument = function( node ) {
           return a === bup || !!( bup && bup.nodeType === 1 && (
 				adown.contains ?
 					adown.contains( bup ) :
-					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
+					a.compareDocumentPosition && a.compareDocumentPosition( bup ) && 16
 			));
 		} :
 		function( a, b ) {
@@ -5594,8 +5605,8 @@ function multipleContexts( selector, contexts, results ) {
 }
 
 function condense( unmatched, map, filter, context, xml ) {
-	let elem,
-		newUnmatched = [],
+	let
+        newUnmatched = [],
 		i = 0,
 		len = unmatched.length,
 		mapped = map != null;
@@ -6114,19 +6125,6 @@ Form.Methods = {
     form = $(form);
     Form.getElements(form).invoke('enable');
     return form;
-  },
-
-  findFirstElement: function(form) {
-    let elements = $(form).getElements().findAll(function(element) {
-      return 'hidden' != element.type && !element.disabled;
-    });
-    let firstByIndex = elements.findAll(function(element) {
-      return element.hasAttribute('tabIndex') && element.tabIndex >= 0;
-    }).sortBy(function(element) { return element.tabIndex }).first();
-
-    return firstByIndex ? firstByIndex : elements.find(function(element) {
-      return /^(?:input|select|textarea)$/i.test(element.tagName);
-    });
   },
   request: function(form, options) {
     form = $(form)
