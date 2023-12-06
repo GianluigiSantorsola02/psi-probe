@@ -7071,7 +7071,7 @@ function getElementsByClassNameLegacy(element, className) {
     let child = nodes[i];
     if (
         child?.className?.includes?.(className) ||
-        (classNames && classNames.all((name) => child?.className?.includes?.(name)))
+        (classNames ?. classNames.all((name) => child?.className?.includes?.(name)))
     ) {
       elements.push(Element.extend(child));
     }
@@ -7100,12 +7100,15 @@ Element.ClassNames.prototype = {
 
   add: function(classNameToAdd) {
     if (this.include(classNameToAdd)) return;
-    this.set($A(this).concat(classNameToAdd))
+    this.set(this.element.className + ' ' + classNameToAdd);
   },
 
   remove: function(classNameToRemove) {
     if (!this.include(classNameToRemove)) return;
-    this.set($A(this).without(classNameToRemove));
+    this.element.className = this.element.className
+        .split(/\s+/)
+        .filter((name) => name !== classNameToRemove)
+        .join(' ');
   },
 
   toString: function() {
@@ -7144,11 +7147,12 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
     findElement: function(elements, expression, index) {
       index = index || 0;
       let matchIndex = 0;
-      return elements.find((element) => {
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
         if (Prototype.Selector.match(element, expression) && index === matchIndex++) {
           return Element.extend(element);
         }
-      });
-    }
+      }
+    },
   });
 })();
