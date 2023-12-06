@@ -51,50 +51,47 @@ public class ViewSourceController extends AbstractContextHandlerController {
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
-    boolean highlight = ServletRequestUtils.getBooleanParameter(request, "highlight", true);
     Summary summary = getSessionSummary(request);
 
-    if (summary != null && contextName.equals(summary.getName())) {
-      Item item = getSummaryItem(summary, jspName);
-
-      if (item != null) {
-        jspName = sanitizeJspName(jspName);
-
-        if (getContainerWrapper().getTomcatContainer().resourceExists(jspName, context)) {
-          String descriptorPageEncoding = getDescriptorPageEncoding(jspName, context);
-
-          if (descriptorPageEncoding != null && !descriptorPageEncoding.isEmpty()) {
-            item.setEncoding(descriptorPageEncoding);
-          } else {
-            item.setEncoding(getJspEncoding(jspName, context));
-          }
-
-          if (highlight) {
-            request.setAttribute("highlightedContent",
-                    highlightJspContent(jspName, item.getEncoding(), context));
-          } else {
-            request.setAttribute("content",
-                    readJspContent(jspName, item.getEncoding(), context));
-          }
-        } else {
-          viewSourceLogger.error("{} does not exist", jspName);
-        }
-
-        request.setAttribute("item", item);
-
-      } else {
-        viewSourceLogger.error("jsp name passed is not in the summary, ignored");
-      }
-    } else {
-      if (summary == null) {
-        viewSourceLogger.error("Session has expired or there is no summary");
-      }
+    if (shouldHandleContext(summary, contextName)) {
+      handleContextAction(contextName, summary, request, context);
     }
 
     return new ModelAndView(getViewName());
   }
 
+  private boolean shouldHandleContext(Summary summary, String contextName) {
+    return summary != null && contextName.equals(summary.getName());
+  }
+
+  private void handleContextAction(String contextName, Summary summary,
+                                   HttpServletRequest request, Context context) throws IOException {
+    String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
+    boolean highlight = ServletRequestUtils.getBooleanParameter(request, "highlight", true);
+    Item item = getSummaryItem(summary, jspName);
+
+    if (item != null) {
+      jspName = sanitizeJspName(jspName);
+
+      if (getContainerWrapper().getTomcatContainer().resourceExists(jspName, context)) {
+        String descriptorPageEncoding = getDescriptorPageEncoding(jspName, context);
+        String encoding = (descriptorPageEncoding != null && !descriptorPageEncoding.isEmpty())
+                ? descriptorPageEncoding : getJspEncoding(jspName, context);
+
+        if (highlight) {
+          request.setAttribute("highlightedContent", highlightJspContent(jspName, encoding, context));
+        } else {
+          request.setAttribute("content", readJspContent(jspName, encoding, context));
+        }
+      } else {
+        viewSourceLogger.error("{} does not exist", jspName);
+      }
+
+      request.setAttribute("item", item);
+    } else {
+      viewSourceLogger.error("jsp name passed is not in the summary, ignored");
+    }
+  }
   private Summary getSessionSummary(HttpServletRequest request) {
     HttpSession session = request.getSession(false);
     return (session != null) ? (Summary) session.getAttribute(DisplayJspController.SUMMARY_ATTRIBUTE) : null;
