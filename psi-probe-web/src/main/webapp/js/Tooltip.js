@@ -47,114 +47,36 @@ let Tooltip = {
 	 */
 
 	_attachEvent: function (element, event) {
-		element.attachEvent = undefined;
-		let i;
-		let events = [];
-		if (event === "toggle") {
-			if (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array) {
-				for (i = 0; i < Tooltip.showEvent.length; i++) {
-					events.push(Tooltip.showEvent[i]);
-					if (element.addEventListener) {
-						element.addEventListener(Tooltip.showEvent[i], function (e) {
-							Tooltip.toggle(element, e, true);
-							return false;
-						}, false);
-					} else if (element.attachEvent) {
-						element.attachEvent('on' + Tooltip.showEvent[i], function (e) {
-							Tooltip.toggle(element, e, true);
-							return false;
-						});
-					}
-				}
-			} else {
-				events.push(Tooltip.showEvent);
-				if (element.addEventListener) {
-					element.addEventListener(Tooltip.showEvent, function (e) {
-						Tooltip.toggle(element, e, true);
-						return false;
-					}, false);
-				} else {
-					element.attachEvent('on' + Tooltip.showEvent, function (e) {
-						Tooltip.toggle(element, e, true);
-						return false;
-					});
-				}
+		const eventHandlers = {
+			toggle: function (e) {
+				Tooltip.toggle(element, e, true);
+				return false;
+			},
+			load: function () {
+				Tooltip.setup();
+			},
+			click: function (e) {
+				Tooltip.toggle(element, e, true);
+			},
+			follow: function (e) {
+				Tooltip._follow(element, e);
+			},
+			clickanywhere: function (e) {
+				Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false);
 			}
+		};
 
-			if (Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor === Array) {
-				for (i = 0; i < Tooltip.hideEvent.length; i++) {
-					if (!events.contains(Tooltip.hideEvent[i])) {
-						events.push(Tooltip.hideEvent[i]);
-						if (element.addEventListener) {
-							element.addEventListener(Tooltip.hideEvent[i], function (e) {
-								Tooltip.toggle(element, e, true);
-								return false;
-							}, false);
-						} else if (element.attachEvent) {
-							element.attachEvent('on' + Tooltip.hideEvent[i], function (e) {
-								Tooltip.toggle(element, e, true);
-								return false;
-							});
-						}
-					}
-				}
-			} else if (!events.contains(Tooltip.hideEvent)) {
-				events.push(Tooltip.hideEvent);
-				if (element.addEventListener) {
-					element.addEventListener(Tooltip.hideEvent, function (e) {
-						Tooltip.toggle(element, e, false);
-						return false;
-					}, false);
-				} else if (element.attachEvent) {
-					element.attachEvent('on' + Tooltip.hideEvent, function (e) {
-						Tooltip.toggle(element, e, false);
-						return false;
-					});
-				}
-			}
-		} else if (event === "load") {
-			if (!element.addEventListener) {
-				element.attachEvent('onload', function () {
-					Tooltip.setup();
-				});
-			} else {
-				element.addEventListener("load", function () {
-					Tooltip.setup();
-				}, false);
-			}
-		} else if (event === "click") {
+		if (event in eventHandlers) {
+			const handler = eventHandlers[event];
 			if (element.addEventListener) {
-				element.addEventListener("click", function (e) {
-					Tooltip.toggle(element, e, true);
-				}, false);
+				element.addEventListener(event, handler, false);
 			} else {
-				element.attachEvent('onclick', function (e) {
-					Tooltip.toggle(element, e, true);
-				});
+				element.attachEvent('on' + event, handler);
 			}
-		} else if (event === "follow") {
-			if (element.addEventListener) {
-				element.addEventListener("mousemove", function (e) {
-					Tooltip._follow(element, e);
-				}, false);
-			} else {
-				element.attachEvent('onmousemove', function (e) {
-					Tooltip._follow(element, e);
-				});
-			}
-		} else if (event === "clickanywhere") {
-			if (element.addEventListener) {
-				element.addEventListener("click", function (e) {
-					Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false);
-				}, false);
-			} else {
-				element.attachEvent('onclick', function (e) {
-					Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false);
-				});
-			}
+		} else {
+			console.error('Invalid event:', event);
 		}
 	},
-
 	/**
 	 * @let object Currently shown Tooltip
 	 */
@@ -220,40 +142,34 @@ let Tooltip = {
 		}
 
 		event = event.type;
-
 		let tooltip = activator.Tooltip;
-		// We need to defer this
+
+		function hideTooltip() {
+			activator.Tooltip.isVisible = false;
+			try {
+				Tooltip.hideMethod(tooltip, {duration: Tooltip.fade});
+			} catch (e) {
+				activator.Tooltip.style.visibility = "hidden";
+			}
+
+			if (Tooltip.autoFollowMouse) {
+				Tooltip._removeEvent(activator, "follow");
+			}
+		}
+
 		if (event === "mouseout" && Tooltip.autoFollowMouse) {
 			activator.timer = setTimeout(function () {
-				try {
-					Tooltip.hideMethod(tooltip, {duration: Tooltip.fade});
-				} catch (e) {
-					activator.Tooltip.style.visibility = "hidden";
-				}
+				hideTooltip();
 			}, Tooltip.autoHideTimeout * 1000);
-		} else if (ignore_event === true || ((typeof Tooltip.hideEvent == "string" && Tooltip.hideEvent === event) || Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor === Array && Tooltip.hideEvent.contains(event))) {
-			activator.Tooltip.isVisible = false;
-			if (tooltip.style.visibility === 'vidible' || activator.Tooltip.style.display !== 'none') {
-				try {
-					Tooltip.hideMethod(tooltip, {duration: Tooltip.fade});
-				} catch (e) {
-					activator.Tooltip.style.visibility = "hidden";
-				}
-
-				if (Tooltip.autoFollowMouse) {
-					Tooltip._removeEvent(activator, "follow");
-				}
-			}
-
-			if (activator.timer) {
-				clearTimeout(activator.timer);
-			}
-			window._currentTT = false;
-
-
+		} else if (ignore_event === true || (Tooltip.hideEvent && (typeof Tooltip.hideEvent === "string" && Tooltip.hideEvent === event) || (Tooltip.hideEvent.constructor && Tooltip.hideEvent.constructor === Array && Tooltip.hideEvent.includes(event)))) {
+			hideTooltip();
 		}
-	},
 
+		if (activator.timer) {
+			clearTimeout(activator.timer);
+		}
+		window._currentTT = false;
+	},
 	_removeEvent: function (element, event) {
 		try {
 			if (event === "follow") {
@@ -288,14 +204,20 @@ let Tooltip = {
 
 		window._currentTT = activator.id;
 
-		let ignore_event;
-		if (!(ignore_event === true || typeof Tooltip.showEvent == "string" || Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array && Tooltip.showEvent.contains(event.type))) {
+		function isVisibleEvent() {
+			return !(ignore_event === true || (typeof Tooltip.showEvent === "string") || (Tooltip.showEvent.constructor && Tooltip.showEvent.constructor === Array && Tooltip.showEvent.includes(event.type)));
+		}
+
+		let ignore_event = false;
+		if (!isVisibleEvent()) {
 			return;
 		}
+
 		activator.Tooltip.isVisible = true;
 		if (Tooltip.autoFollowMouse || Tooltip.autoMoveToCursor) {
 			Tooltip._follow(activator, event);
 		}
+
 		try {
 			if (typeof Effect) {
 				Element.setOpacity(activator.Tooltip, 0.1);
@@ -308,12 +230,14 @@ let Tooltip = {
 			try {
 				activator.Tooltip.style.visibility = "visible";
 			} catch (e) {
-				//DEBUG alert(tooltip.id);
+				// DEBUG alert(tooltip.id);
 			}
 		}
+
 		if (Tooltip.autoFollowMouse) {
 			Tooltip._attachEvent(activator, "follow");
 		}
+
 		if (Tooltip.autoHideTimeout && !Tooltip.autoFollowMouse) {
 			activator.timer = setTimeout(function () {
 				try {
@@ -324,7 +248,6 @@ let Tooltip = {
 			}, Tooltip.autoHideTimeout * 1000);
 		}
 	},
-
 	/**
 	 * Manually add a Tooltip
 	 *
@@ -446,26 +369,44 @@ let Tooltip = {
 		let match_class = /^?tooltip?(.*)$/i;
 		let match_for = /^.*?for_?.*$/i;
 		let divs = document.getElementsByTagName('div');
-		let for_result;
+
+		function processDiv(div) {
+			let activator = div;
+			if (!activator) {
+				return;
+			}
+
+			activator.Tooltip = div;
+			if (!activator.id) {
+				activator.id = "tt" + i;
+			}
+			activator.Tooltip.activator = activator.id;
+			Tooltip.init(activator);
+		}
+
 		if (divs.length <= 0) {
 			return;
 		}
+
 		if (Tooltip.autoFollowMouse && Tooltip.autoHideTimeout) {
-			Tooltip.hideEvent[Tooltip.hideEvent.length] = "mouseout";
+			Tooltip.hideEvent.push("mouseout");
 		}
+
 		if (Tooltip.autoHideClick) {
 			Tooltip._attachEvent(document.getElementsByTagName("body").item(0), "clickanywhere");
 		}
+
 		for (let i = 0; i < divs.length; i++) {
-			if (!match_class.exec(divs.item(i).className)) {
+			let div = divs.item(i);
+			if (!match_class.exec(div.className)) {
 				continue;
 			}
-			for_result = (match_for.exec(divs.item(i).className));
+
+			let for_result = match_for.exec(div.className);
 			if (for_result && for_result.length > 0) {
 				let foundNext = false;
-				let activator = divs.item(i);
+				let activator = div;
 				while (foundNext === false && activator) {
-
 					activator = activator.nextSibling;
 					if (activator?.tagName) {
 						foundNext = true;
@@ -473,28 +414,18 @@ let Tooltip = {
 				}
 			} else {
 				let foundPrevious = false;
-				let activator = divs.item(i);
+				let activator = div;
 				while (foundPrevious === false && activator) {
 					activator = activator.previousSibling;
 					if (activator?.tagName) {
 						foundPrevious = true;
-
 					}
 				}
 			}
-			let activator;
-			if (!activator) {
-				continue;
-			}
-			activator.Tooltip = divs.item(i);
-			if (!activator.id) {
-				activator.id = "tt" + i;
-			}
-			activator.Tooltip.activator = activator.id;
-			Tooltip.init(activator);
+
+			processDiv(div);
 		}
 	},
-
 	/**
 	 * @let string|Array An event name or an array of event names on which to trigger showing the Tooltip
 	 */
@@ -518,37 +449,30 @@ let Tooltip = {
 
 	toggle: function (activator, event, directHit) {
 		event.fromElement = undefined;
+
 		try {
 			if (activator === 1) {
 				activator = document.getElementById(window._currentTT);
 			}
-		} catch (e) {
-		}
+		} catch (e) {}
 
-		let node = event.target;
 		if (Tooltip.autoHideClick && event.type === "click") {
 			let close_class = /^?close?(.*)$/i;
 			let tooltip_class = /^?tooltip?(.*)$/i;
 
-			if (node.className?.match(close_class) === null) {
-				let isWithinTooltip = false;
-				while (!isWithinTooltip && node.parentNode) {
-					// Check if the parent is a close element first, if so, we can break
-					// and we still want to close the tooltip
-					if (node.className?.match(close_class)) {
-						isWithinTooltip = true;
-					}
-					if (node.className?.match(tooltip_class)) {
-						isWithinTooltip = true;
+			function isWithinTooltip(node) {
+				while (node.parentNode) {
+					if (node.className?.match(close_class) || node.className?.match(tooltip_class)) {
+						return true;
 					}
 					node = node.parentNode;
 				}
+				return false;
 			}
 
-			let isWithinTooltip;
-			if (isWithinTooltip) {
+			if (!isWithinTooltip(event.target)) {
 				Tooltip._hide(activator, event, true);
-				return
+				return;
 			}
 		}
 
@@ -559,20 +483,17 @@ let Tooltip = {
 				Tooltip._hide(activator, event);
 			}
 		} catch (e) {
-			try {
-				Tooltip._hide(activator, event);
-			} catch (e) {
-			}
+			Tooltip._hide(activator, event);
 		}
+
 		event.cancelBubble = true;
 		try {
 			event.stopPropagation();
-		} catch (e) {
-		}
+		} catch (e) {}
 
 		return false;
 	}
-}
+};
 
 // Start the Tooltips in motion
 try {
