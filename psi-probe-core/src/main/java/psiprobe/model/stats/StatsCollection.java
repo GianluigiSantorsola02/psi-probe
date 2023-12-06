@@ -10,6 +10,7 @@
  */
 package psiprobe.model.stats;
 import com.thoughtworks.xstream.XStream;
+import oracle.ucp.UniversalConnectionPoolException;
 import org.jfree.data.xy.XYDataItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static sun.tools.jconsole.OutputViewer.init;
+import static oracle.ucp.jdbc.DatasourceConfigManager.init;
 
 
 /**
@@ -62,7 +63,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   /** The lock. */
   private final UpdateCommitLock lock = new UpdateCommitLock();
 
-  public StatsCollection(XStream xstream, String storagePath) {
+  public StatsCollection(XStream xstream, String storagePath) throws UniversalConnectionPoolException {
     this.xstream = xstream;
     this.storagePath = storagePath;
     init( );

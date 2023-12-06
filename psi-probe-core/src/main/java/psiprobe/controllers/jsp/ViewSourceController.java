@@ -54,7 +54,7 @@ public class ViewSourceController extends AbstractContextHandlerController {
     Summary summary = getSessionSummary(request);
 
     if (shouldHandleContext(summary, contextName)) {
-      handleContextAction(contextName, summary, request, context);
+      handleContextAction(summary, request, context);
     }
 
     return new ModelAndView(getViewName());
@@ -64,7 +64,7 @@ public class ViewSourceController extends AbstractContextHandlerController {
     return summary != null && contextName.equals(summary.getName());
   }
 
-  private void handleContextAction(String contextName, Summary summary,
+  private void handleContextAction(Summary summary,
                                    HttpServletRequest request, Context context) throws IOException {
     String jspName = ServletRequestUtils.getStringParameter(request, "source", "");
     boolean highlight = ServletRequestUtils.getBooleanParameter(request, "highlight", true);

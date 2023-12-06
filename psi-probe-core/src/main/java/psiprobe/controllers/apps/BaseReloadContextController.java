@@ -36,16 +36,12 @@ public class BaseReloadContextController extends AbstractNoSelfContextHandlerCon
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
       // get username mylogger
       String name = auth.getName();
-      try {
-        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-        if (messageSourceAccessor != null) {
-          mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
-        } else {
-          if (mylogger.isInfoEnabled()) {
-            mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
-          }
+      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+      if (messageSourceAccessor != null) {
+        mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
+      } else {
+        if (mylogger.isInfoEnabled()) {
+          mylogger.info("Failed to get message source accessor. Reloading {} context.", contextName);
         }
-      } catch (IllegalStateException e) {
-        throw new IllegalStateException("Failed to get message source accessor. Reloading " + contextName, e);
       }
     }}}
