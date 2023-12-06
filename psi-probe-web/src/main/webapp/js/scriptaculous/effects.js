@@ -947,8 +947,6 @@ Effect.Morph = Class.create(Effect.Base, {
           value += 'px';
         }
       }
-
-      style[transform.style] = value;
     }
 
     this.element.setStyle(style, true);
