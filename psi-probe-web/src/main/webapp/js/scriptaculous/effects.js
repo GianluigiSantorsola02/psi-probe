@@ -937,6 +937,8 @@ Effect.Morph = Class.create(Effect.Base, {
         const r = Math.round(transform.originalValue[0] + (transform.targetValue[0] - transform.originalValue[0]) * position).toColorPart();
         const g = Math.round(transform.originalValue[1] + (transform.targetValue[1] - transform.originalValue[1]) * position).toColorPart();
         const b = Math.round(transform.originalValue[2] + (transform.targetValue[2] - transform.originalValue[2]) * position).toColorPart();
+        value = '#' + r + g + b;
+        style[transform.style] = value;
       } else if (transform) {
         value = (transform.originalValue + (transform.targetValue - transform.originalValue) * position).toFixed(3);
 
