@@ -232,21 +232,12 @@ public class ResourceResolverBean implements ResourceResolver {
     try {
       javax.naming.Context ctx = context != null ? new InitialContext() : getGlobalNamingContext();
       String jndiName = resolveJndiName(resourceName, context == null);
-      Object obj = null;
-
-      if (ctx != null) {
-        obj = ctx.createSubcontext(jndiName);
-      } else {
-        // Handle the case when ctx is null
-        logger.error("Error: Context is null. Unable to perform JNDI lookup.");
-        // You can add additional error handling or logging code here
-      }
-        return null;
     } finally {
       if (context != null) {
         containerWrapper.getTomcatContainer().unbindFromContext(context);
       }
     }
+    return null;
   }
 
   /**
