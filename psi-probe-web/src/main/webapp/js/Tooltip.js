@@ -49,20 +49,20 @@ let Tooltip = {
 	_attachEvent: function (element, event) {
 		const eventHandlers = {
 			toggle: function (e) {
-				Tooltip.toggle(element, e, true);
+				Tooltip.toggle(element, e);
 				return false;
 			},
 			load: function () {
 				Tooltip.setup();
 			},
 			click: function (e) {
-				Tooltip.toggle(element, e, true);
+				Tooltip.toggle(element, e);
 			},
 			follow: function (e) {
 				Tooltip._follow(element, e);
 			},
 			clickanywhere: function (e) {
-				Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e, false);
+				Tooltip.toggle(Tooltip.CURRENT_TOOLTIP, e);
 			}
 		};
 
@@ -186,59 +186,7 @@ let Tooltip = {
 		} catch (e) {
 		}
 	},
-
 	/**
-	 * Show the Tooltip
-	 *
-	 * Displays the Tooltip and sets the hide events up. You should never need to call this manually.
-	 *
-	 * @param activator Activator Element
-	 * @param event
-	 * @private
-	 * @return void
-	 */
-	_show: (activator, event) => {
-		if (Tooltip.autoHideClick && window._currentTT) {
-			Tooltip._hide(document.getElementById(window._currentTT), event, true);
-		}
-
-		window._currentTT = activator.id;
-
-		function isVisibleEvent() {
-			return !(ignore_event === true || typeof Tooltip.showEvent === "string" || (Tooltip.showEvent.constructor === Array && Tooltip.showEvent.includes(event.type)));
-		}
-
-		let ignore_event = false;
-		if (!isVisibleEvent()) {
-			return;
-		}
-
-		try {
-			if (typeof Effect !== "undefined") {
-				Element.setOpacity(activator.Tooltip, 0.1);
-				activator.Tooltip.style.visibility = "visible";
-				Tooltip.showMethod(activator.Tooltip, {duration: Tooltip.fade});
-			} else {
-				activator.Tooltip.style.visibility = "visible";
-			}
-		} catch (e) {
-			try {
-				activator.Tooltip.style.visibility = "visible";
-			} catch (e) {
-				// DEBUG alert(tooltip.id);
-			}
-		}
-
-		if (Tooltip.autoHideTimeout && !Tooltip.autoFollowMouse) {
-			activator.timer = setTimeout(() => {
-				try {
-					Tooltip.hideMethod(activator.Tooltip, {duration: Tooltip.fade});
-				} catch (e) {
-					activator.Tooltip.style.visibility = "hidden";
-				}
-			}, Tooltip.autoHideTimeout * 1000);
-		}
-	},	/**
 	 * Manually add a Tooltip
 	 *
 	 * When passed an Activator and Tooltip element or ID, it is setup as a Tooltip
@@ -429,11 +377,10 @@ let Tooltip = {
 	 *
 	 * @param activator Activator Element
 	 * @param event
-	 * @param directHit
 	 * @return void
 	 */
 
-	toggle: function (activator, event, directHit) {
+	toggle: function (activator, event) {
 		event.fromElement = undefined;
 
 		if (Tooltip.autoHideClick && event.type === "click") {
@@ -452,7 +399,7 @@ let Tooltip = {
 
 			if (!isWithinTooltip(event.target)) {
 				Tooltip._hide(activator, event, true);
-				return;
+
 			}
 		}
 	}};
