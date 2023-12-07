@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
  * The Class GetApplicationRuntimeInfoController.
  */
 @Controller
-public class GetApplicationRuntimeInfoController extends BaseGetApplicationController {
+public class GetApplicationRuntimeInfoController extends BaseViewXmlConfController {
 
   @RequestMapping(path = "/appruntimeinfo.ajax")
   @Override
@@ -35,6 +35,11 @@ public class GetApplicationRuntimeInfoController extends BaseGetApplicationContr
   @Override
   public void setViewName(String viewName) {
     super.setViewName(viewName);
+  }
+
+  @Override
+  public void setDownloadTarget(String downloadTarget) {
+
   }
 
   @Value("true")

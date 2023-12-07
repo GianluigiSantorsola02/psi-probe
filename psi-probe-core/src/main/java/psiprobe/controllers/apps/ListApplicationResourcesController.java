@@ -10,6 +10,7 @@
  */
 package psiprobe.controllers.apps;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 /**
@@ -36,7 +38,7 @@ public class ListApplicationResourcesController extends AbstractContextHandlerCo
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomException, NamingException {
 
     return new ModelAndView(getViewName(), "resources", getContainerWrapper().getResourceResolver()
         .getApplicationResources(context, getContainerWrapper()));

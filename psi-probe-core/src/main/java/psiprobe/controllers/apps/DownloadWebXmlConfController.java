@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Downloads a deployment descriptor (web.xml) of a web application.
  */
 @Controller
-public class DownloadWebXmlConfController extends BaseDownloadXmlConfController {
+public class DownloadWebXmlConfController extends BaseViewXmlConfController {
 
   @RequestMapping(path = "/app/downloadwebxml.htm")
   @Override
@@ -34,7 +34,6 @@ public class DownloadWebXmlConfController extends BaseDownloadXmlConfController 
   @Value("web.xml")
   @Override
   public void setDownloadTarget(String downloadTarget) {
-    super.setDownloadTarget(downloadTarget);
   }
 
 }

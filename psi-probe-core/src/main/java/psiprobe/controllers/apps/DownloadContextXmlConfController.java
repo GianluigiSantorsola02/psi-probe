@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Downloads a context descriptor (context.xml) of a web application.
  */
 @Controller
-public class DownloadContextXmlConfController extends BaseDownloadXmlConfController {
+public class DownloadContextXmlConfController extends BaseViewXmlConfController {
 
   @RequestMapping(path = "/adm/downloadcontextxml.htm")
   @Override
@@ -34,7 +34,6 @@ public class DownloadContextXmlConfController extends BaseDownloadXmlConfControl
   @Value("context.xml")
   @Override
   public void setDownloadTarget(String downloadTarget) {
-    super.setDownloadTarget(downloadTarget);
   }
 
 }

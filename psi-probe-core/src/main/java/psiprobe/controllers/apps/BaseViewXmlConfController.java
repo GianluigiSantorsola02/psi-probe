@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -33,7 +34,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
  * Displays a deployment descriptor (web.xml) or a context descriptor (context.xml) of a web
  * application
  */
-public class BaseViewXmlConfController extends AbstractContextHandlerController {
+public abstract class BaseViewXmlConfController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
   private static final Logger theLogger = LoggerFactory.getLogger(BaseViewXmlConfController.class);
@@ -147,6 +148,17 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
     } else {
       theLogger.debug("File {} of {} application does not exists.", xmlFile.getPath(), contextName);
     }
+  }
+
+  @Value("context.xml")
+  public abstract void setDownloadTarget(String downloadTarget);
+
+  protected void setExtendedInfo(boolean extendedInfo) {
+
+  }
+
+  protected void setCollectionPeriod(long l) {
+
   }
 
   public static class DisplayTargetException extends Throwable {

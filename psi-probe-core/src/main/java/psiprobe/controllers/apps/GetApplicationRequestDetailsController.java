@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
  * The Class GetApplicationRequestDetailsController.
  */
 @Controller
-public class GetApplicationRequestDetailsController extends BaseGetApplicationController {
+public class GetApplicationRequestDetailsController extends BaseViewXmlConfController {
 
   @RequestMapping(path = "/appreqdetails.ajax")
   @Override
@@ -35,6 +35,11 @@ public class GetApplicationRequestDetailsController extends BaseGetApplicationCo
   @Override
   public void setViewName(String viewName) {
     super.setViewName(viewName);
+  }
+
+  @Override
+  public void setDownloadTarget(String downloadTarget) {
+
   }
 
   @Value("true")

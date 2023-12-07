@@ -13,6 +13,9 @@ package psiprobe.beans.stats.collectors;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.model.Connector;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
+
 /**
  * The Class ConnectorStatsCollectorBean.
  */
@@ -27,7 +30,7 @@ public class ConnectorStatsCollectorBean extends AbstractStatsCollectorBean {
 
 
   @Override
-  public void collect() throws Throwable {
+  public void collect() throws ContainerListenerBean.CustomException, MalformedObjectNameException, InstanceNotFoundException, InterruptedException {
     for (Connector connector : listenerBean.getConnectors(false)) {
       String statName = "stat.connector." + connector.getProtocolHandler();
       buildDeltaStats(statName + ".requests", connector.getRequestCount());

@@ -19,6 +19,8 @@ import psiprobe.beans.stats.listeners.StatsCollectionListener;
 import psiprobe.model.stats.StatsCollection;
 
 import javax.inject.Inject;
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -79,7 +81,7 @@ public abstract class AbstractStatsCollectorBean {
     this.listeners = listeners;
   }
 
-  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException;
+  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException, MalformedObjectNameException, InstanceNotFoundException, Exception;
 
 
   /**

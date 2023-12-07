@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
  * The Class GetApplicationProcDetailsController.
  */
 @Controller
-public class GetApplicationProcDetailsController extends BaseGetApplicationController {
+public class GetApplicationProcDetailsController extends BaseViewXmlConfController{
 
   @RequestMapping(path = "/appprocdetails.ajax")
   @Override
@@ -42,5 +42,10 @@ public class GetApplicationProcDetailsController extends BaseGetApplicationContr
   public void setExtendedInfo(boolean extendedInfo) {
     super.setExtendedInfo(extendedInfo);
   }
+
+        @Override
+        public void setDownloadTarget(String downloadTarget) {
+
+        }
 
 }
