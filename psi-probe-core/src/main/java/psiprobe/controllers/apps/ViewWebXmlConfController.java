@@ -22,12 +22,12 @@ import org.springframework.web.servlet.ModelAndView;
  * The Class ViewWebXmlConfController.
  */
 @Controller
-public class ViewWebXmlConfController extends BaseViewXmlConfController {
+public class ViewWebXmlConfController extends ViewContextXmlConfController{
 
   @RequestMapping(path = "/app/viewwebxml.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
