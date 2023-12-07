@@ -15,7 +15,6 @@ BODY {
 	color: #000000;
 	text-decoration: none;
 	background-color: #fff; /* this is an IE hack to enable :hover behavior */
-	/*behavior: url( 'css/csshover.htc' );*/
 }
 
 h3 {
@@ -176,7 +175,7 @@ ul.options {
 }
 
 ul.options li {
-	display: inline; /*padding: 0 20px 10px 30px;*/
+	display: inline;
 	padding: 0 10px 7px 20px;
 }
 
@@ -201,7 +200,7 @@ ul.options li a:hover, #successMessage a:hover {
 */
 
 li#back {
-	float: left; /*background: url( "img/back-arrow.gif" ) top left no-repeat;*/
+	float: left;
 	background: url( "gifs/silk/control_rewind_blue.png" ) top left no-repeat;
 }
 
@@ -211,12 +210,12 @@ li#allStats {
 }
 
 li#size {
-	float: right; /*background: url( "img/gear.gif" ) top left no-repeat;*/
+	float: right;
 	background: url( "gifs/browser_galeon.gif" ) top left no-repeat;
 }
 
 li#toggle {
-	float: left; /*background: url( "img/inverse.gif" ) top left no-repeat;*/
+	float: left;
 	background: url( "gifs/silk/tag_blue.png" ) top left no-repeat;
 }
 
@@ -310,7 +309,7 @@ span.fail {
 }
 
 li#compileall {
-	float: left; /*background: url( "img/compileall.gif" ) top left no-repeat;*/
+	float: left;
 	background: url( "gifs/silk/lightning.png" ) top left no-repeat;
 
 }
@@ -578,7 +577,7 @@ li#showapps {
 	background-image: url( "gifs/silk/application_link.png" );
 	background-position: center left;
 	background-repeat: no-repeat;
-	height: 16px; /*padding: 3px 0 8px 24px;*/
+	height: 16px;
 }
 
 .expandable:hover {
