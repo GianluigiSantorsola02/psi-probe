@@ -6912,14 +6912,16 @@ let Position = {
             this.xcomp <  this.offset[0] + element.offsetWidth);
   },
 
-  overlap: function(mode, element) {
+  overlap(mode, element) {
     if (!mode) return 0;
 
-    const dimension = (mode === 'vertical') ? 'offsetHeight' : 'offsetWidth';
-    const coordinate = (mode === 'vertical') ? this.ycomp : this.xcomp;
+    const dimension = mode === 'vertical' ? 'offsetHeight' : 'offsetWidth';
+    const coordinate = mode === 'vertical' ? this.ycomp : this.xcomp;
 
-    return ((this.offset[0] + element[dimension]) - coordinate) / element[dimension];
-  },
+    const numerator = this.offset[0] + element[dimension] - coordinate;
+    return numerator / element[dimension];
+  }
+  ,
 
 
   cumulativeOffset: Element.Methods.cumulativeOffset,
@@ -6959,8 +6961,13 @@ if (!document.getElementsByClassName) {
     }
 
     function getElementsByClassName() {
-      return useXPath() ? getElementsByClassNameXPath(parentElement, className) : getElementsByClassNameLegacy(parentElement, className);
+      const useXPathResult = useXPath();
+
+      return useXPathResult
+          ? getElementsByClassNameXPath(parentElement, className)
+          : getElementsByClassNameLegacy(parentElement, className);
     }
+
 
     return getElementsByClassName();
   };
