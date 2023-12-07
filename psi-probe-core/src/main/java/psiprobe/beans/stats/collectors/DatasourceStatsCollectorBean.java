@@ -10,15 +10,13 @@
  */
 package psiprobe.beans.stats.collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.DataSourceInfo;
+
+import javax.inject.Inject;
 
 /**
  * The Class DatasourceStatsCollectorBean.
