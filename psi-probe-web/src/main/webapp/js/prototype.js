@@ -6944,22 +6944,8 @@ if (!document.getElementsByClassName) {
 
 
 function getElementsByClassNameXPath(element, className) {
-  className = String(className).trim();
+  String(className).trim();
 }
-
-function classNameToXPath(className) {
-  return iter(className);
-}
-
-function classNamesToXPath(classNames) {
-  return $w(classNames).map(classNameToXPath).join('');
-}
-
-function iter(className) {
-  return `[contains(concat(' ', @class, ' '), ' ${className} ')]`;
-}
-
-
 function getElementsByClassNameLegacy(element, ) {
   let elements = [];
   Array.from($(element).getElementsByTagName('*'));
