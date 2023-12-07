@@ -6977,14 +6977,13 @@ function getElementsByClassNameLegacy(element, className) {
   className = className.toString().strip();
   let elements = [];
   let classNames = /\s/.test(className) ? $w(className) : null;
-  if (!classNames && !className) {
+  if (!classNames) {
     return elements;
   }
 
   let nodes = Array.from($(element).getElementsByTagName('*'));
   const classMatch = (element, classNames) => {
-    return classNames ? classNames.all(name => element?.className?.includes?.(name)) : false;
-  };
+    return classNames && classNames.all(name => element?.className?.includes?.(name));  };
 
   for (const child of nodes) {
     if (child?.className?.includes?.(className) || classMatch(child, classNames)) {
