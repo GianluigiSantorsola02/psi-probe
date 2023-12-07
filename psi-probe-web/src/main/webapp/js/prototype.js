@@ -6828,7 +6828,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   let TIMER;
 
   function fireContentLoadedEvent() {
-    if (document.loaded) return;
+    if (document && document.loaded) {
+      return;
+    }
     if (TIMER) window.clearTimeout(TIMER);
     document.loaded = true;
     document.fire('dom:loaded');
