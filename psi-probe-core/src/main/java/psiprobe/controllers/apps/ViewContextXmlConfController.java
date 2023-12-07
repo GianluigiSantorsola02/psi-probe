@@ -51,7 +51,7 @@ public class ViewContextXmlConfController extends BaseViewXmlConfController {
 
   @Override
   public void setDownloadTarget(String downloadTarget) {
-    // setDownloadTarget(downloadTarget);
+    setDisplayTarget(downloadTarget);
   }
 
 }
