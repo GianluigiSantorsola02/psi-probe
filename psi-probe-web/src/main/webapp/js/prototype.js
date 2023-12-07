@@ -6967,4 +6967,4 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
     },
 
 
-})();}
+})();})
