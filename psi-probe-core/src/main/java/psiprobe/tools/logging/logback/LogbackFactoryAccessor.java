@@ -109,25 +109,22 @@ public class LogbackFactoryAccessor extends DefaultAccessor {
   @SuppressWarnings("unchecked")
   public List<LogbackAppenderAccessor> getAppenders() {
     List<LogbackAppenderAccessor> appenders = new ArrayList<>();
-    try {
-      Class<? extends Object> clazz = getTarget().getClass();
-      Method getLoggerList = MethodUtils.getAccessibleMethod(clazz, "getLoggerList");
 
-      List<Object> loggers = (List<Object>) getLoggerList.invoke(getTarget());
-      for (Object logger : loggers) {
-        LogbackLoggerAccessor accessor = new LogbackLoggerAccessor();
-        accessor.setTarget(logger);
-        accessor.setApplication(getApplication());
+      try {
+        Class<? extends Object> clazz = getTarget().getClass();
+        Method getLoggerList = MethodUtils.getAccessibleMethod(clazz, "getLoggerList");
 
-        try {
-          appenders.addAll(accessor.getAppenders());
-        } catch (LogbackLoggerAccessor.InvalidAppenderTypeException e) {
-          logger.toString();
+        List<Object> loggers = (List<Object>) getLoggerList.invoke(getTarget());
+        for (Object logger : loggers) {
+          LogbackLoggerAccessor accessor = new LogbackLoggerAccessor();
+          accessor.setTarget(logger);
+          accessor.setApplication(getApplication());
+
         }
+      } catch (Exception e) {
+        logger.error("{}.getLoggerList() failed", getTarget(), e);
       }
-    } catch (Exception e) {
-      logger.error("{}.getLoggerList() failed", getTarget(), e);
-    }
+
     return appenders;
   }
 
