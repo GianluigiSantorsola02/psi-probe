@@ -845,7 +845,6 @@ function lastIndexOf(item, i) {
 }
 
 
-(function() {
   let arrayProto = Array.prototype,
       slice = arrayProto.slice,
       _each = arrayProto.forEach; // use native browser JS 1.6 implementation if available
@@ -1032,7 +1031,7 @@ function lastIndexOf(item, i) {
 
   if (!arrayProto.indexOf) arrayProto.indexOf = indexOf;
   if (!arrayProto.lastIndexOf) arrayProto.lastIndexOf = lastIndexOf;
-})();
+
 function $H(object) {
   return new Hash(object);
 }
