@@ -20,6 +20,9 @@
 
 
 import PropTypes from 'prop-types';
+import {empty} from "./empty";
+import {inspect} from "./inspect";
+import {clone} from "./clone";
 
 PropTypes.arrayOf = function (shape) {
   return PropTypes.arrayOf(PropTypes.shape(shape));
@@ -442,37 +445,6 @@ function parseQueryString(queryString, separator) {
   function capitalize() {
     return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
   }
-  function inspect(useDoubleQuotes) {
-    const specialChar = {
-      '\\': '\\\\',
-      '\b': '\\b',
-      '\f': '\\f',
-      '\n': '\\n',
-      '\r': '\\r',
-      '\t': '\\t',
-      '\v': '\\v',
-      '\'': '\\\'',
-    };
-
-    const escapeChar = (character) => {
-      if (character in specialChar) {
-        return specialChar[character];
-      }
-      return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
-    };
-
-    const escapeQuotes = (string) => {
-      return string.replace(/['"]/g, (quote) => '\\' + quote);
-    };
-
-    const escapedString = this.replace(/\\/g, escapeChar);
-
-    if (useDoubleQuotes) {
-      return `"${escapeQuotes(escapedString)}"`;
-    } else {
-      return `'${escapeQuotes(escapedString)}'`;
-    }
-  }
   function unfilterJSON(filter) {
     return this.replace(filter || Prototype.JSONFilter, '$1');
   }
@@ -521,9 +493,6 @@ function parseQueryString(queryString, separator) {
 
     let slicedString = this.slice(position - pattern.length, position);
     return slicedString === pattern;
-  }
-  function empty() {
-    return this === '';
   }
 
   function blank() {
@@ -854,16 +823,9 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-  function clone() {
-    return slice.call(this, 0);
-  }
 
   function size() {
     return this.length;
-  }
-
-  function inspect() {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
   }
 
   function indexOf(item, i) {
@@ -1808,7 +1770,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING = (function () {
     let s = document.createElement("script"),
-        isBuggy = false;
+        isBuggy;
     try {
       s.appendChild(document.createTextNode(""));
       isBuggy = !s.firstChild ||
@@ -2139,14 +2101,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return recursivelyCollect(element, 'nextSibling');
   }
 
-  previous.toReversed = function () {
-
-    let reversed = [];
-
-
-    return undefined;
-  };
-
   function siblings(element) {
     element = $(element);
     let previous = previousSiblings(element),
@@ -2220,12 +2174,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let node = Prototype.Selector.select(expression, element)[index];
     return Element.extend(node);
   }
-
-  function previous(element, expression, index) {
-    return _recursivelyFind(element, 'previousSibling', expression, index);
-  }
-
-  function next(element, expression, index) {
+function next(element, expression, index) {
     return _recursivelyFind(element, 'nextSibling', expression, index);
   }
 
@@ -2278,7 +2227,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   Object.extend(methods, {
-    siblings:             siblings,
     match:                match,
     up:                   up,
     down:                 down,
@@ -2290,10 +2238,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     childElements:         immediateDescendants
   });
-
-
-  let idCounter = 1;
-  function identify(element) {
+function identify(element) {
     element = $(element);
     let id = Element.readAttribute(element, 'id');
     if (id) return id;
@@ -2990,7 +2935,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element) {
     Object.extend(GLOBAL.Element, {
-      extend: extend,
       addMethods: addMethods
     });
   }
@@ -3287,7 +3231,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       return bHeight - bTop - bBottom - pTop - pBottom;
     },
 
-      'width': function(element) {
+      'width': function() {
         if (!this._preComputing) this._begin();
 
         let bWidth = this.get('border-box-width');
@@ -3306,7 +3250,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         return bWidth - bLeft - bRight - pLeft - pRight;
       },
 
-      'padding-box-height': function(element) {
+      'padding-box-height': function() {
         let height = this.get('height'),
             pTop = this.get('padding-top'),
             pBottom = this.get('padding-bottom');
@@ -3314,7 +3258,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         return height + pTop + pBottom;
       },
 
-      'padding-box-width': function(element) {
+      'padding-box-width': function() {
         let width = this.get('width'),
             pLeft = this.get('padding-left'),
             pRight = this.get('padding-right');
@@ -3336,7 +3280,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         return width;
       },
 
-      'margin-box-height': function(element) {
+      'margin-box-height': function() {
         let bHeight = this.get('border-box-height'),
             mTop = this.get('margin-top'),
             mBottom = this.get('margin-bottom');
@@ -3346,7 +3290,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         return bHeight + mTop + mBottom;
       },
 
-      'margin-box-width': function(element) {
+      'margin-box-width': function() {
         let bWidth = this.get('border-box-width'),
             mLeft = this.get('margin-left'),
             mRight = this.get('margin-right');
@@ -4021,23 +3965,6 @@ Prototype._original_property = window.Sizzle;
   }
 })();
 
-class setFilters {
-  constructor(Expr) {
-    this.Expr = <Expr></Expr>
-  }
-
-}
-
-/*!
- * Sizzle CSS Selector Engine v1.10.18
- * https://github.com/jquery/sizzle/wiki
- *
- * Copyright 2013 jQuery Foundation, Inc. and other contributors
- * Released under the MIT license
- * https://jquery.org/license/
- *
- * Date: 2014-02-05
- */
 (function( window ) {
 
 let i,
@@ -4547,7 +4474,7 @@ setDocument = Sizzle.setDocument = function( node ) {
   support.qsa = rnative.test(doc.querySelectorAll);
   if (support.qsa) {
     assert(function( div ) {
-			div.innerHTML = "<select t=''><option selected=''></option></select>";
+			div.innerHTML = "<select =''><option selected=''></option></select>";
 
 			if ( div.querySelectorAll("[t^='']").length ) {
 				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
@@ -6135,7 +6062,6 @@ Form.Element.Serializers = (function() {
     input:         input,
     textarea:      valueSelector,
     select:        select,
-    optionValue:   optionValue,
     button:        valueSelector
   };
 })();
