@@ -6958,24 +6958,8 @@ function getElementsByClassNameXPath(element, className) {
 }
 
 function getElementsByClassNameLegacy(element, className) {
-  className = className.toString().strip();
   let elements = [];
-  let classNames = /\s/.test(className) ? $w(className) : null;
-  if (!classNames && !className) {
-    return elements;
-  }
-
-  let nodes = Array.from($(element).getElementsByTagName('*'));
-  const classMatch = (element, classNames) => {
-    return classNames ? classNames.all(name => element?.className?.includes?.(name)) : false;
-  };
-
-  for (const child of nodes) {
-    if (child?.className?.includes?.(className) || classMatch(child, classNames)) {
-      elements.push(Element.extend(child));
-    }
-  }
-
+  Array.from($(element).getElementsByTagName('*'));
   return elements;
 }
 
