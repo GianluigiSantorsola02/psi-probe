@@ -6776,7 +6776,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   let TIMER;
 
   function fireContentLoadedEvent() {
-    if (document && document.loaded) {
+    if (document.loaded) {
       return;
     }
     if (document) {
