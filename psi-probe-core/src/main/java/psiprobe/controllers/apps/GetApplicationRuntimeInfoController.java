@@ -39,7 +39,7 @@ public class GetApplicationRuntimeInfoController extends BaseViewXmlConfControll
 
   @Override
   public void setDownloadTarget(String downloadTarget) {
-    // setDownloadTarget(downloadTarget);
+  logger.debug("setDownloadTarget");
   }
 
   @Value("true")
