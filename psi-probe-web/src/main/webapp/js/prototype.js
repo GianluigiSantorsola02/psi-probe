@@ -1984,8 +1984,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       wrapper = new Element('div', wrapper);
     }
 
-    if (element.parentNode)
-      element.parentNode.replaceChild(wrapper, element);
+    element.replaceWith(wrapper, element);
 
     wrapper.appendChild(element);
 
@@ -1994,17 +1993,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function cleanWhitespace(element) {
     element = $(element);
-    let node = element.firstChild;
 
-    while (node) {
-      let nextNode = node.nextSibling;
-      if (node.nodeType === Node.TEXT_NODE && !/\S/.test(node.nodeValue))
+    Array.from(element.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE && !/\S/.test(node.nodeValue)) {
         element.removeChild(node);
-      node = nextNode;
-    }
+      }
+    });
+
     return element;
   }
-
   function empty(element) {
     return $(element).innerHTML.blank();
   }
@@ -2020,29 +2017,29 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     if (workaround) {
       div.innerHTML = '&#160;' + t[0] + html + t[1];
-      div.removeChild(div.firstChild);
-      for (let i = t[2]; i--; )
+      for (let i = t[2]; i--; ) {
         div = div.firstChild;
+      }
     } else {
       div.innerHTML = html;
     }
 
-    return $A(div.childNodes);
+    return Array.from(div.childNodes);
   }
 
   function clone(element, deep) {
     element = $(element);
-    if (!element) {return;}
+    if (!element) return;
+
     let clone = element.cloneNode(deep);
-    if (!HAS_UNIQUE_ID_PROPERTY) {
-      clone._prototypeUID = UNDEFINED;
-      if (deep) {
-        let descendants = Element.select(clone, '*'),
-         i = descendants.length;
-        while (i--)
-          descendants[i]._prototypeUID = UNDEFINED;
-      }
+
+    if (!HAS_UNIQUE_ID_PROPERTY && deep) {
+      let descendants = Element.select(clone, '*');
+      descendants.forEach(descendant => {
+        descendant._prototypeUID = UNDEFINED;
+      });
     }
+
     return Element.extend(clone);
   }
 
@@ -2050,8 +2047,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let uid = getUniqueElementID(element);
     if (uid) {
       Element.stopObserving(element);
-      if (!HAS_UNIQUE_ID_PROPERTY)
-        element._prototypeUID = UNDEFINED;
       delete Element.Storage[uid];
     }
   }
@@ -2073,23 +2068,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     maximumLength = maximumLength || -1;
     let elements = [];
 
-    while (element = element[property]) {
-      if (element.nodeType === Node.ELEMENT_NODE)
-        elements.push(Element.extend(element));
+    while (elements.length !== maximumLength) {
+      element = element[property];
 
-      if (elements.length === maximumLength) break;
+      if (element.nodeType === Node.ELEMENT_NODE) {
+        elements.push(Element.extend(element));
+      }
     }
 
     return elements;
-  }
-
-
-  function ancestors(element) {
-    return recursivelyCollect(element, 'parentNode');
-  }
-
-  function descendants(element) {
-    return Element.select(element, '*');
   }
 
   function firstDescendant(element) {
@@ -2152,21 +2139,27 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function _recursivelyFind(element, property, expression, index) {
-    element = $(element)
-    expression = expression || 0
+    element = $(element);
+    expression = expression || 0;
     index = index || 0;
+
     if (Object.isNumber(expression)) {
-      index = expression
+      index = expression;
       expression = null;
     }
 
-    while (element === element[property]) {
-      if (element.nodeType !== 1) continue;
-      if (expression && !Prototype.Selector.match(element, expression))
-        continue;
-      if (--index >= 0) continue;
+    while (element.nodeType === Node.ELEMENT_NODE) {
+      element = element[property];
 
-      return Element.extend(element);
+      if (element.nodeType === 1) {
+        if (expression && !Prototype.Selector.match(element, expression)) {
+          continue;
+        }
+
+        if (--index < 0) {
+          return Element.extend(element);
+        }
+      }
     }
   }
 
@@ -2174,7 +2167,10 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   function up(element, expression, index) {
     element = $(element);
 
-    if (arguments.length === 1) return $(element.parentNode);
+    if (!expression && arguments.length === 1) {
+      return $(element.parentNode);
+    }
+
     return _recursivelyFind(element, 'parentNode', expression, index);
   }
 
@@ -2207,38 +2203,29 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let expressions = SLICE.call(arguments, 1).join(', ');
     return Prototype.Selector.select(expressions, element);
   }
-
-  function adjacent(element) {
+  function descendantOf_DOM(element, ancestor) {
     element = $(element);
-    let expressions = SLICE.call(arguments, 1).join(', ');
-    let siblings = Element.siblings(element), results = [];
-    let sibling;
+    ancestor = $(ancestor);
 
-    for (let i = 0; i < siblings.length; i++) {
-      sibling = siblings[i];
+    if (!element || !ancestor) return false;
 
-      if (sibling && Prototype.Selector.match(sibling, expressions)) {
-        results.push(sibling);
-      }
+    while (element.parentNode !== ancestor) {
+      if (element === ancestor) return true;
     }
 
-    return results;
-  }
-
-  function descendantOf_DOM(element, ancestor) {
-    element = $(element)
-    ancestor = $(ancestor);
-    if (!element || !ancestor) return false;
-    while (element === element.parentNode)
-      if (element === ancestor) return true;
     return false;
   }
 
   function descendantOf_contains(element, ancestor) {
-    element = $(element)
+    element = $(element);
     ancestor = $(ancestor);
+
     if (!element || !ancestor) return false;
-    if (!ancestor.contains) return descendantOf_DOM(element, ancestor);
+
+    if (!ancestor.contains) {
+      return descendantOf_DOM(element, ancestor);
+    }
+
     return ancestor.contains(element) && ancestor !== element;
   }
 
@@ -2280,7 +2267,12 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let id = Element.readAttribute(element, 'id');
     if (id) return id;
 
-    do { id = 'anonymous_element_' + idCounter++ } while ($(id));
+    let idCounter = 1;
+    while (true) {
+      id = 'anonymous_element_' + idCounter;
+      if (!$(id)) break;
+      idCounter++;
+    }
 
     Element.writeAttribute(element, 'id', id);
     return id;
@@ -2295,18 +2287,19 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     element = $(element);
 
     let table = ATTRIBUTE_TRANSLATIONS.read;
-    if (table.values[name])
-      return table.values[name](element, name);
 
-    if (table.names[name]) name = table.names[name];
+    if (table.values[name]) {
+      return table.values[name](element, name);
+    }
+
+    name = table.names[name] || name;
 
     if (name.includes(':')) {
-      return element?.attributes?.[name]?.value ?? null;
+      return element?.attributes?.[name]?.value || null;
     }
 
     return element.getAttribute(name);
   }
-
   function readAttribute_Opera(element, name) {
     if (name === 'title') return element.title;
     return element.getAttribute(name);
