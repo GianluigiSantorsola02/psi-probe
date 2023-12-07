@@ -398,7 +398,7 @@ Object.extend(String.prototype, (function() {
 
 
   function toQueryParams(separator) {
-    let match = this.strip().match(/(([^&=]*)([^#]*)(#.*)?$) /g);
+    let match = this.strip().match(/(([^&=])([^#]*)(#.*)?$) /g);
     if (!match) return {};
 
     return match[1].split(separator || '&').reduce((params, pair) => {
@@ -6112,12 +6112,20 @@ Form.Element.Serializers = (function() {
     return Element.hasAttribute(opt, 'value') ? opt.value : opt.text;
   }
   function select(element, value) {
-    if (Object.isUndefined(value))
-      return (element.type === 'select-one' ? selectOne : selectMany)(element);
+    handleSelectElement(value, element, selectOne, selectMany);
 
     const options = Array.from(element.options);
     const single = !Object.isArray(value);
 
+    handleSelectOptions(options, value, single);
+
+}
+  function handleSelectElement(value, element, selectOne, selectMany) {
+    if (Object.isUndefined(value)) return;
+
+    return (element.type === 'select-one' ? selectOne : selectMany)(element);
+  }
+  function handleSelectOptions(options, value, single) {
     options.forEach((opt) => {
       const currentValue = optionValue(opt);
       if (single) {
@@ -6129,7 +6137,6 @@ Form.Element.Serializers = (function() {
       }
     });
   }
-
   return {
     input:         input,
     textarea:      valueSelector,
