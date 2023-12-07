@@ -2879,16 +2879,14 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     Object.extend(ByTag[tagName], methods);
   }
 
-  function mergeMethods(destination, methods, onlyIfAbsent) {
-    if (Object.isUndefined(onlyIfAbsent)) onlyIfAbsent = false;
+  function mergeMethods(destination, methods, onlyIfAbsent = false) {
     for (let property in methods) {
       let value = methods[property];
-      if (!Object.isFunction(value)) continue;
-      if (!onlyIfAbsent || !(property in destination))
+      if (Object.isFunction(value) && (!onlyIfAbsent || !(property in destination))) {
         destination[property] = value.methodize();
+      }
     }
   }
-
   function findDOMClass(tagName) {
     let klass;
     let trans = {
@@ -3052,10 +3050,8 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function getPixelValue(value, property, context) {
-    let element = null;
     if (Object.isElement(value)) {
-      element = value;
-      value = getRawStyle(element, property);
+      value = getRawStyle(value, property);
     }
 
     if (value === null || Object.isUndefined(value)) {
@@ -3063,47 +3059,30 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     }
 
     if ((/^?\d+(\.\d+)?(px)?$/i).test(value)) {
-      return window.parseFloat(value);
+      return parseFloat(value);
     }
 
-    let isPercentage = value.include('%'), isViewport = (context === document.viewport);
+    if (/\d/.test(value)) {
+      if (context && context !== document.viewport && value.includes('%')) {
+        let decimal = toDecimal(value);
+        let whole = null;
 
-    if (/\d/.test(value) && element && element.runtimeStyle && !(isPercentage && isViewport)) {
-      let style = element.style.left, rStyle = element.runtimeStyle.left;
-      element.runtimeStyle.left = element.currentStyle.left;
-      element.style.left = value || 0;
-      value = element.style.pixelLeft;
-      element.style.left = style;
-      element.runtimeStyle.left = rStyle;
+        let isHorizontal = property.includes('left') || property.includes('right') ||
+            property.includes('width');
 
-      return value;
-    }
+        let isVertical = property.includes('top') || property.includes('bottom') ||
+            property.includes('height');
 
-    if (element && isPercentage) {
-      context = context || element.parentNode;
-      let decimal = toDecimal(value), whole = null;
-
-      let isHorizontal = property.include('left') || property.include('right') ||
-          property.include('width');
-
-      let isVertical   = property.include('top') || property.include('bottom') ||
-          property.include('height');
-
-      if (context === document.viewport) {
-        if (isHorizontal) {
-          whole = document.viewport.getWidth();
-        } else if (isVertical) {
-          whole = document.viewport.getHeight();
-        }
-      } else {
-        if (isHorizontal) {
+        if (isHorizontal ) {
           whole = context.getWidth();
         } else if (isVertical) {
           whole = context.getHeight();
         }
 
+        return (whole === null) ? 0 : whole * decimal;
+      } else {
+        return parseFloat(value);
       }
-      return (whole === null) ? 0 : whole * decimal;
     }
 
     return 0;
@@ -3148,10 +3127,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     _set: function(property, value) {
       return Hash.prototype.set.call(this, property, value);
-    },
-
-    set: function(property, value) {
-      throw new Error("Properties of Element.Layout are read-only.");
     },
 
 
@@ -3268,26 +3243,20 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     COMPOSITE_PROPERTIES: $w('padding-box-width padding-box-height margin-box-width margin-box-height border-box-width border-box-height'),
 
-    COMPUTATIONS: {
-      'height': function(element) {
-        if (!this._preComputing) this._begin();
+    COMPUTATIONS:{'height': function() {
+      let bHeight = this.get('border-box-height');
+      if (bHeight <= 0) {
+        return 0;
+      }
 
-        let bHeight = this.get('border-box-height');
-        if (bHeight <= 0) {
-          if (!this._preComputing) this._end();
-          return 0;
-        }
+      let bTop = this.get('border-top'),
+          bBottom = this.get('border-bottom');
 
-        let bTop = this.get('border-top'),
-            bBottom = this.get('border-bottom');
+      let pTop = this.get('padding-top'),
+          pBottom = this.get('padding-bottom');
 
-        let pTop = this.get('padding-top'),
-            pBottom = this.get('padding-bottom');
-
-        if (!this._preComputing) this._end();
-
-        return bHeight - bTop - bBottom - pTop - pBottom;
-      },
+      return bHeight - bTop - bBottom - pTop - pBottom;
+    },
 
       'width': function(element) {
         if (!this._preComputing) this._begin();
