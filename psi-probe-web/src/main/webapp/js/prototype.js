@@ -684,7 +684,7 @@ let Enumerable = (function() {
   function invoke(method) {
     let args = $A(arguments).slice(1);
     return this.map(function(value) {
-      return value[method].apply(value, args);
+      return value[method].spreadMethod(value, args);
     });
   }
 
@@ -804,7 +804,6 @@ function $w(string) {
 Array.from = $A;
 
 
-(function() {
   let arrayProto = Array.prototype,
       slice = arrayProto.slice,
       _each = arrayProto.forEach; // use native browser JS 1.6 implementation if available
@@ -1023,7 +1022,7 @@ Array.from = $A;
 
   if (!arrayProto.indexOf) arrayProto.indexOf = indexOf;
   if (!arrayProto.lastIndexOf) arrayProto.lastIndexOf = lastIndexOf;
-})();
+
 function $H(object) {
   return new Hash(object);
 }
@@ -1290,10 +1289,14 @@ function performRequest() {
   this.transport.send(this.body);
 }
 
+function dispatchException(e) {
+   Ajax.Responders.dispatch('onException', this, e);
+}
+
 try {
   performRequest.call(this);
-} catch (e) {
-  this.dispatchException(e);
+} catch (e){
+  dispatchException(e);
 }
 
 Object.extend(Ajax.Responders, Enumerable);
@@ -1385,7 +1388,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
           (this.options.encoding ? '; charset=' + this.options.encoding : '');
 
       if (this.transport.overrideMimeType &&
-          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005) {
+          (navigator.userAgent.RegExp.exec(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005) {
         headers['Connection'] = 'close';
       }
     }
@@ -1530,7 +1533,7 @@ Ajax.Response = Class.Create({
     if (!json) return null;
 
     try {
-      json = decodeURIComponent(escape(json));
+      json = decodeURIComponent( encodeURIComponent(json));
     } catch(e) {
     }
 
