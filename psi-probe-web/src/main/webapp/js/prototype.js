@@ -6802,16 +6802,12 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
    John-David Dalton. */
 }))(this);
 
-(function( document ) {
+((function(document) {
 
   let TIMER;
 
   function fireContentLoadedEvent() {
-    if (document & document.loaded) {
-      return;
-    }
-    if (document) {
-
+    if (document && !document.loaded) {
       if (TIMER) window.clearTimeout(TIMER);
       document.loaded = true;
       document.fire('dom:loaded');
@@ -6826,7 +6822,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function pollDoScroll() {
-    if(document) {
+    if (document) {
       try {
         document.documentElement.doScroll('left');
       } catch (e) {
@@ -6837,24 +6833,23 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     fireContentLoadedEvent();
   }
 
-
   if (document && document.readyState === 'complete') {
     fireContentLoadedEvent();
     return;
   }
 
-  if (document && fdocument.addEventListener) {
+  if (document && document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else {
     if (document) {
-
-    document.attachEvent('onreadystatechange', checkReadyState);
-    if (window == top) TIMER = pollDoScroll.defer();
-  }
+      document.attachEvent('onreadystatechange', checkReadyState);
+      if (window == top) TIMER = pollDoScroll.defer();
+    }
   }
 
   Event.observe(window, 'load', fireContentLoadedEvent);
-})(this);
+})(document)
+)(this);
 
 
 Element.addMethods();
@@ -6907,12 +6902,11 @@ let Position = {
 
   overlap: function(mode, element) {
     if (!mode) return 0;
-    if (mode == 'vertical')
-      return ((this.offset[1] + element.offsetHeight) - this.ycomp) /
-        element.offsetHeight;
-    if (mode == 'horizontal')
-      return ((this.offset[0] + element.offsetWidth) - this.xcomp) /
-        element.offsetWidth;
+
+    const dimension = (mode === 'vertical') ? 'offsetHeight' : 'offsetWidth';
+    const coordinate = (mode === 'vertical') ? this.ycomp : this.xcomp;
+
+    return ((this.offset[0] + element[dimension]) - coordinate) / element[dimension];
   },
 
 
@@ -6944,20 +6938,42 @@ let Position = {
 
 /*--------------------------------------------------------------------------*/
 
-if (!document.getElementsByClassName) document.getElementsByClassName = function getElementsByClassName(className, parentElement) {
-  parentElement = parentElement || document.body;
-  if (Prototype.BrowserFeatures.XPath) {
-    return getElementsByClassNameXPath(parentElement, className);
-  } else {
-    return getElementsByClassNameLegacy(parentElement, className);
-  }
+if (!document.getElementsByClassName) {
+  document.getElementsByClassName = function(className, parentElement) {
+    parentElement = parentElement || document.body;
+
+    function useXPath() {
+      return Prototype.BrowserFeatures.XPath;
+    }
+
+    function getElementsByClassName() {
+      return useXPath() ? getElementsByClassNameXPath(parentElement, className) : getElementsByClassNameLegacy(parentElement, className);
+    }
+
+    return getElementsByClassName();
+  };
 }
 
+
+
 function getElementsByClassNameXPath(element, className) {
-  className = className.toString().strip();
-  let cond = /\s/.test(className) ? $w(className).map(iter).join('') : iter(className);
+  className = String(className).trim();
+  let cond = /\s/.test(className) ? classNamesToXPath(className) : classNameToXPath(className);
   return cond ? document._getElementsByXPath('.//*' + cond, element) : [];
 }
+
+function classNameToXPath(className) {
+  return iter(className);
+}
+
+function classNamesToXPath(classNames) {
+  return $w(classNames).map(classNameToXPath).join('');
+}
+
+function iter(className) {
+  return `[contains(concat(' ', @class, ' '), ' ${className} ')]`;
+}
+
 
 function getElementsByClassNameLegacy(element, className) {
   let elements = [];
