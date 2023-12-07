@@ -6984,17 +6984,17 @@ function getElementsByClassNameLegacy(element, className) {
   className = className.toString().strip();
   let elements = [];
   let classNames = /\s/.test(className) ? $w(className) : null;
-  if (!classNames && !className) return elements;
+  if (!classNames && !className) {
+    return elements;
+  }
 
-  let nodes = $(element).getElementsByTagName('*');
-  className = ' ' + className + ' ';
+  let nodes = Array.from($(element).getElementsByTagName('*'));
+  const classMatch = (element, classNames) => {
+    return classNames ? classNames.all(name => element?.className?.includes?.(name)) : false;
+  };
 
-  for (let i = 0; i < nodes.length; i++) {
-    let child = nodes[i];
-    if (
-        child?.className?.includes?.(className) ||
-        (classNames ?. classNames.all((name) => child?.className?.includes?.(name)))
-    ) {
+  for (const child of nodes) {
+    if (child?.className?.includes?.(className) || classMatch(child, classNames)) {
       elements.push(Element.extend(child));
     }
   }
@@ -7069,8 +7069,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
     findElement: function(elements, expression, index) {
       index = index || 0;
       let matchIndex = 0;
-      for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
+      for (const element of elements) {
         if (Prototype.Selector.match(element, expression) && index === matchIndex++) {
           return Element.extend(element);
         }
