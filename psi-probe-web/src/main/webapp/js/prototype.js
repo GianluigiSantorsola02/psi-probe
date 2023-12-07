@@ -6974,9 +6974,7 @@ function getElementsByClassNameXPath(element, className) {
 }
 
 function getElementsByClassNameLegacy(element, className) {
-  className = className.toString().strip();
   let elements = [];
-  /\s/.test(className) ? $w(className) : null;
   Array.from($(element).getElementsByTagName('*'));
   return elements;
 }
