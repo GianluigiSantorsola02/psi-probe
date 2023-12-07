@@ -808,7 +808,7 @@ function $w(string) {
 Array.from = $A;
 
 
-(function() {
+
   let arrayProto = Array.prototype,
       slice = arrayProto.slice,
       _each = arrayProto.forEach; // use native browser JS 1.6 implementation if available
@@ -1027,7 +1027,7 @@ Array.from = $A;
 
   if (!arrayProto.indexOf) arrayProto.indexOf = indexOf;
   if (!arrayProto.lastIndexOf) arrayProto.lastIndexOf = lastIndexOf;
-})();
+
 function $H(object) {
   return new Hash(object);
 }
@@ -1619,7 +1619,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 });
 
-(function(GLOBAL) {
+
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
@@ -3032,7 +3032,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-})(this);
+(this);
 (function() {
 
   function toDecimal(pctString) {
@@ -6119,11 +6119,6 @@ Form.Element.Serializers = (function() {
     handleSelectOptions(options, value, single);
 
 }
-  function handleSelectElement(value, element, selectOne, selectMany) {
-    if (Object.isUndefined(value)) return;
-
-    return (element.type === 'select-one' ? selectOne : selectMany)(element);
-  }
   function handleSelectOptions(options, value, single) {
     options.forEach((opt) => {
       const currentValue = optionValue(opt);
