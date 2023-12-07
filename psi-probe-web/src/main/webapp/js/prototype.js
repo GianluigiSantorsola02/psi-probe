@@ -6114,6 +6114,7 @@ Form.Element.Serializers = (function() {
   function select(element, value) {
     handleSelectElement(value, element, selectOne, selectMany);
 
+
     const options = Array.from(element.options);
     const single = !Object.isArray(value);
 
