@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import psiprobe.TomcatContainer;
 import psiprobe.beans.ClusterWrapperBean;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.model.jmx.Cluster;
 import psiprobe.tools.TimeExpression;
@@ -76,7 +77,7 @@ public class ClusterStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws Exception {
+  public void collect() throws ContainerListenerBean.CustomException, InterruptedException {
 
     TomcatContainer container = containerWrapper.getTomcatContainer();
     if (container != null) {
