@@ -349,15 +349,9 @@ Object.extend(String.prototype, (function() {
   function prepareReplacement(replacement) {
     return Object.isFunction(replacement) ? replacement : (match) => new Template(replacement).evaluate(match);
   }
-  function isNonEmptyRegExp(regexp) {
-    return regexp.source && regexp.source !== '(?:)';
-  }
-
-
   function gsub(pattern, replacement) {
     let result = '';
     let source = this;
-    let match;
     replacement = prepareReplacement(replacement);
 
     if (Object.isString(pattern)) {
@@ -404,7 +398,7 @@ Object.extend(String.prototype, (function() {
 
 
   function toQueryParams(separator) {
-    let match = this.strip().match(/(?:\?|&)([^#]*)(#.*)?$/);
+    let match = this.strip().match(/(([^&=]+)([^#]*)(#.*)?$) /g);
     if (!match) return {};
 
     return match[1].split(separator || '&').reduce((params, pair) => {
@@ -1293,47 +1287,46 @@ Ajax.Request = Class.Create(Ajax.Base, {
   request: function(url) {
     this.url = url;
     this.method = this.options.method;
-    let params = Object.isString(this.options.parameters) ?
-          this.options.parameters :
-          Object.toQueryString(this.options.parameters);
+    let params = Object.isString(this.options.parameters)
+        ? this.options.parameters
+        : Object.toQueryString(this.options.parameters);
 
-    if (!['get', 'post'].include(this.method)) {
+    if (!['get', 'post'].includes(this.method)) {
       params += (params ? '&' : '') + "_method=" + this.method;
       this.method = 'post';
     }
 
     if (params && this.method === 'get') {
-      this.url += (this.url.include('?') ? '&' : '?') + params;
+      this.url += (this.url.includes('?') ? '&' : '?') + params;
     }
 
     this.parameters = params.toQueryParams();
 
     try {
       let response = new Ajax.Response(this);
-      if (this.options.onCreate) this.options.onCreate(response);
+      if (this.options.onCreate) {
+        this.options.onCreate(response);
+      }
       Ajax.Responders.dispatch('onCreate', this, response);
 
-      this.transport.open(this.method.toUpperCase(), this.url,
-        this.options.asynchronous);
+      this.transport.open(this.method.toUpperCase(), this.url, this.options.asynchronous);
 
-      if (this.options.asynchronous) this.respondToReadyState.bind(this).defer(1);
+      if (this.options.asynchronous) {
+        this.transport.onreadystatechange = this.onStateChange.bind(this);
+        this.respondToReadyState.bind(this).defer(1);
+      } else {
+        this.transport.onreadystatechange = this.onStateChange.bind(this);
+        this.onStateChange();
+      }
 
-      this.transport.onreadystatechange = this.onStateChange.bind(this);
       this.setRequestHeaders();
 
-      this.body = this.method == 'post' ? (this.options.postBody || params) : null;
+      this.body = this.method === 'post' ? (this.options.postBody || params) : null;
       this.transport.send(this.body);
-
-      /* Force Firefox to handle ready state 4 for synchronous requests */
-      if (!this.options.asynchronous && this.transport.overrideMimeType)
-        this.onStateChange();
-
-    }
-    catch (e) {
+    } catch (e) {
       this.dispatchException(e);
     }
   },
-
   onStateChange: function() {
     let readyState = this.transport.readyState;
     if (readyState > 1 && !((readyState == 4) && this._complete))
@@ -1351,10 +1344,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       headers['Content-type'] = this.options.contentType +
         (this.options.encoding ? '; charset=' + this.options.encoding : '');
 
-      /* Force "Connection: close" for older Mozilla browsers to work
-       * around a bug where XMLHttpRequest sends an incorrect
-       * Content-length header. See Mozilla Bugzilla #246651.
-       */
+
       if (this.transport.overrideMimeType &&
           (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005)
             headers['Connection'] = 'close';
@@ -1388,37 +1378,40 @@ Ajax.Request = Class.Create(Ajax.Base, {
   },
 
   respondToReadyState: function(readyState) {
-    let state = Ajax.Request.Events[readyState], response = new Ajax.Response(this);
+    let state = Ajax.Request.Events[readyState];
+    let response = new Ajax.Response(this);
 
-    if (state == 'Complete') {
+    if (state === 'Complete') {
       try {
         this._complete = true;
-        (this.options['on' + response.status]
-         || this.options['on' + (this.success() ? 'Success' : 'Failure')]
-         || Prototype.emptyFunction)(response, response.headerJSON);
+        let callback = this.options['on' + response.status] ||
+            this.options['on' + (this.success() ? 'Success' : 'Failure')] ||
+            Prototype.emptyFunction;
+        callback(response, response.headerJSON);
+
+        let contentType = response.getHeader('Content-type');
+        if (this.options.evalJS == 'force' ||
+            (this.options.evalJS && this.isSameOrigin() && contentType &&
+                contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i))) {
+          this.evalResponse();
+        }
       } catch (e) {
         this.dispatchException(e);
       }
-
-      let contentType = response.getHeader('Content-type');
-      if (this.options.evalJS == 'force'
-          || (this.options.evalJS && this.isSameOrigin() && contentType
-          && contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i)))
-        this.evalResponse();
     }
 
     try {
-      (this.options['on' + state] || Prototype.emptyFunction)(response, response.headerJSON);
+      let eventCallback = this.options['on' + state] || Prototype.emptyFunction;
+      eventCallback(response, response.headerJSON);
       Ajax.Responders.dispatch('on' + state, this, response, response.headerJSON);
     } catch (e) {
       this.dispatchException(e);
     }
 
-    if (state == 'Complete') {
+    if (state === 'Complete') {
       this.transport.onreadystatechange = Prototype.emptyFunction;
     }
   },
-
   isSameOrigin: function() {
     const m = this.url.match(/^\s*https?:\/\/[^]*/);
     return !m || (m[0] === '#{protocol}//#{domain}#{port}'.interpolate({
