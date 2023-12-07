@@ -20,7 +20,6 @@ import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.controllers.jsp.ViewServletSourceController;
 import psiprobe.tools.ApplicationUtils;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -83,7 +82,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, ContainerListenerBean.CustomExceptionException, IOException, ApplicationUtils.ApplicationResourcesException, ServletRequestBindingException, Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, ContainerListenerBean.CustomExceptionException, ContainerListenerBean.CustomExceptionException, IOException {
     // Your code logic here
 
 
