@@ -341,7 +341,7 @@ Object.extend(String, {
   }
 });
 
-Object.extend(String.prototype, (function() {
+
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
@@ -554,16 +554,16 @@ Object.extend(String.prototype, (function() {
     endsWith:       String.prototype.endsWith || endsWith,
     empty:          empty,
     blank:          blank,
-    interpolate:    interpolate
-  };
-})());
+    interpolate:    interpolate,}
 function applyExpression(ctx, expr, pattern) {
   let match = pattern.exec(expr);
 
   while (match != null) {
     let comp = match[1].startsWith('[') ? match[2].replace(/\\\\]/g, ']') : match[1];
+    let ctx;
     ctx = ctx[comp];
     if (null == ctx || '' === match[3]) break;
+    let expr;
     expr = expr.substring('[' === match[3] ? match[1].length : match[0].length);
     match = pattern.exec(expr);
   }
