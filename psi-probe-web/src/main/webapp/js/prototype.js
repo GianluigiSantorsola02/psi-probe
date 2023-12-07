@@ -1621,7 +1621,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 });
 
-
+(function(GLOBAL) {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
@@ -7020,7 +7020,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
 
 /*--------------------------------------------------------------------------*/
 
-(function() {
+
   window.Selector = Class.Create({
     initialize: function(expression) {
       this.expression = expression.strip();
@@ -7040,8 +7040,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
 
     inspect: function() {
       return "#<Selector: " + this.expression + ">";
-    }
-  });
+    },
 
 
-})();
+})();}
