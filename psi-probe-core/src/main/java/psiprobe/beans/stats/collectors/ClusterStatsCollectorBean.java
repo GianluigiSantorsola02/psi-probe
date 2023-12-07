@@ -11,6 +11,7 @@
 package psiprobe.beans.stats.collectors;
 
 import javax.inject.Inject;
+import javax.management.*;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -77,7 +78,7 @@ public class ClusterStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws ContainerListenerBean.CustomException, InterruptedException {
+  public void collect() throws ContainerListenerBean.CustomException, InterruptedException, ReflectionException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, MBeanException, ClusterWrapperBean.CustomException {
 
     TomcatContainer container = containerWrapper.getTomcatContainer();
     if (container != null) {
