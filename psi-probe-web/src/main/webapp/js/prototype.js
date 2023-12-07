@@ -208,7 +208,7 @@ Object.extend(Function.prototype, (function() {
 
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
-    return function(event) {
+    return function() {
       let a = update([(window.Event)], args);
       return __method.apply(context, a);
     };
@@ -341,7 +341,7 @@ Object.extend(String, {
   }
 });
 
-Object.extend(String.prototype, (function() {
+Object.extend(String.prototype)
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
@@ -362,10 +362,6 @@ Object.extend(String.prototype, (function() {
     result = source.replace(regex, replacement);
 
     return result;
-  }
-  function scan(pattern, iterator) {
-    this.gsub(pattern, iterator);
-    return String(this);
   }
   function strip() {
   return this.replace(/^\s*/g, '').replace(/\s*$/g, '')  }
@@ -396,25 +392,35 @@ Object.extend(String.prototype, (function() {
     return this.stripTags().replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
   }
 
+function parseQueryString(queryString, separator) {
+  let params = {};
+
+  let match = queryString.match(/([^?#]*)(#.*)?$/);
+  if (!match) {
+    return params;
+  }
+
+  let pairs = match[1].split(separator || '&');
+  pairs.forEach(pair => {
+    let [key, value] = pair.split('=').map(decodeURIComponent);
+    value = value.replace(/\+/g, ' ');
+
+    if (!(key in params)) {
+      params[key] = value;
+    } else if (!Array.isArray(params[key])) {
+      params[key] = [params[key], value];
+    } else {
+      params[key].push(value);
+    }
+  });
+
+  return params;
+}
 
   function toQueryParams(separator) {
     let match = this.strip().match(/(([^&=])([^#]*)(#.*)?$) /g);
     if (!match) return {};
-
-    return match[1].split(separator || '&').reduce((params, pair) => {
-      let [key, value] = pair.split('=').map(decodeURIComponent);
-      value = value.replace(/\+/g, ' ');
-
-      if (!(key in params)) {
-        params[key] = value;
-      } else if (!Array.isArray(params[key])) {
-        params[key] = [params[key], value];
-      } else {
-        params[key].push(value);
-      }
-
-      return params;
-    });
+    return  parseQueryString( match[1], separator)
   }
   function toArray() {
     return this.split('');
@@ -530,7 +536,6 @@ Object.extend(String.prototype, (function() {
 
   return {
     gsub:           gsub,
-    scan:           scan,
     strip:          String.prototype.trim || strip,
     stripTags:      stripTags,
     stripScripts:   stripScripts,
@@ -556,7 +561,6 @@ Object.extend(String.prototype, (function() {
     blank:          blank,
     interpolate:    interpolate
   };
-})());
 function applyExpression(ctx, expr, pattern) {
   let match = pattern.exec(expr);
 
@@ -1175,12 +1179,7 @@ Object.extend(Number.prototype, (function() {
     round:          round
   };
 })());
-
-function $R(start, end, exclusive) {
-  return new ObjectRange(start, end, exclusive);
-}
-
-let ObjectRange = Class.Create(Enumerable, (function() {
+Class.Create(Enumerable, (function() {
   function initialize(start, end, exclusive) {
     this.start = start;
     this.end = end;
@@ -1211,9 +1210,6 @@ let ObjectRange = Class.Create(Enumerable, (function() {
     include:    include
   };
 })());
-
-
-
 let Abstract = { };
 
 
@@ -1337,6 +1333,25 @@ function setRequestHeadersFromOptions(headers, options) {
     }
   }
 }
+
+function handleResponseComplete(response, options) {
+  try {
+    response._complete = true;
+    let callback = options['on' + response.status] ||
+        options['on' + (response.success() ? 'Success' : 'Failure')] ||
+        Prototype.emptyFunction;
+    callback(response, response.headerJSON);
+
+    let contentType = response.getHeader('Content-type');
+    if (options.evalJS && response.isSameOrigin() && contentType &&
+        contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i)) {
+      response.evalResponse();
+    }
+  } catch (e) {
+    response.dispatchException(e);
+  }
+}
+
 Ajax.Request = Class.Create(Ajax.Base, {
   _complete: false,
 
@@ -1410,36 +1425,19 @@ Ajax.Request = Class.Create(Ajax.Base, {
     } catch (e) { return 0 }
   },
 
+
+
   respondToReadyState: function(readyState) {
     let state = Ajax.Request.Events[readyState];
     let response = new Ajax.Response(this);
 
     if (state === 'Complete') {
-      try {
-        this._complete = true;
-        let callback = this.options['on' + response.status] ||
-            this.options['on' + (this.success() ? 'Success' : 'Failure')] ||
-            Prototype.emptyFunction;
-        callback(response, response.headerJSON);
-
-        let contentType = response.getHeader('Content-type');
-        if (this.options.evalJS == 'force' ||
-            (this.options.evalJS && this.isSameOrigin() && contentType &&
-                contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i))) {
-          this.evalResponse();
-        }
-      } catch (e) {
-        this.dispatchException(e);
-      }
+      handleResponseComplete(response, this.options);
     }
 
-    try {
-      let eventCallback = this.options['on' + state] || Prototype.emptyFunction;
-      eventCallback(response, response.headerJSON);
-      Ajax.Responders.dispatch('on' + state, this, response, response.headerJSON);
-    } catch (e) {
-      this.dispatchException(e);
-    }
+    let eventCallback = this.options['on' + state] || Prototype.emptyFunction;
+    eventCallback(response, response.headerJSON);
+    Ajax.Responders.dispatch('on' + state, this, response, response.headerJSON);
 
     if (state === 'Complete') {
       this.transport.onreadystatechange = Prototype.emptyFunction;
