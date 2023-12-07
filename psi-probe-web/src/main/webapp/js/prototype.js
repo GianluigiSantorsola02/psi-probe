@@ -371,7 +371,7 @@ Object.extend(String.prototype, (function() {
   return this.replace(/^\s+/g, '').replace(/\s+$/g, '')  }
 
   function stripTags() {
-    return this.replace(/<[^>]+>|<\/\w+>/gi, '')
+    return this.replace(/<[^>]*>|<\/\w*>/gi, '')
 
   }
 
