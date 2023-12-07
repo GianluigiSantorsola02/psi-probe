@@ -46,7 +46,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) {
 
     if (shouldHandleContext(context, request, contextName)) {
       handleContextAction(contextName, context, request);

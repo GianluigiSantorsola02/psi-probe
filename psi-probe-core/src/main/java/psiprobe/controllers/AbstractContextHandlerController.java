@@ -81,7 +81,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, InterruptedException, ContainerListenerBean.CustomException, IOException, ServletRequestBindingException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, InterruptedException, ContainerListenerBean.CustomException, IOException, ServletRequestBindingException, Exception {
     // Your code logic here
 
 
