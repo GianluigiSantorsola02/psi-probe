@@ -39,7 +39,7 @@ public class GetApplicationRequestDetailsController extends BaseViewXmlConfContr
 
   @Override
   public void setDownloadTarget(String downloadTarget) {
-
+    // setDownloadTarget(downloadTarget);
   }
 
   @Value("true")
