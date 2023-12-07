@@ -44,7 +44,7 @@ public class ListSessionsController extends AbstractContextHandlerController {
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ServletRequestBindingException {
 
     SessionSearchInfo searchInfo = createSessionSearchInfo(request);
     HttpSession sess = request.getSession(false);

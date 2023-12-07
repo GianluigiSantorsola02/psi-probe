@@ -43,7 +43,8 @@ public class LogbackFactoryAccessor extends DefaultAccessor {
    * @throws InvocationTargetException the invocation target exception
    */
   public LogbackFactoryAccessor(ClassLoader cl)
-          throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException {
+          throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
+          TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException {
 
     // Get the singleton SLF4J binding, which may or may not be Logback, depending on the binding.
     Class<?> clazz = cl.loadClass("org.slf4j.impl.StaticLoggerBinder");
@@ -56,7 +57,9 @@ public class LogbackFactoryAccessor extends DefaultAccessor {
     // Check if the binding is indeed Logback
     Class<?> loggerFactoryClass = cl.loadClass("ch.qos.logback.classic.LoggerContext");
     if (!loggerFactoryClass.isInstance(loggerFactory)) {
-      throw new TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException("The singleton SLF4J binding was not Logback");    }
+      throw new TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException(
+              "The singleton SLF4J binding was not Logback");
+    }
     setTarget(loggerFactory);
   }
 
@@ -116,7 +119,11 @@ public class LogbackFactoryAccessor extends DefaultAccessor {
         accessor.setTarget(logger);
         accessor.setApplication(getApplication());
 
-        appenders.addAll(accessor.getAppenders());
+        try {
+          appenders.addAll(accessor.getAppenders());
+        } catch (LogbackLoggerAccessor.InvalidAppenderTypeException e) {
+          logger.toString();
+        }
       }
     } catch (Exception e) {
       logger.error("{}.getLoggerList() failed", getTarget(), e);

@@ -80,7 +80,7 @@ public abstract class AbstractStatsCollectorBean {
     this.listeners = listeners;
   }
 
-  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException, ReflectionException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, MBeanException;
+  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException, ReflectionException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, MBeanException, Exception, Throwable;
 
 
   /**
