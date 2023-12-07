@@ -876,7 +876,6 @@ Array.from = $A;
 
 
   function lastIndexOf(item, i) {
-    if (this == null) throw new TypeError();
 
     let array = Object(this);
     let length = array.length >>> 0;
@@ -1418,24 +1417,35 @@ Ajax.Request = Class.Create(Ajax.Base, {
     let response = new Ajax.Response(this);
 
     if (state === 'Complete') {
-      try {
-        this._complete = true;
-        let callback = this.options['on' + response.status] ||
-            this.options['on' + (this.success() ? 'Success' : 'Failure')] ||
-            Prototype.emptyFunction;
-        callback(response, response.headerJSON);
-
-        let contentType = response.getHeader('Content-type');
-        if (this.options.evalJS == 'force' ||
-            (this.options.evalJS && this.isSameOrigin() && contentType &&
-                contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i))) {
-          this.evalResponse();
-        }
-      } catch (e) {
-        this.dispatchException(e);
-      }
+      this.handleComplete(response);
     }
 
+    this.handleEvent(state, response);
+
+    if (state === 'Complete') {
+      this.disableTransport();
+    }
+  },
+
+  handleComplete: function(response) {
+    this._complete = true;
+    let callback = this.options['on' + response.status] ||
+        this.options['on' + (response.success() ? 'Success' : 'Failure')] ||
+        Prototype.emptyFunction;
+    callback(response, response.headerJSON);
+
+    if (this.shouldEvaluateJS(response)) {
+      this.evalResponse();
+    }
+  },
+
+  shouldEvaluateJS: function(response) {
+    let contentType = response.getHeader('Content-type');
+    return (this.options.evalJS && this.isSameOrigin() && contentType &&
+        contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i));
+  },
+
+  handleEvent: function(state, response) {
     try {
       let eventCallback = this.options['on' + state] || Prototype.emptyFunction;
       eventCallback(response, response.headerJSON);
@@ -1443,10 +1453,10 @@ Ajax.Request = Class.Create(Ajax.Base, {
     } catch (e) {
       this.dispatchException(e);
     }
+  },
 
-    if (state === 'Complete') {
-      this.transport.onreadystatechange = Prototype.emptyFunction;
-    }
+  disableTransport: function() {
+    this.transport.onreadystatechange = Prototype.emptyFunction;
   },
   isSameOrigin: function() {
     const m = this.url.match(/^\s*https?:\/\/[^]*/);
@@ -1624,7 +1634,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 });
 
-(function(GLOBAL) {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
@@ -3037,7 +3046,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-})(this);
+
 (function() {
 
   function toDecimal(pctString) {
