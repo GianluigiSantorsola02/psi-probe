@@ -209,7 +209,7 @@ Object.extend(Function.prototype, (function() {
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
     return function(event) {
-      let a = update([(event || window.Event)], args);
+      let a = update([(window.Event)], args);
       return __method.apply(context, a);
     };
   }
@@ -870,29 +870,22 @@ Array.from = $A;
   function indexOf(item, i) {
     if (this == null) throw new TypeError();
 
-    let array = Object(this), length = array.length >>> 0;
+    let array = Object(this);
+    let length = array.length >>> 0;
     if (length === 0) return -1;
 
-    i = Number(i);
-    if (isNaN(i)) {
-      i = 0;
-    } else if (i !== 0 && isFinite(i)) {
-      i = (i > 0 ? 1 : -1) * Math.floor(Math.abs(i));
-    }
+    i = Number(i) || 0;
+    if (i >= length) return -1;
 
-    if (i > length) return -1;
-
-    let k = i >= 0 ? i : Math.max(length - Math.abs(i), 0);
-    for (; k < length; k++)
-      if (k in array && array[k] === item) return k;
-    return -1;
+    return array.findIndex((value, index) => index >= i && value === item);
   }
 
 
   function lastIndexOf(item, i) {
     if (this == null) throw new TypeError();
 
-    let array = Object(this), length = array.length >>> 0;
+    let array = Object(this);
+    let length = array.length >>> 0;
     if (length === 0) return -1;
 
     if (!Object.isUndefined(i)) {
@@ -903,46 +896,29 @@ Array.from = $A;
         i = (i > 0 ? 1 : -1) * Math.floor(Math.abs(i));
       }
     } else {
-      i = length;
+      i = length - 1;
     }
 
-    let k = i >= 0 ? Math.min(i, length - 1) :
-     length - Math.abs(i);
-
-    for (; k >= 0; k--)
-      if (k in array && array[k] === item) return k;
-    return -1;
+    return array.lastIndexOf(item, i);
   }
-
   function concat(_) {
-    let array = [], items = slice.call(arguments, 0), item, n = 0;
-    items.unshift(this);
-    for (let i = 0, length = items.length; i < length; i++) {
-      item = items[i];
-      if (Object.isArray(item) && !('callee' in item)) {
-        for (let j = 0, arrayLength = item.length; j < arrayLength; j++) {
-          if (j in item) array[n] = item[j];
-          n++;
-        }
-      } else {
-        array[n++] = item;
-      }
-    }
-    array.length = n;
+    let array = [];
+    let items = [...arguments].flat();
+    array.push(...items);
     return array;
   }
 
 
   function wrapNative(method) {
-    return function() {
-      if (arguments.length === 0) {
+    return function(...args) {
+      if (args.length === 0) {
         return method.call(this, Prototype.K);
-      } else if (arguments[0] === undefined) {
-        let args = slice.call(arguments, 1);
+      } else if (args[0] === undefined) {
+        args.shift();
         args.unshift(Prototype.K);
         return method.apply(this, args);
       } else {
-        return method.apply(this, arguments);
+        return method.apply(this, args);
       }
     };
   }
@@ -950,19 +926,12 @@ Array.from = $A;
 
   function map(iterator) {
     if (this == null) throw new TypeError();
+
     iterator = iterator || Prototype.K;
-
     let object = Object(this);
-    let results = [], context = arguments[1], n = 0;
+    let context = arguments[1];
 
-    for (let i = 0, length = object.length >>> 0; i < length; i++) {
-      if (i in object) {
-        results[n] = iterator.call(context, object[i], i, object);
-      }
-      n++;
-    }
-    results.length = n;
-    return results;
+    return Array.from(object, (value, index) => iterator.call(context, value, index, object));
   }
 
   if (arrayProto.map) {
@@ -993,36 +962,25 @@ Array.from = $A;
 
   function some(iterator) {
     if (this == null) throw new TypeError();
+
     iterator = iterator || Prototype.K;
     let context = arguments[1];
 
     let object = Object(this);
-    for (let i = 0, length = object.length >>> 0; i < length; i++) {
-      if (i in object && iterator.call(context, object[i], i, object)) {
-        return true;
-      }
-    }
-
-    return false;
+    return Array.from(object).some((value, index) => iterator.call(context, value, index, object));
   }
-
   if (arrayProto.some) {
     some = wrapNative(Array.prototype.some);
   }
 
   function every(iterator) {
     if (this == null) throw new TypeError();
+
     iterator = iterator || Prototype.K;
     let context = arguments[1];
 
     let object = Object(this);
-    for (let i = 0, length = object.length >>> 0; i < length; i++) {
-      if (i in object && !iterator.call(context, object[i], i, object)) {
-        return false;
-      }
-    }
-
-    return true;
+    return Array.from(object).every((value, index) => iterator.call(context, value, index, object));
   }
 
   if (arrayProto.every) {
