@@ -6830,10 +6830,12 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   function fireContentLoadedEvent() {
     if (document && document.loaded) {
       return;
+    }
+    if (document) {
 
-    if (TIMER) window.clearTimeout(TIMER);
-    document.loaded = true;
-    document.fire('dom:loaded');
+      if (TIMER) window.clearTimeout(TIMER);
+      document.loaded = true;
+      document.fire('dom:loaded');
     }
   }
 
