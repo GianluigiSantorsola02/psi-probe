@@ -6840,7 +6840,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function checkReadyState() {
-    if (document.readyState === 'complete') {
+    if (document && document.readyState === 'complete') {
       document.detachEvent('onreadystatechange', checkReadyState);
       fireContentLoadedEvent();
     }
@@ -6858,12 +6858,12 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
 
-  if (document.readyState === 'complete') {
+  if (document && document.readyState === 'complete') {
     fireContentLoadedEvent();
     return;
   }
 
-  if (document.addEventListener) {
+  if (document && document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else {
     document.attachEvent('onreadystatechange', checkReadyState);
