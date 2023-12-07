@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
+import oracle.ucp.UniversalConnectionPoolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,7 @@ public class ProbeConfigStats {
    * @return the stats collection
    */
   @Bean(name = "statsCollection")
-  public StatsCollection getStatsCollection() {
+  public StatsCollection getStatsCollection() throws UniversalConnectionPoolException {
     logger.debug("Instantiated statsCollection");
     String storagePath = "";
     XStream xstream = new XStream();
