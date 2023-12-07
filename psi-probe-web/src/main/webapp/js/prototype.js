@@ -1139,11 +1139,6 @@ Object.extend(Number.prototype, (function() {
     return this + 1;
   }
 
-  function times(iterator, context) {
-    $R(0, this, true).each(iterator, context);
-    return this;
-  }
-
   function toPaddedString(length, radix) {
     let string = this.toString(radix || 10);
     return '0'.times(length - string.length) + string;
