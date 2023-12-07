@@ -1629,7 +1629,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 });
 
-(function(GLOBAL) {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
@@ -3042,7 +3041,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-})(this);
+
 (function() {
 
   function toDecimal(pctString) {
