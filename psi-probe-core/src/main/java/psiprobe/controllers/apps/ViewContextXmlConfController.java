@@ -49,4 +49,9 @@ public class ViewContextXmlConfController extends BaseViewXmlConfController {
     super.setDownloadUrl(downloadUrl);
   }
 
+  @Override
+  public void setDownloadTarget(String downloadTarget) {
+
+  }
+
 }
