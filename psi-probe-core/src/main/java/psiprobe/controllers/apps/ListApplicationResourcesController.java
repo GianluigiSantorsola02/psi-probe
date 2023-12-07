@@ -38,10 +38,14 @@ public class ListApplicationResourcesController extends AbstractContextHandlerCo
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomException, NamingException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomException, ContainerListenerBean.CustomException {
 
-    return new ModelAndView(getViewName(), "resources", getContainerWrapper().getResourceResolver()
-        .getApplicationResources(context, getContainerWrapper()));
+    try {
+      return new ModelAndView(getViewName(), "resources", getContainerWrapper().getResourceResolver()
+          .getApplicationResources(context, getContainerWrapper()));
+    } catch (NamingException ignored) {
+      return null;
+    }
   }
 
   @Value("resources")

@@ -81,7 +81,7 @@ public abstract class AbstractStatsCollectorBean {
     this.listeners = listeners;
   }
 
-  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException, MalformedObjectNameException, InstanceNotFoundException, Exception;
+  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerListenerBean.CustomExceptionException;
 
 
   /**

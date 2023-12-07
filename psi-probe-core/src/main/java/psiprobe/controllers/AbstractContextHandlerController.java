@@ -12,11 +12,13 @@ package psiprobe.controllers;
 
 import org.apache.catalina.Context;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.controllers.jsp.ViewServletSourceController;
+import psiprobe.tools.ApplicationUtils;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +45,8 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 
      } catch (BaseViewXmlConfController.DisplayTargetException |
               BaseViewXmlConfController.UnknownDisplayTargetException |
-              ViewServletSourceController.FileProcessingException | ContainerListenerBean.CustomException e) {
+              ViewServletSourceController.FileProcessingException | ContainerListenerBean.CustomException |
+              ContainerListenerBean.CustomExceptionException e) {
         throw new MyCustomException(String.valueOf(e));
       }
     }
@@ -80,7 +83,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, IOException, NamingException, Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, ContainerListenerBean.CustomExceptionException, IOException, ApplicationUtils.ApplicationResourcesException, ServletRequestBindingException {
     // Your code logic here
 
 

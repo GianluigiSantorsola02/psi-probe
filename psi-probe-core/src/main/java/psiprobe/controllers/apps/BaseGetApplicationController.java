@@ -12,6 +12,7 @@ package psiprobe.controllers.apps;
 
 import org.apache.catalina.Context;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.ResourceResolver;
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.Application;
@@ -96,7 +97,7 @@ public class BaseGetApplicationController extends AbstractContextHandlerControll
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomExceptionException, ApplicationUtils.ApplicationResourcesException {
 
     ResourceResolver resourceResolver = getContainerWrapper().getResourceResolver();
     Application app = ApplicationUtils.getApplication(context,
