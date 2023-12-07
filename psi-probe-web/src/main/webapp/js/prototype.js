@@ -350,7 +350,7 @@ Object.extend(String.prototype, (function() {
     return Object.isFunction(replacement) ? replacement : (match) => new Template(replacement).evaluate(match);
   }
   function gsub(pattern, replacement) {
-    let result = '';
+    let result;
     let source = this;
     replacement = prepareReplacement(replacement);
 
@@ -978,9 +978,7 @@ Array.from = $A;
     select:    filter,
     filter:    filter,
     findAll:   filter,
-    some:      some,
     any:       some,
-    every:     every,
     all:       every,
 
     clear:     clear,
@@ -1016,15 +1014,16 @@ let Hash = Class.Create(Enumerable, (function() {
 
   function _each(iterator, context) {
     let i = 0;
-    for (let key in this._object) {
-      let value = this._object[key], pair = [key, value];
-      pair.key = key;
-      pair.value = value;
+    const object = this._object;
+    const keys = Object.keys(object);
+
+    for (let key of keys) {
+      let value = object[key];
+      let pair = { key, value };
       iterator.call(context, pair, i);
       i++;
     }
   }
-
   function set(key, value) {
     this._object[key] = value;
     return this._object[key];
@@ -1311,11 +1310,11 @@ Ajax.Request = Class.Create(Ajax.Base, {
 
       this.transport.open(this.method.toUpperCase(), this.url, this.options.asynchronous);
 
+      this.transport.onreadystatechange = this.onStateChange.bind(this);
+
       if (this.options.asynchronous) {
-        this.transport.onreadystatechange = this.onStateChange.bind(this);
         this.respondToReadyState.bind(this).defer(1);
       } else {
-        this.transport.onreadystatechange = this.onStateChange.bind(this);
         this.onStateChange();
       }
 
@@ -1329,8 +1328,11 @@ Ajax.Request = Class.Create(Ajax.Base, {
   },
   onStateChange: function() {
     let readyState = this.transport.readyState;
-    if (readyState > 1 && !((readyState == 4) && this._complete))
-      this.respondToReadyState(this.transport.readyState);
+    if (readyState === 4 && !this._complete) {
+      this.respondToReadyState(readyState);
+    } else if (readyState > 1) {
+      this.respondToReadyState(readyState);
+    }
   },
 
   setRequestHeaders: function() {
@@ -1340,7 +1342,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
       'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
     };
 
-    if (this.method == 'post') {
+    if (this.method === 'post') {
       headers['Content-type'] = this.options.contentType +
         (this.options.encoding ? '; charset=' + this.options.encoding : '');
 
