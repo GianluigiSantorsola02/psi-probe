@@ -446,7 +446,6 @@ Object.extend(String.prototype, (function() {
       '\t': '\\t',
       '\v': '\\v',
       '\'': '\\\'',
-      '\"': '\\"',
     };
 
     const escapeChar = (character) => {
@@ -1322,6 +1321,22 @@ Ajax.Base = Class.Create({
       this.options.parameters = this.options.parameters.toObject();
   }
 });
+
+function setRequestHeadersFromOptions(headers, options) {
+  if (typeof options.requestHeaders === 'object') {
+    let extras = options.requestHeaders;
+
+    if (Array.isArray(extras)) {
+      for (let i = 0; i < extras.length; i += 2) {
+        headers[extras[i]] = extras[i+1];
+      }
+    } else {
+      Object.entries(extras).forEach(([key, value]) => {
+        headers[key] = value;
+      });
+    }
+  }
+}
 Ajax.Request = Class.Create(Ajax.Base, {
   _complete: false,
 
@@ -1367,29 +1382,22 @@ Ajax.Request = Class.Create(Ajax.Base, {
 
     if (this.method === 'post') {
       headers['Content-type'] = this.options.contentType +
-        (this.options.encoding ? '; charset=' + this.options.encoding : '');
-
+          (this.options.encoding ? '; charset=' + this.options.encoding : '');
 
       if (this.transport.overrideMimeType &&
-          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005)
-            headers['Connection'] = 'close';
+          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005) {
+        headers['Connection'] = 'close';
+      }
     }
 
-    if (typeof this.options.requestHeaders == 'object') {
-      let extras = this.options.requestHeaders;
+    setRequestHeadersFromOptions(headers, this.options);
 
-      if (Object.isFunction(extras.push))
-        for (let i = 0, length = extras.length; i < length; i += 2)
-          headers[extras[i]] = extras[i+1];
-      else
-        $H(extras).each(function(pair) { headers[pair.key] = pair.value });
-    }
-
-    for (let name in headers)
-      if (headers[name] != null)
+    for (let name in headers) {
+      if (headers[name] != null) {
         this.transport.setRequestHeader(name, headers[name]);
+      }
+    }
   },
-
   success: function() {
     let status = this.getStatus();
     return !status || (status >= 200 && status < 300) || status == 304;
