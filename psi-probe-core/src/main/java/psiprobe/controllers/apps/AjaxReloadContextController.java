@@ -10,9 +10,6 @@
  */
 package psiprobe.controllers.apps;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +20,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 
-import java.util.Locale;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Reloads application context.
@@ -46,7 +43,7 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) {
 
     if (context != null && !request.getContextPath().equals(contextName)) {
       try {
@@ -58,7 +55,7 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
         String name = auth.getName();
         MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
         if (messageSourceAccessor != null) {
-          messageSourceAccessor.getMessage("probe.src.log.reload", name, Locale.of(contextName));
+          messageSourceAccessor.getMessage("probe.src.log.reload", name);
         } else {
 
           log.error("Error: getMessageSourceAccessor() returned null!");

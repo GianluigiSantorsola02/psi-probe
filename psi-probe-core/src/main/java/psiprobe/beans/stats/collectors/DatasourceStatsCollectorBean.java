@@ -10,13 +10,15 @@
  */
 package psiprobe.beans.stats.collectors;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.DataSourceInfo;
-
-import javax.inject.Inject;
 
 /**
  * The Class DatasourceStatsCollectorBean.
@@ -39,6 +41,7 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
   public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
     this.containerWrapper = containerWrapper;
   }
+
   /**
    * Gets the container wrapper.
    *
@@ -58,7 +61,7 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws Exception {
+  public void collect() throws ContainerWrapperBean.DataSourceException, InterruptedException {
     long currentTime = System.currentTimeMillis();
     if (containerWrapper == null) {
       logger.error("Cannot collect data source stats. Container wrapper is not set.");

@@ -79,7 +79,7 @@ public class BaseViewXmlConfController extends AbstractContextHandlerController 
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception, DisplayTargetException, UnknownDisplayTargetException {
+                                    HttpServletRequest request, HttpServletResponse response) throws DisplayTargetException, UnknownDisplayTargetException, IOException {
 
     if (displayTarget == null) {
       throw new DisplayTargetException("Display target is not set for " + getClass().getName());

@@ -13,11 +13,13 @@ package psiprobe.beans.stats.collectors;
 import org.jfree.data.xy.XYDataItem;
 import psiprobe.Utils;
 import psiprobe.beans.ContainerListenerBean;
+import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.beans.stats.listeners.StatsCollectionEvent;
 import psiprobe.beans.stats.listeners.StatsCollectionListener;
 import psiprobe.model.stats.StatsCollection;
 
 import javax.inject.Inject;
+import javax.management.*;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -78,7 +80,7 @@ public abstract class AbstractStatsCollectorBean {
     this.listeners = listeners;
   }
 
-  public abstract void collect() throws ContainerListenerBean.CustomException;
+  public abstract void collect() throws ContainerListenerBean.CustomException, ContainerWrapperBean.DataSourceException, InterruptedException, ReflectionException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, MBeanException;
 
 
   /**

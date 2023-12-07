@@ -13,6 +13,7 @@ package psiprobe.beans.stats.collectors;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.management.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +56,7 @@ public class JvmMemoryStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws Exception {
+  public void collect() throws ReflectionException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, MBeanException, InterruptedException {
     List<MemoryPool> pools = jvmMemoryInfoAccessor.getPools();
     long time = System.currentTimeMillis();
     for (MemoryPool pool : pools) {

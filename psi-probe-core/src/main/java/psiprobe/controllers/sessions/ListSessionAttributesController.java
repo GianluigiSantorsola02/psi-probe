@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Context;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,6 +25,8 @@ import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.ApplicationSession;
 import psiprobe.tools.ApplicationUtils;
 import psiprobe.tools.SecurityUtils;
+
+import java.io.IOException;
 
 /**
  * Retrieves the list of attributes for given session.
@@ -40,7 +43,7 @@ public class ListSessionAttributesController extends AbstractContextHandlerContr
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ServletRequestBindingException, IOException {
 
     boolean privileged = SecurityUtils.hasAttributeValueRole(getServletContext());
     String sid = ServletRequestUtils.getStringParameter(request, "sid");
