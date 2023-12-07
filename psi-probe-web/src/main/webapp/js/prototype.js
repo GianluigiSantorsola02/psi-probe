@@ -6823,7 +6823,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
    John-David Dalton. */
 }))(this);
 
-(function() {
+(function( document ) {
 
   let TIMER;
 
