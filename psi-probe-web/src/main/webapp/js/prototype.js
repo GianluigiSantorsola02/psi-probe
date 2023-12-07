@@ -5407,7 +5407,7 @@ for ( i in { submit: true, reset: true } ) {
 }
 
 setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters( Expr );
+Expr.setFilters = new SetFilters( Expr );
 
 function tokenize( selector, parseOnly ) {
 	let matched, match, tokens, type,
@@ -5700,8 +5700,8 @@ function matcherFromTokens( tokens ) {
 			matcher = Expr.filter[ tokens[i].type ].apply( null, tokens[i].matches );
 
 			if ( matcher[ expando ] ) {
-				j = ++i;
-				for ( ; j < len; j++ ) {
+
+				for (j=++i ; j < len; j++ ) {
 					if ( Expr.relative[ tokens[j].type ] ) {
 						break;
 					}
@@ -5952,7 +5952,6 @@ if ( !assert(function( div ) {
 	addHandle( booleans, function( elem, name, isXML ) {
 		if ( !isXML ) {
           let val = elem.getAttributeNode(name);
-          let result;
           if (elem[name] === true) {
             return elem.getAttribute(name.toLowerCase())
           } else {
@@ -6158,9 +6157,9 @@ Form.Element.Methods = {
     element = $(element);
     try {
       element.focus();
-      if (element.select && (element.tagName.toLowerCase() != 'input' ||
-          !(/^(?:button|reset|submit)$/i.test(element.type))))
+      if (element.select && element.tagName.toLowerCase() !== 'input') {
         element.select();
+      }
     } catch (e) { }
     return element;
   },
@@ -6180,12 +6179,11 @@ Form.Element.Methods = {
 
 Form.Element.Serializers = (function() {
   function input(element, value) {
-    switch (element.type.toLowerCase()) {
-      case 'checkbox':
-      case 'radio':
-        return inputSelector(element, value);
-      default:
-        return valueSelector(element, value);
+    const elementType = element.type.toLowerCase();
+    if (elementType === 'checkbox' || elementType === 'radio') {
+      return inputSelector(element, value);
+    } else {
+      return valueSelector(element, value);
     }
   }
 
@@ -6196,27 +6194,9 @@ Form.Element.Serializers = (function() {
   }
 
   function valueSelector(element, value) {
-    if (Object.isUndefined(value)) return element.value;
-    else element.value = value;
+    return Object.isUndefined(value) ? element.value : element.value = value;
   }
 
-  function select(element, value) {
-    if (Object.isUndefined(value))
-      return (element.type === 'select-one' ? selectOne : selectMany)(element);
-
-    let opt, currentValue, single = !Object.isArray(value);
-    for (let i = 0, length = element.length; i < length; i++) {
-      opt = element.options[i];
-      currentValue = this.optionValue(opt);
-      if (single) {
-        if (currentValue == value) {
-          opt.selected = true;
-          return;
-        }
-      }
-      else opt.selected = value.include(currentValue);
-    }
-  }
 
   function selectOne(element) {
     let index = element.selectedIndex;
@@ -6236,6 +6216,24 @@ Form.Element.Serializers = (function() {
 
   function optionValue(opt) {
     return Element.hasAttribute(opt, 'value') ? opt.value : opt.text;
+  }
+  function select(element, value) {
+    if (Object.isUndefined(value))
+      return (element.type === 'select-one' ? selectOne : selectMany)(element);
+
+    const options = Array.from(element.options);
+    const single = !Object.isArray(value);
+
+    options.forEach((opt) => {
+      const currentValue = optionValue(opt);
+      if (single) {
+        if (currentValue == value) {
+          opt.selected = true;
+        }
+      } else {
+        opt.selected = value.includes(currentValue);
+      }
+    });
   }
 
   return {
