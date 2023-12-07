@@ -343,7 +343,7 @@ Object.extend(String, {
 
 Object.extend(String.prototype, (function() {
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
-    typeof JSON.parse === 'function' &&
+    typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
 
   function prepareReplacement(replacement) {
@@ -405,15 +405,16 @@ Object.extend(String.prototype, (function() {
       let [key, value] = pair.split('=').map(decodeURIComponent);
       value = value.replace(/\+/g, ' ');
 
-      if (key in params) {
-        if (!Array.isArray(params[key])) params[key] = [params[key]];
-        params[key].push(value);
-      } else {
+      if (!(key in params)) {
         params[key] = value;
+      } else if (!Array.isArray(params[key])) {
+        params[key] = [params[key], value];
+      } else {
+        params[key].push(value);
       }
 
       return params;
-    }, {});
+    });
   }
   function toArray() {
     return this.split('');
@@ -425,30 +426,46 @@ Object.extend(String.prototype, (function() {
   }
 
   function times(count) {
-    return count < 1 ? '' : new Array(count + 1).join(this);
+    return count < 1 ? '' : this.repeat(count);
   }
 
   function camelize() {
-    return this.replace(/-+(.)?/g, function(match, chr) {
-      return chr ? chr.toUpperCase() : '';
-    });
+    return this.replace(/-(.)/g, (_, chr) => chr.toUpperCase());
   }
 
   function capitalize() {
     return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
   }
   function inspect(useDoubleQuotes) {
-    const escapedString = this.replace(/\\/g, (character) => {
-      if (character in String.specialChar) {
-        return String.specialChar[character];
+    const specialChar = {
+      '\\': '\\\\',
+      '\b': '\\b',
+      '\f': '\\f',
+      '\n': '\\n',
+      '\r': '\\r',
+      '\t': '\\t',
+      '\v': '\\v',
+      '\'': '\\\'',
+      '\"': '\\"',
+    };
+
+    const escapeChar = (character) => {
+      if (character in specialChar) {
+        return specialChar[character];
       }
       return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
-    });
+    };
+
+    const escapeQuotes = (string) => {
+      return string.replace(/['"]/g, (quote) => '\\' + quote);
+    };
+
+    const escapedString = this.replace(/\\/g, escapeChar);
 
     if (useDoubleQuotes) {
-      return `"${escapedString.replace(/"/g, '\\"')}"`;
+      return `"${escapeQuotes(escapedString)}"`;
     } else {
-      return `'${escapedString.replace(/'/g, "\\'")}'`;
+      return `'${escapeQuotes(escapedString)}'`;
     }
   }
   function unfilterJSON(filter) {
@@ -457,7 +474,6 @@ Object.extend(String.prototype, (function() {
 
   function isJSON() {
     let str = this;
-    if (str.blank()) return false;
     str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
     str = str.replace(/"[^"]*"|true|false|null|-?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
@@ -467,15 +483,16 @@ Object.extend(String.prototype, (function() {
   function evalJSON(sanitize) {
     let json = this.unfilterJSON();
 
-    try {
-      if (!sanitize || json.isJSON()) {
+    if (!sanitize || json.isJSON()) {
+      try {
         return JSON.parse(json);
+      } catch (e) {
+        throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
       }
-    } catch (e) {}
+    }
 
     throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
   }
-
   function parseJSON() {
     let json = this.unfilterJSON();
     return JSON.parse(json);
@@ -501,7 +518,7 @@ Object.extend(String.prototype, (function() {
     return slicedString === pattern;
   }
   function empty() {
-    return this == '';
+    return this === '';
   }
 
   function blank() {
@@ -541,6 +558,19 @@ Object.extend(String.prototype, (function() {
     interpolate:    interpolate
   };
 })());
+function applyExpression(ctx, expr, pattern) {
+  let match = pattern.exec(expr);
+
+  while (match != null) {
+    let comp = match[1].startsWith('[') ? match[2].replace(/\\\\]/g, ']') : match[1];
+    ctx = ctx[comp];
+    if (null == ctx || '' === match[3]) break;
+    expr = expr.substring('[' === match[3] ? match[1].length : match[0].length);
+    match = pattern.exec(expr);
+  }
+
+  return ctx;
+}
 
 let Template = Class.Create({
   initialize: function(template, pattern) {
@@ -549,31 +579,24 @@ let Template = Class.Create({
   },
 
   evaluate: function(object) {
-    if (object && Object.isFunction(object.toTemplateReplacements))
+    if (object && typeof object.toTemplateReplacements === 'function') {
       object = object.toTemplateReplacements();
+    }
 
-    return this.template.gsub(this.pattern, function(match) {
-      if (object == null) return (match[1] + '');
+    const replacer = (match, before, expr) => {
+      if (object == null) return before + '';
 
-      let before = match[1] || '';
-      if (before == '\\') return match[2];
+      if (before === '\\') return match[2];
 
-      let ctx = object, expr = match[3],
-          pattern = /^([^.[]+|\[((?:.*?[^\\])?))(\.|\[|$)/;
+      let ctx = object;
+      let pattern = /^([^.[]+|\[((?:.*?[^\\])?))(\.|\[|$)/;
 
-      match = pattern.exec(expr);
-      if (match == null) return before;
-
-      while (match != null) {
-        let comp = match[1].startsWith('[') ? match[2].replace(/\\\\]/g, ']') : match[1];
-        ctx = ctx[comp];
-        if (null == ctx || '' == match[3]) break;
-        expr = expr.substring('[' == match[3] ? match[1].length : match[0].length);
-        match = pattern.exec(expr);
-      }
+      ctx = applyExpression(ctx, expr, pattern);
 
       return before + String.interpret(ctx);
-    });
+    };
+
+    return this.template.replace(this.pattern, replacer);
   }
 });
 Template.Pattern = /(^|.|\r|\n)(#\{(.*?))/;
@@ -585,7 +608,7 @@ let Enumerable = (function() {
     try {
       this._each(iterator, context);
     } catch (e) {
-      if (e != $break) throw e;
+      if (e !== $break) throw e;
     }
     return this;
   }
