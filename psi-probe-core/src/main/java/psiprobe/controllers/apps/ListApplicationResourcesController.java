@@ -38,7 +38,7 @@ public class ListApplicationResourcesController extends AbstractContextHandlerCo
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomException, ContainerListenerBean.CustomException {
+                                    HttpServletRequest request, HttpServletResponse response) throws  ContainerListenerBean.CustomException {
 
     try {
       return new ModelAndView(getViewName(), "resources", getContainerWrapper().getResourceResolver()
