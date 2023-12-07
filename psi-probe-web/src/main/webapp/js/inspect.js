@@ -29,3 +29,4 @@ export const inspect = function (useDoubleQuotes) {
         return `'${escapeQuotes(escapedString)}'`;
     }
 };
+

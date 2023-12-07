@@ -20,6 +20,8 @@
 
 
 import PropTypes from 'prop-types';
+import {clone} from "./clone";
+import {inspect} from "./inspect";
 
 PropTypes.arrayOf = function (shape) {
   return PropTypes.arrayOf(PropTypes.shape(shape));
@@ -849,16 +851,9 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-  function clone() {
-    return slice.call(this, 0);
-  }
 
   function size() {
     return this.length;
-  }
-
-  function inspect() {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
   }
 
   function indexOf(item, i) {
@@ -1970,11 +1965,9 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       return true;
     }
 
-    if (content && (content.toElement || content.toHTML)) {
-      return true;
-    }
+    return !!(content && (content.toElement || content.toHTML));
 
-    return false;
+
   }
 
   function insertContentAt(element, content, position) {
@@ -2153,13 +2146,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return recursivelyCollect(element, 'nextSibling');
   }
 
-  previous.toReversed = function () {
-
-    let reversed = [];
-
-
-    return undefined;
-  };
 
   function siblings(element) {
     element = $(element);
@@ -2951,7 +2937,7 @@ function _recursivelyFind(element, property, expression, index) {
     if (window[klass]) return window[klass];
 
     let element = document.createElement(tagName),
-     proto = element['__proto__'] || element.constructor.prototype;
+     proto = element[ 'HTMLElement'] || element.constructor.prototype;
 
     element = null;
     return proto;
@@ -5299,7 +5285,7 @@ setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new SetFilters( Expr );
 
 function tokenize( selector, parseOnly ) {
-	let matched, match, tokens, type,
+	let matched, tokens, type,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
 
@@ -5411,7 +5397,6 @@ function addCombinator( matcher, combinator, base ) {
 
                         let newValue = oldCache[2];
                         newCache[2] = newValue;
-                        elem = false;
                         return newValue;
                       } else {
 							outerCache[ dir ] = newCache;
@@ -5590,7 +5575,7 @@ function matcherFromTokens( tokens ) {
 
 			if ( matcher[ expando ] ) {
 
-				for (j=++i ; j < len; j++ ) {
+				for ( j = 0 ; j < len; j++ ) {
 					if ( Expr.relative[ tokens[j].type ] ) {
 						break;
 					}
@@ -6975,7 +6960,7 @@ function iter(className) {
 }
 
 
-function getElementsByClassNameLegacy(element, className) {
+function getElementsByClassNameLegacy(element, ) {
   let elements = [];
   Array.from($(element).getElementsByTagName('*'));
   return elements;
