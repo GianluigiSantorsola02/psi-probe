@@ -2840,12 +2840,12 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let Methods = {}, ByTag = Element.Methods.ByTag,
    F = Prototype.BrowserFeatures;
 
-  if (!F.ElementExtensions && ('__proto__' in DIV)) {
+  if (!F.ElementExtensions && (  'HTMLElement' in DIV)) {
     if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
       GLOBAL.HTMLElement = {};
     }
     if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
-      GLOBAL.HTMLElement.prototype = DIV['__proto__'];
+      GLOBAL.HTMLElement.prototype = DIV[ 'HTMLElement'].prototype;
     }
     F.ElementExtensions = true;
   }
@@ -4035,23 +4035,6 @@ Prototype._original_property = window.Sizzle;
   }
 })();
 
-class setFilters {
-  constructor(Expr) {
-    this.Expr = <Expr></Expr>
-  }
-
-}
-
-/*!
- * Sizzle CSS Selector Engine v1.10.18
- * https://github.com/jquery/sizzle/wiki
- *
- * Copyright 2013 jQuery Foundation, Inc. and other contributors
- * Released under the MIT license
- * https://jquery.org/license/
- *
- * Date: 2014-02-05
- */
 (function( window ) {
 
 let i,
