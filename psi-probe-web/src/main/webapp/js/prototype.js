@@ -20,6 +20,8 @@
 
 
 import PropTypes from 'prop-types';
+import {clone} from "./clone";
+import {inspect} from "./inspect";
 
 PropTypes.arrayOf = function (shape) {
   return PropTypes.arrayOf(PropTypes.shape(shape));
@@ -849,16 +851,9 @@ Array.from = $A;
       return !values.include(value);
     });
   }
-  function clone() {
-    return slice.call(this, 0);
-  }
 
   function size() {
     return this.length;
-  }
-
-  function inspect() {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
   }
 
   function indexOf(item, i) {
@@ -876,7 +871,6 @@ Array.from = $A;
 
 
   function lastIndexOf(item, i) {
-    if (this == null) throw new TypeError();
 
     let array = Object(this);
     let length = array.length >>> 0;
@@ -1418,24 +1412,35 @@ Ajax.Request = Class.Create(Ajax.Base, {
     let response = new Ajax.Response(this);
 
     if (state === 'Complete') {
-      try {
-        this._complete = true;
-        let callback = this.options['on' + response.status] ||
-            this.options['on' + (this.success() ? 'Success' : 'Failure')] ||
-            Prototype.emptyFunction;
-        callback(response, response.headerJSON);
-
-        let contentType = response.getHeader('Content-type');
-        if (this.options.evalJS == 'force' ||
-            (this.options.evalJS && this.isSameOrigin() && contentType &&
-                contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i))) {
-          this.evalResponse();
-        }
-      } catch (e) {
-        this.dispatchException(e);
-      }
+      this.handleComplete(response);
     }
 
+    this.handleEvent(state, response);
+
+    if (state === 'Complete') {
+      this.disableTransport();
+    }
+  },
+
+  handleComplete: function(response) {
+    this._complete = true;
+    let callback = this.options['on' + response.status] ||
+        this.options['on' + (response.success() ? 'Success' : 'Failure')] ||
+        Prototype.emptyFunction;
+    callback(response, response.headerJSON);
+
+    if (this.shouldEvaluateJS(response)) {
+      this.evalResponse();
+    }
+  },
+
+  shouldEvaluateJS: function(response) {
+    let contentType = response.getHeader('Content-type');
+    return (this.options.evalJS && this.isSameOrigin() && contentType &&
+        contentType.match(/^\s*(text|application)\/(x-)?(java|ecma)script(;[^;\s]*)?\s*$/i));
+  },
+
+  handleEvent: function(state, response) {
     try {
       let eventCallback = this.options['on' + state] || Prototype.emptyFunction;
       eventCallback(response, response.headerJSON);
@@ -1443,10 +1448,10 @@ Ajax.Request = Class.Create(Ajax.Base, {
     } catch (e) {
       this.dispatchException(e);
     }
+  },
 
-    if (state === 'Complete') {
-      this.transport.onreadystatechange = Prototype.emptyFunction;
-    }
+  disableTransport: function() {
+    this.transport.onreadystatechange = Prototype.emptyFunction;
   },
   isSameOrigin: function() {
     const m = this.url.match(/^\s*https?:\/\/[^]*/);
@@ -1624,7 +1629,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 });
 
-(function(GLOBAL) {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
@@ -1961,11 +1965,9 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       return true;
     }
 
-    if (content && (content.toElement || content.toHTML)) {
-      return true;
-    }
+    return !!(content && (content.toElement || content.toHTML));
 
-    return false;
+
   }
 
   function insertContentAt(element, content, position) {
@@ -2144,13 +2146,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return recursivelyCollect(element, 'nextSibling');
   }
 
-  previous.toReversed = function () {
-
-    let reversed = [];
-
-
-    return undefined;
-  };
 
   function siblings(element) {
     element = $(element);
@@ -2173,33 +2168,33 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return selector.match(element);
   }
 
+function recursivelyFindElement(element, property, expression, index) {
+  while (element && element.nodeType === Node.ELEMENT_NODE) {
+    element = element[property];
 
-  function _recursivelyFind(element, property, expression, index) {
-    element = $(element);
-    expression = expression || 0;
-    index = index || 0;
-
-    if (Object.isNumber(expression)) {
-      index = expression;
-      expression = null;
-    }
-
-    while (element.nodeType === Node.ELEMENT_NODE) {
-      element = element[property];
-
-      if (element.nodeType === 1) {
-        if (expression && !Prototype.Selector.match(element, expression)) {
-          continue;
-        }
-
+    if (element && element.nodeType === 1) {
+      if (!expression || Prototype.Selector.match(element, expression)) {
         if (--index < 0) {
           return Element.extend(element);
         }
       }
     }
   }
+}
 
 
+function _recursivelyFind(element, property, expression, index) {
+  element = $(element);
+  expression = expression || 0;
+  index = index || 0;
+
+  if (Object.isNumber(expression)) {
+    index = expression;
+    expression = null;
+  }
+
+  recursivelyFindElement(element, property, expression, index);
+}
   function up(element, expression, index) {
     element = $(element);
 
@@ -2389,7 +2384,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let checkbox = document.createElement('<input type="checkbox">');
     checkbox.checked = true;
     let node = checkbox.getAttributeNode('checked');
-    return !node?.specified;
+    return !node?.value;
   })();
 
   function hasAttribute(element, attribute) {
@@ -2548,7 +2543,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       },
 
       style: function(element, value) {
-        element.style.cssText = value ? value : '';
+        element.style.cssText = value;
       }
     }
   };
@@ -2831,12 +2826,12 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let Methods = {}, ByTag = Element.Methods.ByTag,
    F = Prototype.BrowserFeatures;
 
-  if (!F.ElementExtensions && ('__proto__' in DIV)) {
+  if (!F.ElementExtensions && (  'HTMLElement' in DIV)) {
     if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
       GLOBAL.HTMLElement = {};
     }
     if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
-      GLOBAL.HTMLElement.prototype = DIV['__proto__'];
+      GLOBAL.HTMLElement.prototype = DIV[ 'HTMLElement'].prototype;
     }
     F.ElementExtensions = true;
   }
@@ -2942,7 +2937,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (window[klass]) return window[klass];
 
     let element = document.createElement(tagName),
-     proto = element['__proto__'] || element.constructor.prototype;
+     proto = element[ 'HTMLElement'] || element.constructor.prototype;
 
     element = null;
     return proto;
@@ -3037,7 +3032,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE);
 
-})(this);
+
 (function() {
 
   function toDecimal(pctString) {
@@ -4026,23 +4021,6 @@ Prototype._original_property = window.Sizzle;
   }
 })();
 
-class setFilters {
-  constructor(Expr) {
-    this.Expr = <Expr></Expr>
-  }
-
-}
-
-/*!
- * Sizzle CSS Selector Engine v1.10.18
- * https://github.com/jquery/sizzle/wiki
- *
- * Copyright 2013 jQuery Foundation, Inc. and other contributors
- * Released under the MIT license
- * https://jquery.org/license/
- *
- * Date: 2014-02-05
- */
 (function( window ) {
 
 let i,
@@ -5307,7 +5285,7 @@ setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new SetFilters( Expr );
 
 function tokenize( selector, parseOnly ) {
-	let matched, match, tokens, type,
+	let matched, tokens, type,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
 
@@ -5419,7 +5397,6 @@ function addCombinator( matcher, combinator, base ) {
 
                         let newValue = oldCache[2];
                         newCache[2] = newValue;
-                        elem = false;
                         return newValue;
                       } else {
 							outerCache[ dir ] = newCache;
@@ -5598,7 +5575,7 @@ function matcherFromTokens( tokens ) {
 
 			if ( matcher[ expando ] ) {
 
-				for (j=++i ; j < len; j++ ) {
+				for ( j = 0 ; j < len; j++ ) {
 					if ( Expr.relative[ tokens[j].type ] ) {
 						break;
 					}
@@ -6949,23 +6926,9 @@ if (!document.getElementsByClassName) {
 
 
 function getElementsByClassNameXPath(element, className) {
-  className = String(className).trim();
+  String(className).trim();
 }
-
-function classNameToXPath(className) {
-  return iter(className);
-}
-
-function classNamesToXPath(classNames) {
-  return $w(classNames).map(classNameToXPath).join('');
-}
-
-function iter(className) {
-  return `[contains(concat(' ', @class, ' '), ' ${className} ')]`;
-}
-
-
-function getElementsByClassNameLegacy(element, className) {
+function getElementsByClassNameLegacy(element, ) {
   let elements = [];
   Array.from($(element).getElementsByTagName('*'));
   return elements;
