@@ -83,7 +83,7 @@ public class RuntimeInfoAccessorBean {
     }
   }
 
-  private static class RuntimeInformationException extends Exception {
+  public static class RuntimeInformationException extends Exception {
 
     private static final long serialVersionUID = 1L;
   }

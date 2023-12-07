@@ -59,7 +59,7 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws ContainerWrapperBean.DataSourceException, InterruptedException {
+  public void collect() throws InterruptedException, ContainerWrapperBean.DataSourceException {
     long currentTime = System.currentTimeMillis();
     if (containerWrapper == null) {
       logger.error("Cannot collect data source stats. Container wrapper is not set.");

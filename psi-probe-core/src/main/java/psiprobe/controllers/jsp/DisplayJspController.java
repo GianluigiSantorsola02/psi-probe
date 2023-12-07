@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.jsp.Summary;
 
@@ -43,7 +44,7 @@ public class DisplayJspController extends AbstractContextHandlerController {
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomExceptionException {
     boolean compile = ServletRequestUtils.getBooleanParameter(request, "compile", false);
 
     HttpSession session = request.getSession(false);

@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 import java.util.Locale;
@@ -58,7 +59,7 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                    HttpServletRequest request, HttpServletResponse response) throws ContainerListenerBean.CustomExceptionException {
     try {
       MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null && request.getContextPath().equals(contextName)) {

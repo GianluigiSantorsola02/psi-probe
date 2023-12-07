@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.JvmMemoryInfoAccessorBean;
 import psiprobe.beans.RuntimeInfoAccessorBean;
 import psiprobe.model.jmx.RuntimeInformation;
@@ -51,7 +52,7 @@ public class RuntimeStatsCollectorBean extends AbstractStatsCollectorBean {
   }
 
   @Override
-  public void collect() throws Exception {
+  public void collect() throws InterruptedException, ContainerListenerBean.CustomException, RuntimeInfoAccessorBean.RuntimeInformationException {
     RuntimeInformation ri = runtimeInfoAccessorBean.getRuntimeInformation();
     if (ri != null) {
       long time = System.currentTimeMillis();
