@@ -2337,16 +2337,15 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
         value = table.values[attr](element, value);
         if (Object.isUndefined(value)) continue;
       }
-      if (value === false || value === null)
+      if (!value) {
         element.removeAttribute(name);
-      else if (value === true)
-        element.setAttribute(name, name);
-      else element.setAttribute(name, value);
+      } else {
+        element.setAttribute(name, value);
+      }
     }
 
     return element;
   }
-
   let PROBLEMATIC_HAS_ATTRIBUTE_WITH_CHECKBOXES = (function () {
     if (!HAS_EXTENDED_CREATE_ELEMENT_SYNTAX) {
       return false;
@@ -2367,7 +2366,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     if (attribute === 'checked') {
       return element.checked;
     }
-    return hasAttribute(element, attribute);
+    return element.hasAttribute(attribute);
   }
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element && GLOBAL.Element.Methods && GLOBAL.Element.Methods.Simulated) {
@@ -2389,23 +2388,23 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   function hasClassName(element, className) {
     element = $(element);
-    if (!element) {return;}
-
+    if (!element) {
+      return false;
+    }
     let elementClassName = element.className;
 
-    if (elementClassName.length === 0) return false;
-    if (elementClassName === className) return true;
-
-    return getRegExpForClassName(className).test(elementClassName);
+    return elementClassName.includes(className);
   }
 
   function addClassName(element, className) {
     element = $(element);
-    if (!element) {return;}
+    if (!element) {
+      return;
+    }
 
-
-    if (!hasClassName(element, className))
-      element.className += (element.className ? ' ' : '') + className;
+    if (!hasClassName(element, className)) {
+      element.classList.add(className);
+    }
 
     return element;
   }
@@ -2419,17 +2418,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     return element;
   }
-
-  function toggleClassName(element, className, bool) {
-    element = $(element);
-    if (!element) {return;}
-    if (Object.isUndefined(bool))
-      bool = !hasClassName(element, className);
-
-    let method = Element[bool ? 'addClassName' : 'removeClassName'];
-    return method(element, className);
-  }
-
   let ATTRIBUTE_TRANSLATIONS = {};
 
   let classProp = 'className', forProp = 'for';
@@ -2588,24 +2576,25 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function normalizeStyleName(style) {
-    if (style === 'float' || style === 'styleFloat')
+    if (style === 'float' || style === 'styleFloat') {
       return 'cssFloat';
-    return style.camelize();
+    }
+    return style.replace(/-./g, match => match.charAt(1).toUpperCase());
   }
 
   function normalizeStyleName_IE(style) {
-    if (style === 'float' || style === 'cssFloat')
+    if (style === 'float' || style === 'cssFloat') {
       return 'styleFloat';
-    return style.camelize();
+    }
+    return style.replace(/-./g, match => match.charAt(1).toUpperCase());
   }
-
   function setStyle(element, styles) {
     element = $(element);
     let elementStyle = element.style;
 
     if (Object.isString(styles)) {
       elementStyle.cssText += ';' + styles;
-      if (styles.include('opacity')) {
+      if (styles.includes('opacity')) {
         let opacity = styles.match(/opacity:\s*(\d?\.?\d*)/)[1];
         Element.setOpacity(element, opacity);
       }
@@ -2615,31 +2604,26 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     for (let property in styles) {
       if (property === 'opacity') {
         Element.setOpacity(element, styles[property]);
+      } else if (property === 'float' || property === 'cssFloat') {
+        elementStyle.styleFloat = styles[property];
       } else {
-        let value = styles[property];
-        if (property === 'float' || property === 'cssFloat') {
-          property = Object.isUndefined(elementStyle.styleFloat) ?
-           'cssFloat' : 'styleFloat';
-        }
-        elementStyle[property] = value;
+        elementStyle[property] = styles[property];
       }
     }
 
     return element;
   }
 
-
   function getStyle(element, style) {
     element = $(element);
     style = normalizeStyleName(style);
 
-    let value = element.style[style];
-    if (!value || value === 'auto') {
-      let css = document.defaultView.getComputedStyle(element, null);
-      value = css ? css[style] : null;
+    let value = element.style[style] || getComputedStyle(element)[style];
+
+    if (style === 'opacity') {
+      return value ? parseFloat(value) : 1.0;
     }
 
-    if (style === 'opacity') return value ? parseFloat(value) : 1.0;
     return value === 'auto' ? null : value;
   }
   function getStyle_IE(element, style) {
