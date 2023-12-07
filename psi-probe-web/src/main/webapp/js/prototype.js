@@ -341,7 +341,7 @@ Object.extend(String, {
   }
 });
 
-
+Object.extend(String.prototype, (function() {
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
@@ -554,16 +554,16 @@ Object.extend(String, {
     endsWith:       String.prototype.endsWith || endsWith,
     empty:          empty,
     blank:          blank,
-    interpolate:    interpolate,}
+    interpolate:    interpolate
+  };
+})());
 function applyExpression(ctx, expr, pattern) {
   let match = pattern.exec(expr);
 
   while (match != null) {
     let comp = match[1].startsWith('[') ? match[2].replace(/\\\\]/g, ']') : match[1];
-    let ctx;
     ctx = ctx[comp];
     if (null == ctx || '' === match[3]) break;
-    let expr;
     expr = expr.substring('[' === match[3] ? match[1].length : match[0].length);
     match = pattern.exec(expr);
   }
@@ -803,20 +803,6 @@ function $w(string) {
 
 Array.from = $A;
 
-function wrapNative(method) {
-  return function(...args) {
-    if (args.length === 0) {
-      return method.call(this, Prototype.K);
-    } else if (args[0] === undefined) {
-      args.shift();
-      args.unshift(Prototype.K);
-      return method.apply(this, args);
-    } else {
-      return method.apply(this, args);
-    }
-  };
-}
-
 function indexOf(item, i) {
   if (this == null) throw new TypeError();
 
@@ -858,33 +844,8 @@ function lastIndexOf(item, i) {
   return array.lastIndexOf(item, i);
 }
 
-function filterWithIterator(object, iterator, context) {
-  let results = [];
 
-  for (let i = 0; i < object.length; i++) {
-    if (object.hasOwnProperty(i)) {
-      let value = object[i];
-      if (iterator.call(context, value, i, object)) {
-        results.push(value);
-      }
-    }
-  }
-
-  return results;
-}
-
-function filter(iterator) {
-  if (this == null || typeof iterator !== 'function') {
-    throw new TypeError();
-  }
-
-  let object = Object(this);
-  let context = arguments[1];
-
-  return filterWithIterator(object, iterator, context);
-}
-
-
+(function() {
   let arrayProto = Array.prototype,
       slice = arrayProto.slice,
       _each = arrayProto.forEach; // use native browser JS 1.6 implementation if available
@@ -952,6 +913,20 @@ function filter(iterator) {
   }
 
 
+  function wrapNative(method) {
+    return function(...args) {
+      if (args.length === 0) {
+        return method.call(this, Prototype.K);
+      } else if (args[0] === undefined) {
+        args.shift();
+        args.unshift(Prototype.K);
+        return method.apply(this, args);
+      } else {
+        return method.apply(this, args);
+      }
+    };
+  }
+
 
   function map(iterator) {
     if (this == null) throw new TypeError();
@@ -967,6 +942,23 @@ function filter(iterator) {
     map = wrapNative(Array.prototype.map);
   }
 
+  function filter(iterator) {
+    if (this == null || !Object.isFunction(iterator))
+      throw new TypeError();
+
+    let object = Object(this);
+    let results = [], context = arguments[1], value;
+
+    for (let i = 0, length = object.length >>> 0; i < length; i++) {
+      if (i in object) {
+        value = object[i];
+        if (iterator.call(context, value, i, object)) {
+          results.push(value);
+        }
+      }
+    }
+    return results;
+  }
 
   if (arrayProto.filter) {
     filter = Array.prototype.filter;
@@ -1040,7 +1032,7 @@ function filter(iterator) {
 
   if (!arrayProto.indexOf) arrayProto.indexOf = indexOf;
   if (!arrayProto.lastIndexOf) arrayProto.lastIndexOf = lastIndexOf;
-
+})();
 function $H(object) {
   return new Hash(object);
 }
