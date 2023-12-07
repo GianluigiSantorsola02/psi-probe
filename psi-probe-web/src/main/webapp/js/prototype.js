@@ -6847,13 +6847,14 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function pollDoScroll() {
-    try {
-      document.documentElement.doScroll('left');
-    } catch (e) {
-      TIMER = pollDoScroll.defer();
-      return;
+    if(document) {
+      try {
+        document.documentElement.doScroll('left');
+      } catch (e) {
+        TIMER = pollDoScroll.defer();
+        return;
+      }
     }
-
     fireContentLoadedEvent();
   }
 
@@ -6863,7 +6864,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return;
   }
 
-  if (document && document.addEventListener) {
+  if (document && fdocument.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else {
     document.attachEvent('onreadystatechange', checkReadyState);
