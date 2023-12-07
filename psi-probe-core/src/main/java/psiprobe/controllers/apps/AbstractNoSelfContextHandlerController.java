@@ -66,14 +66,15 @@ public abstract class AbstractNoSelfContextHandlerController
       executeAction(contextName);
     } catch (ContainerListenerBean.CustomExceptionException | LifecycleException | TomcatContainer.StartException |
              TomcatContainer.StopException | InterruptedException e) {
-    request.setAttribute("errorMessage", e.getMessage());
-    mylogger.error("Error during invocation", e);
+      mylogger.error("Error during invocation", e);
+      Thread.currentThread().interrupt(); // Re-interrupt the method
+    }
+
     return new ModelAndView(new InternalResourceView(getViewName()));
   }
 
-      return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()
-            + (isPassQueryString() ? "?" + request.getQueryString() : "")));
-  }
+
+
 
   private void handleContextAction(String contextName, HttpServletRequest request) {
     try {
