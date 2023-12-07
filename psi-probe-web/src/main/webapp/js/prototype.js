@@ -368,10 +368,10 @@ Object.extend(String.prototype, (function() {
     return String(this);
   }
   function strip() {
-  return this.replace(/^\s+/g, '').replace(/\s+$/g, '')  }
+  return this.replace(/^\s*/g, '').replace(/\s*$/g, '')  }
 
   function stripTags() {
-    return this.replace(/<[^>]+>|<\/\w+>/gi, '')
+    return this.replace(/<[^>]*>|<\/\w*>/gi, '')
 
   }
 
@@ -398,7 +398,7 @@ Object.extend(String.prototype, (function() {
 
 
   function toQueryParams(separator) {
-    let match = this.strip().match(/(([^&=]+)([^#]*)(#.*)?$) /g);
+    let match = this.strip().match(/(([^&=]*)([^#]*)(#.*)?$) /g);
     if (!match) return {};
 
     return match[1].split(separator || '&').reduce((params, pair) => {
@@ -6967,8 +6967,6 @@ if (!document.getElementsByClassName) {
 
 function getElementsByClassNameXPath(element, className) {
   className = String(className).trim();
-  let cond = /\s/.test(className) ? classNamesToXPath(className) : classNameToXPath(className);
-  return cond ? document._getElementsByXPath('.//*' + cond, element) : [];
 }
 
 function classNameToXPath(className) {
