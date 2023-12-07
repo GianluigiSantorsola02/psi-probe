@@ -803,6 +803,20 @@ function $w(string) {
 
 Array.from = $A;
 
+function wrapNative(method) {
+  return function(...args) {
+    if (args.length === 0) {
+      return method.call(this, Prototype.K);
+    } else if (args[0] === undefined) {
+      args.shift();
+      args.unshift(Prototype.K);
+      return method.apply(this, args);
+    } else {
+      return method.apply(this, args);
+    }
+  };
+}
+
 function indexOf(item, i) {
   if (this == null) throw new TypeError();
 
@@ -842,6 +856,32 @@ function lastIndexOf(item, i) {
   i = getIndex(length, i);
 
   return array.lastIndexOf(item, i);
+}
+
+function filterWithIterator(object, iterator, context) {
+  let results = [];
+
+  for (let i = 0; i < object.length; i++) {
+    if (object.hasOwnProperty(i)) {
+      let value = object[i];
+      if (iterator.call(context, value, i, object)) {
+        results.push(value);
+      }
+    }
+  }
+
+  return results;
+}
+
+function filter(iterator) {
+  if (this == null || typeof iterator !== 'function') {
+    throw new TypeError();
+  }
+
+  let object = Object(this);
+  let context = arguments[1];
+
+  return filterWithIterator(object, iterator, context);
 }
 
 
@@ -913,20 +953,6 @@ function lastIndexOf(item, i) {
   }
 
 
-  function wrapNative(method) {
-    return function(...args) {
-      if (args.length === 0) {
-        return method.call(this, Prototype.K);
-      } else if (args[0] === undefined) {
-        args.shift();
-        args.unshift(Prototype.K);
-        return method.apply(this, args);
-      } else {
-        return method.apply(this, args);
-      }
-    };
-  }
-
 
   function map(iterator) {
     if (this == null) throw new TypeError();
@@ -942,23 +968,6 @@ function lastIndexOf(item, i) {
     map = wrapNative(Array.prototype.map);
   }
 
-  function filter(iterator) {
-    if (this == null || !Object.isFunction(iterator))
-      throw new TypeError();
-
-    let object = Object(this);
-    let results = [], context = arguments[1], value;
-
-    for (let i = 0, length = object.length >>> 0; i < length; i++) {
-      if (i in object) {
-        value = object[i];
-        if (iterator.call(context, value, i, object)) {
-          results.push(value);
-        }
-      }
-    }
-    return results;
-  }
 
   if (arrayProto.filter) {
     filter = Array.prototype.filter;
