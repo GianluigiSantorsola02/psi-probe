@@ -2182,33 +2182,33 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return selector.match(element);
   }
 
+function recursivelyFindElement(element, property, expression, index) {
+  while (element && element.nodeType === Node.ELEMENT_NODE) {
+    element = element[property];
 
-  function _recursivelyFind(element, property, expression, index) {
-    element = $(element);
-    expression = expression || 0;
-    index = index || 0;
-
-    if (Object.isNumber(expression)) {
-      index = expression;
-      expression = null;
-    }
-
-    while (element.nodeType === Node.ELEMENT_NODE) {
-      element = element[property];
-
-      if (element.nodeType === 1) {
-        if (expression && !Prototype.Selector.match(element, expression)) {
-          continue;
-        }
-
+    if (element && element.nodeType === 1) {
+      if (!expression || Prototype.Selector.match(element, expression)) {
         if (--index < 0) {
           return Element.extend(element);
         }
       }
     }
   }
+}
 
 
+function _recursivelyFind(element, property, expression, index) {
+  element = $(element);
+  expression = expression || 0;
+  index = index || 0;
+
+  if (Object.isNumber(expression)) {
+    index = expression;
+    expression = null;
+  }
+
+  recursivelyFindElement(element, property, expression, index);
+}
   function up(element, expression, index) {
     element = $(element);
 
@@ -2398,7 +2398,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     let checkbox = document.createElement('<input type="checkbox">');
     checkbox.checked = true;
     let node = checkbox.getAttributeNode('checked');
-    return !node?.specified;
+    return !node?.value;
   })();
 
   function hasAttribute(element, attribute) {
@@ -2557,7 +2557,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
       },
 
       style: function(element, value) {
-        element.style.cssText = value ? value : '';
+        element.style.cssText = value;
       }
     }
   };
