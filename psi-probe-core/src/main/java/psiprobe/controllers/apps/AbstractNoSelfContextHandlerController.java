@@ -10,9 +10,6 @@
  */
 package psiprobe.controllers.apps;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.slf4j.Logger;
@@ -20,11 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
-import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.TomcatContainer;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Base class preventing "destructive" actions to be executed on the Probe's context.
@@ -36,25 +34,12 @@ public abstract class AbstractNoSelfContextHandlerController
   private static final Logger mylogger =
       LoggerFactory.getLogger(AbstractNoSelfContextHandlerController.class);
 
-  /** The pass query string. */
-  private boolean passQueryString;
-
-  /**
-   * Checks if is pass query string.
-   *
-   * @return true, if is pass query string
-   */
-  public boolean isPassQueryString() {
-    return passQueryString;
-  }
-
   /**
    * Sets the pass query string.
    *
    * @param passQueryString the new pass query string
    */
   public void setPassQueryString(boolean passQueryString) {
-    this.passQueryString = passQueryString;
   }
 
   @Override
