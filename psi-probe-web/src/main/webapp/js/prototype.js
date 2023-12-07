@@ -347,39 +347,26 @@ Object.extend(String.prototype, (function() {
     JSON.parse('{"test": true}').test;
 
   function prepareReplacement(replacement) {
-    if (Object.isFunction(replacement)) return replacement;
-    let template = new Template(replacement);
-    return function(match) { return template.evaluate(match) };
+    return Object.isFunction(replacement) ? replacement : (match) => new Template(replacement).evaluate(match);
   }
-
   function isNonEmptyRegExp(regexp) {
     return regexp.source && regexp.source !== '(?:)';
   }
 
 
   function gsub(pattern, replacement) {
-    let result = '', source = this, match;
+    let result = '';
+    let source = this;
+    let match;
     replacement = prepareReplacement(replacement);
 
-    if (Object.isString(pattern))
+    if (Object.isString(pattern)) {
       pattern = RegExp.escape(pattern);
-
-    if (!(pattern.length || isNonEmptyRegExp(pattern))) {
-      replacement = replacement('');
-      return replacement + source.split('').join(replacement) + replacement;
     }
 
-    while (source.length > 0) {
-      match = source.match(pattern)
-      if (match && match[0].length > 0) {
-        result += source.slice(0, match.index);
-        result += String.interpret(replacement(match));
-        source  = source.slice(match.index + match[0].length);
-      } else {
-        result += source
-        source = '';
-      }
-    }
+    let regex = new RegExp(pattern, 'g');
+    result = source.replace(regex, replacement);
+
     return result;
   }
   function scan(pattern, iterator) {
@@ -399,11 +386,8 @@ Object.extend(String.prototype, (function() {
   }
 
   function extractScripts() {
-    let matchAll = new RegExp(Prototype.ScriptFragment, 'img'),
-        matchOne = new RegExp(Prototype.ScriptFragment, 'im');
-    return (this.match(matchAll) || []).map(function(scriptTag) {
-      return (scriptTag.match(matchOne) || ['', ''])[1];
-    });
+    let matchAll = new RegExp(Prototype.ScriptFragment, 'img');
+    return Array.from(this.matchAll(matchAll), (match) => (match[0].match(/<script[^>]*>([\s\S]*?)<\/script>/i) || ['', ''])[1]);
   }
 
   function evalScripts() {
@@ -420,30 +404,23 @@ Object.extend(String.prototype, (function() {
 
 
   function toQueryParams(separator) {
-    let match = this.strip().match(/(^|[^?#])([^#]*)(#.*)?$/)
-    if (!match) return { };
+    let match = this.strip().match(/(?:\?|&)([^#]*)(#.*)?$/);
+    if (!match) return {};
 
-    return match[1].split(separator || '&').inject({ }, function(hash) {
-      let pair = pair.split('=')?.[0];
-      if (pair) {
-        let key = decodeURIComponent(pair.shift()),
-            value = pair.length > 1 ? pair.join('=') : pair[0];
+    return match[1].split(separator || '&').reduce((params, pair) => {
+      let [key, value] = pair.split('=').map(decodeURIComponent);
+      value = value.replace(/\+/g, ' ');
 
-        if (value != undefined) {
-          value = value.gsub('+', ' ');
-          value = decodeURIComponent(value);
-        }
-
-        if (key in hash) {
-          if (!Object.isArray(hash[key])) hash[key] = [hash[key]];
-          hash[key].push(value);
-        }
-        else hash[key] = value;
+      if (key in params) {
+        if (!Array.isArray(params[key])) params[key] = [params[key]];
+        params[key].push(value);
+      } else {
+        params[key] = value;
       }
-      return hash;
-    });
-  }
 
+      return params;
+    }, {});
+  }
   function toArray() {
     return this.split('');
   }
@@ -467,16 +444,19 @@ Object.extend(String.prototype, (function() {
     return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
   }
   function inspect(useDoubleQuotes) {
-    const escapedString = this.replace(/\\/g, function (character) {
+    const escapedString = this.replace(/\\/g, (character) => {
       if (character in String.specialChar) {
         return String.specialChar[character];
       }
-      return '\\u00' + character.charCodeAt().toPaddedString(2, 16);
+      return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
     });
-    if (useDoubleQuotes) return '"' + escapedString.replace(/"/g, '\\"') + '"';
-    return "'" + escapedString.replace(/'/g, '\\\'') + "'";
-  }
 
+    if (useDoubleQuotes) {
+      return `"${escapedString.replace(/"/g, '\\"')}"`;
+    } else {
+      return `'${escapedString.replace(/'/g, "\\'")}'`;
+    }
+  }
   function unfilterJSON(filter) {
     return this.replace(filter || Prototype.JSONFilter, '$1');
   }
@@ -491,16 +471,14 @@ Object.extend(String.prototype, (function() {
   }
 
   function evalJSON(sanitize) {
-    let json = this.unfilterJSON(),
-        cx = ("[\u00ad؀-؄\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]|[\u070f][\u17b4]", "g");
-    if (cx.test(json)) {
-      json = json.replace(cx, function (a) {
-        return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-      });
-    }
+    let json = this.unfilterJSON();
+
     try {
-      if (!sanitize || json.isJSON()) return JSON.parse(json);
-    } catch (e) { }
+      if (!sanitize || json.isJSON()) {
+        return JSON.parse(json);
+      }
+    } catch (e) {}
+
     throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
   }
 
@@ -521,12 +499,13 @@ Object.extend(String.prototype, (function() {
   function endsWith(pattern, position) {
     pattern = String(pattern);
     position = Object.isNumber(position) ? position : this.length;
+
     if (position < 0) position = 0;
     if (position > this.length) position = this.length;
-    let d = position - pattern.length;
-    return d >= 0 && this.indexOf(pattern, d) === d;
-  }
 
+    let slicedString = this.slice(position - pattern.length, position);
+    return slicedString === pattern;
+  }
   function empty() {
     return this == '';
   }
