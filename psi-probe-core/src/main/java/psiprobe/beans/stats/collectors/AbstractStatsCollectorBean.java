@@ -19,7 +19,6 @@ import psiprobe.beans.stats.listeners.StatsCollectionListener;
 import psiprobe.model.stats.StatsCollection;
 
 import javax.inject.Inject;
-import javax.management.*;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
