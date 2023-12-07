@@ -1597,9 +1597,10 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function $(element) {
-    if (Object.isString(element))
+    if (typeof element === 'string') {
       element = document.getElementById(element);
-    return Element.extend(element);
+    }
+    return element;
   }
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
@@ -1653,20 +1654,21 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     tagName = tagName.toLowerCase();
 
     if (HAS_EXTENDED_CREATE_ELEMENT_SYNTAX && attributes.name) {
-      tagName = '<' + tagName + ' name="' + attributes.name + '">';
+      attributes = { ...attributes };
       delete attributes.name;
-      return Element.writeAttribute(document.createElement(tagName), attributes);
+      return Element.writeAttribute(document.createElement(`<${tagName} name="${attributes.name}">`), attributes);
     }
 
-    if (!ELEMENT_CACHE[tagName])
+    if (!ELEMENT_CACHE[tagName]) {
       ELEMENT_CACHE[tagName] = Element.extend(document.createElement(tagName));
+    }
 
-    let node = shouldUseCreationCache(tagName, attributes) ?
-     ELEMENT_CACHE[tagName].cloneNode(false) : document.createElement(tagName);
+    let node = shouldUseCreationCache(tagName, attributes)
+        ? ELEMENT_CACHE[tagName].cloneNode(false)
+        : document.createElement(tagName);
 
     return Element.writeAttribute(node, attributes);
   }
-
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
     GLOBAL.Element = Element;
   }
@@ -1684,13 +1686,12 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let INSPECT_ATTRIBUTES = { id: 'id', className: 'class' };
   function inspect(element) {
     element = $(element);
-    let result = '<' + element.tagName.toLowerCase();
+    let result = `<${element.tagName.toLowerCase()}`;
 
-    let attribute, value;
     for (let property in INSPECT_ATTRIBUTES) {
-      attribute = INSPECT_ATTRIBUTES[property];
-      value = (element[property] || '').toString();
-      if (value) result += ' ' + attribute + '=' + value.inspect(true);
+      let attribute = INSPECT_ATTRIBUTES[property];
+      let value = (element[property] || '').toString();
+      if (value) result += ` ${attribute}=${value.inspect(true)}`;
     }
 
     return result + '>';
@@ -1749,14 +1750,13 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return isBuggy;
   })();
 
-  let TABLE_ELEMENT_INNERHTML_BUGGY = (function(){
+  let TABLE_ELEMENT_INNERHTML_BUGGY = (function() {
     try {
       let el = document.createElement("table");
-      el.tBodies[0].innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
-      let isBuggy = typeof el?.tBodies?.[0] === "undefined";
+      el.innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
+      let isBuggy = !el.tBodies[0];
       el = null;
       return isBuggy;
-
     } catch (e) {
       return true;
     }
@@ -1766,9 +1766,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     try {
       let el = document.createElement('div');
       el.innerHTML = "<link />";
-      let isBuggy = (el.childNodes.length === 0);
-      el = null;
-      return isBuggy;
+      return el.childNodes.length === 0;
     } catch(e) {
       return true;
     }
@@ -1794,15 +1792,16 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   function update(element, content) {
     element = $(element);
 
-    let descendants = element.getElementsByTagName('*'),
-     i = descendants.length;
-    while (i--) purgeElement(descendants[i]);
+    let descendants = element.getElementsByTagName('*');
+    for (let i = descendants.length - 1; i >= 0; i--) {
+      purgeElement(descendants[i]);
+    }
 
     content = content?.toElement?.();
 
-    if (Object.isElement(content))
+    if (Object.isElement(content)) {
       return element.update().insert(content);
-
+    }
 
     content = Object.toHTML(content);
     let tagName = element.tagName.toUpperCase();
@@ -1814,31 +1813,21 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
     if (ANY_INNERHTML_BUGGY) {
       if (tagName in INSERTION_TRANSLATIONS.tags) {
-        while (element.firstChild)
-          element.removeChild(element.firstChild);
-
+        element.innerHTML = '';
         let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-        let node = nodes[i];
         for (let i = 0; i < nodes.length; i++) {
-          element.appendChild(node);
+          element.appendChild(nodes[i]);
         }
-
-
       } else if (LINK_ELEMENT_INNERHTML_BUGGY && Object.isString(content) && content.indexOf('<link') > -1) {
-        while (element.firstChild)
-          element.removeChild(element.firstChild);
-
-        let nodes = getContentFromAnonymousElement(tagName,
-         content.stripScripts(), true);
-
-        let element = nodes[0];
+        element.innerHTML = '';
+        let nodes = getContentFromAnonymousElement(tagName, content.stripScripts(), true);
         for (let i = 0; i < nodes.length; i++) {
           let node = nodes[i];
           if (node) {
             element.appendChild(node);
           }
-        }}
-      else {
+        }
+      } else {
         element.innerHTML = content.stripScripts();
       }
     } else {
@@ -1848,25 +1837,20 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     content.evalScripts.bind(content).defer();
     return element;
   }
-
   function replace(element, content) {
     element = $(element);
 
-    content = content?.toElement?.() ||
-        (Object.isElement(content) ? content :
-            (() => {
-              let contentHTML = Object.toHTML(content);
-              let range = element.ownerDocument.createRange();
-              range.selectNode(element);
-              contentHTML.evalScripts?.bind(contentHTML)?.defer?.();
-              return range.createContextualFragment(contentHTML.stripScripts());
-            })());
+    content = content?.toElement?.() || (Object.isElement(content) ? content : (() => {
+      let contentHTML = Object.toHTML(content);
+      let range = element.ownerDocument.createRange();
+      range.selectNode(element);
+      contentHTML.evalScripts?.bind(contentHTML)?.defer?.();
+      return range.createContextualFragment(contentHTML.stripScripts());
+    })());
 
-
-    element.parentNode.replaceChild(content, element);
+    element.replaceWith(content);
     return element;
   }
-
   let INSERTION_TRANSLATIONS = {
     before: function(element, node) {
       element.parentNode.insertBefore(node, element);
@@ -1937,57 +1921,58 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     replace = replace_IE;
 
   function isContent(content) {
-    if (Object.isUndefined(content) || content === null) return false;
+    if (Object.isString(content) || Object.isNumber(content) || Object.isElement(content)) {
+      return true;
+    }
 
-    if (Object.isString(content) || Object.isNumber(content)) return true;
-    if (Object.isElement(content)) return true;
-    if (content.toElement || content.toHTML) return true;
+    if (content && (content.toElement || content.toHTML)) {
+      return true;
+    }
 
     return false;
   }
 
   function insertContentAt(element, content, position) {
-    position   = position.toLowerCase();
+    position = position.toLowerCase();
     let method = INSERTION_TRANSLATIONS[position];
 
-    content = content?.toElement?.();
+    content = content?.toElement?.() || content;
 
     if (Object.isElement(content)) {
       element.parentNode.replaceChild(content, element);
       return element;
     }
 
-    if (Object.isElement(content)) {
-      method(element, content);
-      return element;
-    }
-
     content = Object.toHTML(content);
     let tagName = ((position === 'before' || position === 'after') ?
-     element.parentNode : element).tagName.toUpperCase();
+        element.parentNode : element).tagName.toUpperCase();
 
     let childNodes = getContentFromAnonymousElement(tagName, content.stripScripts());
 
-    if (position === 'top' || position === 'after') childNodes.reverse();
+    if (position === 'top' || position === 'after') {
+      childNodes.reverse();
+    }
 
-    for (let i = 0, node; node === childNodes[i]; i++)
+    for (let i = 0; i < childNodes.length; i++) {
+      let node = childNodes[i];
       method(element, node);
+    }
 
-    content.evalScripts.bind(content).defer();
+    content.evalScripts?.bind(content)?.defer?.();
   }
-
   function insert(element, insertions) {
     element = $(element);
 
-    if (isContent(insertions))
+    if (isContent(insertions)) {
       insertions = { bottom: insertions };
+    }
 
-    for (let position in insertions)
-      insertContentAt(element, insertions[position], position);
+    Object.entries(insertions).forEach(([position, content]) => {
+      insertContentAt(element, content, position);
+    });
 
     return element;
   }
-
   function wrap(element, wrapper, attributes) {
     element = $(element);
 
