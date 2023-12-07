@@ -803,6 +803,47 @@ function $w(string) {
 
 Array.from = $A;
 
+function indexOf(item, i) {
+  if (this == null) throw new TypeError();
+
+  let array = Object(this);
+  let length = array.length >>> 0;
+  if (length === 0) return -1;
+
+  i = Number(i) || 0;
+  if (i >= length) return -1;
+
+  return array.findIndex((value, index) => index >= i && value === item);
+}
+
+function getIndex(length, i) {
+  if (typeof i !== 'number' || isNaN(i)) {
+    return length - 1;
+  } else if (i !== 0 && isFinite(i)) {
+    i = Math.floor(i);
+    if (i >= length) {
+      return length - 1;
+    } else if (i < 0) {
+      return length + i;
+    }
+  }
+  return i;
+}
+
+
+function lastIndexOf(item, i) {
+  if (this == null) throw new TypeError();
+
+  let array = Object(this);
+  let length = array.length >>> 0;
+
+  if (length === 0) return -1;
+
+  i = getIndex(length, i);
+
+  return array.lastIndexOf(item, i);
+}
+
 
 (function() {
   let arrayProto = Array.prototype,
@@ -810,8 +851,10 @@ Array.from = $A;
       _each = arrayProto.forEach; // use native browser JS 1.6 implementation if available
 
   function each(iterator, context) {
-    for (let i = 0, length = this.length >>> 0; i < length; i++) {
-      if (i in this) iterator.call(context, this[i], i, this);
+    for (let i = 0; i < this.length; i++) {
+      if (this.hasOwnProperty(i)) {
+        iterator.call(context, this[i], i, this);
+      }
     }
   }
   if (!_each) _each = each;
@@ -862,40 +905,6 @@ Array.from = $A;
     return '[' + this.map(Object.inspect).join(', ') + ']';
   }
 
-  function indexOf(item, i) {
-    if (this == null) throw new TypeError();
-
-    let array = Object(this);
-    let length = array.length >>> 0;
-    if (length === 0) return -1;
-
-    i = Number(i) || 0;
-    if (i >= length) return -1;
-
-    return array.findIndex((value, index) => index >= i && value === item);
-  }
-
-
-  function lastIndexOf(item, i) {
-    if (this == null) throw new TypeError();
-
-    let array = Object(this);
-    let length = array.length >>> 0;
-    if (length === 0) return -1;
-
-    if (!Object.isUndefined(i)) {
-      i = Number(i);
-      if (isNaN(i)) {
-        i = 0;
-      } else if (i !== 0 && isFinite(i)) {
-        i = (i > 0 ? 1 : -1) * Math.floor(Math.abs(i));
-      }
-    } else {
-      i = length - 1;
-    }
-
-    return array.lastIndexOf(item, i);
-  }
   function concat(_) {
     let array = [];
     let items = [...arguments].flat();
