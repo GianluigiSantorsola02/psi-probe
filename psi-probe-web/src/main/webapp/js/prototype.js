@@ -1154,7 +1154,6 @@ Object.extend(Number.prototype, (function() {
   return {
     toColorPart:    toColorPart,
     succ:           succ,
-    times:          times,
     toPaddedString: toPaddedString,
     round:          round
   };
@@ -1172,10 +1171,12 @@ let ObjectRange = Class.Create(Enumerable, (function() {
   }
 
   function _each(iterator, context) {
-    let value = this.start, i;
-    for (i = 0; this.include(value); i++) {
+    let value = this.start;
+    let i = 0;
+    while (this.include(value)) {
       iterator.call(context, value, i);
       value = value.succ();
+      i++;
     }
   }
 
@@ -1249,6 +1250,35 @@ Ajax.Responders = {
   }
 };
 
+function performRequest() {
+  let response = new Ajax.Response(this);
+  if (this.options.onCreate) {
+    this.options.onCreate(response);
+  }
+  Ajax.Responders.dispatch('onCreate', this, response);
+
+  this.transport.open(this.method.toUpperCase(), this.url, this.options.asynchronous);
+
+  this.transport.onreadystatechange = this.onStateChange.bind(this);
+
+  if (this.options.asynchronous) {
+    this.respondToReadyState.bind(this).defer(1);
+  } else {
+    this.onStateChange();
+  }
+
+  this.setRequestHeaders();
+
+  this.body = this.method === 'post' ? (this.options.postBody || params) : null;
+  this.transport.send(this.body);
+}
+
+try {
+  performRequest.call(this);
+} catch (e) {
+  this.dispatchException(e);
+}
+
 Object.extend(Ajax.Responders, Enumerable);
 
 Ajax.Responders.register({
@@ -1301,36 +1331,11 @@ Ajax.Request = Class.Create(Ajax.Base, {
 
     this.parameters = params.toQueryParams();
 
-    try {
-      let response = new Ajax.Response(this);
-      if (this.options.onCreate) {
-        this.options.onCreate(response);
-      }
-      Ajax.Responders.dispatch('onCreate', this, response);
+    performRequest.call(this);},
 
-      this.transport.open(this.method.toUpperCase(), this.url, this.options.asynchronous);
-
-      this.transport.onreadystatechange = this.onStateChange.bind(this);
-
-      if (this.options.asynchronous) {
-        this.respondToReadyState.bind(this).defer(1);
-      } else {
-        this.onStateChange();
-      }
-
-      this.setRequestHeaders();
-
-      this.body = this.method === 'post' ? (this.options.postBody || params) : null;
-      this.transport.send(this.body);
-    } catch (e) {
-      this.dispatchException(e);
-    }
-  },
   onStateChange: function() {
     let readyState = this.transport.readyState;
     if (readyState === 4 && !this._complete) {
-      this.respondToReadyState(readyState);
-    } else if (readyState > 1) {
       this.respondToReadyState(readyState);
     }
   },
