@@ -200,7 +200,7 @@ public class LogbackLoggerAccessor extends DefaultAccessor {
     return null;
   }
 
-  private static class InvalidAppenderTypeException extends Throwable {
+  static class InvalidAppenderTypeException extends Throwable {
     public InvalidAppenderTypeException(String message) {
       super(message);
     }
