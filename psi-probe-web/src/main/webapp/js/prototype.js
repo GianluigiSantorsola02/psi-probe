@@ -6867,8 +6867,11 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (document && fdocument.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else {
+    if (document) {
+
     document.attachEvent('onreadystatechange', checkReadyState);
     if (window == top) TIMER = pollDoScroll.defer();
+  }
   }
 
   Event.observe(window, 'load', fireContentLoadedEvent);
