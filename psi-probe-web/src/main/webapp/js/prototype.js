@@ -6953,12 +6953,10 @@ Element.ClassNames.prototype = {
   },
 
   add: function(classNameToAdd) {
-    if (this.include(classNameToAdd)) return;
     this.set(this.element.className + ' ' + classNameToAdd);
   },
 
   remove: function(classNameToRemove) {
-    if (!this.include(classNameToRemove)) return;
 
     const regex = new RegExp(`\\b${classNameToRemove}\\b`, 'g');
     this.element.className = this.element.className.replace(regex, '').trim();
