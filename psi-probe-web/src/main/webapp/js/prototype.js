@@ -7004,11 +7004,11 @@ Element.ClassNames.prototype = {
 
   remove: function(classNameToRemove) {
     if (!this.include(classNameToRemove)) return;
-    this.element.className = this.element.className
-        .split(/\s+/)
-        .filter((name) => name !== classNameToRemove)
-        .join(' ');
-  },
+
+    const regex = new RegExp(`\\b${classNameToRemove}\\b`, 'g');
+    this.element.className = this.element.className.replace(regex, '').trim();
+  }
+,
 
   toString: function() {
     return $A(this).join(' ');
@@ -7042,15 +7042,5 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
     }
   });
 
-  Object.extend(Selector, {
-    findElement: function(elements, expression, index) {
-      index = index || 0;
-      let matchIndex = 0;
-      for (const element of elements) {
-        if (Prototype.Selector.match(element, expression) && index === matchIndex++) {
-          return Element.extend(element);
-        }
-      }
-    },
-  });
+
 })();
