@@ -24,7 +24,7 @@ import psiprobe.tools.TimeExpression;
  * The Class GetApplicationSummaryController.
  */
 @Controller
-public class GetApplicationSummaryController extends BaseGetApplicationController {
+public class GetApplicationSummaryController extends BaseViewXmlConfController {
 
   @RequestMapping(path = "/appsummary.htm")
   @Override
@@ -49,4 +49,8 @@ public class GetApplicationSummaryController extends BaseGetApplicationControlle
     super.setCollectionPeriod(TimeExpression.inSeconds(collectionPeriod));
   }
 
+  @Override
+  public void setDownloadTarget(String downloadTarget) {
+
+  }
 }

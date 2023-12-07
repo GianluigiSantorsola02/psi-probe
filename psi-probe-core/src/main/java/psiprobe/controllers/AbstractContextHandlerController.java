@@ -18,8 +18,10 @@ import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.controllers.jsp.ViewServletSourceController;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Base class for all controllers requiring "webapp" request parameter.
@@ -78,7 +80,7 @@ public abstract class AbstractContextHandlerController extends AbstractTomcatCon
 // ...
 
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException,  ContainerListenerBean.CustomException {
+                                    HttpServletRequest request, HttpServletResponse response) throws ViewServletSourceController.FileProcessingException, BaseViewXmlConfController.DisplayTargetException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, IOException, NamingException, Exception {
     // Your code logic here
 
 
