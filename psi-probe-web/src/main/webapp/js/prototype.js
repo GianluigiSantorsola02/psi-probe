@@ -6950,8 +6950,6 @@ if (!document.getElementsByClassName) {
 
 function getElementsByClassNameXPath(element, className) {
   className = String(className).trim();
-  let cond = /\s/.test(className) ? classNamesToXPath(className) : classNameToXPath(className);
-  return cond ? document._getElementsByXPath('.//*' + cond, element) : [];
 }
 
 function classNameToXPath(className) {
