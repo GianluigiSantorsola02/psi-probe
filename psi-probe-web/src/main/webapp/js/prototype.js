@@ -1917,22 +1917,6 @@ function replace(element, content) {
     return Array.from(div.childNodes);
   }
 
-  function clone(element, deep) {
-    element = $(element);
-    if (!element) return;
-
-    let clone = element.cloneNode(deep);
-
-    if (!HAS_UNIQUE_ID_PROPERTY && deep) {
-      let descendants = Element.select(clone, '*');
-      descendants.forEach(descendant => {
-        descendant._prototypeUID = UNDEFINED;
-      });
-    }
-
-    return Element.extend(clone);
-  }
-
   function purgeElement(element) {
     let uid = getUniqueElementID(element);
     if (uid) {
@@ -2404,7 +2388,7 @@ function writeAttribute(element, name, value) {
 
   let i = 0;
   let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
-  for (i = 0; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
+  for (i; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -4001,7 +3985,7 @@ function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testCon
   return { groups, newContext, newSelector };
 }
 function Sizzle( selector, context, results, seed ) {
-  let elem, nodeType, groups, old, nid, newContext, newSelector;
+  let nodeType, old, nid, newContext, newSelector;
 
   if ((context ? context.ownerDocument || context : preferredDoc) !== document) {
     setDocument(context);
@@ -4039,7 +4023,7 @@ function Sizzle( selector, context, results, seed ) {
       newSelector = nodeType === 9 && selector;
 
       if (nodeType === 1 && context.nodeName.toLowerCase() !== "object") {
-        let { groups, newContext, newSelector } = handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector);
+       handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector);
       }
 
       if (newSelector) {
