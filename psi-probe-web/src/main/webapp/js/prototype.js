@@ -3171,64 +3171,75 @@ function getPixelValue(value, property, context) {
     },
 
     _begin: function() {
-      if (this._isPrepared()) return;
+      if (this._isPrepared()) {
+        return;
+      }
 
       let element = this.element;
+
       if (isDisplayed(element)) {
         this._setPrepared(true);
         return;
       }
 
-
       let originalStyles = {
-        position:   element.style.position   || '',
-        width:      element.style.width      || '',
+        position: element.style.position || '',
+        width: element.style.width || '',
         visibility: element.style.visibility || '',
-        display:    element.style.display    || ''
+        display: element.style.display || ''
       };
 
       element.store('prototype_original_styles', originalStyles);
 
-      let position = getRawStyle(element, 'position'), width = element.offsetWidth;
+      let position = getRawStyle(element, 'position');
+      let width = element.offsetWidth;
 
       if (width === 0 || width === null) {
         element.style.display = 'block';
         width = element.offsetWidth;
       }
 
-      let context = (position === 'fixed') ? document.viewport :
-          element.parentNode;
+      let context = (position === 'fixed') ? document.viewport : element.parentNode;
 
       let tempStyles = {
         visibility: 'hidden',
-        display:    'block'
+        display: 'block'
       };
 
-      if (position !== 'fixed') tempStyles.position = 'absolute';
+      if (position !== 'fixed') {
+        tempStyles.position = 'absolute';
+      }
 
       element.setStyle(tempStyles);
 
-      let positionedWidth = element.offsetWidth, newWidth;
-      if (width && (positionedWidth === width)) {
-        newWidth = getContentWidth(element, context);
-      } else if (position === 'absolute' || position === 'fixed') {
-        newWidth = getContentWidth(element, context);
-      } else {
-        let parent = element.parentNode, pLayout = $(parent).getLayout();
-
-        newWidth = pLayout.get('width') -
-            this.get('margin-left') -
-            this.get('border-left') -
-            this.get('padding-left') -
-            this.get('padding-right') -
-            this.get('border-right') -
-            this.get('margin-right');
-      }
+      let newWidth = calculateNewWidth(width, element, position, context);
 
       element.setStyle({ width: newWidth + 'px' });
 
       this._setPrepared(true);
     },
+
+    calculateNewWidth: function(width, element, position, context) {
+      if (width && element.offsetWidth === width) {
+        return getContentWidth(element, context);
+      } else if (position === 'absolute' || position === 'fixed') {
+        return getContentWidth(element, context);
+      } else {
+        let parent = element.parentNode;
+        let pLayout = $(parent).getLayout();
+
+        return (
+            pLayout.get('width') -
+            this.get('margin-left') -
+            this.get('border-left') -
+            this.get('padding-left') -
+            this.get('padding-right') -
+            this.get('border-right') -
+            this.get('margin-right')
+        );
+      }
+    }
+    ,
 
     _end: function() {
       let element = this.element;
