@@ -3998,6 +3998,20 @@ function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testCon
 
   return { groups, newContext, newSelector };
 }
+function handleMatch(match, results, context, selector) {
+  if (match) {
+    let m = match[1];
+    if (m) {
+      return handleElementById(results, context, m);
+    } else if (match[2]) {
+      push.apply(results, context.getElementsByTagName(selector));
+      return results;
+    } else {
+      push.apply(results, context.getElementsByClassName(m));
+      return results;
+    }
+  }
+}
 function Sizzle( selector, context, results, seed ) {
   let nodeType, old, nid, newContext, newSelector;
 
@@ -4005,21 +4019,7 @@ function Sizzle( selector, context, results, seed ) {
 
   if (documentIsHTML && !seed) {
     let match = rquickExpr.exec(selector);
-    if (match) {
-      let m = match[1];
-      if (m) {
-        return handleElementById(results, context, m);
-
-      } else if (match[2]) {
-        push.apply(results, context.getElementsByTagName(selector));
-        return results;
-
-      } else
-
-        push.apply(results, context.getElementsByClassName(m));
-      return results;
-
-    }
+    handleMatch(match, results, context, selector)
 
     if (support?.qsa && (!rbuggyQSA?.test(selector))) {
       nid = old = expando;
