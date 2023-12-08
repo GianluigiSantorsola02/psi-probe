@@ -5744,7 +5744,13 @@ let Form = {
     form.reset();
     return form;
   },
-
+  function(result, key, value) {
+    if (key in result) {
+      if (!Object.isArray(result[key])) result[key] = [result[key]];
+      result[key] = result[key].concat(value);
+    } else result[key] = value;
+    return result;
+  },
 
   serializeElements: function(elements, options) {
     if (typeof options != 'object') options = { hash: !!options };
@@ -5753,13 +5759,7 @@ let Form = {
 
     if (options.hash) {
       initial = {};
-      accumulator = function(result, key, value) {
-        if (key in result) {
-          if (!Object.isArray(result[key])) result[key] = [result[key]];
-          result[key] = result[key].concat(value);
-        } else result[key] = value;
-        return result;
-      };
+      accumulator = Form.function;
     } else {
       initial = '';
       accumulator = function(result, key, values) {
@@ -5927,7 +5927,11 @@ Form.Element.Serializers = (function() {
   }
 
   function valueSelector(element, value) {
-    return Object.isUndefined(value) ? element.value : element.value = value;
+    if (Object.isUndefined(value)) {
+      return element.value;
+    } else {
+      element.value = value;
+    }
   }
 
 
@@ -6206,10 +6210,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     stop: stop
   };
 
-  let methods = Object.keys(Event.Methods).inject({ }, function(m, name) {
-    m[name] = Event.Methods[name].methodize();
-    return m;
-  });
 
   if (window.attachEvent) {
     function _relatedTarget(event) {
@@ -6672,12 +6672,8 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   if (document ?.document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
-  } else {
-    if (document) {
-      document.attachEvent('onreadystatechange', checkReadyState);}
-      else if (window === top){
+  } else if (window === top){
         TIMER = pollDoScroll.defer();
-    }
   }
 
   Event.observe(window, 'load', fireContentLoadedEvent);
