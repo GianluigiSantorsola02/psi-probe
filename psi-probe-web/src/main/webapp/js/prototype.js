@@ -974,9 +974,6 @@ let Hash = Class.Create(Enumerable, (function() {
     }).join(', ') + '}>';
   }
 
-  function clone() {
-    return new Hash(this);
-  }
 
   return {
     initialize:             initialize,
@@ -1726,8 +1723,8 @@ function handleInnerHTMLBugWorkaround(element, tagName, content) {
   if (tagName in INSERTION_TRANSLATIONS.tags) {
     element.innerHTML = '';
     let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-    for (let i = 0; i < nodes.length; i++) {
-      element.appendChild(nodes[i]);
+    for (const node of nodes) {
+      element.appendChild(node);
     }
   } else {
     element.innerHTML = content.stripScripts();
@@ -1847,8 +1844,7 @@ function replace(element, content) {
       childNodes.reverse();
     }
 
-    for (let i = 0; i < childNodes.length; i++) {
-      let node = childNodes[i];
+    for (const node of childNodes) {
       method(element, node);
     }
 
@@ -2408,7 +2404,7 @@ function writeAttribute(element, name, value) {
 
   let i = 0;
   let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
-  for (i = 0; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
+  for (i; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
     ATTRIBUTE_TRANSLATIONS.has.names[attr.toLowerCase()]   = attr;
   }
@@ -3904,7 +3900,7 @@ let
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
-    rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)" + whitespace + "*\\]", "g" ),
+    rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)", "g" ),
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
@@ -3937,7 +3933,7 @@ let
 	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
 	funescape = function( _, escaped, escapedWhitespace ) {
 		let high = "0x" + escaped - 0x10000;
-      if (high !== high || escapedWhitespace) {
+      if (Number.isNaN(high) || escapedWhitespace) {
         return escaped;
       } else if (high < 0) {
         return String.fromCharCode(high + 0x10000);
