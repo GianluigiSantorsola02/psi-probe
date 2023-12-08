@@ -4583,7 +4583,29 @@ setDocument = Sizzle.setDocument = function( node ) {
 	/* Sorting
 	---------------------------------------------------------------------- */
 
-	sortOrder = hasCompare ?
+  function letcompareNodes(a, b) {
+    let aup = a.parentNode;
+    let bup = b.parentNode;
+
+    if (!aup || !bup) {
+      if (a === doc) {
+        return -1;
+      } else if (b === doc) {
+        return 1;
+      } else if (aup) {
+        return -1;
+      } else if (bup) {
+        return 1;
+      } else if (sortInput) {
+        return indexOf.call(sortInput, a) - indexOf.call(sortInput, b);
+      } else {
+        return 0;
+      }
+    } else if (aup === bup) {
+      return siblingCheck(a, b);
+    }
+  }
+  sortOrder = hasCompare ?
 	function( a, b ) {
 
 		if ( a === b ) {
@@ -4618,71 +4640,48 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		return compare & 4 ? -1 : 1;
 	} :
-	function( a, b ) {
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
+        function compareNodes(a, b) {
+          if (a === b) {
+            hasDuplicate = true;
+            return 0;
+          }
 
-		let cur,
-			i = 0,
-			aup = a.parentNode,
-			bup = b.parentNode,
-			ap = [ a ],
-			bp = [ b ];
+          let aup = a.parentNode;
+          let bup = b.parentNode;
+          let ap = [a];
+          let bp = [b];
 
-      if (!aup || !bup) {
-        if (a === doc) {
-          return -1;
-        } else if (b === doc) {
-          return 1;
-        } else if (aup) {
-          return -1;
-        } else if (bup) {
-          return 1;
-        } else if (sortInput) {
-          return indexOf.call(sortInput, a) - indexOf.call(sortInput, b);
-        } else {
-          return 0;
-        }
-      }
-      else if ( aup === bup ) {
-			return siblingCheck( a, b );
-		}
+          letcompareNodes(a, b);
 
-		cur = a;
-		while ( (cur = cur.parentNode) ) {
-			ap.unshift( cur );
-		}
-		cur = b;
-		while ( (cur = cur.parentNode) ) {
-			bp.unshift( cur );
-		}
+          let cur = a;
+          while ((cur = cur.parentNode)) {
+            ap.unshift(cur);
+          }
+          cur = b;
+          while ((cur = cur.parentNode)) {
+            bp.unshift(cur);
+          }
 
-		while ( ap[i] === bp[i] ) {
-			i++;
-		}
+          let i = 0;
+          while (ap[i] === bp[i]) {
+            i++;
+          }
 
-      let result;
-      if (i) {
-        result = siblingCheck(ap[i], bp[i]);
-      } else {
-        let result;
+          let result;
+          if (i) {
+            result = siblingCheck(ap[i], bp[i]);
+          } else {
+            if (ap[i] === preferredDoc) {
+              result = -1;
+            } else if (bp[i] === preferredDoc) {
+              result = 1;
+            } else {
+              result = 0;
+            }
+          }
 
-        if (ap[i] === preferredDoc) {
-          result = -1;
-        } else if (bp[i] === preferredDoc) {
-          result = 1;
-        } else {
-          result = 0;
-        }
-        return result;
-      }
-
-      return result;
-
-
-    };
+          return result;
+        };
 
 	return doc;
 };
