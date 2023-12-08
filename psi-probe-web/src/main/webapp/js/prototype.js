@@ -6177,7 +6177,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return Form.serialize(this.element);
   }
 });
-(function(GLOBAL) {
+
   let docEl = document.documentElement;
   let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
    && 'onmouseleave' in docEl;
@@ -6749,7 +6749,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (document.addEventListener)
     document.addEventListener('unload', destroyCache_IE, false);
   docEl = null;
-})(this);
+(this);
 
 ((function() {
   /* Code for creating leak-free event responders is based on work by
