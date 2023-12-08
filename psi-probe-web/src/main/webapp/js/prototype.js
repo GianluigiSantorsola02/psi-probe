@@ -344,10 +344,31 @@ Object.extend(String.prototype, (function() {
   }
 
 
+
+  function evalScripts() {
+    return this.extractScripts().map(function(script) { return eval(script); });
+  }
+
+
+
+
+
   function toArray() {
     return this.split('');
   }
 
+  function succ() {
+    return this.slice(0, this.length - 1) +
+      String.fromCharCode(this.charCodeAt(this.length - 1) + 1);
+  }
+
+  function times(count) {
+    return count < 1 ? '' : this.repeat(count);
+  }
+
+  function camelize() {
+    return this.replace(/-(.)/g, (_, chr) => chr.toUpperCase());
+  }
 
   function capitalize() {
     return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
@@ -364,6 +385,17 @@ Object.extend(String.prototype, (function() {
       '\'': '\\\'',
     };
 
+    const escapeChar = (character) => {
+      if (character in specialChar) {
+        return specialChar[character];
+      }
+      return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
+    };
+
+    const escapeQuotes = (string) => {
+      return string.replace(/['"]/g, (quote) => '\\' + quote);
+    };
+
     const escapedString = this.replace(/\\/g, escapeChar);
 
     if (useDoubleQuotes) {
@@ -376,7 +408,27 @@ Object.extend(String.prototype, (function() {
     return this.replace(filter || Prototype.JSONFilter, '$1');
   }
 
+  function isJSON() {
+    let str = this;
+    str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"]*"|true|false|null|-?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+  }
 
+  function evalJSON(sanitize) {
+    let json = this.unfilterJSON();
+
+    if (!sanitize || json.isJSON()) {
+      try {
+        return JSON.parse(json);
+      } catch (e) {
+        throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+      }
+    }
+
+    throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+  }
   function parseJSON() {
     let json = this.unfilterJSON();
     return JSON.parse(json);
@@ -1541,7 +1593,6 @@ if(document)
 
   let HAS_EXTENDED_CREATE_ELEMENT_SYNTAX = (function(){
     try {
-      if(document)
       let el = document.createElement('<input name="x">');
       return el.tagName.toLowerCase() === 'input' && el.name === 'x';
     }
