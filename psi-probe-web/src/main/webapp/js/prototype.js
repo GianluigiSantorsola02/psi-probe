@@ -5470,6 +5470,32 @@ function processElements(len, elems, bySet, seed, matchedCount, unmatched) {
     }
   }
 }
+
+function processSetMatchers(bySet, len, matchedCount, setMatchers, unmatched, setMatched, seed) {
+  if (bySet && len !== matchedCount) {
+    let results = [];
+    let outermost = true;
+    let j = 0;
+    let matcher;
+    while ((matcher = setMatchers[j++])) {
+      matcher(unmatched, setMatched);
+    }
+
+    setMatched = processSeed(seed, matchedCount, len, results);
+
+    if (setMatched) {
+      results.push(...setMatched);
+
+      results.push(...setMatched);
+
+      if (outermost && !seed && setMatched.length > 0 && (matchedCount + setMatchers.length) > 1) {
+        Sizzle.uniqueSort(results);
+      }
+    }
+
+    return unmatched;
+  }
+}
 function matcherFromGroupMatchers(elementMatchers, setMatchers) {
   let bySet = setMatchers.length > 0;
   let byElement = elementMatchers.length > 0;
@@ -5490,32 +5516,7 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
 
     matchedCount += len;
 
-    if (bySet && len !== matchedCount) {
-      let j = 0;
-      let matcher;
-      while (matcher = setMatchers[j++]) {
-        matcher(unmatched, setMatched, context, xml);
-      }
-
-      let setMatched = processSeed(seed, matchedCount, len, results);
-
-      if (setMatched) {
-        push.apply(results, setMatched);
-
-        push.apply(results, setMatched);
-
-        if (outermost && !seed && setMatched.length > 0 && (matchedCount + setMatchers.length) > 1) {
-          Sizzle.uniqueSort(results);
-        }
-      }
-
-      if (outermost) {
-        dirruns = dirrunsUnique;
-        outermostContext = contextBackup;
-      }
-
-      return unmatched;
-    }
+    processSetMatchers(bySet, len, matchedCount, setMatchers, unmatched, setMatched, seed);
 
   }
   return bySet ? markFunction(superMatcher) : superMatcher;
