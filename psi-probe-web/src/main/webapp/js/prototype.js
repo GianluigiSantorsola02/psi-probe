@@ -3979,7 +3979,7 @@ let
 	};
 }
 
-function Sizzle( selector, context, results, seed ) {
+
 	let  elem, nodeType,
 		i, groups, old, nid, newContext, newSelector;
 
@@ -3987,8 +3987,7 @@ function Sizzle( selector, context, results, seed ) {
 		setDocument( context );
 	}
 
-	context = context || document;
-	results = results || [];
+
 
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
@@ -4070,7 +4069,7 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	return select( selector.replace( rtrim, "$1" ), context, results, seed );
-}
+
 
 /**
  * Create key-value caches of limited size
