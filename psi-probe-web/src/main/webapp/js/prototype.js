@@ -5265,7 +5265,6 @@ function handlePostFilter(postFilter, matcherOut, postMap, matcherIn, seed, cont
     temp = condense(matcherOut, postMap);
     postFilter(temp, [], context, xml);
 
-    let i = temp.length;
     handleTemp(temp, seed, matcherOut, matcherIn, postMap)
   }
 }
