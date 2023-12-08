@@ -5589,6 +5589,30 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 	return cached;
 };
 
+function processTokens(tokens, context, results) {
+  let i = tokens.length;
+  while (i--) {
+    let token = tokens[i];
+    let type = token.type;
+    if (Expr.relative[type]) {
+      break;
+    }
+    let find = Expr.find[type];
+    let foundElements = find(
+        token.matches[0].replace(runescape, funescape),
+        rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+    );
+    if (foundElements && foundElements.length) {
+      tokens.splice(i, 1);
+      let selector = foundElements.length && toSelector(tokens);
+      if (!selector) {
+        push.apply(results, foundElements);
+        return results;
+      }
+      break;
+    }
+  }
+}
 /**
  * A low-level selection function that works with Sizzle's compiled
  *  selector functions
@@ -5597,70 +5621,41 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function( context, results, seed ) {
-  let selector =  compiled.selector;
-  let i, tokens,
-		compiled = typeof selector === "function" && selector,
-		match = !seed && tokenize( (selector) );
+select = Sizzle.select = function(context, results, seed) {
+  let selector = compiled.selector;
+  let match = !seed && tokenize(selector);
 
-	results = results || [];
+  results = results || [];
 
-	if ( match.length === 1 ) {
+  if (match.length === 1) {
+    let tokens = match[0].slice(0);
+    let token = tokens[0];
 
-		tokens = match[0] = match[0].slice( 0 );
-        let token = tokens[0];
-		if ( tokens.length > 2 && (token).type === "ID" &&
-				support.getById && context.nodeType === 9 && documentIsHTML &&
-				Expr.relative[ tokens[1].type ] ) {
+    if (tokens.length > 2 && token.type === "ID" &&
+        support.getById && context.nodeType === 9 && documentIsHTML &&
+        Expr.relative[tokens[1].type]) {
+      context = (Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [])[0];
+      if (!context) {
+        return results;
+      } else if (compiled) {
+        context = context.parentNode;
+      }
+      selector = selector.slice(tokens.shift().value.length);
+    }
 
-			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
-			if ( !context ) {
-				return results;
+    processTokens(tokens, context, results);
+  }
 
-			} else if ( compiled ) {
-				context = context.parentNode;
-			}
+  (compiled || compile(selector, match))(
+      seed,
+      context,
+      !documentIsHTML,
+      results,
+      rsibling.test(selector) && testContext(context.parentNode) || context
+  );
 
-			selector = selector.slice( tokens.shift().value.length );
-		}
-
-		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
-		while ( i-- ) {
-			token = tokens[i];
-            let type = token.type;
-			if ( Expr.relative[type] ) {
-				break;
-			}
-          let find = Expr.find[type];
-          let seed = find(
-              token.matches[0].replace(runescape, funescape),
-              rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
-          );
-          if (find) {
-				if (seed)  {
-					tokens.splice( i, 1 );
-					selector = seed.length && toSelector( tokens );
-					if ( !selector ) {
-						push.apply( results, seed );
-						return results;
-					}
-
-					break;
-				}
-			}
-		}
-	}
-
-	( compiled || compile( selector, match ) )(
-		seed,
-		context,
-		!documentIsHTML,
-		results,
-		rsibling.test( selector ) && testContext( context.parentNode ) || context
-	);
-	return results;
+  return results;
 };
-
 
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
