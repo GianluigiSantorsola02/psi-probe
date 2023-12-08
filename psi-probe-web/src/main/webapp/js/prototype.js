@@ -4796,6 +4796,26 @@ getText = Sizzle.getText = function( elem ) {
 	return ret;
 };
 
+function performComparison(result, check, isEqual, isNotEqual, isStartsWith, isContains, isEndsWith, isSpaceSeparated, isHyphenSeparated) {
+  if (isEqual) {
+    return result === check;
+  } else if (isNotEqual) {
+    return result !== check;
+  } else if (isStartsWith) {
+    return check && result.indexOf(check) === 0;
+  } else if (isContains) {
+    return check && result.indexOf(check) > -1;
+  } else if (isEndsWith) {
+    return check && result.slice(-check.length) === check;
+  } else if (isSpaceSeparated) {
+    return (" " + result + " ").indexOf(check) > -1;
+  } else if (isHyphenSeparated) {
+    return result === check || result.slice(0, check.length + 1) === check + "-";
+  } else {
+    return false;
+  }
+}
+
 Expr = Sizzle.selectors = {
 
 	cacheLength: 50,
@@ -4829,16 +4849,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"CHILD": function( match ) {
-			/* matches from matchExpr["CHILD"]
-				1 type (only|nth|...)
-				2 what (child|of-type)
-				3 argument (even|odd|\d*|\d*n([+-]\d+)?|...)
-				4 xn-component of xn+y argument ([+-]?\d*n|)
-				5 sign of xn-component
-				6 x of xn-component
-				7 sign of y-component
-				8 y of y-component
-			*/
+
 			match[1] = match[1].toLowerCase();
 
 			if ( match[1].slice( 0, 3 ) === "nth" ) {
@@ -4905,6 +4916,8 @@ Expr = Sizzle.selectors = {
         return pattern;
       },
 
+
+
 		"ATTR": function( name, operator, check ) {
 			return function( elem ) {
 				let result = Sizzle.attr( elem, name );
@@ -4926,23 +4939,7 @@ Expr = Sizzle.selectors = {
               let isSpaceSeparated = operator === "~=";
               let isHyphenSeparated = operator === "|=";
 
-              if (isEqual) {
-                return result === check;
-              } else if (isNotEqual) {
-                return result !== check;
-              } else if (isStartsWith) {
-                return check && result.indexOf(check) === 0;
-              } else if (isContains) {
-                return check && result.indexOf(check) > -1;
-              } else if (isEndsWith) {
-                return check && result.slice(-check.length) === check;
-              } else if (isSpaceSeparated) {
-                return (" " + result + " ").indexOf(check) > -1;
-              } else if (isHyphenSeparated) {
-                return result === check || result.slice(0, check.length + 1) === check + "-";
-              } else {
-                return false;
-              }
+              performComparison(result, check, isEqual, isNotEqual, isStartsWith, isContains, isEndsWith, isSpaceSeparated, isHyphenSeparated);
             };
 		},
 
