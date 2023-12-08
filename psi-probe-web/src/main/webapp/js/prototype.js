@@ -3962,6 +3962,44 @@ let
 	};
 }
 
+function handleElementById(results, context, m) {
+  const elem = context.getElementById(m);
+  if (elem?.parentNode && elem.id === m) {
+    results.push(elem);
+  }
+  return results;
+}
+
+function handleQuerySelectorAll(results, newContext, newSelector, old, context) {
+  try {
+    push.apply(results, newContext.querySelectorAll(newSelector));
+  } catch (qsaError) {
+  } finally {
+    if (!old) {
+      context.removeAttribute("id");
+    }
+  }
+  return results;
+}
+
+function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector) {
+  groups = tokenize(selector);
+  const old = context.getAttribute("id");
+  if (old) {
+    nid = old.replace(rescape, "\\$&");
+  } else {
+    context.setAttribute("id", nid);
+  }
+  nid = "[id='" + nid + "'] ";
+
+  for (let i = groups.length; i--;) {
+    groups[i] = nid + toSelector(groups[i]);
+  }
+  const newContext = rsibling.test(selector) && testContext(context.parentNode) || context;
+  const newSelector = groups.join(",");
+
+  return { groups, newContext, newSelector };
+}
 function Sizzle( selector, context, results, seed ) {
   let elem, nodeType, groups, old, nid, newContext, newSelector;
 
@@ -3982,20 +4020,7 @@ function Sizzle( selector, context, results, seed ) {
     if (match) {
       let m = match[1];
       if (m) {
-        if (nodeType === 9) {
-          elem = context.getElementById(m);
-          if (elem?.parentNode && elem.id === m) {
-            results.push(elem);
-            return results;
-          } else {
-            return results;
-          }
-        } else if (context.ownerDocument && (elem = context.ownerDocument.getElementById(m)) &&
-            contains(context, elem) && elem.id === m) {
-          results.push(elem);
-          return results;
-        }
-
+        return handleElementById(results, context, m);
 
       } else if (match[2]) {
         push.apply(results, context.getElementsByTagName(selector));
@@ -4014,35 +4039,11 @@ function Sizzle( selector, context, results, seed ) {
       newSelector = nodeType === 9 && selector;
 
       if (nodeType === 1 && context.nodeName.toLowerCase() !== "object") {
-        groups = tokenize(selector);
-        let old = context.getAttribute("id");
-        if (old) {
-          nid = old.replace(rescape, "\\$&");
-        } else {
-          context.setAttribute("id", nid);
-        }
-        nid = "[id='" + nid + "'] ";
-
-        i = groups.length;
-        while (i--) {
-          groups[i] = nid + toSelector(groups[i]);
-        }
-        newContext = rsibling.test(selector) && testContext(context.parentNode) || context;
-        newSelector = groups.join(",");
+        let { groups, newContext, newSelector } = handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector);
       }
 
       if (newSelector) {
-        try {
-          push.apply(results,
-              newContext.querySelectorAll(newSelector)
-          );
-          return results;
-        } catch (qsaError) {
-        } finally {
-          if (!old) {
-            context.removeAttribute("id");
-          }
-        }
+        return handleQuerySelectorAll(results, newContext, newSelector, old, context);
       }
     }
   }
@@ -4483,13 +4484,12 @@ if (compare & 1 || (!support.sortDetached && b.compareDocumentPosition(a) === co
           let result;
           if (i) {
             result = siblingCheck(ap[i], bp[i]);
-          } else {
-            if (ap[i] === preferredDoc) {
+          } else if (ap[i] === preferredDoc) {
               result = -1;
             } else if (bp[i] === preferredDoc) {
               result = 1;
             }
-          }
+
 
           return result;
         };
@@ -4622,21 +4622,17 @@ getText = Sizzle.getText = function( elem ) {
 	return ret;
 };
 
-function performComparison(result, check, isEqual, isNotEqual, isStartsWith, isContains, isEndsWith, isSpaceSeparated, isHyphenSeparated) {
+function performComparison(result, check, isEqual, isNotEqual, startsWith, contains, endsWith) {
   if (isEqual) {
     return result === check;
   } else if (isNotEqual) {
     return result !== check;
-  } else if (isStartsWith) {
+  } else if (startsWith) {
     return check && result.indexOf(check) === 0;
-  } else if (isContains) {
+  } else if (contains) {
     return check && result.indexOf(check) > -1;
-  } else if (isEndsWith) {
+  } else if (endsWith) {
     return check && result.slice(-check.length) === check;
-  } else if (isSpaceSeparated) {
-    return (" " + result + " ").indexOf(check) > -1;
-  } else if (isHyphenSeparated) {
-    return result === check || result.slice(0, check.length + 1) === check + "-";
   } else {
     return false;
   }
@@ -4759,13 +4755,11 @@ Expr = Sizzle.selectors = {
 
               let isEqual = operator === "=";
               let isNotEqual = operator === "!=";
-              let isStartsWith = operator === "^=";
-              let isContains = operator === "*=";
-              let isEndsWith = operator === "$=";
-              let isSpaceSeparated = operator === "~=";
-              let isHyphenSeparated = operator === "|=";
+              let startsWith = operator === "^=";
+              let contains = operator === "*=";
+              let endsWith = operator === "$=";
 
-              performComparison(result, check, isEqual, isNotEqual, isStartsWith, isContains, isEndsWith, isSpaceSeparated, isHyphenSeparated);
+              performComparison(result, check, isEqual, isNotEqual, startsWith, contains, endsWith);
             };
 		},
 
