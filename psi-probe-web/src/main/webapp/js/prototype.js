@@ -71,16 +71,12 @@ const Prototype = {
     SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
         return true;
+if(document) {
+  let div = document.createElement('div'),
+      form = document.createElement('form'),
+      isSupported = false;
+}
 
-      let div = document.createElement('div'),
-          form = document.createElement('form'),
-          isSupported = false;
-
-      if (Object.getPrototypeOf(div) && (Object.getPrototypeOf(div) !== Object.getPrototypeOf(form))) {
-        isSupported = true;
-      }
-
-      form = null;
 
       return isSupported;
     })()
@@ -4367,16 +4363,16 @@ setDocument = Sizzle.setDocument;
 				return elem.getAttribute("id") === attrId;
 			};
 		};
-	} else {
-		delete Expr.find["ID"];
-
+	} else if(Expr) {
+      delete Expr.find["ID"];
+    }
 		Expr.filter["ID"] =  function( id ) {
 			let attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				let node = typeof elem.getAttributeNode !== strundefined && elem.getAttributeNode("id");
 				return node && node.value === attrId;
 			};
-		};
+
 	}
 
 	Expr.find["TAG"] = support.getElementsByTagName ?
