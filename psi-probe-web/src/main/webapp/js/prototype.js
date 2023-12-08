@@ -5366,60 +5366,57 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
   });
 }
 
-function matcherFromTokens( tokens ) {
-	let checkContext, j,
-		len = tokens.length,
-		leadingRelative = Expr.relative[ tokens[0].type ],
-		implicitRelative = leadingRelative || Expr.relative[" "],
-		i = leadingRelative ? 1 : 0,
+function matcherFromTokens(tokens) {
+  let checkContext;
+  const len = tokens.length;
+  const leadingRelative = Expr.relative[tokens[0].type];
+  const implicitRelative = leadingRelative || Expr.relative[" "];
+  let i = leadingRelative ? 1 : 0;
 
-		matchContext = addCombinator( function( elem ) {
-			return elem === checkContext;
-		}, implicitRelative, true ),
-		matchAnyContext = addCombinator( function( elem ) {
-			return indexOf.call( checkContext, elem ) > -1;
-		}, implicitRelative, true ),
-		matchers = [ function( elem, context, xml ) {
-			return ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
-				(checkContext).nodeType ?
-					matchContext( elem, context, xml ) :
-					matchAnyContext( elem, context, xml ) );
-		} ];
+  const matchContext = addCombinator((elem) => elem === checkContext, implicitRelative, true);
+  const matchAnyContext = addCombinator((elem) => indexOf.call(checkContext, elem) > -1, implicitRelative, true);
+  let matchers = [
+    (elem, context, xml) =>
+        (!leadingRelative && (xml || context !== outermostContext)) ||
+        (checkContext.nodeType ? matchContext(elem, context, xml) : matchAnyContext(elem, context, xml)),
+  ];
 
-	for ( ; i < len; i++ ) {
-      let matcher = Expr.relative[tokens[i].type];
-      if (matcher) {
-        matchers = [addCombinator(elementMatcher(matchers), matcher)];
+  for (; i < len; i++) {
+    const matcher = Expr.relative[tokens[i].type];
+
+    if (matcher) {
+      matchers = [addCombinator(elementMatcher(matchers), matcher)];
+    } else {
+      const filter = Expr.filter[tokens[i].type];
+      const filterMatcher = filter.apply(null, tokens[i].matches);
+
+      if (filterMatcher[expando]) {
+        let j = 0;
+
+        for (; j < len; j++) {
+          if (Expr.relative[tokens[j].type]) {
+            break;
+          }
+        }
+
+        const remainingTokens = tokens.slice(j);
+        return setMatcher(
+            i > 1 && elementMatcher(matchers),
+            i > 1 &&
+            toSelector(tokens.slice(0, i - 1).concat({ value: tokens[i - 2].type === " " ? "*" : "" })).replace(rtrim, "$1"),
+            filterMatcher,
+            i < j && matcherFromTokens(tokens.slice(i, j)),
+            j < len && matcherFromTokens(tokens),
+            j < len && toSelector(tokens)
+        );
       }
-      else {
-			matcher = Expr.filter[ tokens[i].type ].apply( null, tokens[i].matches );
 
-			if ( matcher[ expando ] ) {
+      matchers.push(filterMatcher);
+    }
+  }
 
-				for ( j = 0 ; j < len; j++ ) {
-					if ( Expr.relative[ tokens[j].type ] ) {
-						break;
-					}
-				}
-                let tokens = tokens.slice(j);
-				return setMatcher(
-					i > 1 && elementMatcher( matchers ),
-					i > 1 && toSelector(
-						tokens.slice( 0, i - 1 ).concat({ value: tokens[ i - 2 ].type === " " ? "*" : "" })
-					).replace( rtrim, "$1" ),
-					matcher,
-					i < j && matcherFromTokens( tokens.slice( i, j ) ),
-					j < len && matcherFromTokens(tokens),
-					j < len && toSelector( tokens )
-				);
-			}
-			matchers.push( matcher );
-		}
-	}
-
-	return elementMatcher( matchers );
+  return elementMatcher(matchers);
 }
-
 function processSeed(seed, matchedCount, len, results) {
   if (seed && matchedCount > 0) {
     let unmatched = {};
