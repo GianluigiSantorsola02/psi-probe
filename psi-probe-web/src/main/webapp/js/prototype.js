@@ -5293,6 +5293,22 @@ function handlePostFinderAndPreFilter(postFinder, preFilter, matcherOut, seed, m
     }
   }
 }
+function handleSeed(seed, postFinder, preFilter, matcherOut, matcherIn, preMap, results) {
+  if (seed) {
+    handlePostFinderAndPreFilter(postFinder, preFilter, matcherOut, seed, matcherIn, preMap, results);
+  } else {
+    matcherOut = condense(
+        matcherOut === results ?
+            matcherOut.splice(preexisting, matcherOut.length) :
+            matcherOut
+    );
+    if (postFinder) {
+      postFinder(null, results);
+    } else {
+      push.apply(results, matcherOut);
+    }
+  }
+}
 function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postSelector ) {
 	if ( postFilter && !postFilter[ expando ] ) {
 		postFilter = setMatcher( postFilter );
@@ -5320,20 +5336,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 
     handlePostFilter(postFilter, matcherOut, postMap, matcherIn, seed, context, xml)
 
-    if (seed) {
-      handlePostFinderAndPreFilter(postFinder, preFilter, matcherOut, seed, matcherIn, preMap, results)
-    } else {
-      matcherOut = condense(
-          matcherOut === results ?
-              matcherOut.splice(preexisting, matcherOut.length) :
-              matcherOut
-      );
-      if (postFinder) {
-        postFinder(null, results, matcherOut, xml);
-      } else {
-        push.apply(results, matcherOut);
-      }
-    }
+    handleSeed(seed, postFinder, preFilter, matcherOut, matcherIn, preMap, results)
   });
 }
 
