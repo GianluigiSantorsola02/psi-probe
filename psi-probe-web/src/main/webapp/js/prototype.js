@@ -5136,12 +5136,13 @@ function toSelector( tokens ) {
 	}
 	return selector;
 }
-function handleCache(oldCache, dirruns, doneName, newCache, matcher, elem, context) {
+function handleCache(oldCache, dirruns, doneName, matcher, elem, context) {
   if (oldCache && oldCache[0] === dirruns && oldCache[1] === doneName) {
     let newValue = oldCache[2];
     newCache[2] = newValue;
     return newValue;
   } else {
+    let newCache;
     newCache = [];
     newCache[2] = matcher(elem, context);
   }
@@ -5155,9 +5156,6 @@ function handleTraversal(xml, elem, dir, checkNonElements, matcher, context, sta
         }
       }
     }
-  } else {
-    let elem = startingElement;
-    // ... remaining code ...
   }
 }
 function addCombinator( matcher, combinator, base ) {
@@ -5184,7 +5182,7 @@ function addCombinator( matcher, combinator, base ) {
                   outerCache = elem[expando] || (elem[expando] = {});
                   let oldCache = outerCache[dir];
 
-                  handleCache(oldCache, dirruns, doneName, newCache, matcher, elem, context)
+                  handleCache(oldCache, dirruns, doneName, matcher, elem, context)
 
                     if (newCache[2]) {
                       outerCache[dir] = newCache;
