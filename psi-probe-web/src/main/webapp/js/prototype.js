@@ -200,7 +200,7 @@ Object.extend(Function.prototype, (function() {
 
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
-    return function(event) {
+    return function() {
       let a = update([(window.Event)], args);
       return __method.apply(context, a);
     };
@@ -336,19 +336,6 @@ Object.extend(String, {
 Object.extend(String.prototype, (function() {
 
   function inspect(useDoubleQuotes) {
-    const specialChar = {
-      '\\': '\\\\',
-      '\b': '\\b',
-      '\f': '\\f',
-      '\n': '\\n',
-      '\r': '\\r',
-      '\t': '\\t',
-      '\v': '\\v',
-      '\'': '\\\'',
-    };
-
-
-
     const escapeQuotes = (string) => {
       return string.replace(/['"]/g, (quote) => '\\' + quote);
     };
@@ -530,12 +517,12 @@ let Enumerable = (function() {
     return results;
   }
   function include(object) {
-    if (Object.isFunction(this.indexOf) && this.indexOf(object) != -1)
+    if (Object.isFunction(this.indexOf) && this.indexOf(object) !== -1)
       return true;
 
     let found = false;
     this.each(function(value) {
-      if (value == object) {
+      if (value === object) {
         found = true;
         throw $break;
       }
@@ -1034,7 +1021,7 @@ Object.extend(Number.prototype, (function() {
     round:          round
   };
 })());
-let ObjectRange = Class.Create(Enumerable, (function() {
+Class.Create(Enumerable, (function() {
   function initialize(start, end, exclusive) {
     this.start = start;
     this.end = end;
@@ -1065,9 +1052,6 @@ let ObjectRange = Class.Create(Enumerable, (function() {
     include:    include
   };
 })());
-
-
-
 let Abstract = { };
 
 
@@ -1258,7 +1242,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
   },
   success: function() {
     let status = this.getStatus();
-    return !status || (status >= 200 && status < 300) || status == 304;
+    return !status || (status >= 200 && status < 300) || status === 304;
   },
 
   getStatus: function() {
@@ -1360,14 +1344,14 @@ Ajax.Response = Class.Create({
     let transport  = this.transport  = request.transport,
         readyState = this.readyState = transport.readyState;
 
-    if ((readyState > 2 && !Prototype.Browser.IE) || readyState == 4) {
+    if ((readyState > 2 && !Prototype.Browser.IE) || readyState === 4) {
       this.status       = this.getStatus();
       this.statusText   = this.getStatusText();
       this.responseText = String.interpret(transport.responseText);
       this.headerJSON   = this._getHeaderJSON();
     }
 
-    if (readyState == 4) {
+    if (readyState === 4) {
       let xml = transport.responseXML;
       this.responseXML  = Object.isUndefined(xml) ? null : xml;
     }
@@ -1477,7 +1461,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   updateComplete: function(response) {
     if (this.options.decay) {
-      this.decay = (response.responseText == this.lastText ?
+      this.decay = (response.responseText === this.lastText ?
         this.decay * this.options.decay : 1);
 
       this.lastText = response.responseText;
@@ -1494,10 +1478,13 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
 if(document)
-  let DIV = document.createElement('div');
+{
+  document.createElement('div');
+}
 
 
-  function $(element) {
+
+function $(element) {
     if (typeof element === 'string' && document) {
       element = document.getElementById(element);
     }
@@ -2419,7 +2406,7 @@ function writeAttribute(element, name, value) {
    'accessKey tabIndex encType maxLength readOnly longDesc frameBorder');
 
 
-  let i;
+  let i = 0;
   let attr = CAMEL_CASED_ATTRIBUTE_NAMES[i];
   for (i = 0; i < CAMEL_CASED_ATTRIBUTE_NAMES.length; i++) {
     ATTRIBUTE_TRANSLATIONS.write.names[attr.toLowerCase()] = attr;
@@ -3154,7 +3141,7 @@ function getPixelValue(value, property, context) {
       return bHeight - bTop - bBottom - pTop - pBottom;
     },
 
-      'width': function(element) {
+      'width': function() {
         if (!this._preComputing) this._begin();
 
         let bWidth = this.get('border-box-width');
@@ -3173,7 +3160,7 @@ function getPixelValue(value, property, context) {
         return bWidth - bLeft - bRight - pLeft - pRight;
       },
 
-      'padding-box-height': function(element) {
+      'padding-box-height': function() {
         let height = this.get('height'),
             pTop = this.get('padding-top'),
             pBottom = this.get('padding-bottom');
@@ -3181,7 +3168,7 @@ function getPixelValue(value, property, context) {
         return height + pTop + pBottom;
       },
 
-      'padding-box-width': function(element) {
+      'padding-box-width': function() {
         let width = this.get('width'),
             pLeft = this.get('padding-left'),
             pRight = this.get('padding-right');
@@ -3203,7 +3190,7 @@ function getPixelValue(value, property, context) {
         return width;
       },
 
-      'margin-box-height': function(element) {
+      'margin-box-height': function() {
         let bHeight = this.get('border-box-height'),
             mTop = this.get('margin-top'),
             mBottom = this.get('margin-bottom');
@@ -3213,7 +3200,7 @@ function getPixelValue(value, property, context) {
         return bHeight + mTop + mBottom;
       },
 
-      'margin-box-width': function(element) {
+      'margin-box-width': function() {
         let bWidth = this.get('border-box-width'),
             mLeft = this.get('margin-left'),
             mRight = this.get('margin-right');
@@ -3820,7 +3807,7 @@ Prototype.Selector = (function() {
     let match = Prototype.Selector.match, length = elements.length, matchIndex = 0, i;
 
     for (i = 0; i < length; i++) {
-      if (match(elements[i], expression) && index == matchIndex++) {
+      if (match(elements[i], expression) && index === matchIndex++) {
         return Element.extend(elements[i]);
       }
     }
@@ -3980,14 +3967,11 @@ let
 }
 
 
-	let  elem, nodeType,
-		i, groups, old, nid, newContext, newSelector;
+	let  elem, nodeType, groups, old, nid, newContext, newSelector;
 
 	if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
 		setDocument( context );
 	}
-
-
 
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
@@ -5388,7 +5372,7 @@ function matcherFromTokens(tokens) {
       matchers = [addCombinator(elementMatcher(matchers), matcher)];
     } else {
       const filter = Expr.filter[tokens[i].type];
-      const filterMatcher = filter.apply(null, tokens[i].matches);
+      const filterMatcher = filter.filter(null, tokens[i].matches);
 
       if (filterMatcher[expando]) {
         let j = 0;
@@ -5398,8 +5382,7 @@ function matcherFromTokens(tokens) {
             break;
           }
         }
-
-        const remainingTokens = tokens.slice(j);
+        tokens.slice(j);
         return setMatcher(
             i > 1 && elementMatcher(matchers),
             i > 1 &&
@@ -5948,7 +5931,7 @@ Form.Element.Serializers = (function() {
     options.forEach((opt) => {
       const currentValue = optionValue(opt);
       if (single) {
-        if (currentValue == value) {
+        if (currentValue === value) {
           opt.selected = true;
         }
       } else {
