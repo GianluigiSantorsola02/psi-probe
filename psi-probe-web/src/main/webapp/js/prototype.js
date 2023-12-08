@@ -5439,8 +5439,9 @@ function processSeed(seed, matchedCount, len, results) {
 
   return null;
 }
-function processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique) {
+function processElementMatchers(byElement, elem, elementMatchers, context, xml, outermost, dirrunsUnique) {
   if (byElement && elem) {
+    let results = '';
     let j = 0;
     let matcher;
     while ((matcher = elementMatchers[j++])) {
@@ -5461,7 +5462,6 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
   function superMatcher(seed, context, xml, results, outermost) {
     let matchedCount = 0;
     let unmatched = seed && [];
-    let setMatched = [];
     let elems = seed || (byElement && Expr.find["TAG"]("*", outermost));
     let dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
     let len = elems.length;
