@@ -5322,6 +5322,31 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
   });
 }
 
+function handleFilterMatcher(filterMatcher, i, j, len, tokens, matchers) {
+  tokens = tokens.slice(j);
+  return setMatcher(
+      i > 1 && elementMatcher(matchers),
+      i > 1 &&
+      toSelector(tokens.slice(0, i - 1).concat({ value: tokens[i - 2].type === " " ? "*" : "" })).replace(rtrim, "$1"),
+      filterMatcher,
+      i < j && matcherFromTokens(tokens.slice(i, j)),
+      j < len && matcherFromTokens(tokens),
+      j < len && toSelector(tokens)
+  );
+}
+
+if (filterMatcher[expando]) {
+  let j = 0;
+
+  for (; j < len; j++) {
+    if (Expr.relative[tokens[j].type]) {
+      break;
+    }
+  }
+
+  return handleFilterMatcher(filterMatcher, i, j, len, tokens, matchers);
+}
+
 function matcherFromTokens(tokens) {
   let checkContext;
   const len = tokens.length;
@@ -5346,25 +5371,7 @@ function matcherFromTokens(tokens) {
       const filter = Expr.filter[tokens[i].type];
       const filterMatcher = filter.filter(null, tokens[i].matches);
 
-      if (filterMatcher[expando]) {
-        let j = 0;
-
-        for (; j < len; j++) {
-          if (Expr.relative[tokens[j].type]) {
-            break;
-          }
-        }
-        tokens.slice(j);
-        return setMatcher(
-            i > 1 && elementMatcher(matchers),
-            i > 1 &&
-            toSelector(tokens.slice(0, i - 1).concat({ value: tokens[i - 2].type === " " ? "*" : "" })).replace(rtrim, "$1"),
-            filterMatcher,
-            i < j && matcherFromTokens(tokens.slice(i, j)),
-            j < len && matcherFromTokens(tokens),
-            j < len && toSelector(tokens)
-        );
-      }
+      handleFilterMatcher(filterMatcher, i, j, len, tokens, matchers)
 
       matchers.push(filterMatcher);
     }
