@@ -5169,7 +5169,7 @@ function addCombinator( matcher, combinator, base ) {
 
 			handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement)
 
-              while (outerCache[0] === dirruns && outerCache[1] === doneName) {
+              while (outerCache[1] === doneName) {
                 if (elem.nodeType === 1 || checkNonElements) {
                   outerCache = (elem[expando] = {});
                   let oldCache = outerCache[dir];
