@@ -2666,12 +2666,7 @@ function writeAttribute(element, name, value) {
 
     return value === 'auto' ? null : value;
   }
-function getStyle_IE(element, style) {
-  element = $(element);
-  style = normalizeStyleName_IE(style);
-
-  let value = element.style[style] || element.currentStyle?.[style];
-
+function calculateOpacityValue(style, value, element) {
   if (style === 'opacity') {
     if (!STANDARD_CSS_OPACITY_SUPPORTED) {
       return getOpacity_IE(element);
@@ -2679,6 +2674,14 @@ function getStyle_IE(element, style) {
       return value ? parseFloat(value) : 1.0;
     }
   }
+}
+function getStyle_IE(element, style) {
+  element = $(element);
+  style = normalizeStyleName_IE(style);
+
+  let value = element.style[style] || element.currentStyle?.[style];
+
+  calculateOpacityValue(style, value, element);
 
   if (value === 'auto' && (style === 'width' || style === 'height') && Element.visible(element)) {
     return Element.measure(element, style) + 'px';
@@ -2947,6 +2950,15 @@ function getStyle_IE(element, style) {
     element = null;
     return proto;
   }
+function applySpecificElementExtensions() {
+  if (F.SpecificElementExtensions) {
+    for (let tag in Element.Methods.ByTag) {
+      let klass = findDOMClass(tag);
+      if (Object.isUndefined(klass)) continue;
+      mergeMethods(klass.prototype, ByTag[tag]);
+    }
+  }
+}
 
 function addMethods(methods) {
   if (arguments.length === 0) {
@@ -2974,13 +2986,7 @@ function addMethods(methods) {
     mergeMethods(ELEMENT_PROTOTYPE, Element.Methods.Simulated, true);
   }
 
-  if (F.SpecificElementExtensions) {
-    for (let tag in Element.Methods.ByTag) {
-      let klass = findDOMClass(tag);
-      if (Object.isUndefined(klass)) continue;
-      mergeMethods(klass.prototype, ByTag[tag]);
-    }
-  }
+  applySpecificElementExtensions();
 
   Object.extend(Element, Element.Methods);
   Object.extend(Element, Element.Methods.Simulated);
@@ -6405,7 +6411,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   if (window.addEventListener) {
-    Event.prototype = window.Event.prototype || document.createEvent('HTMLEvents').__proto__;
+    Event.prototype = window.Event.prototype || document.createEvent('HTMLEvents');
     Object.extend(Event.prototype, methods);
   }
 
