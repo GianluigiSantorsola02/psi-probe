@@ -3981,7 +3981,7 @@ function checkContextAndSelector(context, preferredDoc, document, setDocument, s
   }
 }
 function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector) {
-  groups = tokenize(selector);
+  tokenize(selector);
   const old = context.getAttribute("id");
   if (old) {
     nid = old.replace(rescape, "\\$&");
@@ -4647,7 +4647,7 @@ function handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type) {
   let dirruns = "someDirruns";
   let elem = "someElem";
 
-  while ((++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+  while ((++nodeIndex && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
     if ((ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) && ++diff) {
       if (useCache) {
         (node[expando] || (node[expando] = {}))[type] = [dirruns, diff];
@@ -4662,7 +4662,7 @@ function handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache) {
   let diff = 0;
   let dirruns = "someDirruns";
 
-  while ((++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+  while ((++nodeIndex && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
     if (node.nodeType === 1 && ++diff && node === elem) {
       outerCache[type] = [dirruns, nodeIndex, diff];
       break;
@@ -5169,12 +5169,12 @@ function addCombinator( matcher, combinator, base ) {
 
 			handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement)
 
-              while (elem) {
+              while (outerCache[0] === dirruns && outerCache[1] === doneName) {
                 if (elem.nodeType === 1 || checkNonElements) {
                   outerCache = (elem[expando] = {});
                   let oldCache = outerCache[dir];
 
-                  handleCache(oldCache, dirruns, doneName, matcher, elem, context)
+                  handleCache(oldCache, dirruns, doneName)
 
                     if (newCache[2]) {
                       outerCache[dir] = newCache;
