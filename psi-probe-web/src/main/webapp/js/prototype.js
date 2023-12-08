@@ -5913,6 +5913,7 @@ let Form = {
     return form;
   },
 
+
   serializeElements: function(elements, options) {
     if (typeof options != 'object') options = { hash: !!options };
     else if (Object.isUndefined(options.hash)) options.hash = true;
