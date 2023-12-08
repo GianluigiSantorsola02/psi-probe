@@ -2666,30 +2666,26 @@ function writeAttribute(element, name, value) {
 
     return value === 'auto' ? null : value;
   }
-  function getStyle_IE(element, style) {
-    element = $(element);
-    style = normalizeStyleName_IE(style);
+function getStyle_IE(element, style) {
+  element = $(element);
+  style = normalizeStyleName_IE(style);
 
-    let value = element.style[style];
-    if (!value && element.currentStyle) {
-      value = element.currentStyle[style];
+  let value = element.style[style] || element.currentStyle?.[style];
+
+  if (style === 'opacity') {
+    if (!STANDARD_CSS_OPACITY_SUPPORTED) {
+      return getOpacity_IE(element);
+    } else {
+      return value ? parseFloat(value) : 1.0;
     }
-
-    if (style === 'opacity') {
-      if (!STANDARD_CSS_OPACITY_SUPPORTED)
-        return getOpacity_IE(element);
-      else return value ? parseFloat(value) : 1.0;
-    }
-
-    if (value === 'auto') {
-      if ((style === 'width' || style === 'height') && Element.visible(element))
-        return Element.measure(element, style) + 'px';
-      return null;
-    }
-
-    return value;
   }
 
+  if (value === 'auto' && (style === 'width' || style === 'height') && Element.visible(element)) {
+    return Element.measure(element, style) + 'px';
+  }
+
+  return value || null;
+}
   function stripAlphaFromFilter_IE(filter) {
     return (filter || '').replace(/alpha\([^]*\)/gi, '');
   }
@@ -2952,51 +2948,49 @@ function writeAttribute(element, name, value) {
     return proto;
   }
 
-  function addMethods(methods) {
-    if (arguments.length === 0) addFormMethods();
-
-    if (arguments.length === 2) {
-      methods = arguments[1];
-    }
-
-    if (!tagName) {
-      Object.extend(Element.Methods, methods || {});
-    } else if (Object.isArray(tagName)) {
-      let tag = tagName[i];
-      for (let i = 0;i < tagName.length ; i++) {
-        addMethodsToTagName(tag, methods);
-      }
-    } else {
-      addMethodsToTagName(tagName, methods);
-    }
-
-
-    let ELEMENT_PROTOTYPE = window.HTMLElement ? HTMLElement.prototype :
-     Element.prototype;
-
-    if (F.ElementExtensions) {
-      mergeMethods(ELEMENT_PROTOTYPE, Element.Methods);
-      mergeMethods(ELEMENT_PROTOTYPE, Element.Methods.Simulated, true);
-    }
-
-    if (F.SpecificElementExtensions) {
-      for (let tag in Element.Methods.ByTag) {
-        let klass = findDOMClass(tag);
-        if (Object.isUndefined(klass)) continue;
-        mergeMethods(klass.prototype, ByTag[tag]);
-      }
-    }
-
-    Object.extend(Element, Element.Methods);
-    Object.extend(Element, Element.Methods.Simulated);
-    delete Element.ByTag;
-    delete Element.Simulated;
-
-    Element.extend.refresh();
-
-    ELEMENT_CACHE = {};
+function addMethods(methods) {
+  if (arguments.length === 0) {
+    addFormMethods();
   }
 
+  if (arguments.length === 2) {
+    methods = arguments[1];
+  }
+
+  if (!tagName) {
+    Object.extend(Element.Methods, methods || {});
+  } else if (Object.isArray(tagName)) {
+    tagName.forEach(tag => {
+      addMethodsToTagName(tag, methods);
+    });
+  } else {
+    addMethodsToTagName(tagName, methods);
+  }
+
+  let ELEMENT_PROTOTYPE = window.HTMLElement ? HTMLElement.prototype : Element.prototype;
+
+  if (F.ElementExtensions) {
+    mergeMethods(ELEMENT_PROTOTYPE, Element.Methods);
+    mergeMethods(ELEMENT_PROTOTYPE, Element.Methods.Simulated, true);
+  }
+
+  if (F.SpecificElementExtensions) {
+    for (let tag in Element.Methods.ByTag) {
+      let klass = findDOMClass(tag);
+      if (Object.isUndefined(klass)) continue;
+      mergeMethods(klass.prototype, ByTag[tag]);
+    }
+  }
+
+  Object.extend(Element, Element.Methods);
+  Object.extend(Element, Element.Methods.Simulated);
+  delete Element.ByTag;
+  delete Element.Simulated;
+
+  Element.extend.refresh();
+
+  ELEMENT_CACHE = {};
+}
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element) {
     Object.extend(GLOBAL.Element, {
       extend: extend,
@@ -3042,7 +3036,6 @@ function writeAttribute(element, name, value) {
     window.attachEvent('onunload', destroyCache_IE);
 
 
-(function() {
 
   function toDecimal(pctString) {
     let match = pctString.match(/^(\d+)%?$/i);
@@ -3086,45 +3079,43 @@ function writeAttribute(element, name, value) {
     getRawStyle = getRawStyle_IE;
   }
 
+function calculatePercentageValue(value, property, context) {
+  if (value.includes('%') && context && context !== document.viewport && /\d/.test(value)) {
+    let decimal = toDecimal(value);
+    let whole = null;
 
-  function getPixelValue(value, property, context) {
-    if (Object.isElement(value)) {
-      value = getRawStyle(value, property);
+    let isHorizontal = property.includes('left') || property.includes('right') ||
+        property.includes('width');
+
+    let isVertical = property.includes('top') || property.includes('bottom') ||
+        property.includes('height');
+
+    if (isHorizontal) {
+      whole = context.getWidth();
+    } else if (isVertical) {
+      whole = context.getHeight();
     }
 
-    if (value === null || Object.isUndefined(value)) {
-      return null;
-    }
-
-    if ((/^?\d+(\.\d+)?(px)?$/i).test(value)) {
-      return parseFloat(value);
-    }
-
-    if (/\d/.test(value)) {
-      if (context && context !== document.viewport && value.includes('%')) {
-        let decimal = toDecimal(value);
-        let whole = null;
-
-        let isHorizontal = property.includes('left') || property.includes('right') ||
-            property.includes('width');
-
-        let isVertical = property.includes('top') || property.includes('bottom') ||
-            property.includes('height');
-
-        if (isHorizontal ) {
-          whole = context.getWidth();
-        } else if (isVertical) {
-          whole = context.getHeight();
-        }
-
-        return (whole === null) ? 0 : whole * decimal;
-      } else {
-        return parseFloat(value);
-      }
-    }
-
-    return 0;
+    return (whole === null) ? 0 : whole * decimal;
   }
+
+  return 0;
+}
+function getPixelValue(value, property, context) {
+  if (Object.isElement(value)) {
+    value = getRawStyle(value, property);
+  }
+
+  if (!value || isNaN(parseFloat(value))) {
+    return null;
+  }
+
+  if ((/^?\d+(\.\d+)?(px)?$/i).test(value)) {
+    return parseFloat(value);
+  }
+
+  return calculatePercentageValue(value, property, context);
+}
   function isDisplayed(element) {
     while (element?.parentNode) {
       let display = element.getStyle('display');
@@ -3929,7 +3920,6 @@ function writeAttribute(element, name, value) {
   }
 
 
-})();
 
 (function() {
 
