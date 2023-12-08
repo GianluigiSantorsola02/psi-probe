@@ -5161,11 +5161,7 @@ function addCombinator( matcher, combinator, base ) {
 
 	return combinator.first ?
 		function( elem, context, xml ) {
-			while ( (elem = elem[ dir ]) ) {
-				if ( elem.nodeType === 1 || checkNonElements ) {
-					return matcher( elem, context, xml );
-				}
-			}
+			handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement)
 		} :
 
 		function( elem, context, xml ) {
@@ -5175,7 +5171,7 @@ function addCombinator( matcher, combinator, base ) {
 
               while (elem) {
                 if (elem.nodeType === 1 || checkNonElements) {
-                  outerCache = elem[expando] || (elem[expando] = {});
+                  outerCache = (elem[expando] = {});
                   let oldCache = outerCache[dir];
 
                   handleCache(oldCache, dirruns, doneName, matcher, elem, context)
