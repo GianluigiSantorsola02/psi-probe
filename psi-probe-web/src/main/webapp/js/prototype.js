@@ -6749,7 +6749,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (document.addEventListener)
     document.addEventListener('unload', destroyCache_IE, false);
   docEl = null;
-(this);
+
 
 ((function() {
   /* Code for creating leak-free event responders is based on work by
