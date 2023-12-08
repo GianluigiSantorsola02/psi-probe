@@ -4348,7 +4348,7 @@ if(Expr)
 			rbuggyQSA.push(",.*:");
 		});
 	}
-  matches = docElem.webkitMatchesSelector;
+  matches = docElem.compareDocumentPosition;
   support.matchesSelector = rnative.test(matches);
 	if ( (support.matchesSelector ||
 		docElem.mozMatchesSelector ||
@@ -4417,41 +4417,45 @@ hasCompare = rnative.test( docElem.compareDocumentPosition );
       return siblingCheck(a, b);
     }
   }
+function handleComparePosition(compare, a, b) {
+  const preferredDoc = a.ownerDocument || b.ownerDocument || document;
+  const sortInput = preferredDoc !== document ? preferredDoc : null;
+
+  if (a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
+    return -1;
+  }
+  if (b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b)) {
+    return 1;
+  }
+
+  return sortInput
+      ? (indexOf.call(sortInput, a) - indexOf.call(sortInput, b))
+      : 0;
+}
+
+if (compare & 1 || (!support.sortDetached && b.compareDocumentPosition(a) === compare)) {
+  return handleComparePosition(compare, a, b);
+}
   sortOrder = hasCompare ?
-	function( a, b ) {
+      function compareFunction(a, b) {
+        if (a === b) {
+          hasDuplicate = true;
+          return 0;
+        }
 
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
+        let compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
+        if (compare) {
+          return compare;
+        }
 
-		let compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
-		if ( compare ) {
-			return compare;
-		}
+        compare = (a.ownerDocument || a) === (b.ownerDocument || b)
+            ? a.compareDocumentPosition(b)
+            : 1;
 
-		compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
-			a.compareDocumentPosition( b ) :
+        handleComparePosition(compare, a, b)
 
-			1;
-
-		if ( compare & 1 ||
-			(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
-
-			if ( a === doc || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
-				return -1;
-			}
-			if ( b === doc || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
-				return 1;
-			}
-
-			return sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
-				0;
-		}
-
-		return compare & 4 ? -1 : 1;
-	} :
+        return compare & 4 ? -1 : 1;
+      } :
         function compareNodes(a, b) {
           if (a === b) {
             hasDuplicate = true;
@@ -4484,8 +4488,6 @@ hasCompare = rnative.test( docElem.compareDocumentPosition );
               result = -1;
             } else if (bp[i] === preferredDoc) {
               result = 1;
-            } else {
-              result = 0;
             }
           }
 
