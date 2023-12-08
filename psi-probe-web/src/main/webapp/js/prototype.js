@@ -3979,7 +3979,7 @@ let
 	};
 }
 
-
+function Sizzle( selector, context, results, seed ) {
 	let  elem, nodeType,
 		i, groups, old, nid, newContext, newSelector;
 
@@ -3987,7 +3987,8 @@ let
 		setDocument( context );
 	}
 
-
+	context = context || document;
+	results = results || [];
 
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
@@ -4069,7 +4070,7 @@ let
 	}
 
 	return select( selector.replace( rtrim, "$1" ), context, results, seed );
-
+}
 
 /**
  * Create key-value caches of limited size
@@ -5420,103 +5421,92 @@ function matcherFromTokens( tokens ) {
 	return elementMatcher( matchers );
 }
 
-function processSeed(seed, matchedCount, len, results) {
-  if (seed && matchedCount > 0) {
-    let unmatched = {};
-    let setMatched = {};
+function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
+	let bySet = setMatchers.length > 0,
+		byElement = elementMatchers.length > 0,
+		superMatcher = function( seed, context, xml, results, outermost ) {
+			let elem, j, matcher,
+				matchedCount = 0,
+				i = "0",
+				unmatched = seed && [],
+				setMatched = [],
+				contextBackup = outermostContext,
+				elems = seed || byElement && Expr.find["TAG"]( "*", outermost ),
+				dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
+				len = elems.length;
 
-    for (let i = len - 1; i >= 0; i--) {
-      if (!(unmatched[i] || setMatched[i])) {
-        setMatched[i] = results.pop();
-      }
-    }
+			if ( outermost ) {
+				outermostContext = context !== document && context;
+			}
 
-    setMatched = condense(setMatched);
+			for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
+				if ( byElement && elem ) {
+					j = 0;
+					while ( (matcher = elementMatchers[j++]) ) {
+						if ( matcher( elem, context, xml ) ) {
+							results.push( elem );
+							break;
+						}
+					}
+					if ( outermost ) {
+						dirruns = dirrunsUnique;
+					}
+				}
 
-    return setMatched;
-  }
+				if ( bySet ) {
+                  let elem = !matcher && elem;
+                  if (elem) {
+                    matchedCount--;
+                  }
 
-  return null;
-}
-function processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique) {
-  if (byElement && elem) {
-    let j = 0;
-    let matcher;
-    while ((matcher = elementMatchers[j++])) {
-      if (matcher(elem, context, xml)) {
-        results.push(elem);
-        break;
-      }
-    }
-    if (outermost) {
-      dirruns = dirrunsUnique;
-    }
-  }
-}
-function matcherFromGroupMatchers(elementMatchers, setMatchers) {
-  let bySet = setMatchers.length > 0;
-  let byElement = elementMatchers.length > 0;
+                  if ( seed ) {
+						unmatched.push( elem );
+					}
+				}
+			}
 
-  function superMatcher(seed, context, xml, results, outermost) {
-    let matchedCount = 0;
-    let unmatched = seed && [];
-    let setMatched = [];
-    let elems = seed || (byElement && Expr.find["TAG"]("*", outermost));
-    let dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
-    let len = elems.length;
+			matchedCount += i;
+			if ( bySet && i != matchedCount ) {
+				j = 0;
+				while ( (matcher = setMatchers[j++]) ) {
+					matcher( unmatched, setMatched, context, xml );
+				}
 
-    if (outermost) {
-      outermostContext = context !== document && context;
-    }
-    processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique);
+				if ( seed ) {
+					if ( matchedCount > 0 ) {
+						while ( i-- ) {
+                          let unmatched = {};
+                          let setMatched = {};
 
+                          if (!(unmatched[i] || setMatched[i])) {
+                            setMatched[i] = results.pop();
+                          }
+						}
+					}
 
-    for (let i = 0; i < len; i++) {
-      let elem = elems[i];
+					setMatched = condense( setMatched );
+				}
 
+				push.apply( results, setMatched );
 
-      if (bySet) {
-        if (elem) {
-          matchedCount--;
-        }
+				if ( outermost && !seed && setMatched.length > 0 &&
+					( matchedCount + setMatchers.length ) > 1 ) {
 
-        if (seed) {
-          unmatched.push(elem);
-        }
-      }
-    }
+					Sizzle.uniqueSort( results );
+				}
+			}
 
-    matchedCount += len;
+			if ( outermost ) {
+				dirruns = dirrunsUnique;
+				outermostContext = contextBackup;
+			}
 
-    if (bySet && len !== matchedCount) {
-      let j = 0;
-      let matcher;
-      while (matcher = setMatchers[j++]) {
-        matcher(unmatched, setMatched, context, xml);
-      }
+			return unmatched;
+		};
 
-      let setMatched = processSeed(seed, matchedCount, len, results);
-
-      if (setMatched) {
-        push.apply(results, setMatched);
-
-        push.apply(results, setMatched);
-
-        if (outermost && !seed && setMatched.length > 0 && (matchedCount + setMatchers.length) > 1) {
-          Sizzle.uniqueSort(results);
-        }
-      }
-
-      if (outermost) {
-        dirruns = dirrunsUnique;
-        outermostContext = contextBackup;
-      }
-
-      return unmatched;
-    }
-
-  }
-  return bySet ? markFunction(superMatcher) : superMatcher;
+	return bySet ?
+		markFunction( superMatcher ) :
+		superMatcher;
 }
 
 compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
@@ -5559,7 +5549,7 @@ function processTokens(tokens, context, results) {
         token.matches[0].replace(runescape, funescape),
         rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
     );
-    if (foundElements ?. foundElements.length) {
+    if (foundElements && foundElements.length) {
       tokens.splice(i, 1);
       let selector = foundElements.length && toSelector(tokens);
       if (!selector) {
@@ -5784,11 +5774,14 @@ Form.Methods = {
   getElements: function(form) {
     let elements = $(form).getElementsByTagName('*');
     let results = [], serializers = Form.Element.Serializers;
-    for (let element of elements) {
+
+    let element = elements[i];
+    for (let i = 0; i < elements.length; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
     }
+
     return results;
   },
   disable: function(form) {
