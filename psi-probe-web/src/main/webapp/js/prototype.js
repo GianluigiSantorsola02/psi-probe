@@ -4270,6 +4270,16 @@ function addHandle( attrs, handler ) {
 	}
 }
 
+function findNextSibling(cur, b) {
+  if (cur) {
+    while ((cur = cur.nextSibling)) {
+      if (cur === b) {
+        return -1;
+      }
+    }
+  }
+}
+
 /**
  * Checks document order of two siblings
  * @param {Element} a
@@ -4286,13 +4296,7 @@ function siblingCheck( a, b ) {
 		return diff;
 	}
 
-	if ( cur ) {
-		while ( (cur = cur.nextSibling) ) {
-			if ( cur === b ) {
-				return -1;
-			}
-		}
-	}
+findNextSibling(cur, b);
 
 	return a ? 1 : -1;
 }
