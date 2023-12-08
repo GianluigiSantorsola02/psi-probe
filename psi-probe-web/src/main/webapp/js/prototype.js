@@ -3619,8 +3619,6 @@ function calculateScrollOffset(elem) {
   do {
     if (elem === document.body) {
       const bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
-      valueT += !Object.isUndefined(window.screenY) ? window.screenY : bodyScrollNode.scrollTop || 0;
-      valueL += !Object.isUndefined(window.screenX) ? window.screenX : bodyScrollNode.scrollLeft || 0;
       break;
     } else {
       valueT += elem.scrollTop || 0;
@@ -3774,67 +3772,80 @@ function viewportOffset(forElement) {
     return element;
   }
 
-  function clonePosition(element, source, options) {
-    options = Object.extend({
-      setLeft:    true,
-      setTop:     true,
-      setWidth:   true,
-      setHeight:  true,
-      offsetTop:  0,
-      offsetLeft: 0
-    }, options || {});
-
-    let docEl = document.documentElement;
-
-    source  = $(source);
-    element = $(element);
-    let p, delta, layout, styles = {};
-
-    if (options.setLeft || options.setTop) {
-      p = Element.viewportOffset(source);
-      delta = [0, 0];
-      if (Element.getStyle(element, 'position') === 'absolute') {
-        let parent = Element.getOffsetParent(element);
-        if (parent !== document.body) delta = Element.viewportOffset(parent);
-      }
-    }
-
-    function pageScrollXY() {
-      let x = 0, y = 0;
-      if (Object.isNumber(window.screenX)) {
-        x = window.screenX;
-        y = window.screenY;
-      } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
-        x = document.body.scrollLeft;
-        y = document.body.scrollTop;
-      } else if (docEl && (docEl.scrollLeft || docEl.scrollTop)) {
-        x = docEl.scrollLeft;
-        y = docEl.scrollTop;
-      }
-      return { x: x, y: y };
-    }
-
-    let pageXY = pageScrollXY();
-
-
-    if (options.setWidth || options.setHeight) {
-      layout = Element.getLayout(source);
-    }
-
-    if (options.setLeft)
-      styles.left = (p[0] + pageXY.x - delta[0] + options.offsetLeft) + 'px';
-    if (options.setTop)
-      styles.top  = (p[1] + pageXY.y - delta[1] + options.offsetTop)  + 'px';
-    element.getLayout();
-    if (options.setWidth) {
-      styles.width = layout.get('width')  + 'px';
-    }
-    if (options.setHeight) {
-      styles.height = layout.get('height') + 'px';
-    }
-
-    return Element.setStyle(element, styles);
+function pageScrollXY() {
+  let x = 0, y = 0;
+  if (Object.isNumber(window.screenX)) {
+    x = window.screenX;
+    y = window.screenY;
+  } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+    x = document.body.scrollLeft;
+    y = document.body.scrollTop;
+  } else if (docEl && (docEl.scrollLeft || docEl.scrollTop)) {
+    x = docEl.scrollLeft;
+    y = docEl.scrollTop;
   }
+  return { x: x, y: y };
+}
+
+function clonePosition(element, source, options) {
+  options = Object.extend({
+    setLeft:    true,
+    setTop:     true,
+    setWidth:   true,
+    setHeight:  true,
+    offsetTop:  0,
+    offsetLeft: 0
+  }, options || {});
+
+  let docEl = document.documentElement;
+
+  source  = $(source);
+  element = $(element);
+  let p, delta, layout, styles = {};
+
+  if (options.setLeft || options.setTop) {
+    p = Element.viewportOffset(source);
+    delta = [0, 0];
+    if (Element.getStyle(element, 'position') === 'absolute') {
+      let parent = Element.getOffsetParent(element);
+      if (parent !== document.body) delta = Element.viewportOffset(parent);
+    }
+  }
+
+  let pageXY = pageScrollXY();
+
+  if (options.setWidth || options.setHeight) {
+    layout = Element.getLayout(source);
+  }
+
+  if (options.setLeft)
+    styles.left = (p[0] + pageXY.x - delta[0] + options.offsetLeft) + 'px';
+  if (options.setTop)
+    styles.top  = (p[1] + pageXY.y - delta[1] + options.offsetTop)  + 'px';
+  element.getLayout();
+  if (options.setWidth) {
+    styles.width = layout.get('width')  + 'px';
+  }
+  if (options.setHeight) {
+    styles.height = layout.get('height') + 'px';
+  }
+
+  return Element.setStyle(element, styles);
+}
+function pageScrollXY() {
+  let x = 0, y = 0;
+  if (Object.isNumber(window.screenX)) {
+    x = window.screenX;
+    y = window.screenY;
+  } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+    x = document.body.scrollLeft;
+    y = document.body.scrollTop;
+  } else if (docEl && (docEl.scrollLeft || docEl.scrollTop)) {
+    x = docEl.scrollLeft;
+    y = docEl.scrollTop;
+  }
+  return { x: x, y: y };
+}
 
 
   if (Prototype.Browser.IE) {
