@@ -5536,6 +5536,30 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 	return cached;
 };
 
+function processTokens(tokens, context, results) {
+  let i = tokens.length;
+  while (i--) {
+    let token = tokens[i];
+    let type = token.type;
+    if (Expr.relative[type]) {
+      break;
+    }
+    let find = Expr.find[type];
+    let foundElements = find(
+        token.matches[0].replace(runescape, funescape),
+        rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+    );
+    if (foundElements && foundElements.length) {
+      tokens.splice(i, 1);
+      let selector = foundElements.length && toSelector(tokens);
+      if (!selector) {
+        push.apply(results, foundElements);
+        return results;
+      }
+      break;
+    }
+  }
+}
 /**
  * A low-level selection function that works with Sizzle's compiled
  *  selector functions
@@ -5544,70 +5568,41 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function( context, results, seed ) {
-  let selector =  compiled.selector;
-  let i, tokens,
-		compiled = typeof selector === "function" && selector,
-		match = !seed && tokenize( (selector) );
+select = Sizzle.select = function(context, results, seed) {
+  let selector = compiled.selector;
+  let match = !seed && tokenize(selector);
 
-	results = results || [];
+  results = results || [];
 
-	if ( match.length === 1 ) {
+  if (match.length === 1) {
+    let tokens = match[0].slice(0);
+    let token = tokens[0];
 
-		tokens = match[0] = match[0].slice( 0 );
-        let token = tokens[0];
-		if ( tokens.length > 2 && (token).type === "ID" &&
-				support.getById && context.nodeType === 9 && documentIsHTML &&
-				Expr.relative[ tokens[1].type ] ) {
+    if (tokens.length > 2 && token.type === "ID" &&
+        support.getById && context.nodeType === 9 && documentIsHTML &&
+        Expr.relative[tokens[1].type]) {
+      context = (Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [])[0];
+      if (!context) {
+        return results;
+      } else if (compiled) {
+        context = context.parentNode;
+      }
+      selector = selector.slice(tokens.shift().value.length);
+    }
 
-			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
-			if ( !context ) {
-				return results;
+    processTokens(tokens, context, results);
+  }
 
-			} else if ( compiled ) {
-				context = context.parentNode;
-			}
+  (compiled || compile(selector, match))(
+      seed,
+      context,
+      !documentIsHTML,
+      results,
+      rsibling.test(selector) && testContext(context.parentNode) || context
+  );
 
-			selector = selector.slice( tokens.shift().value.length );
-		}
-
-		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
-		while ( i-- ) {
-			token = tokens[i];
-            let type = token.type;
-			if ( Expr.relative[type] ) {
-				break;
-			}
-          let find = Expr.find[type];
-          let seed = find(
-              token.matches[0].replace(runescape, funescape),
-              rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
-          );
-          if (find) {
-				if (seed)  {
-					tokens.splice( i, 1 );
-					selector = seed.length && toSelector( tokens );
-					if ( !selector ) {
-						push.apply( results, seed );
-						return results;
-					}
-
-					break;
-				}
-			}
-		}
-	}
-
-	( compiled || compile( selector, match ) )(
-		seed,
-		context,
-		!documentIsHTML,
-		results,
-		rsibling.test( selector ) && testContext( context.parentNode ) || context
-	);
-	return results;
+  return results;
 };
-
 
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
@@ -5665,7 +5660,6 @@ if ( typeof define === "function" && define.amd ) {
 	window.Sizzle = Sizzle;
 }
 
-;
 
 ;(function() {
   if (typeof Sizzle !== 'undefined') {
@@ -5691,7 +5685,7 @@ if ( typeof define === "function" && define.amd ) {
   }
 
   function match(element, selector) {
-    return engine.matches(selector, [element]).length == 1;
+    return engine.matches(selector, [element]).length === 1;
   }
 
   Prototype.Selector.engine = engine;
@@ -5702,19 +5696,48 @@ if ( typeof define === "function" && define.amd ) {
 window.Sizzle = Prototype._original_property;
 delete Prototype._original_property;
 
+function buildQueryString(result, key, values) {
+  if (!Object.isArray(values)) {
+    values = [values];
+  }
+  if (!values.length) {
+    return result;
+  }
+  let encodedKey = encodeURIComponent(key).replaceAll("%20", "+");
+  return (
+      result +
+      (result ? "&" : "") +
+      values
+          .map(function (value) {
+            value = value.replaceAll(/(\r)?\n/, "\r\n");
+            value = encodeURIComponent(value);
+            value = value.replaceAll("%20", "+");
+            return encodedKey + "=" + value;
+          })
+          .join("&")
+  );
+}
+
+function mergeValueIntoResult(result, key, value) {
+  if (key in result) {
+    if (!Array.isArray(result[key])) {
+      result[key] = [result[key]];
+    }
+    result[key] = result[key].concat(value);
+  } else {
+    result[key] = value;
+  }
+  return result;
+}
+
+
 let Form = {
   reset: function(form) {
     form = $(form);
     form.reset();
     return form;
   },
-  function(result, key, value) {
-    if (key in result) {
-      if (!Object.isArray(result[key])) result[key] = [result[key]];
-      result[key] = result[key].concat(value);
-    } else result[key] = value;
-    return result;
-  },
+
 
   serializeElements: function(elements, options) {
     if (typeof options != 'object') options = { hash: !!options };
@@ -5723,27 +5746,17 @@ let Form = {
 
     if (options.hash) {
       initial = {};
-      accumulator = Form.function;
+      accumulator = mergeValueIntoResult(result, key, value);
     } else {
       initial = '';
-      accumulator = function(result, key, values) {
-        if (!Object.isArray(values)) {values = [values];}
-        if (!values.length) {return result;}
-        let encodedKey = encodeURIComponent(key).gsub(/%20/, '+');
-        return result + (result ? "&" : "") + values.map(function (value) {
-          value = value.gsub(/(\r)?\n/, '\r\n');
-          value = encodeURIComponent(value);
-          value = value.gsub(/%20/, '+');
-          return encodedKey + "=" + value;
-        }).join("&");
-      };
+      accumulator = buildQueryString(result, key, values);
     }
 
     return elements.inject(initial, function(result, element) {
       if (!element.disabled && element.name) {
         key = element.name; value = $(element).getValue();
-        if (value != null && element.type != 'file' && (element.type != 'submit' || (!submitted &&
-            submit !== false && (!submit || key == submit) && (submitted = true)))) {
+        if (value != null && element.type !== 'file' && (element.type !== 'submit' || (!submitted &&
+            submit !== false && (!submit || key === submit) && (submitted = true)))) {
           result = accumulator(result, key, value);
         }
       }
@@ -6077,9 +6090,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   function _isButtonForWebKit(event, code) {
     switch (code) {
-      case 0: return event.which == 1 && !event.metaKey;
-      case 1: return event.which == 2 || (event.which == 1 && event.metaKey);
-      case 2: return event.which == 3;
+      case 0: return event.which === 1 && !event.metaKey;
+      case 1: return event.which === 2 || (event.which === 1 && event.metaKey);
+      case 2: return event.which === 3;
       default: return false;
     }
   }
@@ -6609,15 +6622,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
       document.fire('dom:loaded');
     }
   }
-
-  function checkReadyState() {
-    if (document ?. document.readyState === 'complete') {
-      document.detachEvent('onreadystatechange', checkReadyState);
-      fireContentLoadedEvent();
-    }
-  }
-
-  function pollDoScroll() {
+function pollDoScroll() {
     if (document) {
       try {
         document.documentElement.doScroll('left');
