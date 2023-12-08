@@ -1536,7 +1536,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
 
   function $(element) {
-    if (typeof element === 'string') {
+    if (typeof element === 'string' && document) {
       element = document.getElementById(element);
     }
     return element;
@@ -4355,6 +4355,7 @@ setDocument = Sizzle.setDocument;
 			};
 
 	}
+  if(Expr)
 
 	Expr.find["TAG"] = support.getElementsByTagName ?
 		function( tag, context ) {
@@ -4379,8 +4380,9 @@ setDocument = Sizzle.setDocument;
 			}
 			return results;
 		};
+if(Expr)
 
-	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
+  Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
 		if ( typeof context.getElementsByClassName !== strundefined && documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
