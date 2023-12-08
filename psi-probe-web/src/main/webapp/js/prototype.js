@@ -3806,10 +3806,6 @@ function clonePosition(element, source, options) {
   if (options.setLeft || options.setTop) {
     p = Element.viewportOffset(source);
     delta = [0, 0];
-    if (Element.getStyle(element, 'position') === 'absolute') {
-      let parent = Element.getOffsetParent(element);
-      if (parent !== document.body) delta = Element.viewportOffset(parent);
-    }
   }
 
   let pageXY = pageScrollXY();
