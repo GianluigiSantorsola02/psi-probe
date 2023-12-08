@@ -335,6 +335,44 @@ Object.extend(String, {
 
 Object.extend(String.prototype, (function() {
 
+
+
+
+  function scan(pattern, iterator) {
+    this.gsub(pattern, iterator);
+    return String(this);
+  }
+
+
+
+  function evalScripts() {
+    return this.extractScripts().map(function(script) { return eval(script); });
+  }
+
+
+
+
+
+  function toArray() {
+    return this.split('');
+  }
+
+  function succ() {
+    return this.slice(0, this.length - 1) +
+      String.fromCharCode(this.charCodeAt(this.length - 1) + 1);
+  }
+
+  function times(count) {
+    return count < 1 ? '' : this.repeat(count);
+  }
+
+  function camelize() {
+    return this.replace(/-(.)/g, (_, chr) => chr.toUpperCase());
+  }
+
+  function capitalize() {
+    return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
+  }
   function inspect(useDoubleQuotes) {
     const specialChar = {
       '\\': '\\\\',
@@ -347,7 +385,12 @@ Object.extend(String.prototype, (function() {
       '\'': '\\\'',
     };
 
-
+    const escapeChar = (character) => {
+      if (character in specialChar) {
+        return specialChar[character];
+      }
+      return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
+    };
 
     const escapeQuotes = (string) => {
       return string.replace(/['"]/g, (quote) => '\\' + quote);
@@ -361,7 +404,17 @@ Object.extend(String.prototype, (function() {
       return `'${escapeQuotes(escapedString)}'`;
     }
   }
+  function unfilterJSON(filter) {
+    return this.replace(filter || Prototype.JSONFilter, '$1');
+  }
 
+  function isJSON() {
+    let str = this;
+    str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"]*"|true|false|null|-?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+  }
 
   function evalJSON(sanitize) {
     let json = this.unfilterJSON();
@@ -1540,7 +1593,6 @@ if(document)
 
   let HAS_EXTENDED_CREATE_ELEMENT_SYNTAX = (function(){
     try {
-      if(document)
       let el = document.createElement('<input name="x">');
       return el.tagName.toLowerCase() === 'input' && el.name === 'x';
     }
@@ -3979,7 +4031,7 @@ let
 	};
 }
 
-
+function Sizzle( selector, context, results, seed ) {
 	let  elem, nodeType,
 		i, groups, old, nid, newContext, newSelector;
 
@@ -3987,7 +4039,8 @@ let
 		setDocument( context );
 	}
 
-
+	context = context || document;
+	results = results || [];
 
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
@@ -4069,7 +4122,7 @@ let
 	}
 
 	return select( selector.replace( rtrim, "$1" ), context, results, seed );
-
+}
 
 /**
  * Create key-value caches of limited size
@@ -5420,105 +5473,92 @@ function matcherFromTokens( tokens ) {
 	return elementMatcher( matchers );
 }
 
-function processSeed(seed, matchedCount, len, results) {
-  if (seed && matchedCount > 0) {
-    let unmatched = {};
-    let setMatched = {};
+function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
+	let bySet = setMatchers.length > 0,
+		byElement = elementMatchers.length > 0,
+		superMatcher = function( seed, context, xml, results, outermost ) {
+			let elem, j, matcher,
+				matchedCount = 0,
+				i = "0",
+				unmatched = seed && [],
+				setMatched = [],
+				contextBackup = outermostContext,
+				elems = seed || byElement && Expr.find["TAG"]( "*", outermost ),
+				dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
+				len = elems.length;
 
-    for (let i = len - 1; i >= 0; i--) {
-      if (!(unmatched[i] || setMatched[i])) {
-        setMatched[i] = results.pop();
-      }
-    }
+			if ( outermost ) {
+				outermostContext = context !== document && context;
+			}
 
-    setMatched = condense(setMatched);
+			for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
+				if ( byElement && elem ) {
+					j = 0;
+					while ( (matcher = elementMatchers[j++]) ) {
+						if ( matcher( elem, context, xml ) ) {
+							results.push( elem );
+							break;
+						}
+					}
+					if ( outermost ) {
+						dirruns = dirrunsUnique;
+					}
+				}
 
-    return setMatched;
-  }
+				if ( bySet ) {
+                  let elem = !matcher && elem;
+                  if (elem) {
+                    matchedCount--;
+                  }
 
-  return null;
-}
-function processElementMatchers(byElement, elem, elementMatchers, context, xml, outermost, dirrunsUnique) {
-  if (byElement && elem) {
-    let results = '';
-    let j = 0;
-    let matcher;
-    while ((matcher = elementMatchers[j++])) {
-      if (matcher(elem, context, xml)) {
-        results.push(elem);
-        break;
-      }
-    }
-    if (outermost) {
-      dirruns = dirrunsUnique;
-    }
-  }
-}
+                  if ( seed ) {
+						unmatched.push( elem );
+					}
+				}
+			}
 
-function processElements(len, elems, bySet, seed, matchedCount, unmatched) {
-  for (let i = 0; i < len; i++) {
-    let elem = elems[i];
+			matchedCount += i;
+			if ( bySet && i != matchedCount ) {
+				j = 0;
+				while ( (matcher = setMatchers[j++]) ) {
+					matcher( unmatched, setMatched, context, xml );
+				}
 
-    if (bySet) {
-      if (elem) {
-        matchedCount--;
-      }
+				if ( seed ) {
+					if ( matchedCount > 0 ) {
+						while ( i-- ) {
+                          let unmatched = {};
+                          let setMatched = {};
 
-      if (seed) {
-        unmatched.push(elem);
-      }
-    }
-  }
-}
-function matcherFromGroupMatchers(elementMatchers, setMatchers) {
-  let bySet = setMatchers.length > 0;
-  let byElement = elementMatchers.length > 0;
+                          if (!(unmatched[i] || setMatched[i])) {
+                            setMatched[i] = results.pop();
+                          }
+						}
+					}
 
-  function superMatcher(seed, context, xml, results, outermost) {
-    let matchedCount = 0;
-    let unmatched = seed && [];
-    let elems = seed || (byElement && Expr.find["TAG"]("*", outermost));
-    let dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
-    let len = elems.length;
+					setMatched = condense( setMatched );
+				}
 
-    if (outermost) {
-      outermostContext = context !== document && context;
-    }
-    processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique);
+				push.apply( results, setMatched );
 
-    processElements(len, elems, bySet, seed, matchedCount, unmatched);
+				if ( outermost && !seed && setMatched.length > 0 &&
+					( matchedCount + setMatchers.length ) > 1 ) {
 
-    matchedCount += len;
+					Sizzle.uniqueSort( results );
+				}
+			}
 
-    if (bySet && len !== matchedCount) {
-      let j = 0;
-      let matcher;
-      while (matcher = setMatchers[j++]) {
-        matcher(unmatched, setMatched, context, xml);
-      }
+			if ( outermost ) {
+				dirruns = dirrunsUnique;
+				outermostContext = contextBackup;
+			}
 
-      let setMatched = processSeed(seed, matchedCount, len, results);
+			return unmatched;
+		};
 
-      if (setMatched) {
-        push.apply(results, setMatched);
-
-        push.apply(results, setMatched);
-
-        if (outermost && !seed && setMatched.length > 0 && (matchedCount + setMatchers.length) > 1) {
-          Sizzle.uniqueSort(results);
-        }
-      }
-
-      if (outermost) {
-        dirruns = dirrunsUnique;
-        outermostContext = contextBackup;
-      }
-
-      return unmatched;
-    }
-
-  }
-  return bySet ? markFunction(superMatcher) : superMatcher;
+	return bySet ?
+		markFunction( superMatcher ) :
+		superMatcher;
 }
 
 compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
@@ -5548,30 +5588,6 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 	return cached;
 };
 
-function processTokens(tokens, context, results) {
-  let i = tokens.length;
-  while (i--) {
-    let token = tokens[i];
-    let type = token.type;
-    if (Expr.relative[type]) {
-      break;
-    }
-    let find = Expr.find[type];
-    let foundElements = find(
-        token.matches[0].replace(runescape, funescape),
-        rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
-    );
-    if (foundElements ?. foundElements.length) {
-      tokens.splice(i, 1);
-      let selector = foundElements.length && toSelector(tokens);
-      if (!selector) {
-        push.apply(results, foundElements);
-        return results;
-      }
-      break;
-    }
-  }
-}
 /**
  * A low-level selection function that works with Sizzle's compiled
  *  selector functions
@@ -5580,41 +5596,70 @@ function processTokens(tokens, context, results) {
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function(context, results, seed) {
-  let selector = compiled.selector;
-  let match = !seed && tokenize(selector);
+select = Sizzle.select = function( context, results, seed ) {
+  let selector =  compiled.selector;
+  let i, tokens,
+		compiled = typeof selector === "function" && selector,
+		match = !seed && tokenize( (selector) );
 
-  results = results || [];
+	results = results || [];
 
-  if (match.length === 1) {
-    let tokens = match[0].slice(0);
-    let token = tokens[0];
+	if ( match.length === 1 ) {
 
-    if (tokens.length > 2 && token.type === "ID" &&
-        support.getById && context.nodeType === 9 && documentIsHTML &&
-        Expr.relative[tokens[1].type]) {
-      context = (Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [])[0];
-      if (!context) {
-        return results;
-      } else if (compiled) {
-        context = context.parentNode;
-      }
-      selector = selector.slice(tokens.shift().value.length);
-    }
+		tokens = match[0] = match[0].slice( 0 );
+        let token = tokens[0];
+		if ( tokens.length > 2 && (token).type === "ID" &&
+				support.getById && context.nodeType === 9 && documentIsHTML &&
+				Expr.relative[ tokens[1].type ] ) {
 
-    processTokens(tokens, context, results);
-  }
+			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
+			if ( !context ) {
+				return results;
 
-  (compiled || compile(selector, match))(
-      seed,
-      context,
-      !documentIsHTML,
-      results,
-      rsibling.test(selector) && testContext(context.parentNode) || context
-  );
+			} else if ( compiled ) {
+				context = context.parentNode;
+			}
 
-  return results;
+			selector = selector.slice( tokens.shift().value.length );
+		}
+
+		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
+		while ( i-- ) {
+			token = tokens[i];
+            let type = token.type;
+			if ( Expr.relative[type] ) {
+				break;
+			}
+          let find = Expr.find[type];
+          let seed = find(
+              token.matches[0].replace(runescape, funescape),
+              rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+          );
+          if (find) {
+				if (seed)  {
+					tokens.splice( i, 1 );
+					selector = seed.length && toSelector( tokens );
+					if ( !selector ) {
+						push.apply( results, seed );
+						return results;
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+	( compiled || compile( selector, match ) )(
+		seed,
+		context,
+		!documentIsHTML,
+		results,
+		rsibling.test( selector ) && testContext( context.parentNode ) || context
+	);
+	return results;
 };
+
 
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
@@ -5672,6 +5717,7 @@ if ( typeof define === "function" && define.amd ) {
 	window.Sizzle = Sizzle;
 }
 
+;
 
 ;(function() {
   if (typeof Sizzle !== 'undefined') {
@@ -5697,7 +5743,7 @@ if ( typeof define === "function" && define.amd ) {
   }
 
   function match(element, selector) {
-    return engine.matches(selector, [element]).length === 1;
+    return engine.matches(selector, [element]).length == 1;
   }
 
   Prototype.Selector.engine = engine;
@@ -5707,41 +5753,6 @@ if ( typeof define === "function" && define.amd ) {
 
 window.Sizzle = Prototype._original_property;
 delete Prototype._original_property;
-
-function buildQueryString(result, key, values) {
-  if (!Object.isArray(values)) {
-    values = [values];
-  }
-  if (!values.length) {
-    return result;
-  }
-  let encodedKey = encodeURIComponent(key).replaceAll("%20", "+");
-  return (
-      result +
-      (result ? "&" : "") +
-      values
-          .map(function (value) {
-            value = value.replaceAll(/(\r)?\n/, "\r\n");
-            value = encodeURIComponent(value);
-            value = value.replaceAll("%20", "+");
-            return encodedKey + "=" + value;
-          })
-          .join("&")
-  );
-}
-
-function mergeValueIntoResult(result, key, value) {
-  if (key in result) {
-    if (!Array.isArray(result[key])) {
-      result[key] = [result[key]];
-    }
-    result[key] = result[key].concat(value);
-  } else {
-    result[key] = value;
-  }
-  return result;
-}
-
 
 let Form = {
   reset: function(form) {
@@ -5758,17 +5769,33 @@ let Form = {
 
     if (options.hash) {
       initial = {};
-      accumulator = mergeValueIntoResult(result, key, value);
+      accumulator = function(result, key, value) {
+        if (key in result) {
+          if (!Object.isArray(result[key])) result[key] = [result[key]];
+          result[key] = result[key].concat(value);
+        } else result[key] = value;
+        return result;
+      };
     } else {
       initial = '';
-      accumulator = buildQueryString(result, key, values);
+      accumulator = function(result, key, values) {
+        if (!Object.isArray(values)) {values = [values];}
+        if (!values.length) {return result;}
+        let encodedKey = encodeURIComponent(key).gsub(/%20/, '+');
+        return result + (result ? "&" : "") + values.map(function (value) {
+          value = value.gsub(/(\r)?\n/, '\r\n');
+          value = encodeURIComponent(value);
+          value = value.gsub(/%20/, '+');
+          return encodedKey + "=" + value;
+        }).join("&");
+      };
     }
 
     return elements.inject(initial, function(result, element) {
       if (!element.disabled && element.name) {
         key = element.name; value = $(element).getValue();
-        if (value != null && element.type !== 'file' && (element.type !== 'submit' || (!submitted &&
-            submit !== false && (!submit || key === submit) && (submitted = true)))) {
+        if (value != null && element.type != 'file' && (element.type != 'submit' || (!submitted &&
+            submit !== false && (!submit || key == submit) && (submitted = true)))) {
           result = accumulator(result, key, value);
         }
       }
@@ -5786,11 +5813,14 @@ Form.Methods = {
   getElements: function(form) {
     let elements = $(form).getElementsByTagName('*');
     let results = [], serializers = Form.Element.Serializers;
-    for (let element of elements) {
+
+    let element = elements[i];
+    for (let i = 0; i < elements.length; i++) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
     }
+
     return results;
   },
   disable: function(form) {
@@ -5913,11 +5943,7 @@ Form.Element.Serializers = (function() {
   }
 
   function valueSelector(element, value) {
-    if (Object.isUndefined(value)) {
-      return element.value;
-    } else {
-      element.value = value;
-    }
+    return Object.isUndefined(value) ? element.value : element.value = value;
   }
 
 
@@ -6099,9 +6125,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   function _isButtonForWebKit(event, code) {
     switch (code) {
-      case 0: return event.which === 1 && !event.metaKey;
-      case 1: return event.which === 2 || (event.which === 1 && event.metaKey);
-      case 2: return event.which === 3;
+      case 0: return event.which == 1 && !event.metaKey;
+      case 1: return event.which == 2 || (event.which == 1 && event.metaKey);
+      case 2: return event.which == 3;
       default: return false;
     }
   }
@@ -6196,6 +6222,10 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     stop: stop
   };
 
+  let methods = Object.keys(Event.Methods).inject({ }, function(m, name) {
+    m[name] = Event.Methods[name].methodize();
+    return m;
+  });
 
   if (window.attachEvent) {
     function _relatedTarget(event) {
@@ -6631,7 +6661,15 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
       document.fire('dom:loaded');
     }
   }
-function pollDoScroll() {
+
+  function checkReadyState() {
+    if (document ?. document.readyState === 'complete') {
+      document.detachEvent('onreadystatechange', checkReadyState);
+      fireContentLoadedEvent();
+    }
+  }
+
+  function pollDoScroll() {
     if (document) {
       try {
         document.documentElement.doScroll('left');
@@ -6650,8 +6688,12 @@ function pollDoScroll() {
 
   if (document ?.document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
-  } else if (window === top){
+  } else {
+    if (document) {
+      document.attachEvent('onreadystatechange', checkReadyState);}
+      else if (window === top){
         TIMER = pollDoScroll.defer();
+    }
   }
 
   Event.observe(window, 'load', fireContentLoadedEvent);
