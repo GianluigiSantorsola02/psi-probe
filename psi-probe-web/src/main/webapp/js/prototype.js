@@ -342,9 +342,7 @@ Object.extend(String, {
 });
 
 Object.extend(String.prototype, (function() {
-  let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
-    typeof JSON.parse === 'function' ?.
-    JSON.parse('{"test": true}').test;
+
 
 
 
@@ -362,25 +360,7 @@ Object.extend(String.prototype, (function() {
 
 
 
-  function toQueryParams(separator) {
-    let match = this.strip().match(/(([^&=]+)([^#]*)(#.*)?$) /g);
-    if (!match) return {};
 
-    return match[1].split(separator || '&').reduce((params, pair) => {
-      let [key, value] = pair.split('=').map(decodeURIComponent);
-      value = value.replace(/\+/g, ' ');
-
-      if (!(key in params)) {
-        params[key] = value;
-      } else if (!Array.isArray(params[key])) {
-        params[key] = [params[key], value];
-      } else {
-        params[key].push(value);
-      }
-
-      return params;
-    });
-  }
   function toArray() {
     return this.split('');
   }
