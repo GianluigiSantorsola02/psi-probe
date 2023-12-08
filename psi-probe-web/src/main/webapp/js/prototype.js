@@ -4622,6 +4622,49 @@ function performComparison(result, check, isEqual, isNotEqual, startsWith, conta
   }
 }
 
+function handleSimpleTraversal(simple, dir, elem, ofType, name, type, start) {
+  if (simple) {
+    while (dir) {
+      let node = elem;
+      while ((node = node[dir])) {
+        if (ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) {
+          return false;
+        }
+      }
+      start = dir = type === "only" && !start && "nextSibling";
+    }
+    return true;
+  }
+}
+function handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type) {
+  let diff = 0;
+  let useCache = false;
+  let expando = "someExpando";
+  let dirruns = "someDirruns";
+  let elem = "someElem";
+
+  while ((node = ++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+    if ((ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) && ++diff) {
+      if (useCache) {
+        (node[expando] || (node[expando] = {}))[type] = [dirruns, diff];
+      }
+      if (node === elem) {
+        break;
+      }
+    }
+  }
+}
+function handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache) {
+  let diff = 0;
+  let dirruns = "someDirruns";
+
+  while ((node = ++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+    if (node.nodeType === 1 && ++diff && node === elem) {
+      outerCache[type] = [dirruns, nodeIndex, diff];
+      break;
+    }
+  }
+}
 Expr = Sizzle.selectors = {
 
 	cacheLength: 50,
@@ -4767,18 +4810,7 @@ Expr = Sizzle.selectors = {
 
 					if ( parent ) {
 
-						if ( simple ) {
-							while ( dir ) {
-								node = elem;
-								while ( (node = node[ dir ]) ) {
-									if ( ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1 ) {
-										return false;
-									}
-								}
-								start = dir = type === "only" && !start && "nextSibling";
-							}
-							return true;
-						}
+						handleSimpleTraversal(simple, dir, elem, ofType, name, type)
 
 						start = [ forward ? parent.firstChild : parent.lastChild ];
 
@@ -4788,33 +4820,13 @@ Expr = Sizzle.selectors = {
 							nodeIndex = cache[0] === dirruns && cache[1];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
 
-							while ( (node = ++nodeIndex && node && node[ dir ] ||
-
-								(diff = nodeIndex = 0) || start.pop()) ) {
-
-								if ( node.nodeType === 1 && ++diff && node === elem ) {
-									outerCache[ type ] = [ dirruns, nodeIndex, diff ];
-									break;
-								}
-							}
+							handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache)
 
 						} else if ( useCache && (cache = (elem[ expando ] || (elem[ expando ] = {}))[ type ]) && cache[0] === dirruns ) {
 							diff = cache[1];
 
 						} else {
-							while ( (node = ++nodeIndex && node && node[ dir ] ||
-								(diff = nodeIndex = 0) || start.pop()) ) {
-
-								if ( ( ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1 ) && ++diff ) {
-									if ( useCache ) {
-										(node[ expando ] || (node[ expando ] = {}))[ type ] = [ dirruns, diff ];
-									}
-
-									if ( node === elem ) {
-										break;
-									}
-								}
-							}
+							handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type)
 						}
 
 						diff -= last;
