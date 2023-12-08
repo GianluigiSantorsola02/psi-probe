@@ -1168,11 +1168,6 @@ Object.extend(Number.prototype, (function() {
     round:          round
   };
 })());
-
-function $R(start, end, exclusive) {
-  return new ObjectRange(start, end, exclusive);
-}
-
 let ObjectRange = Class.Create(Enumerable, (function() {
   function initialize(start, end, exclusive) {
     this.start = start;
@@ -2226,12 +2221,7 @@ function _recursivelyFind(element, property, expression, index) {
     let node = Prototype.Selector.select(expression, element)[index];
     return Element.extend(node);
   }
-
-  function previous(element, expression, index) {
-    return _recursivelyFind(element, 'previousSibling', expression, index);
-  }
-
-  function next(element, expression, index) {
+function next(element, expression, index) {
     return _recursivelyFind(element, 'nextSibling', expression, index);
   }
 
@@ -2284,7 +2274,6 @@ function _recursivelyFind(element, property, expression, index) {
 
 
   Object.extend(methods, {
-    siblings:             siblings,
     match:                match,
     up:                   up,
     down:                 down,
@@ -2296,10 +2285,7 @@ function _recursivelyFind(element, property, expression, index) {
 
     childElements:         immediateDescendants
   });
-
-
-  let idCounter = 1;
-  function identify(element) {
+function identify(element) {
     element = $(element);
     let id = Element.readAttribute(element, 'id');
     if (id) return id;
@@ -2999,7 +2985,6 @@ function addMethods(methods) {
 }
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Element) {
     Object.extend(GLOBAL.Element, {
-      extend: extend,
       addMethods: addMethods
     });
   }
@@ -3169,6 +3154,26 @@ function getPixelValue(value, property, context) {
       let value = $super(property);
       return value === null ? this._compute(property) : value;
     },
+    calculateNewWidth: function(width, element, position, context) {
+      if (width && element.offsetWidth === width) {
+        return getContentWidth(element, context);
+      } else if (position === 'absolute' || position === 'fixed') {
+        return getContentWidth(element, context);
+      } else {
+        let parent = element.parentNode;
+        let pLayout = $(parent).getLayout();
+
+        return (
+            pLayout.get('width') -
+            this.get('margin-left') -
+            this.get('border-left') -
+            this.get('padding-left') -
+            this.get('padding-right') -
+            this.get('border-right') -
+            this.get('margin-right')
+        );
+      }
+    },
 
     _begin: function() {
       if (this._isPrepared()) {
@@ -3212,34 +3217,13 @@ function getPixelValue(value, property, context) {
 
       element.setStyle(tempStyles);
 
-      let newWidth = calculateNewWidth(width, element, position, context);
+      this.calculateNewWidth(width, element, position, context);
 
       element.setStyle({ width: newWidth + 'px' });
 
       this._setPrepared(true);
     },
 
-    calculateNewWidth: function(width, element, position, context) {
-      if (width && element.offsetWidth === width) {
-        return getContentWidth(element, context);
-      } else if (position === 'absolute' || position === 'fixed') {
-        return getContentWidth(element, context);
-      } else {
-        let parent = element.parentNode;
-        let pLayout = $(parent).getLayout();
-
-        return (
-            pLayout.get('width') -
-            this.get('margin-left') -
-            this.get('border-left') -
-            this.get('padding-left') -
-            this.get('padding-right') -
-            this.get('border-right') -
-            this.get('margin-right')
-        );
-      }
-    }
-    ,
 
     _end: function() {
       let element = this.element;
@@ -4385,7 +4369,7 @@ isXML = Sizzle.isXML = function( elem ) {
  * @returns {Object} Returns the current document
  * @param node
  */
-setDocument = Sizzle.setDocument = function( node ) {
+setDocument = Sizzle.setDocument;
 	let hasCompare,
 		doc = node ? node.ownerDocument || node : preferredDoc,
 		parent = doc.defaultView;
@@ -4645,9 +4629,6 @@ setDocument = Sizzle.setDocument = function( node ) {
             hasDuplicate = true;
             return 0;
           }
-
-          let aup = a.parentNode;
-          let bup = b.parentNode;
           let ap = [a];
           let bp = [b];
 
@@ -4683,12 +4664,10 @@ setDocument = Sizzle.setDocument = function( node ) {
           return result;
         };
 
-	return doc;
-};
 
 Sizzle.matches = function( expr, elements ) {
-	return Sizzle( expr, null, null, elements );
-};
+  return Sizzle(expr, null, null, elements);
+}
 
 Sizzle.matchesSelector = function( elem, expr ) {
 	if ( ( elem.ownerDocument || elem ) !== document ) {
