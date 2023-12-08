@@ -1550,7 +1550,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
-
+if(document)
   let DIV = document.createElement('div');
 
 
@@ -2942,7 +2942,6 @@ function addMethods(methods) {
   Element.addMethods(methods);
 
   function destroyCache_IE() {
-    DIV = null;
     ELEMENT_CACHE = null;
   }
 
@@ -4366,6 +4365,7 @@ setDocument = Sizzle.setDocument;
 	} else if(Expr) {
       delete Expr.find["ID"];
     }
+    if(Expr)
 		Expr.filter["ID"] =  function( id ) {
 			let attrId = id.replace( runescape, funescape );
 			return function( elem ) {
