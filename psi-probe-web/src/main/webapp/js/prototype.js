@@ -3775,9 +3775,6 @@ function clonePosition(element, source, options) {
     offsetTop:  0,
     offsetLeft: 0
   }, options || {});
-
-  let docEl = document.documentElement;
-
   source  = $(source);
   element = $(element);
   let p, delta, layout, styles = {};
@@ -4014,13 +4011,12 @@ Prototype._original_property = window.Sizzle;
 
 
 
-let i,
+let
 	support,
 	Expr,
 	getText,
 	isXML,
 	compile,
-	select,
 	outermostContext,
 	sortInput,
 	hasDuplicate,
@@ -4055,18 +4051,6 @@ let i,
 	arr = [],
 	push_native = arr.push,
 	push = arr.push,
-	slice = arr.slice,
-	indexOf = arr.indexOf || function( elem ) {
-		let i = 0,
-			len = this.length;
-		for ( ; i < len; i++ ) {
-			if ( this[i] === elem ) {
-				return i;
-			}
-		}
-		return -1;
-	},
-
 	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
 
 
