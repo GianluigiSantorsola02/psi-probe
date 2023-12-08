@@ -3966,94 +3966,93 @@ let
 	};
 }
 
+function Sizzle( selector, context, results, seed ) {
+  let elem, nodeType, groups, old, nid, newContext, newSelector;
 
-	let  elem, nodeType, groups, old, nid, newContext, newSelector;
+  if ((context ? context.ownerDocument || context : preferredDoc) !== document) {
+    setDocument(context);
+  }
 
-	if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
-		setDocument( context );
-	}
+  if (!selector || typeof selector !== "string") {
+    return results;
+  }
 
-	if ( !selector || typeof selector !== "string" ) {
-		return results;
-	}
+  if ((nodeType = context.nodeType) !== 1 && nodeType !== 9) {
+    return [];
+  }
 
-	if ( (nodeType = context.nodeType) !== 1 && nodeType !== 9 ) {
-		return [];
-	}
-
-	if ( documentIsHTML && !seed ) {
-        let match = rquickExpr.exec( selector );
-		if (match) {
-          let m = match[1];
-			if (m) {
-				if ( nodeType === 9 ) {
-					elem = context.getElementById( m );
-                  if (elem?.parentNode &&  elem.id === m ) {
-							results.push( elem );
-							return results;
-					} else {
-						return results;
-					}
-				} else if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
-						contains( context, elem ) && elem.id === m ) {
-						results.push( elem );
-						return results;
-					}
+  if (documentIsHTML && !seed) {
+    let match = rquickExpr.exec(selector);
+    if (match) {
+      let m = match[1];
+      if (m) {
+        if (nodeType === 9) {
+          elem = context.getElementById(m);
+          if (elem?.parentNode && elem.id === m) {
+            results.push(elem);
+            return results;
+          } else {
+            return results;
+          }
+        } else if (context.ownerDocument && (elem = context.ownerDocument.getElementById(m)) &&
+            contains(context, elem) && elem.id === m) {
+          results.push(elem);
+          return results;
+        }
 
 
-			} else if ( match[2] ) {
-				push.apply( results, context.getElementsByTagName( selector ) );
-				return results;
+      } else if (match[2]) {
+        push.apply(results, context.getElementsByTagName(selector));
+        return results;
 
-			} else
+      } else
 
-				push.apply( results, context.getElementsByClassName( m ) );
-				return results;
+        push.apply(results, context.getElementsByClassName(m));
+      return results;
 
-		}
+    }
 
-      if (support?.qsa && (!rbuggyQSA?.test(selector) ))
-      {
-			nid = old = expando;
-			newContext = context;
-			newSelector = nodeType === 9 && selector;
+    if (support?.qsa && (!rbuggyQSA?.test(selector))) {
+      nid = old = expando;
+      newContext = context;
+      newSelector = nodeType === 9 && selector;
 
-			if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
-				groups = tokenize( selector );
-              let old = context.getAttribute("id");
-              if (old) {
-                nid = old.replace(rescape, "\\$&");
-				} else {
-					context.setAttribute( "id", nid );
-				}
-				nid = "[id='" + nid + "'] ";
+      if (nodeType === 1 && context.nodeName.toLowerCase() !== "object") {
+        groups = tokenize(selector);
+        let old = context.getAttribute("id");
+        if (old) {
+          nid = old.replace(rescape, "\\$&");
+        } else {
+          context.setAttribute("id", nid);
+        }
+        nid = "[id='" + nid + "'] ";
 
-				i = groups.length;
-				while ( i-- ) {
-					groups[i] = nid + toSelector( groups[i] );
-				}
-				newContext = rsibling.test( selector ) && testContext( context.parentNode ) || context;
-				newSelector = groups.join(",");
-			}
+        i = groups.length;
+        while (i--) {
+          groups[i] = nid + toSelector(groups[i]);
+        }
+        newContext = rsibling.test(selector) && testContext(context.parentNode) || context;
+        newSelector = groups.join(",");
+      }
 
-			if ( newSelector ) {
-				try {
-					push.apply( results,
-						newContext.querySelectorAll( newSelector )
-					);
-					return results;
-				} catch(qsaError) {
-				} finally {
-					if ( !old ) {
-						context.removeAttribute("id");
-					}
-				}
-			}
-		}
-	}
+      if (newSelector) {
+        try {
+          push.apply(results,
+              newContext.querySelectorAll(newSelector)
+          );
+          return results;
+        } catch (qsaError) {
+        } finally {
+          if (!old) {
+            context.removeAttribute("id");
+          }
+        }
+      }
+    }
+  }
 
-	return select( selector.replace( rtrim, "$1" ), context, results, seed );
-
+  return select(selector.replace(rtrim, "$1"), context, results, seed);
+}
 
 /**
  * Create key-value caches of limited size
@@ -4205,7 +4204,6 @@ function testContext( context ) {
 	return context && typeof context.getElementsByTagName !== strundefined && context;
 }
 
-support = Sizzle.support = {};
 
 /**
  * Detects XML nodes
@@ -4222,31 +4220,8 @@ isXML = Sizzle.isXML = function( elem ) {
  * @returns {Object} Returns the current document
  * @param node
  */
-setDocument = Sizzle.setDocument;
-	let hasCompare,
-		doc = node ? node.ownerDocument || node : preferredDoc,
-		parent = doc.defaultView;
 
-	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
-		return document;
-	}
 
-	document = doc;
-	docElem = doc.documentElement;
-
-	documentIsHTML = !isXML( doc );
-
-	if ( parent && parent !== parent.top ) {
-		if ( parent.addEventListener ) {
-			parent.addEventListener( "unload", function() {
-				setDocument();
-			}, false );
-		} else if ( parent.attachEvent ) {
-			parent.attachEvent( "onunload", function() {
-				setDocument();
-			});
-		}
-	}
 
 	/* Attributes
 	---------------------------------------------------------------------- */
@@ -4397,7 +4372,8 @@ if(Expr)
 
 	/* Contains
 	---------------------------------------------------------------------- */
-	hasCompare = rnative.test( docElem.compareDocumentPosition );
+let hasCompare;
+hasCompare = rnative.test( docElem.compareDocumentPosition );
 
 	contains = hasCompare || rnative.test( docElem.contains ) ?
 		function( a, b ) {
@@ -6802,3 +6778,5 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
 
 
 })();
+
+
