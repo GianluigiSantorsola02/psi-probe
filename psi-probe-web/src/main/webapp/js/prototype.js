@@ -5392,31 +5392,29 @@ function addCombinator( matcher, combinator, base ) {
 			} else {
               let elem = startingElement;
 
-              while ( elem  ) {
-					if ( elem.nodeType === 1 || checkNonElements ) {
-						outerCache = elem[ expando ] || (elem[ expando ] = {});
-                      let oldCache  = outerCache[dir];
-                      if ((oldCache) &&
-                          oldCache[0] === dirruns &&
-                          oldCache[1] === doneName) {
+              while (elem) {
+                if (elem.nodeType === 1 || checkNonElements) {
+                  outerCache = elem[expando] || (elem[expando] = {});
+                  let oldCache = outerCache[dir];
 
-                        let newValue = oldCache[2];
-                        newCache[2] = newValue;
-                        return newValue;
-                      } else {
-							outerCache[ dir ] = newCache;
+                  if (oldCache && oldCache[0] === dirruns && oldCache[1] === doneName) {
+                    let newValue = oldCache[2];
+                    newCache[2] = newValue;
+                    return newValue;
+                  } else {
+                    let newCache = [];
+                    newCache[2] = matcher(elem, context, xml);
 
-                        let newCache = [];
-                        newCache[2] = matcher(elem, context, xml);
+                    if (newCache[2]) {
+                      outerCache[dir] = newCache;
+                      return true;
+                    }
+                  }
+                }
+                elem = elem.parentNode;
+              }
 
-                        if (newCache[2]) {
-                          return true;
-                        }
-
-                      }
-					}
-				}
-			}
+            }
 		};
 }
 
