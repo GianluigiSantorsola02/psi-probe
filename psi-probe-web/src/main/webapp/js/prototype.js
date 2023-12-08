@@ -3979,7 +3979,7 @@ let
 	};
 }
 
-function Sizzle( selector, context, results, seed ) {
+
 	let  elem, nodeType,
 		i, groups, old, nid, newContext, newSelector;
 
@@ -3987,8 +3987,7 @@ function Sizzle( selector, context, results, seed ) {
 		setDocument( context );
 	}
 
-	context = context || document;
-	results = results || [];
+
 
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
@@ -4070,7 +4069,7 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	return select( selector.replace( rtrim, "$1" ), context, results, seed );
-}
+
 
 /**
  * Create key-value caches of limited size
@@ -5421,92 +5420,105 @@ function matcherFromTokens( tokens ) {
 	return elementMatcher( matchers );
 }
 
-function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
-	let bySet = setMatchers.length > 0,
-		byElement = elementMatchers.length > 0,
-		superMatcher = function( seed, context, xml, results, outermost ) {
-			let elem, j, matcher,
-				matchedCount = 0,
-				i = "0",
-				unmatched = seed && [],
-				setMatched = [],
-				contextBackup = outermostContext,
-				elems = seed || byElement && Expr.find["TAG"]( "*", outermost ),
-				dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
-				len = elems.length;
+function processSeed(seed, matchedCount, len, results) {
+  if (seed && matchedCount > 0) {
+    let unmatched = {};
+    let setMatched = {};
 
-			if ( outermost ) {
-				outermostContext = context !== document && context;
-			}
+    for (let i = len - 1; i >= 0; i--) {
+      if (!(unmatched[i] || setMatched[i])) {
+        setMatched[i] = results.pop();
+      }
+    }
 
-			for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
-				if ( byElement && elem ) {
-					j = 0;
-					while ( (matcher = elementMatchers[j++]) ) {
-						if ( matcher( elem, context, xml ) ) {
-							results.push( elem );
-							break;
-						}
-					}
-					if ( outermost ) {
-						dirruns = dirrunsUnique;
-					}
-				}
+    setMatched = condense(setMatched);
 
-				if ( bySet ) {
-                  let elem = !matcher && elem;
-                  if (elem) {
-                    matchedCount--;
-                  }
+    return setMatched;
+  }
 
-                  if ( seed ) {
-						unmatched.push( elem );
-					}
-				}
-			}
+  return null;
+}
+function processElementMatchers(byElement, elem, elementMatchers, context, xml, outermost, dirrunsUnique) {
+  if (byElement && elem) {
+    let results = '';
+    let j = 0;
+    let matcher;
+    while ((matcher = elementMatchers[j++])) {
+      if (matcher(elem, context, xml)) {
+        results.push(elem);
+        break;
+      }
+    }
+    if (outermost) {
+      dirruns = dirrunsUnique;
+    }
+  }
+}
 
-			matchedCount += i;
-			if ( bySet && i != matchedCount ) {
-				j = 0;
-				while ( (matcher = setMatchers[j++]) ) {
-					matcher( unmatched, setMatched, context, xml );
-				}
+function processElements(len, elems, bySet, seed, matchedCount, unmatched) {
+  for (let i = 0; i < len; i++) {
+    let elem = elems[i];
 
-				if ( seed ) {
-					if ( matchedCount > 0 ) {
-						while ( i-- ) {
-                          let unmatched = {};
-                          let setMatched = {};
+    if (bySet) {
+      if (elem) {
+        matchedCount--;
+      }
 
-                          if (!(unmatched[i] || setMatched[i])) {
-                            setMatched[i] = results.pop();
-                          }
-						}
-					}
+      if (seed) {
+        unmatched.push(elem);
+      }
+    }
+  }
+}
+function matcherFromGroupMatchers(elementMatchers, setMatchers) {
+  let bySet = setMatchers.length > 0;
+  let byElement = elementMatchers.length > 0;
 
-					setMatched = condense( setMatched );
-				}
+  function superMatcher(seed, context, xml, results, outermost) {
+    let matchedCount = 0;
+    let unmatched = seed && [];
+    let elems = seed || (byElement && Expr.find["TAG"]("*", outermost));
+    let dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
+    let len = elems.length;
 
-				push.apply( results, setMatched );
+    if (outermost) {
+      outermostContext = context !== document && context;
+    }
+    processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique);
 
-				if ( outermost && !seed && setMatched.length > 0 &&
-					( matchedCount + setMatchers.length ) > 1 ) {
+    processElements(len, elems, bySet, seed, matchedCount, unmatched);
 
-					Sizzle.uniqueSort( results );
-				}
-			}
+    matchedCount += len;
 
-			if ( outermost ) {
-				dirruns = dirrunsUnique;
-				outermostContext = contextBackup;
-			}
+    if (bySet && len !== matchedCount) {
+      let j = 0;
+      let matcher;
+      while (matcher = setMatchers[j++]) {
+        matcher(unmatched, setMatched, context, xml);
+      }
 
-			return unmatched;
-		};
+      let setMatched = processSeed(seed, matchedCount, len, results);
 
-	return bySet ?
-		markFunction( superMatcher ) :
-		superMatcher;
+      if (setMatched) {
+        push.apply(results, setMatched);
+
+        push.apply(results, setMatched);
+
+        if (outermost && !seed && setMatched.length > 0 && (matchedCount + setMatchers.length) > 1) {
+          Sizzle.uniqueSort(results);
+        }
+      }
+
+      if (outermost) {
+        dirruns = dirrunsUnique;
+        outermostContext = contextBackup;
+      }
+
+      return unmatched;
+    }
+
+  }
+  return bySet ? markFunction(superMatcher) : superMatcher;
 }
 
 compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
@@ -5549,7 +5561,7 @@ function processTokens(tokens, context, results) {
         token.matches[0].replace(runescape, funescape),
         rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
     );
-    if (foundElements && foundElements.length) {
+    if (foundElements ?. foundElements.length) {
       tokens.splice(i, 1);
       let selector = foundElements.length && toSelector(tokens);
       if (!selector) {
@@ -5774,14 +5786,11 @@ Form.Methods = {
   getElements: function(form) {
     let elements = $(form).getElementsByTagName('*');
     let results = [], serializers = Form.Element.Serializers;
-
-    let element = elements[i];
-    for (let i = 0; i < elements.length; i++) {
+    for (let element of elements) {
       if (serializers[element.tagName.toLowerCase()]) {
         results.push(Element.extend(element));
       }
     }
-
     return results;
   },
   disable: function(form) {
