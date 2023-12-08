@@ -62,9 +62,7 @@ const Prototype = {
   })(),
 
   BrowserFeatures: {
-    XPath: !!document.evaluate,
 
-    SelectorsAPI: !!document.querySelector,
 
     ElementExtensions: (function () {
       const constructor = window.Element || window.HTMLElement;
@@ -4427,7 +4425,7 @@ setDocument = Sizzle.setDocument;
       return !doc?.getElementsByName?.(expando)?.length;
     });
 
-	if ( support.getById ) {
+	if ( support.getById && Expr ) {
 		Expr.find["ID"] = function( id, context ) {
 			if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
 				let m = context.getElementById( id );
