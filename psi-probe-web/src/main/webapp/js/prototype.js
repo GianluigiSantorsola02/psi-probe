@@ -3900,7 +3900,7 @@ let
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
-    rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)", "g" ),
+    rattributeQuotes = new RegExp( "=" + whitespace + "*(?:'\"\\]]*?)", "g" ),
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
@@ -4201,7 +4201,7 @@ function testContext( context ) {
 	return context && typeof context.getElementsByTagName !== strundefined && context;
 }
 
-support = Sizzle.support = {};
+support = Sizzle.support = {}
 
 /**
  * Detects XML nodes
