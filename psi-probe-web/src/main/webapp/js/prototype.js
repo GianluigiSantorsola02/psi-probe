@@ -5088,25 +5088,26 @@ Expr = Sizzle.selectors = {
 				return ( elem.textContent || elem.innerText || getText( elem ) ).indexOf( text ) > -1;
 			};
 		}),
+      function( elem ) {
+        this.lang = this.lang.replace( runescape, funescape ).toLowerCase();
+          let elemLang = elem.getAttribute("xml:lang") || elem.getAttribute("lang");
+        do {
+          if ( (elemLang ?
+              elem.lang :
+              elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
+
+            elemLang = elemLang.toLowerCase();
+            return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
+          }
+        } while ( (elem.parentNode || elem)?. elem.nodeType === 1 );
+        return false;
+      },
 
 		"lang": markFunction( function( lang ) {
 			if ( !ridentifier.test(lang || "") ) {
 				Sizzle.error( "unsupported lang: " + lang );
 			}
-			lang = lang.replace( runescape, funescape ).toLowerCase();
-			return function( elem ) {
-				let elemLang = elem.getAttribute("xml:lang") || elem.getAttribute("lang");
-				do {
-					if ( (elemLang ?
-						elem.lang :
-						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
 
-						elemLang = elemLang.toLowerCase();
-						return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
-					}
-				} while ( (elem.parentNode || elem)?. elem.nodeType === 1 );
-				return false;
-			};
 		}),
 
 		"target": function( elem ) {
