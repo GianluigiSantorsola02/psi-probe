@@ -335,44 +335,6 @@ Object.extend(String, {
 
 Object.extend(String.prototype, (function() {
 
-
-
-
-  function scan(pattern, iterator) {
-    this.gsub(pattern, iterator);
-    return String(this);
-  }
-
-
-
-  function evalScripts() {
-    return this.extractScripts().map(function(script) { return eval(script); });
-  }
-
-
-
-
-
-  function toArray() {
-    return this.split('');
-  }
-
-  function succ() {
-    return this.slice(0, this.length - 1) +
-      String.fromCharCode(this.charCodeAt(this.length - 1) + 1);
-  }
-
-  function times(count) {
-    return count < 1 ? '' : this.repeat(count);
-  }
-
-  function camelize() {
-    return this.replace(/-(.)/g, (_, chr) => chr.toUpperCase());
-  }
-
-  function capitalize() {
-    return this.charAt(0).toUpperCase() + this.substring(1).toLowerCase();
-  }
   function inspect(useDoubleQuotes) {
     const specialChar = {
       '\\': '\\\\',
@@ -385,12 +347,7 @@ Object.extend(String.prototype, (function() {
       '\'': '\\\'',
     };
 
-    const escapeChar = (character) => {
-      if (character in specialChar) {
-        return specialChar[character];
-      }
-      return `\\u00${character.charCodeAt().toString(16).padStart(2, '0')}`;
-    };
+
 
     const escapeQuotes = (string) => {
       return string.replace(/['"]/g, (quote) => '\\' + quote);
@@ -404,17 +361,7 @@ Object.extend(String.prototype, (function() {
       return `'${escapeQuotes(escapedString)}'`;
     }
   }
-  function unfilterJSON(filter) {
-    return this.replace(filter || Prototype.JSONFilter, '$1');
-  }
 
-  function isJSON() {
-    let str = this;
-    str = str.replace(/\\(?:["\\bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"]*"|true|false|null|-?/g, ']');
-    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-    return (/^[\],:{}\s]*$/).test(str);
-  }
 
   function evalJSON(sanitize) {
     let json = this.unfilterJSON();
