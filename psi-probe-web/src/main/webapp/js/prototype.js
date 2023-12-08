@@ -5832,7 +5832,7 @@ if ( typeof define === "function" && define.amd ) {
 	window.Sizzle = Sizzle;
 }
 
-( window );
+;
 
 ;(function() {
   if (typeof Sizzle !== 'undefined') {
