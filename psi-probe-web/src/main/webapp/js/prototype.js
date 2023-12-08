@@ -343,7 +343,7 @@ Object.extend(String, {
   }
 });
 
-Object.extend(String.prototype, (function() {
+
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
@@ -558,7 +558,7 @@ Object.extend(String.prototype, (function() {
     blank:          blank,
     interpolate:    interpolate
   };
-})());
+
 function applyExpression(ctx, expr, pattern) {
   let match = pattern.exec(expr);
 
@@ -6918,7 +6918,7 @@ if (!document.getElementsByClassName) {
 
       return useXPathResult
           ? getElementsByClassNameXPath(parentElement, className)
-          : getElementsByClassNameLegacy(parentElement, className);
+          : getElementsByClassNameLegacy(parentElement);
     }
 
 
@@ -6929,7 +6929,7 @@ if (!document.getElementsByClassName) {
 
 
 function getElementsByClassNameXPath(element, className) {
-  String(className).trim();
+  String(className);
 }
 function getElementsByClassNameLegacy(element, ) {
   let elements = [];
