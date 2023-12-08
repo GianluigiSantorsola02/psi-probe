@@ -4643,7 +4643,7 @@ function handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type) {
   let dirruns = "someDirruns";
   let elem = "someElem";
 
-  while ((node = ++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+  while ((++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
     if ((ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1) && ++diff) {
       if (useCache) {
         (node[expando] || (node[expando] = {}))[type] = [dirruns, diff];
@@ -4658,7 +4658,7 @@ function handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache) {
   let diff = 0;
   let dirruns = "someDirruns";
 
-  while ((node = ++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
+  while ((++nodeIndex && node && node[dir]) || (diff = nodeIndex = 0) || start.pop()) {
     if (node.nodeType === 1 && ++diff && node === elem) {
       outerCache[type] = [dirruns, nodeIndex, diff];
       break;
@@ -5055,6 +5055,30 @@ for ( i in { submit: true, reset: true } ) {
 setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new SetFilters( Expr );
 
+function handleFilterMatching(Expr, matchExpr, preFilters, soFar, tokens) {
+  for (let type in Expr.filter) {
+    let match = matchExpr[type].exec(soFar);
+    if (match && (!preFilters[type] || (match = preFilters[type](match)))) {
+      let matched = match.shift();
+      tokens.push({
+        value: matched,
+        type: type,
+        matches: match
+      });
+      soFar = soFar.slice(matched.length);
+    }
+  }
+}
+function handleGroupCreation(soFar, groups) {
+  let match = null;
+  if (!matched || (match = rcomma.exec(soFar))) {
+    if (match) {
+      soFar = soFar.slice(match[0].length) || soFar;
+    }
+    let tokens = [];
+    groups.push(tokens);
+  }
+}
 function tokenize( selector, parseOnly ) {
 	let matched, tokens, type,
 		soFar, groups, preFilters,
@@ -5066,17 +5090,10 @@ function tokenize( selector, parseOnly ) {
 
 	soFar = selector;
 	groups = [];
-	preFilters = Expr.preFilter;
 
-	while ( soFar ) {
+  while ( soFar ) {
 
-		if ( !matched || (match = rcomma.exec( soFar )) ) {
-			if ( match ) {
-				soFar = soFar.slice( match[0].length ) || soFar;
-			}
-          let tokens = [];
-          groups.push(tokens);
-        }
+		handleGroupCreation(soFar,groups)
 
 		matched = false;
 
@@ -5090,20 +5107,7 @@ function tokenize( selector, parseOnly ) {
 			soFar = soFar.slice( matched.length );
 		}
 
-		for ( type in Expr.filter ) {
-          let match= matchExpr[type].exec(soFar)
-          if ((match  && (!preFilters[ type ] ||
-				(match = preFilters[ type ]( match ))) )) {
-				matched = match.shift();
-				tokens.push({
-					value: matched,
-					type: type,
-					matches: match
-				});
-				soFar = soFar.slice( matched.length );
-			}
-		}
-
+		handleFilterMatching(Expr, matchExpr, preFilters, soFar, tokens)
 		if ( !matched ) {
 			break;
 		}
