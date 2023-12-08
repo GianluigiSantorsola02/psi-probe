@@ -3965,7 +3965,21 @@ function handleQuerySelectorAll(results, newContext, newSelector, old, context) 
   }
   return results;
 }
+function checkContextAndSelector(context, preferredDoc, document, setDocument, selector, results) {
+  let nodeType;
 
+  if ((context ? context.ownerDocument || context : preferredDoc) !== document) {
+    setDocument(context);
+  }
+
+  if (!selector || typeof selector !== "string") {
+    return results;
+  }
+
+  if ((nodeType = context.nodeType) !== 1 && nodeType !== 9) {
+    return [];
+  }
+}
 function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector) {
   groups = tokenize(selector);
   const old = context.getAttribute("id");
@@ -3987,17 +4001,7 @@ function handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testCon
 function Sizzle( selector, context, results, seed ) {
   let nodeType, old, nid, newContext, newSelector;
 
-  if ((context ? context.ownerDocument || context : preferredDoc) !== document) {
-    setDocument(context);
-  }
-
-  if (!selector || typeof selector !== "string") {
-    return results;
-  }
-
-  if ((nodeType = context.nodeType) !== 1 && nodeType !== 9) {
-    return [];
-  }
+  checkContextAndSelector(context,prefferredDoc,document,setDocument,selector,results)
 
   if (documentIsHTML && !seed) {
     let match = rquickExpr.exec(selector);
@@ -5072,15 +5076,14 @@ function handleFilterMatching(Expr, matchExpr, preFilters, soFar, tokens) {
 function handleGroupCreation(soFar, groups) {
   let match = null;
   if (!matched || (match = rcomma.exec(soFar))) {
-    if (match) {
-      soFar = soFar.slice(match[0].length) || soFar;
-    }
+
+    soFar.slice(match[0].length) || soFar || groups.pop();
     let tokens = [];
     groups.push(tokens);
   }
 }
 function tokenize( selector, parseOnly ) {
-	let matched, tokens, type,
+	let matched, tokens,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
 
