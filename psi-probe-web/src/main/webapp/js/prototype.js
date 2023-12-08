@@ -5503,7 +5503,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			}
 
 			matchedCount += i;
-			if ( bySet && i !== matchedCount ) {
+			if ( bySet && i != matchedCount ) {
 				j = 0;
 				while ( (matcher = setMatchers[j++]) ) {
 					matcher( unmatched, setMatched, context, xml );
@@ -6121,7 +6121,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
       _isButton = _isButtonForLegacyEvents;
     } else {
       _isButton = function(event, code) {
-        return isIELegacyEvent(event) ? _isButtonForLegacyEvents(event, code) :
+        return isIELegacyEvent() ? _isButtonForLegacyEvents(event, code) :
          _isButtonForDOMEvents(event, code);
       }
     }
@@ -6240,7 +6240,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     Event.extend = function(event, element) {
       if (!event) return false;
 
-      if (!isIELegacyEvent(event)) return event;
+      if (!isIELegacyEvent()) return event;
 
       if (event._extendedByPrototype) return event;
       event._extendedByPrototype = Prototype.emptyFunction;
