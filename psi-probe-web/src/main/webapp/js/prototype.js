@@ -346,55 +346,20 @@ Object.extend(String.prototype, (function() {
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
 
-  function prepareReplacement(replacement) {
-    return Object.isFunction(replacement) ? replacement : (match) => new Template(replacement).evaluate(match);
-  }
-  function gsub(pattern, replacement) {
-    let result;
-    let source = this;
-    replacement = prepareReplacement(replacement);
 
-    if (Object.isString(pattern)) {
-      pattern = RegExp.escape(pattern);
-    }
 
-    let regex = new RegExp(pattern, 'g');
-    result = source.replace(regex, replacement);
-
-    return result;
-  }
   function scan(pattern, iterator) {
     this.gsub(pattern, iterator);
     return String(this);
   }
-  function strip() {
-  return this.replace(/^\s/g, '').replace(/\s*$/g, '')  }
 
-  function stripTags() {
-    return this.replace(/<[^>]*>|<\/\w*>/gi, '')
 
-  }
-
-  function stripScripts() {
-    return this.replace(new RegExp(Prototype.ScriptFragment, 'img'), '');
-  }
-
-  function extractScripts() {
-    let matchAll = new RegExp(Prototype.ScriptFragment, 'img');
-    return Array.from(this.matchAll(matchAll), (match) => (match[0].match(/<script[^>]*>([\s\S]*?)<\/script>/i) || ['', ''])[1]);
-  }
 
   function evalScripts() {
     return this.extractScripts().map(function(script) { return eval(script); });
   }
 
-  function escapeHTML() {
-    return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
 
-  function unescapeHTML() {
-    return this.stripTags().replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-  }
 
 
   function toQueryParams(separator) {
@@ -497,25 +462,9 @@ Object.extend(String.prototype, (function() {
     return JSON.parse(json);
   }
 
-  function include(pattern) {
-    return this.indexOf(pattern) > -1;
-  }
 
-  function startsWith(pattern, position) {
-    position = Object.isNumber(position) ? position : 0;
-    return this.lastIndexOf(pattern, position) === position;
-  }
 
-  function endsWith(pattern, position) {
-    pattern = String(pattern);
-    position = Object.isNumber(position) ? position : this.length;
 
-    if (position < 0) position = 0;
-    if (position > this.length) position = this.length;
-
-    let slicedString = this.slice(position - pattern.length, position);
-    return slicedString === pattern;
-  }
   function empty() {
     return this === '';
   }
