@@ -3612,27 +3612,6 @@ function getPixelValue(value, property, context) {
 
     return new Element.Offset(valueL, valueT);
   }
-
-function calculateScrollOffset(elem) {
-  let valueT = 0, valueL = 0;
-
-  do {
-    if (elem === document.body) {
-      const bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
-      break;
-    } else {
-      valueT += elem.scrollTop || 0;
-      valueL += elem.scrollLeft || 0;
-      elem = elem.parentNode;
-    }
-  } while (elem);
-
-  return new Element.Offset(valueL, valueT);
-}
-
-
-
-
 function viewportOffset(forElement) {
     let valueT = 0, valueL = 0, docBody = document.body;
 
@@ -3641,17 +3620,17 @@ function viewportOffset(forElement) {
     do {
       valueT += element.offsetTop  || 0;
       valueL += element.offsetLeft || 0;
-      if (element.offsetParent == docBody &&
-          Element.getStyle(element, 'position') == 'absolute') break;
-    } while (element = element.offsetParent);
+      if (element.offsetParent === docBody &&
+          Element.getStyle(element, 'position') === 'absolute') break;
+    } while (element === element.offsetParent);
 
     element = forElement;
     do {
-      if (element != docBody) {
+      if (element !== docBody) {
         valueT -= element.scrollTop  || 0;
         valueL -= element.scrollLeft || 0;
       }
-    } while (element = element.parentNode);
+    } while (element === element.parentNode);
     return new Element.Offset(valueL, valueT);
   }
 
@@ -3828,23 +3807,7 @@ function clonePosition(element, source, options) {
 
   return Element.setStyle(element, styles);
 }
-function pageScrollXY() {
-  let x = 0, y = 0;
-  if (Object.isNumber(window.screenX)) {
-    x = window.screenX;
-    y = window.screenY;
-  } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
-    x = document.body.scrollLeft;
-    y = document.body.scrollTop;
-  } else if (docEl && (docEl.scrollLeft || docEl.scrollTop)) {
-    x = docEl.scrollLeft;
-    y = docEl.scrollTop;
-  }
-  return { x: x, y: y };
-}
-
-
-  if (Prototype.Browser.IE) {
+if (Prototype.Browser.IE) {
     getOffsetParent = getOffsetParent.wrap(
         function(proceed, element) {
           element = $(element);
