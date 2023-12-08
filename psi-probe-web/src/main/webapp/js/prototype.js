@@ -5269,20 +5269,23 @@ function handlePostFilter(postFilter, matcherOut, postMap, matcherIn, seed, cont
     handleTemp(temp, seed, matcherOut, matcherIn, postMap)
   }
 }
+function handlePostFinder(postFinder, matcherOut, seed, preMap, matcherIn) {
+  if (postFinder) {
+    let temp = [];
+    let i = matcherOut.length;
+    while (i--) {
+      if (matcherOut[i] && ((temp = postFinder ? indexOf.call(seed, matcherOut[i]) : preMap[i])) > -1) {
+        temp.push(matcherIn[i]);
+      }
+    }
+    postFinder(null, temp);
+  }
+}
 function handlePostFinderAndPreFilter(postFinder, preFilter, matcherOut, seed, matcherIn, preMap, results) {
   let temp;
 
   if (postFinder || preFilter) {
-    if (postFinder) {
-      temp = [];
-      let i = matcherOut.length;
-      while (i--) {
-        if (matcherOut[i] && ((temp = postFinder ? indexOf.call(seed, matcherOut[i]) : preMap[i])) > -1) {
-          temp.push(matcherIn[i]);
-        }
-      }
-      postFinder(null, temp);
-    }
+    handlePostFinder(postFinder, matcherOut, seed, preMap, matcherIn)
 
     let i = matcherOut.length;
     while (i--) {
