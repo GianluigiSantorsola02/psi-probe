@@ -4680,7 +4680,7 @@ function handleParent(parent, simple, dir, elem, ofType, name, type) {
     if (dir && useCache) {
       outerCache = parent[expando] || (parent[expando] = {});
       cache = outerCache[type] || [];
-      nodeIndex = cache[0] === dirruns && cache[1];
+      nodeIndex = cache[0] === dirruns;
       node = nodeIndex && parent.childNodes[nodeIndex];
 
       handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache);
@@ -4833,8 +4833,7 @@ function handleParent(parent, simple, dir, elem, ofType, name, type) {
 					let
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
-						name = ofType && elem.nodeName.toLowerCase(),
-						useCache = !xml && !ofType;
+						name = ofType && elem.nodeName.toLowerCase();
 
 					handleParent(parent, simple, dir, elem, ofType, name, type)
 				};
@@ -5137,7 +5136,30 @@ function toSelector( tokens ) {
 	}
 	return selector;
 }
-
+function handleCache(oldCache, dirruns, doneName, newCache, matcher, elem, context) {
+  if (oldCache && oldCache[0] === dirruns && oldCache[1] === doneName) {
+    let newValue = oldCache[2];
+    newCache[2] = newValue;
+    return newValue;
+  } else {
+    newCache = [];
+    newCache[2] = matcher(elem, context);
+  }
+}
+function handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement) {
+  if (xml) {
+    while ((elem = elem[dir])) {
+      if (elem.nodeType === 1 || checkNonElements) {
+        if (matcher(elem, context, xml)) {
+          return true;
+        }
+      }
+    }
+  } else {
+    let elem = startingElement;
+    // ... remaining code ...
+  }
+}
 function addCombinator( matcher, combinator, base ) {
 	let dir = combinator.dir,
 		checkNonElements = base && dir === "parentNode",
@@ -5155,29 +5177,14 @@ function addCombinator( matcher, combinator, base ) {
 		function( elem, context, xml ) {
 			let outerCache;
 
-			if ( xml ) {
-				while ( (elem = elem[ dir ]) ) {
-					if ( elem.nodeType === 1 || checkNonElements ) {
-						if ( matcher( elem, context, xml ) ) {
-							return true;
-						}
-					}
-				}
-			} else {
-              let elem = startingElement;
+			handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement)
 
               while (elem) {
                 if (elem.nodeType === 1 || checkNonElements) {
                   outerCache = elem[expando] || (elem[expando] = {});
                   let oldCache = outerCache[dir];
 
-                  if (oldCache && oldCache[0] === dirruns && oldCache[1] === doneName) {
-                    let newValue = oldCache[2];
-                    newCache[2] = newValue;
-                    return newValue;
-                  } else {
-                    let newCache = [];
-                    newCache[2] = matcher(elem, context, xml);
+                  handleCache(oldCache, dirruns, doneName, newCache, matcher, elem, context)
 
                     if (newCache[2]) {
                       outerCache[dir] = newCache;
@@ -5185,11 +5192,8 @@ function addCombinator( matcher, combinator, base ) {
                     }
                   }
                 }
-                elem = elem.parentNode;
-              }
-
             }
-		};
+
 }
 
 function elementMatcher( matchers ) {
