@@ -5987,7 +5987,6 @@ Form.Element.Serializers = (function() {
     input:         input,
     textarea:      valueSelector,
     select:        select,
-    optionValue:   optionValue,
     button:        valueSelector
   };
 })();
@@ -6005,7 +6004,7 @@ Abstract.TimedObserver = Class.Create(PeriodicalExecuter, {
   execute: function() {
     let value = this.getValue();
     if (Object.isString(this.lastValue) && Object.isString(value) ?
-        this.lastValue != value : String(this.lastValue) != String(value)) {
+        this.lastValue !== value : String(this.lastValue) !== String(value)) {
       this.callback(this.element, value);
       this.lastValue = value;
     }
@@ -6032,7 +6031,7 @@ Abstract.EventObserver = Class.Create({
     this.callback = callback;
 
     this.lastValue = this.getValue();
-    if (this.element.tagName.toLowerCase() == 'form')
+    if (this.element.tagName.toLowerCase() === 'form')
       this.registerFormCallbacks();
     else
       this.registerCallback(this.element);
@@ -6040,7 +6039,7 @@ Abstract.EventObserver = Class.Create({
 
   onElementEvent: function() {
     let value = this.getValue();
-    if (this.lastValue != value) {
+    if (this.lastValue !== value) {
       this.callback(this.element, value);
       this.lastValue = value;
     }
@@ -6634,7 +6633,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
     window.Event = {};}
 
-  function destroyCache_IE() {
+  function destroyCache_IE1() {
     if (typeof GLOBAL !== 'undefined' && GLOBAL !== null && GLOBAL.Event) {
       GLOBAL.Event.cache = null;
     } else {
@@ -6643,17 +6642,12 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   if (window.attachEvent)
-    window.attachEvent('onunload', destroyCache_IE);
+    window.attachEvent('onunload', destroyCache_IE1);
 
   if (document.addEventListener)
-    document.addEventListener('unload', destroyCache_IE, false);
+    document.addEventListener('unload', destroyCache_IE1, false);
   docEl = null;
 
-
-((function() {
-  /* Code for creating leak-free event responders is based on work by
-   John-David Dalton. */
-}))(this);
 
 
   let TIMER;
@@ -6695,7 +6689,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   } else {
     if (document) {
       document.attachEvent('onreadystatechange', checkReadyState);}
-      else if (window == top){
+      else if (window === top){
         TIMER = pollDoScroll.defer();
     }
   }
@@ -6733,8 +6727,6 @@ let Position = {
   within: function(element, x, y) {
     if (this.includeScrollOffsets)
       return this.withinIncludingScrolloffsets(element, x, y);
-    this.xcomp = x;
-    this.ycomp = y;
     this.offset = Element.cumulativeOffset(element);
 
     return (y >= this.offset[1] &&
