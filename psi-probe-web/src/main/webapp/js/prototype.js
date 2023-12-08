@@ -3613,24 +3613,29 @@ function getPixelValue(value, property, context) {
     return new Element.Offset(valueL, valueT);
   }
 
-  function cumulativeScrollOffset(element) {
-    let valueT = 0, valueL = 0;
-    do {
-      if (element === document.body) {
-        let bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
-        valueT += !Object.isUndefined(window.screenY) ? window.screenY : bodyScrollNode.scrollTop || 0;
-        valueL += !Object.isUndefined(window.screenX) ? window.screenX : bodyScrollNode.scrollLeft || 0;
-        break;
-      } else {
-        valueT += element.scrollTop  || 0;
-        valueL += element.scrollLeft || 0;
-        element = element.parentNode;
-      }
-    } while (element);
-    return new Element.Offset(valueL, valueT);
-  }
+function calculateScrollOffset(elem) {
+  let valueT = 0, valueL = 0;
 
-  function viewportOffset(forElement) {
+  do {
+    if (elem === document.body) {
+      const bodyScrollNode = document.documentElement || document.body.parentNode || document.body;
+      valueT += !Object.isUndefined(window.screenY) ? window.screenY : bodyScrollNode.scrollTop || 0;
+      valueL += !Object.isUndefined(window.screenX) ? window.screenX : bodyScrollNode.scrollLeft || 0;
+      break;
+    } else {
+      valueT += elem.scrollTop || 0;
+      valueL += elem.scrollLeft || 0;
+      elem = elem.parentNode;
+    }
+  } while (elem);
+
+  return new Element.Offset(valueL, valueT);
+}
+
+
+
+
+function viewportOffset(forElement) {
     let valueT = 0, valueL = 0, docBody = document.body;
 
     forElement = $(forElement);
