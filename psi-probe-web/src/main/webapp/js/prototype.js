@@ -974,9 +974,6 @@ let Hash = Class.Create(Enumerable, (function() {
     }).join(', ') + '}>';
   }
 
-  function clone() {
-    return new Hash(this);
-  }
 
   return {
     initialize:             initialize,
@@ -1726,8 +1723,8 @@ function handleInnerHTMLBugWorkaround(element, tagName, content) {
   if (tagName in INSERTION_TRANSLATIONS.tags) {
     element.innerHTML = '';
     let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-    for (let i = 0; i < nodes.length; i++) {
-      element.appendChild(nodes[i]);
+    for (const node of nodes) {
+      element.appendChild(node);
     }
   } else {
     element.innerHTML = content.stripScripts();
@@ -1847,8 +1844,7 @@ function replace(element, content) {
       childNodes.reverse();
     }
 
-    for (let i = 0; i < childNodes.length; i++) {
-      let node = childNodes[i];
+    for (const node of childNodes) {
       method(element, node);
     }
 
@@ -3904,7 +3900,7 @@ let
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
 
-    rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"\\]]*?)" + whitespace + "*\\]", "g" ),
+    rattributeQuotes = new RegExp( "=" + whitespace + "*('\"\\]]*?)", "g" ),
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
@@ -3937,7 +3933,7 @@ let
 	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
 	funescape = function( _, escaped, escapedWhitespace ) {
 		let high = "0x" + escaped - 0x10000;
-      if (high !== high || escapedWhitespace) {
+      if (Number.isNaN(high) || escapedWhitespace) {
         return escaped;
       } else if (high < 0) {
         return String.fromCharCode(high + 0x10000);
@@ -5466,7 +5462,7 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
     if (outermost) {
       outermostContext = context !== document && context;
     }
-    processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique);
+    processElementMatchers(byElement, elem, elementMatchers, context, xml, outermost, dirrunsUnique);
 
     processElements(len, elems, bySet, seed, matchedCount, unmatched);
 
