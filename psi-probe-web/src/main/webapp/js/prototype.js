@@ -200,7 +200,7 @@ Object.extend(Function.prototype, (function() {
 
   function bindAsEventListener(context) {
     let __method = this, args = slice.call(arguments, 1);
-    return function(event) {
+    return function() {
       let a = update([(window.Event)], args);
       return __method.apply(context, a);
     };
@@ -338,18 +338,9 @@ Object.extend(String.prototype, (function() {
 
 
 
-  function scan(pattern, iterator) {
-    this.gsub(pattern, iterator);
-    return String(this);
-  }
-
-
-
   function evalScripts() {
     return this.extractScripts().map(function(script) { return eval(script); });
   }
-
-
 
 
 
@@ -451,7 +442,6 @@ Object.extend(String.prototype, (function() {
 
   return {
     gsub:           gsub,
-    scan:           scan,
     strip:          String.prototype.trim || strip,
     stripTags:      stripTags,
     stripScripts:   stripScripts,
@@ -583,12 +573,12 @@ let Enumerable = (function() {
     return results;
   }
   function include(object) {
-    if (Object.isFunction(this.indexOf) && this.indexOf(object) != -1)
+    if (Object.isFunction(this.indexOf) && this.indexOf(object) !== -1)
       return true;
 
     let found = false;
     this.each(function(value) {
-      if (value == object) {
+      if (value === object) {
         found = true;
         throw $break;
       }
@@ -1087,7 +1077,7 @@ Object.extend(Number.prototype, (function() {
     round:          round
   };
 })());
-let ObjectRange = Class.Create(Enumerable, (function() {
+Class.Create(Enumerable, (function() {
   function initialize(start, end, exclusive) {
     this.start = start;
     this.end = end;
@@ -1118,9 +1108,6 @@ let ObjectRange = Class.Create(Enumerable, (function() {
     include:    include
   };
 })());
-
-
-
 let Abstract = { };
 
 
@@ -1311,7 +1298,7 @@ Ajax.Request = Class.Create(Ajax.Base, {
   },
   success: function() {
     let status = this.getStatus();
-    return !status || (status >= 200 && status < 300) || status == 304;
+    return !status || (status >= 200 && status < 300) || status === 304;
   },
 
   getStatus: function() {
@@ -1413,14 +1400,14 @@ Ajax.Response = Class.Create({
     let transport  = this.transport  = request.transport,
         readyState = this.readyState = transport.readyState;
 
-    if ((readyState > 2 && !Prototype.Browser.IE) || readyState == 4) {
+    if ((readyState > 2 && !Prototype.Browser.IE) || readyState === 4) {
       this.status       = this.getStatus();
       this.statusText   = this.getStatusText();
       this.responseText = String.interpret(transport.responseText);
       this.headerJSON   = this._getHeaderJSON();
     }
 
-    if (readyState == 4) {
+    if (readyState === 4) {
       let xml = transport.responseXML;
       this.responseXML  = Object.isUndefined(xml) ? null : xml;
     }
@@ -1530,7 +1517,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   updateComplete: function(response) {
     if (this.options.decay) {
-      this.decay = (response.responseText == this.lastText ?
+      this.decay = (response.responseText === this.lastText ?
         this.decay * this.options.decay : 1);
 
       this.lastText = response.responseText;
@@ -1546,8 +1533,6 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
 
   let UNDEFINED;
   let SLICE = Array.prototype.slice;
-if(document)
-  let DIV = document.createElement('div');
 
 
   function $(element) {
@@ -5516,7 +5501,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			}
 
 			matchedCount += i;
-			if ( bySet && i != matchedCount ) {
+			if ( bySet && i !== matchedCount ) {
 				j = 0;
 				while ( (matcher = setMatchers[j++]) ) {
 					matcher( unmatched, setMatched, context, xml );
@@ -5715,7 +5700,6 @@ if ( typeof define === "function" && define.amd ) {
 	window.Sizzle = Sizzle;
 }
 
-;
 
 ;(function() {
   if (typeof Sizzle !== 'undefined') {
@@ -5741,7 +5725,7 @@ if ( typeof define === "function" && define.amd ) {
   }
 
   function match(element, selector) {
-    return engine.matches(selector, [element]).length == 1;
+    return engine.matches(selector, [element]).length === 1;
   }
 
   Prototype.Selector.engine = engine;
@@ -5792,8 +5776,8 @@ let Form = {
     return elements.inject(initial, function(result, element) {
       if (!element.disabled && element.name) {
         key = element.name; value = $(element).getValue();
-        if (value != null && element.type != 'file' && (element.type != 'submit' || (!submitted &&
-            submit !== false && (!submit || key == submit) && (submitted = true)))) {
+        if (value != null && element.type !== 'file' && (element.type !== 'submit' || (!submitted &&
+            submit !== false && (!submit || key === submit) && (submitted = true)))) {
           result = accumulator(result, key, value);
         }
       }
@@ -5873,7 +5857,7 @@ Form.Element.Methods = {
     element = $(element);
     if (!element.disabled && element.name) {
       let value = element.getValue();
-      if (value != undefined) {
+      if (value !== undefined) {
         let pair = { };
         pair[element.name] = value;
         return Object.toQueryString(pair);
@@ -6098,7 +6082,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   };
 
 
-  let isIELegacyEvent = function(event) { return false; };
+  let isIELegacyEvent = function() { return false; };
 
   if (window.attachEvent) {
     if (window.addEventListener) {
@@ -6106,7 +6090,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
         return !(event instanceof window.Event);
       };
     } else {
-      isIELegacyEvent = function(event) { return true; };
+      isIELegacyEvent = function() { return true; };
     }
   }
 
@@ -6123,9 +6107,9 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
   function _isButtonForWebKit(event, code) {
     switch (code) {
-      case 0: return event.which == 1 && !event.metaKey;
-      case 1: return event.which == 2 || (event.which == 1 && event.metaKey);
-      case 2: return event.which == 3;
+      case 0: return event.which === 1 && !event.metaKey;
+      case 1: return event.which === 2 || (event.which === 1 && event.metaKey);
+      case 2: return event.which === 3;
       default: return false;
     }
   }
