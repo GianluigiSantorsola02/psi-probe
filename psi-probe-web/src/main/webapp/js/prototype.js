@@ -1724,7 +1724,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   let methods = {};
 
   let INSPECT_ATTRIBUTES = { id: 'id', className: 'class' };
-  function inspect(element) {
+  function inspect1(element) {
     element = $(element);
     let result = `<${element.tagName.toLowerCase()}`;
 
@@ -1737,7 +1737,7 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return result + '>';
   }
 
-  methods.inspect = inspect;
+  methods.inspect = inspect1;
 
 
   function visible(element) {
@@ -1829,55 +1829,62 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
     return isBuggy;
   })();
 
-  function update(element, content) {
-    element = $(element);
+function update(element, content) {
+  element = $(element);
 
-    let descendants = element.getElementsByTagName('*');
-    for (let i = descendants.length - 1; i >= 0; i--) {
-      purgeElement(descendants[i]);
-    }
+  removeDescendantElements(element);
 
-    content = content?.toElement?.();
+  content = content?.toElement?.();
 
-    if (Object.isElement(content)) {
-      return element.update().insert(content);
-    }
+  if (Object.isElement(content)) {
+    return element.update().insert(content);
+  }
 
-    content = Object.toHTML(content);
-    let tagName = element.tagName.toUpperCase();
+  content = Object.toHTML(content);
+  let tagName = element.tagName.toUpperCase();
 
-    if (tagName === 'SCRIPT' && SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING) {
-      element.text = content;
-      return element;
-    }
-
-    if (ANY_INNERHTML_BUGGY) {
-      if (tagName in INSERTION_TRANSLATIONS.tags) {
-        element.innerHTML = '';
-        let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
-        for (let i = 0; i < nodes.length; i++) {
-          element.appendChild(nodes[i]);
-        }
-      } else if (LINK_ELEMENT_INNERHTML_BUGGY && Object.isString(content) && content.indexOf('<link') > -1) {
-        element.innerHTML = '';
-        let nodes = getContentFromAnonymousElement(tagName, content.stripScripts(), true);
-        for (let i = 0; i < nodes.length; i++) {
-          let node = nodes[i];
-          if (node) {
-            element.appendChild(node);
-          }
-        }
-      } else {
-        element.innerHTML = content.stripScripts();
-      }
-    } else {
-      element.innerHTML = content.stripScripts();
-    }
-
-    content.evalScripts.bind(content).defer();
+  if (shouldSetElementText(tagName)) {
+    element.text = content;
     return element;
   }
-  function replace(element, content) {
+
+  if (shouldUseInnerHTMLBugWorkaround(tagName)) {
+    handleInnerHTMLBugWorkaround(element, tagName, content);
+  } else {
+    element.innerHTML = content.stripScripts();
+  }
+
+  content.evalScripts.bind(content).defer();
+  return element;
+}
+
+function removeDescendantElements(element) {
+  let descendants = element.getElementsByTagName('*');
+  for (let i = descendants.length - 1; i >= 0; i--) {
+    purgeElement(descendants[i]);
+  }
+}
+
+function shouldSetElementText(tagName) {
+  return tagName === 'SCRIPT' && SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING;
+}
+
+function shouldUseInnerHTMLBugWorkaround(tagName) {
+  return ANY_INNERHTML_BUGGY && (tagName in INSERTION_TRANSLATIONS.tags || (LINK_ELEMENT_INNERHTML_BUGGY && tagName === 'LINK'));
+}
+
+function handleInnerHTMLBugWorkaround(element, tagName, content) {
+  if (tagName in INSERTION_TRANSLATIONS.tags) {
+    element.innerHTML = '';
+    let nodes = getContentFromAnonymousElement(tagName, content.stripScripts());
+    for (let i = 0; i < nodes.length; i++) {
+      element.appendChild(nodes[i]);
+    }
+  } else {
+    element.innerHTML = content.stripScripts();
+  }
+}
+function replace(element, content) {
     element = $(element);
 
     content = content?.toElement?.() || (Object.isElement(content) ? content : (() => {
@@ -2169,19 +2176,18 @@ Ajax.PeriodicalUpdater = Class.Create(Ajax.Base, {
   }
 
 function recursivelyFindElement(element, property, expression, index) {
-  while (element && element.nodeType === Node.ELEMENT_NODE) {
-    element = element[property];
+  let count = 0;
 
-    if (element && element.nodeType === 1) {
-      if (!expression || Prototype.Selector.match(element, expression)) {
-        if (--index < 0) {
+  while (element && count <= index) {
+    if (element.nodeType === Node.ELEMENT_NODE && (!expression || Prototype.Selector.match(element, expression))) {
+        if (count === index) {
           return Element.extend(element);
         }
-      }
+        count++;
     }
+    element = element[property];
   }
 }
-
 
 function _recursivelyFind(element, property, expression, index) {
   element = $(element);
@@ -2350,33 +2356,36 @@ function _recursivelyFind(element, property, expression, index) {
     readAttribute = readAttribute_Opera;
   }
 
+function updateAttributes(element, attributes) {
+  for (let attr in attributes) {
+    let table = ATTRIBUTE_TRANSLATIONS.write;
+    let attrValue = attributes[attr];
+    let finalValue = table.values[attr] ? table.values[attr](element, attrValue) : attrValue;
+    let attributeName = table.names[attr] || attr;
 
-  function writeAttribute(element, name, value) {
-    element = $(element);
-    let attributes = {}, table = ATTRIBUTE_TRANSLATIONS.write;
-
-    if (typeof name === 'object') {
-      attributes = name;
+    if (!finalValue) {
+      element.removeAttribute(attributeName);
     } else {
-      attributes[name] = Object.isUndefined(value) ? true : value;
+      element.setAttribute(attributeName, finalValue);
     }
-
-    for (let attr in attributes) {
-      name = table.names[attr] || attr;
-      value = attributes[attr];
-      if (table.values[attr]) {
-        value = table.values[attr](element, value);
-        if (Object.isUndefined(value)) continue;
-      }
-      if (!value) {
-        element.removeAttribute(name);
-      } else {
-        element.setAttribute(name, value);
-      }
-    }
-
-    return element;
   }
+}
+
+
+function writeAttribute(element, name, value) {
+  element = $(element);
+  let attributes = {};
+
+  if (typeof name === 'object') {
+    attributes = name;
+  } else {
+    attributes[name] = Object.isUndefined(value) ? true : value;
+  }
+
+  updateAttributes(element, attributes);
+
+  return element;
+}
   let PROBLEMATIC_HAS_ATTRIBUTE_WITH_CHECKBOXES = (function () {
     if (!HAS_EXTENDED_CREATE_ELEMENT_SYNTAX) {
       return false;
