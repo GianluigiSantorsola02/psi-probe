@@ -343,7 +343,6 @@ Object.extend(String, {
   }
 });
 
-
   let NATIVE_JSON_PARSE_SUPPORT = window.JSON &&
     typeof JSON.parse === 'function' ?.
     JSON.parse('{"test": true}').test;
@@ -558,7 +557,7 @@ Object.extend(String, {
     blank:          blank,
     interpolate:    interpolate
   };
-
+(this);
 function applyExpression(ctx, expr, pattern) {
   let match = pattern.exec(expr);
 
