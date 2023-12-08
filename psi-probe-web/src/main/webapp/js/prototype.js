@@ -6736,12 +6736,11 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
    John-David Dalton. */
 }))(this);
 
-((function(document) {
 
   let TIMER;
 
   function fireContentLoadedEvent() {
-    if (document && !document.loaded) {
+    if (!document.loaded) {
       if (TIMER) window.clearTimeout(TIMER);
       document.loaded = true;
       document.fire('dom:loaded');
@@ -6749,7 +6748,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function checkReadyState() {
-    if (document && document.readyState === 'complete') {
+    if (document ?. document.readyState === 'complete') {
       document.detachEvent('onreadystatechange', checkReadyState);
       fireContentLoadedEvent();
     }
@@ -6767,23 +6766,23 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     fireContentLoadedEvent();
   }
 
-  if (document && document.readyState === 'complete') {
+  if (document?.document.readyState === 'complete') {
     fireContentLoadedEvent();
     return;
   }
 
-  if (document && document.addEventListener) {
+  if (document ?.document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else {
     if (document) {
-      document.attachEvent('onreadystatechange', checkReadyState);
-      if (window == top) TIMER = pollDoScroll.defer();
+      document.attachEvent('onreadystatechange', checkReadyState);}
+      else if (window == top){
+        TIMER = pollDoScroll.defer();
     }
   }
 
   Event.observe(window, 'load', fireContentLoadedEvent);
-})(document)
-)(this);
+
 
 
 Element.addMethods();
