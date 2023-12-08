@@ -4669,7 +4669,31 @@ function handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache) {
     }
   }
 }
-Expr = Sizzle.selectors = {
+function handleParent(parent, simple, dir, elem, ofType, name, type) {
+  if (parent) {
+    handleSimpleTraversal(simple, dir, elem, ofType, name, type);
+
+    let start = [dir ? parent.firstChild : parent.lastChild];
+
+    let outerCache, cache, nodeIndex, node, diff;
+
+    if (dir && useCache) {
+      outerCache = parent[expando] || (parent[expando] = {});
+      cache = outerCache[type] || [];
+      nodeIndex = cache[0] === dirruns && cache[1];
+      node = nodeIndex && parent.childNodes[nodeIndex];
+
+      handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache);
+    } else if (useCache && (cache = (elem[expando] || (elem[expando] = {}))[type]) && cache[0] === dirruns) {
+      diff = cache[1];
+    } else {
+      handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type);
+    }
+
+    diff -= last;
+    return diff === first || (diff % first === 0 && diff / first >= 0);
+  }
+}Expr = Sizzle.selectors = {
 
 	cacheLength: 50,
 
@@ -4806,36 +4830,13 @@ Expr = Sizzle.selectors = {
 				} :
 
 				function( elem, context, xml ) {
-					let cache, outerCache, node, diff, nodeIndex, start,
+					let
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
 						name = ofType && elem.nodeName.toLowerCase(),
 						useCache = !xml && !ofType;
 
-					if ( parent ) {
-
-						handleSimpleTraversal(simple, dir, elem, ofType, name, type)
-
-						start = [ forward ? parent.firstChild : parent.lastChild ];
-
-						if ( forward && useCache ) {
-							outerCache = parent[ expando ] || (parent[ expando ] = {});
-							cache = outerCache[ type ] || [];
-							nodeIndex = cache[0] === dirruns && cache[1];
-							node = nodeIndex && parent.childNodes[ nodeIndex ];
-
-							handleOuterCache(nodeIndex, node, dir, start, elem, type, outerCache)
-
-						} else if ( useCache && (cache = (elem[ expando ] || (elem[ expando ] = {}))[ type ]) && cache[0] === dirruns ) {
-							diff = cache[1];
-
-						} else {
-							handleNodeTraversal(nodeIndex, node, dir, start, ofType, name, type)
-						}
-
-						diff -= last;
-						return diff === first || ( diff % first === 0 && diff / first >= 0 );
-					}
+					handleParent(parent, simple, dir, elem, ofType, name, type)
 				};
 		},
 
