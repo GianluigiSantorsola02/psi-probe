@@ -5454,6 +5454,22 @@ function processElementMatchers(byElement, elem, elementMatchers, context, xml, 
     }
   }
 }
+
+function processElements(len, elems, bySet, seed, matchedCount, unmatched) {
+  for (let i = 0; i < len; i++) {
+    let elem = elems[i];
+
+    if (bySet) {
+      if (elem) {
+        matchedCount--;
+      }
+
+      if (seed) {
+        unmatched.push(elem);
+      }
+    }
+  }
+}
 function matcherFromGroupMatchers(elementMatchers, setMatchers) {
   let bySet = setMatchers.length > 0;
   let byElement = elementMatchers.length > 0;
@@ -5470,21 +5486,7 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
     }
     processElementMatchers(byElement, elem, elementMatchers, context, xml, results, outermost, dirrunsUnique);
 
-
-    for (let i = 0; i < len; i++) {
-      let elem = elems[i];
-
-
-      if (bySet) {
-        if (elem) {
-          matchedCount--;
-        }
-
-        if (seed) {
-          unmatched.push(elem);
-        }
-      }
-    }
+    processElements(len, elems, bySet, seed, matchedCount, unmatched);
 
     matchedCount += len;
 
