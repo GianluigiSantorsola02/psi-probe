@@ -71,11 +71,7 @@ const Prototype = {
     SpecificElementExtensions: (function () {
       if (typeof window.HTMLDivElement !== 'undefined')
         return true;
-if(document) {
-  let div = document.createElement('div'),
-      form = document.createElement('form'),
-      isSupported = false;
-}
+
 
 
       return isSupported;
