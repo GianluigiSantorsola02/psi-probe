@@ -5136,15 +5136,11 @@ function toSelector( tokens ) {
 	}
 	return selector;
 }
-function handleCache(oldCache, dirruns, doneName, matcher, elem, context) {
+function handleCache(oldCache, dirruns, doneName) {
   if (oldCache && oldCache[0] === dirruns && oldCache[1] === doneName) {
     let newValue = oldCache[2];
     newCache[2] = newValue;
     return newValue;
-  } else {
-    let newCache;
-    newCache = [];
-    newCache[2] = matcher(elem, context);
   }
 }
 function handleTraversal(xml, elem, dir, checkNonElements, matcher, context, startingElement) {
