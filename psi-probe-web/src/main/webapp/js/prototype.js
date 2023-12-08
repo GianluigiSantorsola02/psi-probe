@@ -4049,7 +4049,7 @@ Prototype._original_property = window.Sizzle;
   }
 })();
 
-(function( window ) {
+
 
 let i,
 	support,
@@ -5869,7 +5869,7 @@ if ( typeof define === "function" && define.amd ) {
 	window.Sizzle = Sizzle;
 }
 
-})( window );
+( window );
 
 ;(function() {
   if (typeof Sizzle !== 'undefined') {
