@@ -1593,6 +1593,7 @@ if(document)
 
   let HAS_EXTENDED_CREATE_ELEMENT_SYNTAX = (function(){
     try {
+      if(document)
       let el = document.createElement('<input name="x">');
       return el.tagName.toLowerCase() === 'input' && el.name === 'x';
     }
