@@ -5249,6 +5249,15 @@ function handleMatcher(matcher, postFinder, seed, preFilter, preexisting, postFi
 
   return matcherOut;
 }
+function handleTemp(temp, seed, matcherOut, matcherIn, postMap) {
+  let i = temp.length;
+  while (i--) {
+    let elem = temp[i];
+    if ((!seed || seed[elem])?.(matcherOut[elem])) {
+      matcherOut[postMap[i]] = !(matcherIn[postMap[i]]);
+    }
+  }
+}
 function handlePostFilter(postFilter, matcherOut, postMap, matcherIn, seed, context, xml) {
   let temp;
 
@@ -5257,12 +5266,7 @@ function handlePostFilter(postFilter, matcherOut, postMap, matcherIn, seed, cont
     postFilter(temp, [], context, xml);
 
     let i = temp.length;
-    while (i--) {
-      let elem = temp[i];
-      if ((!seed || seed[elem])?.(matcherOut[elem])) {
-        matcherOut[postMap[i]] = !(matcherIn[postMap[i]]);
-      }
-    }
+    handleTemp(temp, seed, matcherOut, matcherIn, postMap)
   }
 }
 function handlePostFinderAndPreFilter(postFinder, preFilter, matcherOut, seed, matcherIn, preMap, results) {
