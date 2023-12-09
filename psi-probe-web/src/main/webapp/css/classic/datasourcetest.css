@@ -1,13 +1,4 @@
-/**
- * Licensed under the GPL License. You may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE.
- */
+
 div.dataSourceTestMenu, div.dataSourceTestContent {
 	clear: both;
 }
@@ -66,7 +57,7 @@ li#nowrap {
 	border: none;
 	overflow: auto;
 	margin: 0;
-	padding: 2px 0px 2px 5px;
+	padding: 2px 0 2px 5px;
 	height: 100px;
 	background-color: #fff;
 }
@@ -75,9 +66,9 @@ div#sqlDragHandle {
 	background: #ddd;
 	cursor: n-resize;
 	height: 3px;
-	margin-top: 0px; /* for IE */
-	font-size: 0px;
-	line-height: 0px;
+	margin-top: 0; /* for IE */
+	font-size: 0;
+	line-height: 0;
 }
 
 div#sqlDragHandle:hover {
@@ -154,7 +145,7 @@ div#outputHolder {
 	float: right;
 	width: 50%;
 	height: 2em;
-	padding: 0px 20px 5px 20px;
+	padding: 0 20px 5px 20px;
 	margin: 0;
 	background-position: left center;
 	font-size: 95%;
@@ -225,9 +216,9 @@ div#historyDragHandle {
 	background: #ddd;
 	cursor: n-resize;
 	height: 3px;
-	margin-top: 0px; /* for IE */
-	font-size: 0px;
-	line-height: 0px;
+	margin-top: 0; /* for IE */
+	font-size: 0;
+	line-height: 0;
 }
 
 div#historyDragHandle:hover {
