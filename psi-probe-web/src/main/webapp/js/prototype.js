@@ -6118,10 +6118,7 @@ if(document) {
   }
 
   function pointerX(event) {
-    if(document) {
-      let docElement = document.documentElement,
-          body = document.body || {scrollLeft: 0};
-    }
+
     return event.pageX || (event.clientX +
       (docElement.scrollLeft || body.scrollLeft) -
       (docElement.clientLeft || 0));
@@ -6535,18 +6532,18 @@ function on(element, eventName, selector, callback) {
 
     on:            on
   });
-if(document)
+if(document) {
 
   Object.extend(document, {
-    fire:          fire.methodize(),
+    fire: fire.methodize(),
 
-    observe:       observe.methodize(),
+    observe: observe.methodize(),
 
     stopObserving: stopObserving.methodize(),
 
-    on:            on.methodize(),
+    on: on.methodize(),
 
-    loaded:        false
+    loaded: false
   });
 
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
@@ -6558,7 +6555,7 @@ if(document)
   } else {
     window.Event = Event;
   }
-
+}
   if (typeof GLOBAL !== 'undefined' && GLOBAL !== null) {
     GLOBAL.Event = GLOBAL.Event || {};
     GLOBAL.Event.cache = {};
@@ -6577,7 +6574,7 @@ if(document)
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE1);
 
-  if (document && document.addEventListener)
+  if (document?.addEventListener)
     document.addEventListener('unload', destroyCache_IE1, false);
 
 
@@ -6608,7 +6605,7 @@ function pollDoScroll() {
     return;
   }
 
-  if (document && document ?.document.addEventListener) {
+  if (document?.document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else if (window === top){
         TIMER = pollDoScroll.defer();
