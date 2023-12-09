@@ -2947,7 +2947,7 @@ function getPixelValue(value, property, context) {
   }
 
   let hasLayout = Prototype.K;
-  if ('currentStyle' in document.documentElement) {
+  if (document && 'currentStyle' in document.documentElement) {
     hasLayout = function(element) {
       if (!element.currentStyle.hasLayout) {
         element.style.zoom = 1;
@@ -4337,6 +4337,7 @@ if(support)
 	}
   if(docElem)
   matches = docElem.compareDocumentPosition;
+  if(support)
   support.matchesSelector = rnative.test(matches);
 	if (docElem && (support.matchesSelector ||
 		docElem.mozMatchesSelector ||
