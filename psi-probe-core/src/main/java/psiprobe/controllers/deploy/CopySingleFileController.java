@@ -46,7 +46,7 @@ import java.util.*;
 public class CopySingleFileController extends AbstractTomcatContainerController {
 
   /** The Constant logger. */
-  private static final Logger log = LoggerFactory.getLogger(CopySingleFileController.class);
+  private static final Logger logg = LoggerFactory.getLogger(CopySingleFileController.class);
 
   @RequestMapping(path = "/adm/deployfile.htm")
   @Override
@@ -128,11 +128,34 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
   }
 
   private void handleFileUploadException(Exception e, HttpServletRequest request, File tmpFile) {
-    log.error("Could not process file upload", e);
+    logg.error("Could not process file upload", e);
     request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.file.uploadfailure", new Object[] {e.getMessage()}));
     if (tmpFile != null && tmpFile.exists() && !tmpFile.delete()) {
-      log.error("Unable to delete temp upload file");
+      logg.error("Unable to delete temp upload file");
+    }
+  }
+
+  private void processDestFile(File destFile, File tmpFile, HttpServletRequest request) {
+    if (destFile.exists()) {
+      if (!destFile.getAbsolutePath().contains("..")) {
+        try {
+          FileUtils.copyFileToDirectory(tmpFile, destFile);
+
+          request.setAttribute("successFile", Boolean.TRUE);
+          Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+          String name = auth.getName();
+          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+          if (messageSourceAccessor != null) {
+            String message = messageSourceAccessor.getMessage("probe.src.log.deploy", name);
+            logg.info(message);
+          }
+        } catch (IOException e) {
+          logger.error("An error occurred while copying the file to the destination directory", e);
+        }
+      } else {
+        request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
+                .getMessage("probe.src.dest.inaccessible", new Object[] {destFile.getAbsolutePath()}));}
     }
   }
 
@@ -151,21 +174,9 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   contextName + where);
 
           if (destFile.exists()) {
-            if (!destFile.getAbsolutePath().contains("..")) {
-              FileUtils.copyFileToDirectory(tmpFile, destFile);
-
-              request.setAttribute("successFile", Boolean.TRUE);
-              Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-              String name = auth.getName();
-              MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-              if (messageSourceAccessor != null) {
-                String message = messageSourceAccessor.getMessage("probe.src.log.deploy", name);
-                logger.info(message);
-              }
-            } else {
-              errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.pathNotValid");
-            }
-          } else {
+            processDestFile(destFile, tmpFile, request);
+          }
+          else {
             errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notPath");
           }
         } else {
@@ -175,16 +186,12 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       } else {
         errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notFile.failure");
       }
-    } catch (IOException e) {
-      errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.failure",
-              new Object[] {e.getMessage()});
-      log.error("Tomcat throw an exception when trying to deploy", e);
     } finally {
       if (errMsg != null) {
         request.setAttribute("errorMessage", errMsg);
       }
       if (!tmpFile.delete()) {
-        log.error("Unable to delete temp upload file");
+        logg.error("Unable to delete temp upload file");
       }
     }
   }
