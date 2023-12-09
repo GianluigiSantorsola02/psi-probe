@@ -36,7 +36,7 @@ public class BaseStopContextController extends AbstractNoSelfContextHandlerContr
     // get username logger
     String name = auth.getName();
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-    if (messageSourceAccessor != null) {
+    if (messageSourceAccessor != null && logger.isInfoEnabled()) {
       logger.info(messageSourceAccessor.getMessage("probe.src.log.stop"), name, contextName);
     } else {
       if (logger.isInfoEnabled()) {
