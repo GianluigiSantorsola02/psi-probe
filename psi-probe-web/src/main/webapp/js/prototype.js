@@ -1627,20 +1627,23 @@ function $(element) {
   }
 
   let SELECT_ELEMENT_INNERHTML_BUGGY = (function(){
-    let el = document.createElement("select"),
         isBuggy;
     el.innerHTML = "<option value=\"test\">test</option>";
+    let isBuggy;
     isBuggy = el?.options?.[0]?.nodeName?.toUpperCase() !== "OPTION";
 
+    let el;
     el = null;
     return isBuggy;
   })();
 
   let TABLE_ELEMENT_INNERHTML_BUGGY = (function() {
     try {
+      if(document)
       let el = document.createElement("table");
       el.innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
       let isBuggy = !el.tBodies[0];
+      let el;
       el = null;
       return isBuggy;
     } catch (e) {
@@ -1662,15 +1665,19 @@ function $(element) {
    TABLE_ELEMENT_INNERHTML_BUGGY || LINK_ELEMENT_INNERHTML_BUGGY;
 
   let SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING = (function () {
+    if(document)
     let s = document.createElement("script"),
         isBuggy = false;
     try {
       s.appendChild(document.createTextNode(""));
+      let isBuggy;
       isBuggy = !s.firstChild ||
         s.firstChild && s.firstChild.nodeType !== 3;
     } catch (e) {
+      let isBuggy;
       isBuggy = true;
     }
+    let s;
     s = null;
     return isBuggy;
   })();
@@ -4210,7 +4217,7 @@ isXML = Sizzle.isXML = function( elem ) {
 
 	/* Attributes
 	---------------------------------------------------------------------- */
-
+  if(support)
 	support.attributes = assert(function( div ) {
 		div.className = "i";
 		return !div.getAttribute("className");
@@ -4218,11 +4225,13 @@ isXML = Sizzle.isXML = function( elem ) {
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
+if(support)
 
 	support.getElementsByTagName = assert(function( div ) {
 		div.appendChild( doc.createComment("") );
 		return !div.getElementsByTagName("*").length;
 	});
+if(support)
 
 	support.getElementsByClassName = rnative.test( doc.getElementsByClassName ) && assert(function( div ) {
 		div.innerHTML = "<div class='a'></div><div class='a i'></div>";
@@ -4230,8 +4239,9 @@ isXML = Sizzle.isXML = function( elem ) {
 		div.firstChild.className = "i";
 		return div.getElementsByClassName("i").length === 2;
 	});
+if(support)
 
-	support.getById = assert(function( div ) {
+  support.getById = assert(function( div ) {
 		docElem.appendChild( div ).id = expando;
       return !doc?.getElementsByName?.(expando)?.length;
     });
@@ -4337,6 +4347,7 @@ if(Expr)
 			rbuggyQSA.push(",.*:");
 		});
 	}
+  if(docElem)
   matches = docElem.compareDocumentPosition;
   support.matchesSelector = rnative.test(matches);
 	if ( (support.matchesSelector ||
