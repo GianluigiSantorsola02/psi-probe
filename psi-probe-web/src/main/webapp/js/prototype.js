@@ -2894,8 +2894,7 @@ function addMethods(methods) {
 
     return boxWidth - bl - br - pl - pr;
   }
-
-  if (!Object.isUndefined(document.documentElement.currentStyle) && !Prototype.Browser.Opera) {
+  if (document && !Object.isUndefined(document.documentElement.currentStyle) && !Prototype.Browser.Opera) {
     getRawStyle = getRawStyle_IE;
   }
 
@@ -4302,7 +4301,7 @@ if(Expr && support)
 	rbuggyQSA = [];
 if(support)
   support.qsa = rnative.test(doc.querySelectorAll);
-  if (support.qsa && support) {
+  if (support && support.qsa ) {
     assert(function( div ) {
 			div.innerHTML = "<select t=''><option selected=''></option></select>";
 
