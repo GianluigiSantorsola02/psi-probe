@@ -49,10 +49,6 @@ public class ClusterWrapperBean {
         new ObjectName(serverName + ":type=ClusterReceiver,host=" + hostName);
     ObjectName senderOName = new ObjectName(serverName + ":type=ClusterSender,host=" + hostName);
 
-    /*
-     * should be just one set, this is just to find out if this instance is cluster-enabled and the
-     * cluster supports JMX
-     */
     Set<ObjectInstance> clusters =
         mbeanServer.queryMBeans(new ObjectName("*:type=Cluster,host=" + hostName), null);
     Set<ObjectInstance> membership = mbeanServer.queryMBeans(membershipOName, null);

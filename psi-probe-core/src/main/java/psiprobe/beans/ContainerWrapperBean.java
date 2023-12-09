@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.util.ServerInfo;
@@ -44,90 +42,78 @@ public class ContainerWrapperBean {
   private final Object lock = new Object();
 
   /** List of class names to adapt particular Tomcat implementation to TomcatContainer interface. */
-  private List<String> adapterClasses;
+  private final List<String> adapterClasses;
 
-  @Inject
-  public void adapter(List<String> adapterClasses) {
-    this.adapterClasses = adapterClasses;
-  }
   /** The resource resolver. */
   private ResourceResolver resourceResolver;
 
   /** The force first adapter. */
-  private boolean forceFirstAdapter;
-  private Map<String, ResourceResolver> resourceResolvers;
+  private final boolean forceFirstAdapter;
+  private final Map<String, ResourceResolver> resourceResolvers;
 
-  @Inject
-  public void resolvers(Map<String, ResourceResolver> resourceResolvers) {
+  public ContainerWrapperBean(List<String> adapterClasses, boolean forceFirstAdapter, Map<String, ResourceResolver> resourceResolvers) {
+    this.adapterClasses = adapterClasses;
+    this.forceFirstAdapter = forceFirstAdapter;
     this.resourceResolvers = resourceResolvers;
   }
 
-
-    /**
-   * Checks if is force first adapter.
-   *
-   * @return true, if is force first adapter
-   */
-  public boolean isForceFirstAdapter() {
-    return forceFirstAdapter;
-  }
 
   /**
    * Sets the force first adapter. Setting this property to true will override the server polling
    * each adapter performs to test for compatibility. Instead, it will use the first one in the
    * adapterClasses list.
    *
-   * @param forceFirstAdapter the new force first adapter
+   * @param wrapper the new force first adapter
    */
   // TODO We should make this configurable
   @Value("false")
-  public void setForceFirstAdapter(boolean forceFirstAdapter) {
-    this.forceFirstAdapter = forceFirstAdapter;
-  }
-
-  /**
-   * Sets the wrapper.
-   *
-   * @param wrapper the new wrapper
-   */
   public void setWrapper(Wrapper wrapper) {
     if (tomcatContainer == null) {
-
       synchronized (lock) {
-
         if (tomcatContainer == null) {
-
-          String serverInfo = ServerInfo.getServerInfo();
-          logger.info("Server info: {}", serverInfo);
-          for (String className : adapterClasses) {
-            try {
-              Object obj = Class.forName(className).getDeclaredConstructor().newInstance();
-              logger.debug("Testing container adapter: {}", className);
-              if (obj instanceof TomcatContainer) {
-                if (forceFirstAdapter || ((TomcatContainer) obj).canBoundTo(serverInfo)) {
-                  logger.info("Using {}", className);
-                  tomcatContainer = (TomcatContainer) obj;
-                  tomcatContainer.setWrapper(wrapper);
-                  break;
-                }
-                logger.debug("Cannot bind {} to {}", className, serverInfo);
-              } else {
-                logger.error("{} does not implement {}", className,
-                    TomcatContainer.class.getName());
-              }
-            } catch (Exception e) {
-              logger.debug("", e);
-              logger.info("Failed to load {}", className);
-            }
-          }
-
-          if (tomcatContainer == null) {
-            logger.error("No suitable container adapter found!");
-          }
+          initializeTomcatContainer(wrapper);
         }
       }
     }
 
+    unregisterContainerAdapter(wrapper);
+  }
+
+  private void initializeTomcatContainer(Wrapper wrapper) {
+    String serverInfo = ServerInfo.getServerInfo();
+    logger.info("Server info: {}", serverInfo);
+
+    for (String className : adapterClasses) {
+      try {
+        Object obj = Class.forName(className).getDeclaredConstructor().newInstance();
+        logger.debug("Testing container adapter: {}", className);
+
+        if (obj instanceof TomcatContainer) {
+          TomcatContainer container = (TomcatContainer) obj;
+
+          if (forceFirstAdapter || container.canBoundTo(serverInfo)) {
+            logger.info("Using {}", className);
+            tomcatContainer = container;
+            tomcatContainer.setWrapper(wrapper);
+            break;
+          }
+
+          logger.debug("Cannot bind {} to {}", className, serverInfo);
+        } else {
+          logger.error("{} does not implement {}", className, TomcatContainer.class.getName());
+        }
+      } catch (Exception e) {
+        logger.debug("", e);
+        logger.info("Failed to load {}", className);
+      }
+    }
+
+    if (tomcatContainer == null) {
+      logger.error("No suitable container adapter found!");
+    }
+  }
+
+  private void unregisterContainerAdapter(Wrapper wrapper) {
     try {
       if (tomcatContainer != null && wrapper == null) {
         logger.info("Unregistering container adapter");
@@ -137,7 +123,6 @@ public class ContainerWrapperBean {
       logger.error("Could not unregister container adapter", e);
     }
   }
-
   /**
    * Gets the tomcat container.
    *
@@ -145,24 +130,6 @@ public class ContainerWrapperBean {
    */
   public TomcatContainer getTomcatContainer() {
     return tomcatContainer;
-  }
-
-  /**
-   * Gets the adapter classes.
-   *
-   * @return the adapter classes
-   */
-  public List<String> getAdapterClasses() {
-    return adapterClasses;
-  }
-
-  /**
-   * Sets the adapter classes.
-   *
-   * @param adapterClasses the new adapter classes
-   */
-  public void setAdapterClasses(List<String> adapterClasses) {
-    this.adapterClasses = adapterClasses;
   }
 
   /**
@@ -181,24 +148,6 @@ public class ContainerWrapperBean {
       }
     }
     return resourceResolver;
-  }
-
-  /**
-   * Gets the resource resolvers.
-   *
-   * @return the resource resolvers
-   */
-  public Map<String, ResourceResolver> getResourceResolvers() {
-    return resourceResolvers;
-  }
-
-  /**
-   * Sets the resource resolvers.
-   *
-   * @param resourceResolvers the resource resolvers
-   */
-  public void setResourceResolvers(Map<String, ResourceResolver> resourceResolvers) {
-    this.resourceResolvers = resourceResolvers;
   }
 
   /**
