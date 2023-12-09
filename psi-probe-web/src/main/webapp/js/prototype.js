@@ -1810,7 +1810,7 @@ function replace(element, content) {
     return element;
   }
 
-  if ('outerHTML' in document.documentElement)
+  if (document && 'outerHTML' in document.documentElement)
     replace = replace_IE;
 
   function isContent(content) {
@@ -4289,7 +4289,7 @@ if(support)
 			}
 			return results;
 		};
-if(Expr)
+if(Expr && support)
 
   Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
 		if ( typeof context.getElementsByClassName !== strundefined && documentIsHTML ) {
@@ -4304,7 +4304,7 @@ if(Expr)
 	rbuggyMatches = [];
 
 	rbuggyQSA = [];
-
+if(support)
   support.qsa = rnative.test(doc.querySelectorAll);
   if (support.qsa) {
     assert(function( div ) {
@@ -4364,7 +4364,7 @@ if(Expr)
 let hasCompare;
 if(docElem)
 hasCompare = rnative.test( docElem.compareDocumentPosition );
-
+if(docElem)
 	contains = hasCompare || rnative.test( docElem.contains ) ?
 		function( a, b ) {
 			let adown = a.nodeType === 9 ? a.documentElement : a,
