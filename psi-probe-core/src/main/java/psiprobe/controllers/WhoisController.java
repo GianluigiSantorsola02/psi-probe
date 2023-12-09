@@ -42,7 +42,7 @@ import psiprobe.tools.Whois;
 public class WhoisController extends ParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(WhoisController.class);
+  private static final Logger log3 = LoggerFactory.getLogger(WhoisController.class);
 
   /** The lookup timeout. */
   private long lookupTimeout;
@@ -130,7 +130,7 @@ public class WhoisController extends ParameterizableViewController {
       wh = Whois.lookup(getDefaultServer(), getDefaultPort(), ipAddress, getLookupTimeout());
     } catch (IOException e) {
       timeout = true;
-      logger.trace("", e);
+      log3.trace("", e);
     }
 
     List<String> lines = null;
@@ -151,8 +151,8 @@ public class WhoisController extends ParameterizableViewController {
       try {
         reverseName = InetAddress.getByName(ipAddress).getCanonicalHostName();
       } catch (UnknownHostException e) {
-        logger.error("could not run a DNS query on {}", ipAddress);
-        logger.trace("", e);
+        log3.error("could not run a DNS query on {}", ipAddress);
+        log3.trace("", e);
       }
     }
       assert lines != null;
