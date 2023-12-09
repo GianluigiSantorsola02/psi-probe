@@ -35,7 +35,7 @@ import psiprobe.tools.logging.LogDestination;
 public class DownloadLogController extends AbstractLogHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(DownloadLogController.class);
+  private static final Logger log5 = LoggerFactory.getLogger(DownloadLogController.class);
 
   @RequestMapping(path = "/download")
   @Override
@@ -52,7 +52,7 @@ public class DownloadLogController extends AbstractLogHandlerController {
         "true".equals(ServletRequestUtils.getStringParameter(request, "compressed"));
 
     File file = logDest.getFile();
-    logger.info("Sending {}{} to {} ({})", file, compressed ? " compressed" : "",
+    log5.info("Sending {}{} to {} ({})", file, compressed ? " compressed" : "",
         request.getRemoteAddr(), request.getRemoteUser());
     if (compressed) {
       Utils.sendCompressedFile(response, file);
