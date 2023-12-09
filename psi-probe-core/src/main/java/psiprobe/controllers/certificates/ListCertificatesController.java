@@ -57,7 +57,7 @@ import psiprobe.model.certificates.SslHostConfigInfo;
 public class ListCertificatesController extends AbstractTomcatContainerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ListCertificatesController.class);
+  private static final Logger log16 = LoggerFactory.getLogger(ListCertificatesController.class);
 
   @RequestMapping(path = "/certificates.htm")
   @Override
@@ -101,7 +101,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
 
       modelAndView.addObject("connectors", infos);
     } catch (Exception e) {
-      logger.error("There was an exception listing certificates", e);
+      log16.error("There was an exception listing certificates", e);
     }
 
     return modelAndView;
@@ -141,7 +141,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     try (InputStream storeInput = getStoreInputStream(storeFile)) {
       keyStore.load(storeInput, password);
     } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-      logger.error("Error loading store file {}", storeFile, e);
+      log16.error("Error loading store file {}", storeFile, e);
       return Collections.emptyList();
     }
 
@@ -246,13 +246,13 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
       Object defaultSslHostConfigName =
           MethodUtils.invokeMethod(protocol, "getDefaultSSLHostConfigName");
       if (defaultSslHostConfigName == null) {
-        logger.error("Cannot determine defaultSslHostConfigName");
+        log16.error("Cannot determine defaultSslHostConfigName");
         return info;
       }
       info.setDefaultSslHostConfigName(String.valueOf(defaultSslHostConfigName));
       new SslHostConfigHelper(protocol, info);
     } catch (NoSuchMethodException e) {
-      logger.trace("", e);
+      log16.trace("", e);
       // We are using Tomcat 7 or 8, fill in the old way
       OldConnectorInfo oldConnectorInfo = new OldConnectorInfo();
       BeanUtils.copyProperties(oldConnectorInfo, protocol);
