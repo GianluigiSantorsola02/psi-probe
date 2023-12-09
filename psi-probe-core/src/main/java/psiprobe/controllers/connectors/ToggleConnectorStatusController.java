@@ -1,18 +1,5 @@
-/*
- * Licensed under the GPL License. You may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE.
- */
-package psiprobe.controllers.connectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+package psiprobe.controllers.connectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.beans.ContainerListenerBean;
-import psiprobe.beans.stats.collectors.ConnectorStatsCollectorBean;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class to use toggle connector status, like STATED, STOPPED.
@@ -34,41 +22,16 @@ import psiprobe.beans.stats.collectors.ConnectorStatsCollectorBean;
 public class ToggleConnectorStatusController extends ParameterizableViewController {
 
   /** The static logger. */
-  private static final Logger logger =
+  private static final Logger log11 =
       LoggerFactory.getLogger(ToggleConnectorStatusController.class);
 
-  /** The collector bean. */
-  private ConnectorStatsCollectorBean collectorBean;
 
-  @Inject
-  public void collectorBean(ConnectorStatsCollectorBean collectorBean) {
-    this.collectorBean = collectorBean;
+  public ToggleConnectorStatusController(ContainerListenerBean containerListener) {
+    this.containerListener = containerListener;
   }
 
   /** The container listener. */
-  private ContainerListenerBean containerListener;
-
-  @Inject
-  public void cointanerListener(ContainerListenerBean containerListener) {
-    this.containerListener = containerListener;
-  }
-  /**
-   * Gets the collector bean.
-   *
-   * @return the collector bean
-   */
-  public ConnectorStatsCollectorBean getCollectorBean() {
-    return collectorBean;
-  }
-
-  /**
-   * Sets the collector bean.
-   *
-   * @param collectorBean the new collector bean
-   */
-  public void setCollectorBean(ConnectorStatsCollectorBean collectorBean) {
-    this.collectorBean = collectorBean;
-  }
+  private final ContainerListenerBean containerListener;
 
   @RequestMapping(path = "/app/connectorStatus.htm")
   @Override
@@ -89,7 +52,7 @@ public class ToggleConnectorStatusController extends ParameterizableViewControll
 
     containerListener.toggleConnectorStatus(operation, port);
 
-    logger.info("Connector status toggled for {}", connectorName);
+    log11.info("Connector status toggled for {}", connectorName);
     return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));
   }
 
