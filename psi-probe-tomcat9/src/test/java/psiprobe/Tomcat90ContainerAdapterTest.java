@@ -173,7 +173,8 @@ class Tomcat90ContainerAdapterTest {
   @Test
   void resourceAttributes() {
     final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    adapter.getResourceAttributes("name", context);
+    Object result = adapter.getResourceAttributes("name", context);
+    assertNotNull(result);
   }
 
   /**

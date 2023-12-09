@@ -26,15 +26,11 @@ public abstract class AbstractTomcatContainerController extends AbstractControll
   /** The logger. */
   // We are hiding this as we use better logger and don't care to use springs jcl variation
   @SuppressWarnings("HidingField")
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** The container wrapper. */
   private ContainerWrapperBean containerWrapper;
 
-  @Inject
-  public void cointanerWrapper(ContainerWrapperBean containerWrapper) {
-    this.containerWrapper = containerWrapper;
-  }
   /** The view name. */
   private String viewName;
 
