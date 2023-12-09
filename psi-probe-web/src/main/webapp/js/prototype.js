@@ -2210,6 +2210,7 @@ function writeAttribute(element, name, value) {
     if (!HAS_EXTENDED_CREATE_ELEMENT_SYNTAX) {
       return false;
     }
+    if(document)
     let checkbox = document.createElement('<input type="checkbox">');
     checkbox.checked = true;
     let node = checkbox.getAttributeNode('checked');
@@ -2288,7 +2289,7 @@ function writeAttribute(element, name, value) {
     if (DIV.className === 'x')
       classProp = 'class';
   }
-
+if(document)
   let LABEL = document.createElement('label');
   LABEL.setAttribute(forProp, 'x');
   if (LABEL.htmlFor !== 'x') {
@@ -2296,7 +2297,6 @@ function writeAttribute(element, name, value) {
     if (LABEL.htmlFor === 'x')
       forProp = 'htmlFor';
   }
-  LABEL = null;
 
   function _getAttr(element, attribute) {
     return element.getAttribute(attribute);
@@ -2670,11 +2670,11 @@ function getStyle_IE(element, style) {
     let proto = window.Element.prototype;
     if (proto) {
       let id = '_' + (Math.random() + '').slice(2),
+
        el = document.createElement(tagName);
       proto[id] = 'x';
       let isBuggy = (el[id] !== 'x');
       delete proto[id];
-      el = null;
       return isBuggy;
     }
 
@@ -2764,10 +2764,6 @@ function getStyle_IE(element, style) {
     klass = 'HTML' + tagName.capitalize() + 'Element';
     if (window[klass]) return window[klass];
 
-    let element = document.createElement(tagName),
-     proto = element[ 'HTMLElement'] || element.constructor.prototype;
-
-    element = null;
     return proto;
   }
 function applySpecificElementExtensions() {
@@ -4306,7 +4302,7 @@ if(Expr && support)
 	rbuggyQSA = [];
 if(support)
   support.qsa = rnative.test(doc.querySelectorAll);
-  if (support.qsa) {
+  if (support.qsa && support) {
     assert(function( div ) {
 			div.innerHTML = "<select t=''><option selected=''></option></select>";
 
