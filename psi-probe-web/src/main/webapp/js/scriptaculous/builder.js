@@ -149,7 +149,7 @@ let Builder = {
 
     tags.each( function(tag){
       scope[tag] = function() {
-        return Builder.node.apply(Builder, [tag].concat($A(arguments)));
+        return Builder.node(...[tag, ...Array.from(arguments)]);
       };
     });
   }
