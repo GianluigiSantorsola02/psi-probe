@@ -1627,8 +1627,7 @@ function $(element) {
   }
 
   let SELECT_ELEMENT_INNERHTML_BUGGY = (function(){
-        isBuggy;
-    el.innerHTML = "<option value=\"test\">test</option>";
+
     let isBuggy;
     isBuggy = el?.options?.[0]?.nodeName?.toUpperCase() !== "OPTION";
 
@@ -1653,6 +1652,7 @@ function $(element) {
 
   let LINK_ELEMENT_INNERHTML_BUGGY = (function() {
     try {
+      if(document)
       let el = document.createElement('div');
       el.innerHTML = "<link />";
       return el.childNodes.length === 0;
@@ -4246,7 +4246,7 @@ if(support)
       return !doc?.getElementsByName?.(expando)?.length;
     });
 
-	if ( support.getById && Expr ) {
+	if (support && support.getById && Expr ) {
 		Expr.find["ID"] = function( id, context ) {
 			if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
 				let m = context.getElementById( id );
@@ -4350,7 +4350,7 @@ if(Expr)
   if(docElem)
   matches = docElem.compareDocumentPosition;
   support.matchesSelector = rnative.test(matches);
-	if ( (support.matchesSelector ||
+	if (docElem && (support.matchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) ) {
