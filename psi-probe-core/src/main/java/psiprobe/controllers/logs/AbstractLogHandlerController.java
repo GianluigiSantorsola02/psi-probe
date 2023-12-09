@@ -30,7 +30,7 @@ import java.io.IOException;
 public abstract class AbstractLogHandlerController extends ParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(AbstractLogHandlerController.class);
+  private static final Logger log15 = LoggerFactory.getLogger(AbstractLogHandlerController.class);
 
   /** The log resolver. */
   private LogResolverBean logResolver;
@@ -74,10 +74,10 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
         modelAndView = handleLogFile(request, response, dest);
         logFound = true;
       } else {
-        logger.error("{}: file not found", dest.getFile());
+        log15.error("{}: file not found", dest.getFile());
       }
     } else {
-      logger.error("{}{} log{} not found", logType, root ? " root" : "",
+      log15.error("{}{} log{} not found", logType, root ? " root" : "",
           root ? "" : " '" + logName + "'");
     }
     if (!logFound) {
