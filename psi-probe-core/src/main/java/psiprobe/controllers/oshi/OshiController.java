@@ -94,7 +94,7 @@ import psiprobe.controllers.AbstractTomcatContainerController;
 public class OshiController extends AbstractTomcatContainerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(OshiController.class);
+  private static final Logger log12 = LoggerFactory.getLogger(OshiController.class);
 
   /** Oshi Cache. */
   private static final List<String> oshi = new ArrayList<>();
@@ -157,12 +157,12 @@ public class OshiController extends AbstractTomcatContainerController {
    * </pre>
    */
   private void initialize() {
-    logger.debug("Initializing System...");
+    log12.debug("Initializing System...");
     SystemInfo si = new SystemInfo();
 
     // Psi Probe adjusted oshi initial test to confirm platform supported before attempting to run
     if (PlatformEnum.UNKNOWN.equals(SystemInfo.getCurrentPlatform())) {
-      logger.error("Oshi not supported on current platform");
+      log12.error("Oshi not supported on current platform");
       oshi.add("Oshi not supported on current platform");
       oshi.add("");
       return;
@@ -173,58 +173,58 @@ public class OshiController extends AbstractTomcatContainerController {
 
     printOperatingSystem(os);
 
-    logger.debug("Checking computer system...");
+    log12.debug("Checking computer system...");
     printComputerSystem(hal.getComputerSystem());
 
-    logger.debug("Checking Processor...");
+    log12.debug("Checking Processor...");
     printProcessor(hal.getProcessor());
 
-    logger.debug("Checking Memory...");
+    log12.debug("Checking Memory...");
     printMemory(hal.getMemory());
 
-    logger.debug("Checking CPU...");
+    log12.debug("Checking CPU...");
     printCpu(hal.getProcessor());
 
-    logger.debug("Checking Processes...");
+    log12.debug("Checking Processes...");
     printProcesses(os, hal.getMemory());
 
-    logger.debug("Checking Services...");
+    log12.debug("Checking Services...");
     printServices(os);
 
-    logger.debug("Checking Sensors...");
+    log12.debug("Checking Sensors...");
     printSensors(hal.getSensors());
 
-    logger.debug("Checking Power sources...");
+    log12.debug("Checking Power sources...");
     printPowerSources(hal.getPowerSources());
 
-    logger.debug("Checking Disks...");
+    log12.debug("Checking Disks...");
     printDisks(hal.getDiskStores());
 
-    logger.debug("Checking Logical Volume Groups ...");
+    log12.debug("Checking Logical Volume Groups ...");
     printLVgroups(hal.getLogicalVolumeGroups());
 
-    logger.debug("Checking File System...");
+    log12.debug("Checking File System...");
     printFileSystem(os.getFileSystem());
 
-    logger.debug("Checking Network interfaces...");
+    log12.debug("Checking Network interfaces...");
     printNetworkInterfaces(hal.getNetworkIFs());
 
-    logger.debug("Checking Network parameters...");
+    log12.debug("Checking Network parameters...");
     printNetworkParameters(os.getNetworkParams());
 
-    logger.debug("Checking IP statistics...");
+    log12.debug("Checking IP statistics...");
     printInternetProtocolStats(os.getInternetProtocolStats());
 
-    logger.debug("Checking Displays...");
+    log12.debug("Checking Displays...");
     printDisplays(hal.getDisplays());
 
-    logger.debug("Checking USB Devices...");
+    log12.debug("Checking USB Devices...");
     printUsbDevices(hal.getUsbDevices(true));
 
-    logger.debug("Checking Sound Cards...");
+    log12.debug("Checking Sound Cards...");
     printSoundCards(hal.getSoundCards());
 
-    logger.debug("Checking Graphics Cards...");
+    log12.debug("Checking Graphics Cards...");
     printGraphicsCards(hal.getGraphicsCards());
 
     // Psi Probe addition to note finished
@@ -238,7 +238,7 @@ public class OshiController extends AbstractTomcatContainerController {
         output.append('\n');
       }
     }
-    logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
+    log12.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
   }
 
   /**
