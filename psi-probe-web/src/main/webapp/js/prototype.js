@@ -2289,14 +2289,14 @@ function writeAttribute(element, name, value) {
     if (DIV.className === 'x')
       classProp = 'class';
   }
-if(document)
+if(document) {
   let LABEL = document.createElement('label');
   if (LABEL.htmlFor !== 'x') {
     LABEL.setAttribute('htmlFor', 'x');
     if (LABEL.htmlFor === 'x')
       forProp = 'htmlFor';
   }
-
+}
   function _getAttr(element, attribute) {
     return element.getAttribute(attribute);
   }
@@ -4009,12 +4009,13 @@ function handleMatch(match, results, context, selector) {
   }
 }
 function Sizzle( selector, context, results, seed ) {
-if(document)
+if(document){
   checkContextAndSelector(context,prefferredDoc,document,setDocument,selector,results)
 
 
 
   return select(selector.replace(rtrim, "$1"), context, results, seed);
+  }
 }
 
 /**
@@ -6013,26 +6014,26 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return Form.serialize(this.element);
   }
 });
-if(document)
+if(document) {
   let docEl = document.documentElement;
 
   let Event = {
     KEY_BACKSPACE: 8,
-    KEY_TAB:       9,
-    KEY_RETURN:   13,
-    KEY_ESC:      27,
-    KEY_LEFT:     37,
-    KEY_UP:       38,
-    KEY_RIGHT:    39,
-    KEY_DOWN:     40,
-    KEY_DELETE:   46,
-    KEY_HOME:     36,
-    KEY_END:      35,
-    KEY_PAGEUP:   33,
+    KEY_TAB: 9,
+    KEY_RETURN: 13,
+    KEY_ESC: 27,
+    KEY_LEFT: 37,
+    KEY_UP: 38,
+    KEY_RIGHT: 39,
+    KEY_DOWN: 40,
+    KEY_DELETE: 46,
+    KEY_HOME: 36,
+    KEY_END: 35,
+    KEY_PAGEUP: 33,
     KEY_PAGEDOWN: 34,
-    KEY_INSERT:   45
+    KEY_INSERT: 45
   };
-
+}
 
   let isIELegacyEvent = function(event) { return false; };
 
