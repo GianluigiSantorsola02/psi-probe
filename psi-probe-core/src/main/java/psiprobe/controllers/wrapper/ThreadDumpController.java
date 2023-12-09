@@ -32,7 +32,7 @@ import java.util.Objects;
 public class ThreadDumpController extends PostParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ThreadDumpController.class);
+  private static final Logger log11 = LoggerFactory.getLogger(ThreadDumpController.class);
 
   @RequestMapping(path = "/adm/threaddump.ajax")
   @Override
@@ -48,12 +48,12 @@ public class ThreadDumpController extends PostParameterizableViewController {
     boolean done = false;
     try {
       Class.forName("org.tanukisoftware.wrapper.WrapperManager");
-      logger.info("ThreadDump requested by {}", request.getRemoteAddr());
+      log11.info("ThreadDump requested by {}", request.getRemoteAddr());
       WrapperManager.requestThreadDump();
       done = true;
     } catch (ClassNotFoundException e) {
-      logger.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
-      logger.trace("", e);
+      log11.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
+      log11.trace("", e);
     }
     return new ModelAndView(Objects.requireNonNull(getViewName()), "done", done);
   }
