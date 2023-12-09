@@ -2291,7 +2291,6 @@ function writeAttribute(element, name, value) {
   }
 if(document)
   let LABEL = document.createElement('label');
-  LABEL.setAttribute(forProp, 'x');
   if (LABEL.htmlFor !== 'x') {
     LABEL.setAttribute('htmlFor', 'x');
     if (LABEL.htmlFor === 'x')
@@ -4010,28 +4009,10 @@ function handleMatch(match, results, context, selector) {
   }
 }
 function Sizzle( selector, context, results, seed ) {
-  let nodeType, old, nid, newContext, newSelector;
 if(document)
   checkContextAndSelector(context,prefferredDoc,document,setDocument,selector,results)
 
-  if (documentIsHTML && !seed) {
-    let match = rquickExpr.exec(selector);
-    handleMatch(match, results, context, selector)
 
-    if (support?.qsa && (!rbuggyQSA?.test(selector))) {
-      nid = old = expando;
-      newContext = context;
-      newSelector = nodeType === 9 && selector;
-
-      if (nodeType === 1 && context.nodeName.toLowerCase() !== "object") {
-       handleTokenizeAndJoin(nid, groups, context, selector, rsibling, testContext, toSelector);
-      }
-
-      if (newSelector) {
-        return handleQuerySelectorAll(results, newContext, newSelector, old, context);
-      }
-    }
-  }
 
   return select(selector.replace(rtrim, "$1"), context, results, seed);
 }
@@ -4236,7 +4217,7 @@ if(support)
       return !doc?.getElementsByName?.(expando)?.length;
     });
 
-	if (support && support.getById && Expr ) {
+	if ( support?.getById && Expr ) {
 		Expr.find["ID"] = function( id, context ) {
 			if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
 				let m = context.getElementById( id );
@@ -4301,9 +4282,8 @@ if(Expr && support)
 	rbuggyMatches = [];
 
 	rbuggyQSA = [];
-if(support)
-  support.qsa = rnative.test(doc.querySelectorAll);
-  if (support && support.qsa ) {
+
+  if (support?.qsa ) {
     assert(function( div ) {
 			div.innerHTML = "<select t=''><option selected=''></option></select>";
 
@@ -4341,7 +4321,7 @@ if(support)
   matches = docElem.compareDocumentPosition;
   if(support)
   support.matchesSelector = rnative.test(matches);
-	if (docElem && (support && support.matchesSelector ||
+	if (docElem && (support?.matchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) ) {
@@ -4412,8 +4392,6 @@ if(docElem)
 function handleComparePosition(compare, a, b) {
     if(document) {
       const preferredDoc = a.ownerDocument || b.ownerDocument || document;
-      const sortInput = preferredDoc !== document ? preferredDoc : null;
-
       if (a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
         return -1;
       }
@@ -4498,15 +4476,15 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
   expr = expr.replace(rattributeQuotes, "='$1']");
 
-  if (support &&
-      support.matchesSelector ?.
+  if (
+      support?.matchesSelector ?.
       documentIsHTML?.(!rbuggyMatches?.test?.(expr))?.( !rbuggyQSA?.test?.(expr))
   ) {
 
 		try {
 			let ret = matches.call( elem, expr );
 
-			if (document && support && ( ret || support.disconnectedMatch ||
+			if (document  && ( ret || support.disconnectedMatch ||
 					elem.document && elem.document.nodeType !== 11 )) {
 				return ret;
 			}
@@ -4541,7 +4519,7 @@ Sizzle.attr = function( elem, name ) {
     result = val.value;
   } else if (val !== undefined) {
     result = val;
-  } else if (support && support.attributes || !documentIsHTML) {
+  } else if ( support?.attributes || !documentIsHTML) {
     result = elem.getAttribute(name);
   } else {
     result = null;
@@ -6037,8 +6015,6 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 });
 if(document)
   let docEl = document.documentElement;
-  let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
-   && 'onmouseleave' in docEl;
 
   let Event = {
     KEY_BACKSPACE: 8,
@@ -6151,10 +6127,7 @@ if(document)
   }
 
   function pointerY(event) {
-    if(document) {
-      let docElement = document.documentElement,
-          body = document.body || {scrollTop: 0};
-    }
+   
     return  event.pageY || (event.clientY +
        (docElement.scrollTop || body.scrollTop) -
        (docElement.clientTop || 0));
@@ -6505,11 +6478,6 @@ if(document)
     element.fireEvent(event.eventType, event);
     return event;
   }
-if(document)
-
-  let fireEvent = document.createEvent ? fireEvent_DOM : fireEvent_IE;
-
-
 
   Event.Handler = Class.Create({
     initialize: function(element, eventName, selector, callback) {
@@ -6537,7 +6505,8 @@ if(document)
     }
   });
 
-  function on(element, eventName, selector, callback) {
+
+function on(element, eventName, selector, callback) {
     element = $(element);
     if (Object.isFunction(selector) && Object.isUndefined(callback)) {
       callback = selector
