@@ -32,7 +32,7 @@ import java.util.Objects;
 public class RestartJvmController extends PostParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(RestartJvmController.class);
+  private static final Logger log9 = LoggerFactory.getLogger(RestartJvmController.class);
 
   @RequestMapping(path = "/adm/restartvm.ajax")
   @Override
@@ -48,12 +48,12 @@ public class RestartJvmController extends PostParameterizableViewController {
     boolean done = false;
     try {
       Class.forName("org.tanukisoftware.wrapper.WrapperManager");
-      logger.info("JVM is RESTARTED by {}", request.getRemoteAddr());
+      log9.info("JVM is RESTARTED by {}", request.getRemoteAddr());
       WrapperManager.restartAndReturn();
       done = true;
     } catch (ClassNotFoundException e) {
-      logger.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
-      logger.trace("", e);
+      log9.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
+      log9.trace("", e);
     }
     return new ModelAndView(Objects.requireNonNull(getViewName()), "done", done);
   }
