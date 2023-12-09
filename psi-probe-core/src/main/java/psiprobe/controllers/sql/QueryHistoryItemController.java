@@ -34,7 +34,7 @@ import psiprobe.model.sql.DataSourceTestInfo;
 public class QueryHistoryItemController extends AbstractController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(QueryHistoryItemController.class);
+  private static final Logger log7 = LoggerFactory.getLogger(QueryHistoryItemController.class);
 
   @RequestMapping(path = "/sql/queryHistoryItem.ajax")
   @Override
@@ -64,8 +64,8 @@ public class QueryHistoryItemController extends AbstractController {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.getWriter().print(sql);
           } catch (IndexOutOfBoundsException e) {
-            logger.error("Cannot find a query history entry for history item id = {}", sqlId);
-            logger.trace("", e);
+            log7.error("Cannot find a query history entry for history item id = {}", sqlId);
+            log7.trace("", e);
           }
         }
       }
