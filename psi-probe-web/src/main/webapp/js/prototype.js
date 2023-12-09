@@ -3265,7 +3265,7 @@ function getPixelValue(value, property, context) {
     }
   });
 
-  if ('getBoundingClientRect' in document.documentElement) {
+  if (document && 'getBoundingClientRect' in document.documentElement) {
     Object.extend(Element.Layout.COMPUTATIONS, {
       'right': function(element) {
         let parent = hasLayout(element.getOffsetParent());
@@ -4339,7 +4339,7 @@ if(support)
   matches = docElem.compareDocumentPosition;
   if(support)
   support.matchesSelector = rnative.test(matches);
-	if (docElem && (support.matchesSelector ||
+	if (docElem && (support && support.matchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) ) {
