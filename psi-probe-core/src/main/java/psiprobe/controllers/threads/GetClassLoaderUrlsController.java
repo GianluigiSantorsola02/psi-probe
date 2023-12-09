@@ -35,7 +35,7 @@ import psiprobe.Utils;
 public class GetClassLoaderUrlsController extends ParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(GetClassLoaderUrlsController.class);
+  private static final Logger log8 = LoggerFactory.getLogger(GetClassLoaderUrlsController.class);
 
   @RequestMapping(path = "/cldetails.ajax")
   @Override
@@ -58,7 +58,7 @@ public class GetClassLoaderUrlsController extends ParameterizableViewController 
         try {
           request.setAttribute("urls", Arrays.asList(((URLClassLoader) cl).getURLs()));
         } catch (Exception e) {
-          logger.error("There was an exception querying classloader for thread '{}'", threadName,
+          log8.error("There was an exception querying classloader for thread '{}'", threadName,
               e);
         }
       }
