@@ -79,27 +79,6 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
 
     // store current option values and query history in a session attribute
 
-    HttpSession sess = request.getSession(false);
-    DataSourceTestInfo sessData =
-        (DataSourceTestInfo) sess.getAttribute(DataSourceTestInfo.DS_TEST_SESS_ATTR);
-
-
-    DataSource dataSource = null;
-
-    try {
-      dataSource = getContainerWrapper().getResourceResolver().lookupDataSource(context,
-          resourceName, getContainerWrapper());
-    } catch (NamingException e) {
-      MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-      if (messageSourceAccessor != null) {
-        request.setAttribute(errorMessageString, messageSourceAccessor.getMessage(
-            "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
-      } else {
-        // Gestione alternativa nel caso in cui getMessageSourceAccessor() sia nullo
-        request.setAttribute(errorMessageString, errorString);
-      }
-      mylogger.trace("", e);
-    }
 
     return new ModelAndView(getViewName());
   }
