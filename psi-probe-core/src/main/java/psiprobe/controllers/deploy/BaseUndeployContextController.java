@@ -34,7 +34,7 @@ import java.util.Locale;
 public class BaseUndeployContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(BaseUndeployContextController.class);
+  private static final Logger log2 = LoggerFactory.getLogger(BaseUndeployContextController.class);
 
   /** The failure view name. */
   private String failureViewName;
@@ -73,13 +73,13 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
         messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
         String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.forLanguageTag(contextName));
-        logger.info(message);
+        log2.info(message);
       }else {
-        logger.info("Failed to get message source accessor. Undeploying {} context.", contextName);
+        log2.info("Failed to get message source accessor. Undeploying {} context.", contextName);
       }
     } catch (Exception e) {
       request.setAttribute("errorMessage", e.getMessage());
-      logger.error("Error during undeploy of '{}'", contextName, e);
+      log2.error("Error during undeploy of '{}'", contextName, e);
       return new ModelAndView(new InternalResourceView(
           getFailureViewName() == null ? getViewName() : getFailureViewName()));
     }
