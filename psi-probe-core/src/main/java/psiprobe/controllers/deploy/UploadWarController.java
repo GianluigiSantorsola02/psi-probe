@@ -51,7 +51,7 @@ import psiprobe.model.jsp.Summary;
 public class UploadWarController extends AbstractTomcatContainerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(UploadWarController.class);
+  private static final Logger log4 = LoggerFactory.getLogger(UploadWarController.class);
 
   @RequestMapping(path = "/adm/war.htm")
   @Override
@@ -98,11 +98,11 @@ public class UploadWarController extends AbstractTomcatContainerController {
           }
         }
       } catch (Exception e) {
-        logger.error("Could not process file upload", e);
+        log4.error("Could not process file upload", e);
         request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.war.uploadfailure", new Object[] {e.getMessage()}));
         if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
-          logger.error("Unable to delete temp war file");
+          log4.error("Unable to delete temp war file");
         }
         tmpWar = null;
       }
@@ -130,7 +130,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
             if (update
                 && getContainerWrapper().getTomcatContainer().findContext(contextName) != null) {
 
-              logger.debug("updating {}: removing the old copy", contextName);
+              log4.debug("updating {}: removing the old copy", contextName);
               getContainerWrapper().getTomcatContainer().remove(contextName);
             }
 
@@ -160,12 +160,12 @@ public class UploadWarController extends AbstractTomcatContainerController {
                 MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
                 if (messageSourceAccessor != null) {
                   String message = messageSourceAccessor.getMessage("probe.src.log.deploywar");
-                  logger.info(message, name, contextName);
+                  log4.info(message, name, contextName);
                 }
                 if (discard) {
                   getContainerWrapper().getTomcatContainer().discardWorkDir(ctx);
                   String message = getMessageSourceAccessor().getMessage("probe.src.log.discardwork");
-                  logger.info(message, name, contextName);
+                  log4.info(message, name, contextName);
                 }
                 if (compile) {
                   Summary summary = new Summary();
