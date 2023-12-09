@@ -32,28 +32,7 @@ import java.util.Objects;
 public class StopJvmController extends PostParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(StopJvmController.class);
-
-  /** The stop exit code. */
-  private int stopExitCode = 1;
-
-  /**
-   * Gets the stop exit code.
-   *
-   * @return the stop exit code
-   */
-  public int getStopExitCode() {
-    return stopExitCode;
-  }
-
-  /**
-   * Sets the stop exit code.
-   *
-   * @param stopExitCode the new stop exit code
-   */
-  public void setStopExitCode(int stopExitCode) {
-    this.stopExitCode = stopExitCode;
-  }
+  private static final Logger log10 = LoggerFactory.getLogger(StopJvmController.class);
 
   @RequestMapping(path = "/adm/stopvm.ajax")
   @Override
@@ -69,12 +48,13 @@ public class StopJvmController extends PostParameterizableViewController {
     boolean done = false;
     try {
       Class.forName("org.tanukisoftware.wrapper.WrapperManager");
-      logger.info("JVM is STOPPED by {}", request.getRemoteAddr());
+      log10.info("JVM is STOPPED by {}", request.getRemoteAddr());
+        int stopExitCode = 1;
       WrapperManager.stop(stopExitCode);
       done = true;
     } catch (ClassNotFoundException e) {
-      logger.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
-      logger.trace("", e);
+      log10.info("WrapperManager not found. Do you have wrapper.jar in the classpath?");
+      log10.trace("", e);
     }
     return new ModelAndView(Objects.requireNonNull(getViewName()), "done", done);
   }
