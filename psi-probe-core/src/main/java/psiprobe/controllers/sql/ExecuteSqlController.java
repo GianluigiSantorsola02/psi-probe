@@ -31,13 +31,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.controllers.AbstractContextHandlerController;
-import psiprobe.model.sql.DataSourceTestInfo;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
 
 /**
  * Executes an SQL query through a given datasource to test database connectivity. Displays results
