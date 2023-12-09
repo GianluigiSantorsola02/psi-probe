@@ -3706,7 +3706,7 @@ if (Prototype.Browser.IE) {
         !Element.descendantOf(element, document.body);
   }
 
-  if ('getBoundingClientRect' in document.documentElement) {
+  if (document && 'getBoundingClientRect' in document.documentElement) {
     Element.addMethods({
       viewportOffset: function(element) {
         element = $(element);
@@ -4423,7 +4423,7 @@ function handleComparePosition(compare, a, b) {
       : 0;
 }
 
-if (compare & 1 || (!support.sortDetached && b.compareDocumentPosition(a) === compare)) {
+if (compare & 1 || (support && !support.sortDetached && b.compareDocumentPosition(a) === compare)) {
   return handleComparePosition(compare, a, b);
 }
   sortOrder = hasCompare ?
@@ -4495,7 +4495,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
   expr = expr.replace(rattributeQuotes, "='$1']");
 
-  if (
+  if (support &&
       support.matchesSelector ?.
       documentIsHTML?.(!rbuggyMatches?.test?.(expr))?.( !rbuggyQSA?.test?.(expr))
   ) {
@@ -4503,8 +4503,8 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		try {
 			let ret = matches.call( elem, expr );
 
-			if ( ret || support.disconnectedMatch ||
-					elem.document && elem.document.nodeType !== 11 ) {
+			if (support && ( ret || support.disconnectedMatch ||
+					elem.document && elem.document.nodeType !== 11 )) {
 				return ret;
 			}
 		} catch(e) {}
@@ -4538,7 +4538,7 @@ Sizzle.attr = function( elem, name ) {
     result = val.value;
   } else if (val !== undefined) {
     result = val;
-  } else if (support.attributes || !documentIsHTML) {
+  } else if (support && support.attributes || !documentIsHTML) {
     result = elem.getAttribute(name);
   } else {
     result = null;
@@ -4561,9 +4561,9 @@ Sizzle.uniqueSort = function( results ) {
 		duplicates = [],
 		j = 0,
 		i = 0;
-
+  if(support){
 	hasDuplicate = !support.detectDuplicates;
-	sortInput = !support.sortStable && results.slice( 0 );
+	sortInput = !support.sortStable && results.slice( 0 );}
 	results.sort( sortOrder );
 
 	if ( hasDuplicate ) {
@@ -5566,7 +5566,7 @@ select = Sizzle.select = function(context, results, seed) {
     let tokens = match[0].slice(0);
     let token = tokens[0];
 
-    if (tokens.length > 2 && token.type === "ID" &&
+    if (support && tokens.length > 2 && token.type === "ID" &&
         support.getById && context.nodeType === 9 && documentIsHTML &&
         Expr.relative[tokens[1].type]) {
       context = (Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [])[0];
@@ -5591,13 +5591,14 @@ select = Sizzle.select = function(context, results, seed) {
 
   return results;
 };
+if(support)
+  {
+    support.sortStable = expando.split("").sort(sortOrder).join("") === expando;
 
-support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
-
-support.detectDuplicates = !!hasDuplicate;
-
+    support.detectDuplicates = !!hasDuplicate;
+  }
 setDocument();
-
+if(support)
 support.sortDetached = assert(function( div1 ) {
 	return div1.compareDocumentPosition( document.createElement("div") ) & 1;
 });
@@ -5613,7 +5614,7 @@ if ( !assert(function( div ) {
 	});
 }
 
-if ( !support.attributes || !assert(function( div ) {
+if (support &&  !support.attributes || !assert(function( div ) {
 	div.innerHTML = "<input/>";
 	div.firstChild.setAttribute( "value", "" );
 	return div.firstChild.getAttribute( "value" ) === "";
