@@ -6014,26 +6014,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return Form.serialize(this.element);
   }
 });
-if(document) {
-  let docEl = document.documentElement;
 
-  let Event = {
-    KEY_BACKSPACE: 8,
-    KEY_TAB: 9,
-    KEY_RETURN: 13,
-    KEY_ESC: 27,
-    KEY_LEFT: 37,
-    KEY_UP: 38,
-    KEY_RIGHT: 39,
-    KEY_DOWN: 40,
-    KEY_DELETE: 46,
-    KEY_HOME: 36,
-    KEY_END: 35,
-    KEY_PAGEUP: 33,
-    KEY_PAGEDOWN: 34,
-    KEY_INSERT: 45
-  };
-}
 
   let isIELegacyEvent = function(event) { return false; };
 
