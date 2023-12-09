@@ -59,7 +59,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
       if (resourceName == null) {
           throw new AssertionError();
       }
-      if (!Objects.requireNonNull(resourceName).matches("^[a-zA-Z0-9_]+$")) {
+      if (!Objects.requireNonNull(resourceName).matches("^\\w+$")) {
       // Handle invalid input, e.g., throw an exception or provide a default value
       throw new IllegalArgumentException("Invalid resource name");
     }
