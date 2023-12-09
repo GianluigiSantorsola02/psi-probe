@@ -41,7 +41,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
 public class ConnectionTestController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(ConnectionTestController.class);
+  private static final Logger log6 = LoggerFactory.getLogger(ConnectionTestController.class);
 
   @RequestMapping(path = "/sql/connection.ajax")
   @Override
@@ -75,7 +75,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
     } catch (NamingException e) {
       request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
           "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
-      logger.trace("", e);
+      log6.trace("", e);
     }
 
     if (dataSource == null) {
@@ -110,7 +110,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
         } else {
           message = "Error occurred while getting the error message.";
         }
-        logger.error(message, e);
+        log6.error(message, e);
         request.setAttribute("errorMessage", message);
       }
     }
