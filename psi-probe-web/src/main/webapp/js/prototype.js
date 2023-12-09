@@ -1642,8 +1642,6 @@ function $(element) {
       let el = document.createElement("table");
       el.innerHTML = "<tbody><tr><td>test</td></tr></tbody>";
       let isBuggy = !el.tBodies[0];
-      let el;
-      el = null;
       return isBuggy;
     } catch (e) {
       return true;
@@ -1666,19 +1664,14 @@ function $(element) {
 
   let SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING = (function () {
     if(document)
-    let s = document.createElement("script"),
-        isBuggy = false;
+    let s = document.createElement("script");
     try {
+      if(document)
       s.appendChild(document.createTextNode(""));
-      let isBuggy;
-      isBuggy = !s.firstChild ||
-        s.firstChild && s.firstChild.nodeType !== 3;
     } catch (e) {
-      let isBuggy;
-      isBuggy = true;
+      let isBuggy = true;
+      return isBuggy;
     }
-    let s;
-    s = null;
     return isBuggy;
   })();
 
@@ -4271,7 +4264,7 @@ if(support)
 			};
 
 	}
-  if(Expr)
+  if(Expr && support)
 
 	Expr.find["TAG"] = support.getElementsByTagName ?
 		function( tag, context ) {
@@ -4369,6 +4362,7 @@ if(Expr)
 	/* Contains
 	---------------------------------------------------------------------- */
 let hasCompare;
+if(docElem)
 hasCompare = rnative.test( docElem.compareDocumentPosition );
 
 	contains = hasCompare || rnative.test( docElem.contains ) ?
