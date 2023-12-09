@@ -65,7 +65,7 @@ public class ContainerWrapperBean {
    *
    * @param wrapper the new force first adapter
    */
-  // TODO We should make this configurable
+
   @Value("false")
   public void setWrapper(Wrapper wrapper) {
     if (tomcatContainer == null) {
