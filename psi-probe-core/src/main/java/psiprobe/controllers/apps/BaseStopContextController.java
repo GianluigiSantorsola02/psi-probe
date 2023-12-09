@@ -25,10 +25,10 @@ import psiprobe.beans.ContainerListenerBean;
 public class BaseStopContextController extends AbstractNoSelfContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(BaseStopContextController.class);
+  private static final Logger log13 = LoggerFactory.getLogger(BaseStopContextController.class);
 
   @Override
-  protected void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException, LifecycleException, TomcatContainer.StopException, InterruptedException {
+  protected void executeAction(String contextName) throws LifecycleException, TomcatContainer.StopException, InterruptedException {
     getContainerWrapper().getTomcatContainer().stop(contextName);
 
     // Logging action
@@ -36,11 +36,11 @@ public class BaseStopContextController extends AbstractNoSelfContextHandlerContr
     // get username logger
     String name = auth.getName();
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-    if (messageSourceAccessor != null && logger.isInfoEnabled()) {
-      logger.info(messageSourceAccessor.getMessage("probe.src.log.stop"), name, contextName);
+    if (messageSourceAccessor != null && log13.isInfoEnabled()) {
+      log13.info(messageSourceAccessor.getMessage("probe.src.log.stop"), name, contextName);
     } else {
-      if (logger.isInfoEnabled()) {
-        logger.info("Failed to get message source accessor. Stopping {} context.", contextName);
+      if (log13.isInfoEnabled()) {
+        log13.info("Failed to get message source accessor. Stopping {} context.", contextName);
       }
     }
   }
