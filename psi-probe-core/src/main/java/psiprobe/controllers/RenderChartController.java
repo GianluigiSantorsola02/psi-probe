@@ -56,7 +56,7 @@ import java.util.Objects;
 public class RenderChartController extends AbstractController {
 
   /** The Constant logger. */
-  private static final Logger logger = LoggerFactory.getLogger(RenderChartController.class);
+  private static final Logger log1 = LoggerFactory.getLogger(RenderChartController.class);
 
   /** The stats' collection. */
   private final StatsCollection statsCollection;
@@ -128,7 +128,7 @@ public class RenderChartController extends AbstractController {
       if (series instanceof SeriesProvider) {
         ((SeriesProvider) series).populate(ds, statsCollection, request);
       } else {
-        logger.error("SeriesProvider '{}' does not implement '{}'", provider, SeriesProvider.class);
+        log1.error("SeriesProvider '{}' does not implement '{}'", provider, SeriesProvider.class);
       }
 
       // Build series data from the give statistic
