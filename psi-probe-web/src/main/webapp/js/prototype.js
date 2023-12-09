@@ -3753,7 +3753,7 @@ if (Prototype.Browser.IE) {
 
     return new Element.Offset(x, y);
   }
-
+if(document)
   document.viewport = {
     getDimensions:    getDimensions,
     getWidth:         getWidth,
@@ -3764,6 +3764,7 @@ if (Prototype.Browser.IE) {
 })();
 window.$$ = function() {
   let expression = $A(arguments).join(', ');
+  if(document)
   return Prototype.Selector.select(expression, document);
 };
 
@@ -3843,6 +3844,7 @@ let
 	contains,
 
 	expando = "sizzle" + -(new Date()),
+
 	preferredDoc = window.document,
 	dirruns = 0,
 	done = 0,
@@ -3963,7 +3965,7 @@ function handleQuerySelectorAll(results, newContext, newSelector, old, context) 
 function checkContextAndSelector(context, preferredDoc, document, setDocument, selector, results) {
   let nodeType;
 
-  if ((context ? context.ownerDocument || context : preferredDoc) !== document) {
+  if (document && (context ? context.ownerDocument || context : preferredDoc) !== document) {
     setDocument(context);
   }
 
@@ -4009,7 +4011,7 @@ function handleMatch(match, results, context, selector) {
 }
 function Sizzle( selector, context, results, seed ) {
   let nodeType, old, nid, newContext, newSelector;
-
+if(document)
   checkContextAndSelector(context,prefferredDoc,document,setDocument,selector,results)
 
   if (documentIsHTML && !seed) {
@@ -4070,6 +4072,7 @@ function markFunction( fn ) {
  * @param {Function} fn Passed the created div and expects a boolean result
  */
 function assert( fn ) {
+  if(document)
 	let div = document.createElement("div");
 
 	try {
@@ -4080,7 +4083,6 @@ function assert( fn ) {
 		if ( div.parentNode ) {
 			div.parentNode.removeChild( div );
 		}
-		div = null;
 	}
 }
 
@@ -4408,16 +4410,17 @@ if(docElem)
     }
   }
 function handleComparePosition(compare, a, b) {
-  const preferredDoc = a.ownerDocument || b.ownerDocument || document;
-  const sortInput = preferredDoc !== document ? preferredDoc : null;
+    if(document) {
+      const preferredDoc = a.ownerDocument || b.ownerDocument || document;
+      const sortInput = preferredDoc !== document ? preferredDoc : null;
 
-  if (a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
-    return -1;
-  }
-  if (b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b)) {
-    return 1;
-  }
-
+      if (a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
+        return -1;
+      }
+      if (b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b)) {
+        return 1;
+      }
+    }
   return sortInput
       ? (indexOf.call(sortInput, a) - indexOf.call(sortInput, b))
       : 0;
@@ -4489,7 +4492,7 @@ Sizzle.matches = function( expr, elements ) {
 }
 
 Sizzle.matchesSelector = function( elem, expr ) {
-	if ( ( elem.ownerDocument || elem ) !== document ) {
+	if (document && ( elem.ownerDocument || elem ) !== document ) {
 		setDocument( elem );
 	}
 
@@ -4503,25 +4506,25 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		try {
 			let ret = matches.call( elem, expr );
 
-			if (support && ( ret || support.disconnectedMatch ||
+			if (document && support && ( ret || support.disconnectedMatch ||
 					elem.document && elem.document.nodeType !== 11 )) {
 				return ret;
 			}
 		} catch(e) {}
 	}
-
+if(document)
 	return Sizzle( expr, document, null, [elem] ).length > 0;
 };
 
 Sizzle.contains = function( context, elem ) {
-	if ( ( context.ownerDocument || context ) !== document ) {
+	if (document && ( context.ownerDocument || context ) !== document ) {
 		setDocument( context );
 	}
 	return contains( context, elem );
 };
 
 Sizzle.attr = function( elem, name ) {
-	if ( ( elem.ownerDocument || elem ) !== document ) {
+	if (document && ( elem.ownerDocument || elem ) !== document ) {
 		setDocument( elem );
 	}
 
@@ -4941,6 +4944,7 @@ function handleParent(parent, simple, dir, elem, ofType, name, type) {
 		},
 
 		"focus": function( elem ) {
+          if(document)
 			return elem === document.activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
 		},
 
@@ -5483,6 +5487,7 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
     let len = elems.length;
 
     if (outermost) {
+      if(document)
       outermostContext = context !== document && context;
     }
     processElementMatchers(byElement, elem, elementMatchers, context, xml, outermost, dirrunsUnique);
@@ -5600,6 +5605,7 @@ if(support)
 setDocument();
 if(support)
 support.sortDetached = assert(function( div1 ) {
+  if(document)
 	return div1.compareDocumentPosition( document.createElement("div") ) & 1;
 });
 
@@ -5670,6 +5676,7 @@ if ( typeof define === "function" && define.amd ) {
   let extendElements = Prototype.Selector.extendElements;
 
   function select(selector, scope) {
+    if(document)
     return extendElements(engine(selector, scope || document));
   }
 
@@ -6028,7 +6035,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     return Form.serialize(this.element);
   }
 });
-
+if(document)
   let docEl = document.documentElement;
   let MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
    && 'onmouseleave' in docEl;
@@ -6134,18 +6141,20 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function pointerX(event) {
-    let docElement = document.documentElement,
-     body = document.body || { scrollLeft: 0 };
-
+    if(document) {
+      let docElement = document.documentElement,
+          body = document.body || {scrollLeft: 0};
+    }
     return event.pageX || (event.clientX +
       (docElement.scrollLeft || body.scrollLeft) -
       (docElement.clientLeft || 0));
   }
 
   function pointerY(event) {
-    let docElement = document.documentElement,
-     body = document.body || { scrollTop: 0 };
-
+    if(document) {
+      let docElement = document.documentElement,
+          body = document.body || {scrollTop: 0};
+    }
     return  event.pageY || (event.clientY +
        (docElement.scrollTop || body.scrollTop) -
        (docElement.clientTop || 0));
@@ -6226,7 +6235,8 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     Event.extend = Prototype.K;
   }
 
-  if (window.addEventListener) {
+  if (document && window.addEventListener) {
+
     Event.prototype = window.Event.prototype || document.createEvent('HTMLEvents');
     Object.extend(Event.prototype, methods);
   }
@@ -6457,7 +6467,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
 
   function getFireTarget(element) {
-    if (element !== document) return element;
+    if (document && element !== document) return element;
     if (document.createEvent && !element.dispatchEvent)
       return document.documentElement;
     return element;
@@ -6473,6 +6483,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function fireEvent_DOM(element, eventName, memo, bubble) {
+    if(document)
     let event = document.createEvent('HTMLEvents');
     event.initEvent('dataavailable', bubble, true);
 
@@ -6484,6 +6495,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   }
 
   function fireEvent_IE(element, eventName, memo, bubble) {
+    if(document)
     let event = document.createEventObject();
     event.eventType = bubble ? 'ondataavailable' : 'onlosecapture';
 
@@ -6493,6 +6505,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
     element.fireEvent(event.eventType, event);
     return event;
   }
+if(document)
 
   let fireEvent = document.createEvent ? fireEvent_DOM : fireEvent_IE;
 
@@ -6552,6 +6565,7 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
 
     on:            on
   });
+if(document)
 
   Object.extend(document, {
     fire:          fire.methodize(),
@@ -6593,16 +6607,15 @@ Form.EventObserver = Class.Create(Abstract.EventObserver, {
   if (window.attachEvent)
     window.attachEvent('onunload', destroyCache_IE1);
 
-  if (document.addEventListener)
+  if (document && document.addEventListener)
     document.addEventListener('unload', destroyCache_IE1, false);
-  docEl = null;
 
 
 
   let TIMER;
 
   function fireContentLoadedEvent() {
-    if (!document.loaded) {
+    if (document && !document.loaded) {
       if (TIMER) window.clearTimeout(TIMER);
       document.loaded = true;
       document.fire('dom:loaded');
@@ -6620,12 +6633,12 @@ function pollDoScroll() {
     fireContentLoadedEvent();
   }
 
-  if (document?.document.readyState === 'complete') {
+  if (document && document?.document.readyState === 'complete') {
     fireContentLoadedEvent();
     return;
   }
 
-  if (document ?.document.addEventListener) {
+  if (document && document ?.document.addEventListener) {
     document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
   } else if (window === top){
         TIMER = pollDoScroll.defer();
@@ -6646,16 +6659,7 @@ Element.addMethods({
 let Position = {
   includeScrollOffsets: false,
 
-  prepare: function() {
-    this.deltaX =  window.screenX
-                || document.documentElement.scrollLeft
-                || document.body.scrollLeft
-                || 0;
-    this.deltaY =  window.screenY
-                || document.documentElement.scrollTop
-                || document.body.scrollTop
-                || 0;
-  },
+
 
 
 
@@ -6703,7 +6707,7 @@ let Position = {
 
 /*--------------------------------------------------------------------------*/
 
-if (!document.getElementsByClassName) {
+if (document && !document.getElementsByClassName) {
   document.getElementsByClassName = function(className, parentElement) {
     parentElement = parentElement || document.body;
 
