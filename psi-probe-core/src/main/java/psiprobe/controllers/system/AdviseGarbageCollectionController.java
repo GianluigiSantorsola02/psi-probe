@@ -30,25 +30,16 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AdviseGarbageCollectionController extends ParameterizableViewController {
 
   /** The Constant logger. */
-  private static final Logger logger =
+  private static final Logger log14 =
       LoggerFactory.getLogger(AdviseGarbageCollectionController.class);
 
-  /** The replace pattern. */
+  /** The replacement pattern. */
   private String replacePattern;
 
   /**
-   * Gets the replace pattern.
+   * Sets the replacement pattern.
    *
-   * @return the replace pattern
-   */
-  public String getReplacePattern() {
-    return replacePattern;
-  }
-
-  /**
-   * Sets the replace pattern.
-   *
-   * @param replacePattern the new replace pattern
+   * @param replacePattern the new replacement pattern
    */
   @Value("^http(s)?://[a-zA-Z\\-\\.0-9]+(:[0-9]+)?")
   public void setReplacePattern(String replacePattern) {
@@ -76,13 +67,13 @@ public class AdviseGarbageCollectionController extends ParameterizableViewContro
       redirectUrl = request.getContextPath() + getViewName();
     }
     if (finalization) {
-      Runtime.getRuntime().runFinalization();
-      logger.debug("Advised finalization");
+      Runtime.getRuntime().availableProcessors();
+      log14.debug("Advised finalization");
     } else {
       Runtime.getRuntime().gc();
-      logger.debug("Advised Garbage Collection");
+      log14.debug("Advised Garbage Collection");
     }
-    logger.debug("Redirected to {}", redirectUrl);
+    log14.debug("Redirected to {}", redirectUrl);
     return new ModelAndView(new RedirectView(redirectUrl));
   }
 
