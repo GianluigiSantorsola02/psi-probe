@@ -25,18 +25,6 @@ public final class TimeExpression {
   /**
    * Data points.
    *
-   * @param periodExpression the period expression
-   * @param spanExpression the span expression
-   *
-   * @return the long
-   */
-  public static long dataPoints(String periodExpression, String spanExpression) {
-    return dataPoints(inSeconds(periodExpression), inSeconds(spanExpression));
-  }
-
-  /**
-   * Data points.
-   *
    * @param period the period
    * @param span the span
    *
@@ -92,10 +80,8 @@ public final class TimeExpression {
       secondsPhase = phase;
     } else if (phase < 60 * 60) {
       minutesPhase = phase / 60;
-    } else if (phase < 60 * 60 * 24) {
-      hoursPhase = phase / (60 * 60);
     } else {
-      throw new IllegalArgumentException("Phase is too large: " + phase);
+      hoursPhase = phase / (60 * 60);
     }
     String secondsCron = cronSubexpression(secondsPeriod, secondsPhase);
     String minutesCron = "*";
@@ -142,7 +128,7 @@ public final class TimeExpression {
     if (expression == null || expression.isEmpty()) {
       return 0;
     }
-    if (expression.matches("[0-9]+[smhd]")) {
+    if (expression.matches("\\d+[smhd]")) {
       long multiplier = multiplier(expression.charAt(expression.length() - 1));
       if (multiplier == 0) {
         throw new IllegalArgumentException("Invalid unit in expression: " + expression);
