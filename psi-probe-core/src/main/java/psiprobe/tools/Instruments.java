@@ -66,12 +66,6 @@ public class Instruments {
     SIZE_REFERENCE = "64".equals(os64bitProp) ? 8 : 4;
   }
 
-  /** The processed objects. */
-  private final Set<Object> processedObjects = new HashSet<>(2048);
-
-  /** The queue. */
-  private final List<Object> thisQueue = new LinkedList<>();
-
   /** The next queue. */
   private final List<Object> nextQueue = new LinkedList<>();
 
@@ -113,7 +107,7 @@ public class Instruments {
   private long internalSizeOf(Object root) {
     long size = 0;
     Queue<Object> queue = new LinkedList<>();
-    Set<ObjectWrapper> processedObjects = new HashSet<>();
+    Set<ObjectWrapper> processedObjects = new HashSet<>(2048);
 
     queue.add(root);
 
@@ -121,7 +115,7 @@ public class Instruments {
       Object obj = queue.poll();
 
       if (isInitialized() && obj != null
-              && (classLoader == null || classLoader == obj.getClass().getClassLoader())
+              && (classLoader == obj.getClass().getClassLoader())
               && (!IGNORE_NIO || !obj.getClass().getName().startsWith("java.nio."))) {
         ObjectWrapper ow = new ObjectWrapper(obj);
         if (!processedObjects.contains(ow)) {
@@ -143,7 +137,7 @@ public class Instruments {
   }
 
   private Collection<?> getObjectFields() {
-    return null;
+    return nextQueue;
   }
 
   /**
