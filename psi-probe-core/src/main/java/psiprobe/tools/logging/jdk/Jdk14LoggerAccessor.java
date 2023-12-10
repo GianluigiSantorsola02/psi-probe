@@ -145,7 +145,8 @@ public class Jdk14LoggerAccessor extends DefaultAccessor {
       if (level == null && isJuliRoot()) {
         return "INFO";
       }
-      return (String) MethodUtils.invokeMethod(level, "getName");
+        assert level != null;
+        return (String) MethodUtils.invokeMethod(level, "getName");
     } catch (Exception e) {
       logger.error("{}#getLevel() failed", getTarget().getClass().getName(), e);
     }
@@ -172,14 +173,20 @@ public class Jdk14LoggerAccessor extends DefaultAccessor {
   /**
    * Gets the level internal.
    *
-   * @param target the target
    *
-   * @return the level internal
-   *
-   * @throws Exception the exception
    */
-  private Object getLevelInternal(Object target) throws Exception {
-    return MethodUtils.invokeMethod(target, "getLevel");
+  public static class LevelInternalException extends Exception {
+    public LevelInternalException(String message) {
+      super(message);
+    }
+  }
+
+  private Object getLevelInternal(Object target) throws LevelInternalException {
+    try {
+      return MethodUtils.invokeMethod(target, "getLevel");
+    } catch (Exception e) {
+      throw new LevelInternalException("Error occurred while getting level: " + e.getMessage());
+    }
   }
 
   /**
@@ -197,13 +204,17 @@ public class Jdk14LoggerAccessor extends DefaultAccessor {
       }
       Jdk14HandlerAccessor handlerAccessor = null;
       String className = handler.getClass().getName();
-      if ("org.apache.juli.FileHandler".equals(className)) {
-        handlerAccessor = new JuliHandlerAccessor();
-      } else if ("java.util.logging.ConsoleHandler".equals(className)) {
-        handlerAccessor = new Jdk14HandlerAccessor();
-      } else if ("java.util.logging.FileHandler".equals(className)) {
-        handlerAccessor = new Jdk14FileHandlerAccessor();
-      }
+        switch (className) {
+            case "org.apache.juli.FileHandler":
+                handlerAccessor = new JuliHandlerAccessor();
+                break;
+            case "java.util.logging.ConsoleHandler":
+                handlerAccessor = new Jdk14HandlerAccessor();
+                break;
+            case "java.util.logging.FileHandler":
+                handlerAccessor = new Jdk14FileHandlerAccessor();
+                break;
+        }
 
       if (handlerAccessor != null) {
         handlerAccessor.setLoggerAccessor(this);
