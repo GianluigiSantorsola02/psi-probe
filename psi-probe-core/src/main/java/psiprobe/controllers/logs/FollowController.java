@@ -10,24 +10,21 @@
  */
 package psiprobe.controllers.logs;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.tools.BackwardsFileStream;
+import psiprobe.tools.logging.LogDestination;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.tools.BackwardsFileStream;
-import psiprobe.tools.BackwardsLineReader;
-import psiprobe.tools.logging.LogDestination;
 
 /**
  * The Class FollowController.
@@ -43,58 +40,70 @@ public class FollowController extends AbstractLogHandlerController {
   }
 
   @Override
-  protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException {
-
+  protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response, LogDestination logDest) throws IOException {
     ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()));
     File file = logDest.getFile();
 
     if (file.exists()) {
-      LinkedList<String> lines = new LinkedList<>();
-      long actualLength = file.length();
-      long lastKnownLength = ServletRequestUtils.getLongParameter(request, "lastKnownLength", 0);
-      long currentLength =
-          ServletRequestUtils.getLongParameter(request, "currentLength", actualLength);
-      long maxReadLines = ServletRequestUtils.getLongParameter(request, "maxReadLines", 0);
+      LinkedList<String> lines = readLogLines(request, file);
 
-      if (lastKnownLength > currentLength || lastKnownLength > actualLength
-          || currentLength > actualLength) {
-
-        // file length got reset
-        lastKnownLength = 0;
-        lines.add(" ------------- THE FILE HAS BEEN TRUNCATED --------------");
+      if (!lines.isEmpty()) {
+        mv.addObject("lines", lines);
       }
-
-      try (BackwardsFileStream bfs = new BackwardsFileStream(file, currentLength)) {
-        BackwardsLineReader br;
-        if (logDest.getEncoding() != null) {
-          br = new BackwardsLineReader(bfs, logDest.getEncoding());
-        } else {
-          br = new BackwardsLineReader(bfs);
-        }
-        long readSize = 0;
-        long totalReadSize = currentLength - lastKnownLength;
-        String line;
-        while (readSize < totalReadSize && (line = br.readLine()) != null) {
-          if (!line.isEmpty()) {
-            lines.addFirst(line);
-            readSize += line.length();
-          } else {
-            readSize++;
-          }
-          if (maxReadLines != 0 && lines.size() >= maxReadLines) {
-            break;
-          }
-        }
-
-        if (lastKnownLength != 0 && readSize > totalReadSize) {
-          lines.removeFirst();
-        }
-      }
-
-      mv.addObject("lines", lines);
     }
+
     return mv;
+  }
+
+  private LinkedList<String> readLogLines(HttpServletRequest request, File file) throws IOException {
+    LinkedList<String> lines = new LinkedList<>();
+    long actualLength = file.length();
+    long lastKnownLength = ServletRequestUtils.getLongParameter(request, "lastKnownLength", 0);
+    long currentLength = ServletRequestUtils.getLongParameter(request, "currentLength", actualLength);
+    long maxReadLines = ServletRequestUtils.getLongParameter(request, "maxReadLines", 0);
+
+    if (shouldResetFileLength(lastKnownLength, currentLength, actualLength)) {
+      lastKnownLength = 0;
+      lines.add(" ------------- THE FILE HAS BEEN TRUNCATED --------------");
+    }
+
+    try (BackwardsFileStream ignored = new BackwardsFileStream(file, currentLength)
+    ) {
+
+      long readSize = 0;
+      long totalReadSize = currentLength - lastKnownLength;
+      String line;
+      BufferedReader br = null;
+      while (readSize < totalReadSize) {
+          assert false;
+          if ((line = br.readLine()) == null) break;
+          processLogLine(lines, line, maxReadLines);
+        readSize += line.length();
+      }
+
+      removeFirstIfExceeded(lines, lastKnownLength, readSize, totalReadSize);
+    }
+
+    return lines;
+  }
+
+  private boolean shouldResetFileLength(long lastKnownLength, long currentLength, long actualLength) {
+    return lastKnownLength > currentLength || lastKnownLength > actualLength || currentLength > actualLength;
+  }
+
+  private void processLogLine(LinkedList<String> lines, String line, long maxReadLines) {
+    if (!line.isEmpty()) {
+      lines.addFirst(line);
+    }
+    if (maxReadLines != 0 && lines.size() >= maxReadLines) {
+      lines.removeLast();
+    }
+  }
+
+  private void removeFirstIfExceeded(LinkedList<String> lines, long lastKnownLength, long readSize, long totalReadSize) {
+    if (lastKnownLength != 0 && readSize > totalReadSize) {
+      lines.removeFirst();
+    }
   }
 
   @Value("ajax/follow")
