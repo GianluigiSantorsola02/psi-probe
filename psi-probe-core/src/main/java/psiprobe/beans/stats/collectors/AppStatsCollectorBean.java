@@ -189,9 +189,10 @@ public class AppStatsCollectorBean extends AbstractStatsCollectorBean
     }
   }
 
+  @Override
   protected void resetStats(String metricName) {
-    // Implementation of the reset logic for the given metricName
-    // ...
+    AppStatsCollectorBean statsCollection = new AppStatsCollectorBean();
+    statsCollection.resetStats(metricName);
   }
 
   /**
