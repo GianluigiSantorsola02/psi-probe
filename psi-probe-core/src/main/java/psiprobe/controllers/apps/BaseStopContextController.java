@@ -17,7 +17,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import psiprobe.TomcatContainer;
-import psiprobe.beans.ContainerListenerBean;
 
 /**
  * Stops a web application.
