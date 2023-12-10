@@ -29,11 +29,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -65,23 +61,6 @@ public final class Utils {
    */
   private Utils() {
     // Prevent Instantiation
-  }
-
-  /**
-   * Reads a file on disk. The method uses default file encoding (see: file.encoding system
-   * property)
-   *
-   * @param file to be read
-   * @param charsetName the charset name
-   *
-   * @return String representation of the file contents
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public static String readFile(File file, String charsetName) throws IOException {
-    try (InputStream fis = Files.newInputStream(file.toPath())) {
-      return readStream(fis, charsetName);
-    }
   }
 
   /**
@@ -127,7 +106,7 @@ public final class Utils {
   public static void delete(File file) {
     if (file != null && file.exists()) {
       if (file.isDirectory()) {
-        for (File child : file.listFiles()) {
+        for (File child : Objects.requireNonNull(file.listFiles())) {
           delete(child);
         }
       }
@@ -379,7 +358,7 @@ public final class Utils {
       while (true) {
         len = raf.read(buffer);
         if (len > 0 && totalRead + len > rangeFinish - rangeStart + 1) {
-          // read more then required?
+          // read more than required?
           // adjust the length
           len = rangeFinish - rangeStart + 1 - totalRead;
           nomore = true;
@@ -540,17 +519,17 @@ public final class Utils {
     String variant = locale.getVariant();
     StringBuilder temp = new StringBuilder(baseName);
 
-    if (language.length() > 0) {
+    if (!language.isEmpty()) {
       temp.append('_').append(language);
       result.add(0, temp.toString());
     }
 
-    if (country.length() > 0) {
+    if (!country.isEmpty()) {
       temp.append('_').append(country);
       result.add(0, temp.toString());
     }
 
-    if (variant.length() > 0) {
+    if (!variant.isEmpty()) {
       temp.append('_').append(variant);
       result.add(0, temp.toString());
     }
@@ -559,9 +538,9 @@ public final class Utils {
   }
 
   /**
-   * Checks if is threading enabled.
+   * Checks if it is threading enabled.
    *
-   * @return true, if is threading enabled
+   * @return true, if it is threading enabled
    */
   public static boolean isThreadingEnabled() {
     try {
