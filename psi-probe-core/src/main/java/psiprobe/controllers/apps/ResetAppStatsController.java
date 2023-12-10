@@ -10,47 +10,25 @@
  */
 package psiprobe.controllers.apps;
 
-import javax.inject.Inject;
-
 import org.springframework.stereotype.Controller;
 
-import psiprobe.beans.ContainerListenerBean;
 import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 
 /**
  * The Class ResetAppStatsController.
  */
-// TODO 12/11/2016 JWL - This controller was not even setup...review it's need
 @Controller
 public class ResetAppStatsController extends AbstractNoSelfContextHandlerController {
 
   /** The stats' collector. */
-  private AppStatsCollectorBean statsCollector;
+  private final AppStatsCollectorBean statsCollector;
 
-  @Inject
-  public void statsCollector(AppStatsCollectorBean statsCollector) {
-    this.statsCollector = statsCollector;
-  }
-  /**
-   * Gets the stats collector.
-   *
-   * @return the stats collector
-   */
-  public AppStatsCollectorBean getStatsCollector() {
-    return statsCollector;
-  }
-
-  /**
-   * Sets the stats collector.
-   *
-   * @param statsCollector the new stats collector
-   */
-  public void setStatsCollector(AppStatsCollectorBean statsCollector) {
+  public ResetAppStatsController(AppStatsCollectorBean statsCollector) {
     this.statsCollector = statsCollector;
   }
 
   @Override
-  protected void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException {
+  protected void executeAction(String contextName) {
     statsCollector.reset(contextName);
   }
 
