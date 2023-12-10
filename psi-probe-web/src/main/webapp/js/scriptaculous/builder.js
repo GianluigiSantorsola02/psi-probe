@@ -1,20 +1,30 @@
-/*
- * Licensed under the GPL License. You may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE.
- */
-// script.aculo.us builder.js v1.9.0, Thu Dec 23 16:54:48 -0500 2010
 
-// Copyright (c) 2005-2010 Thomas Fuchs (https://script.aculo.us, https://mir.aculo.us)
-//
-// script.aculo.us is freely distributable under the terms of an MIT-style license.
-// For details, see the script.aculo.us web site: https://script.aculo.us/
+function createElement(elementName, attrs) {
+  let parentElement = document.createElement('div');
+  let element;
 
+  if (attrs.length) {
+    try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
+      parentElement.innerHTML = "<" + elementName + " " + attrs + "></" + elementName + ">";
+    } catch (e) {}
+
+    element = parentElement.firstChild || null;
+
+    // workaround Firefox 1.0.X bug
+    if (!element) {
+      element = document.createElement(elementName);
+      for (let attr in arguments[1]) {
+        element[attr === 'class' ? 'className' : attr] = arguments[1][attr];
+      }
+    }
+  }
+
+  if (element && element.tagName.toUpperCase() !== elementName) {
+    element = parentElement.getElementsByTagName(elementName)[0];
+  }
+
+  return element;
+}
 let Builder = {
   NODEMAP: {
     AREA: 'map',
@@ -32,9 +42,8 @@ let Builder = {
     THEAD: 'table',
     TR: 'table'
   },
-  // note: For Firefox < 1.5, OPTION and OPTGROUP tags are currently broken,
-  //       due to a Firefox bug
-  node: function(elementName) {
+
+  "node": function(elementName) {
     elementName = elementName.toUpperCase();
 
     let element;
@@ -70,22 +79,7 @@ let Builder = {
         this._children(element, arguments[1]);
       } else {
         let attrs = this._attributes(arguments[1]);
-        if(attrs.length) {
-          try { // prevent IE "feature": http://dev.rubyonrails.org/ticket/2707
-            parentElement.innerHTML = "<" +elementName + " " +
-                attrs + "></" + elementName + ">";
-          } catch(e) {}
-          element = parentElement.firstChild || null;
-          // workaround firefox 1.0.X bug
-          if(!element) {
-            element = document.createElement(elementName);
-            for(let attr in arguments[1])
-              element[attr === 'class' ? 'className' : attr] = arguments[1][attr];
-          }
-          if(element.tagName.toUpperCase() !== elementName) {
-            element = parentElement.getElementsByTagName(elementName)[0];
-          }
-        }
+       createElement(elementName, attrs);
       }
     }
 
@@ -132,25 +126,4 @@ let Builder = {
   _isStringOrNumber: function(param) {
     return(typeof param=='string' || typeof param=='number');
   },
-  build: function(html) {
-    let element = this.node('div');
-    $(element).update(html.strip());
-    return element.down();
-  },
-  dump: function(scope) {
-    if(typeof scope != 'object' && typeof scope != 'function') scope = window; //global scope
-
-    let tags = ("A ABBR ACRONYM ADDRESS APPLET AREA B BASE BASEFONT BDO BIG BLOCKQUOTE BODY " +
-      "BR BUTTON CAPTION CENTER CITE CODE COL COLGROUP DD DEL DFN DIR DIV DL DT EM FIELDSET " +
-      "FONT FORM FRAME FRAMESET H1 H2 H3 H4 H5 H6 HEAD HR HTML I IFRAME IMG INPUT INS ISINDEX "+
-      "KBD LABEL LEGEND LI LINK MAP MENU META NOFRAMES NOSCRIPT OBJECT OL OPTGROUP OPTION P "+
-      "PARAM PRE Q S SAMP SCRIPT SELECT SMALL SPAN STRIKE STRONG STYLE SUB SUP TABLE TBODY TD "+
-      "TEXTAREA TFOOT TH THEAD TITLE TR TT U UL let").split(/\s+/);
-
-    tags.each( function(tag){
-      scope[tag] = function() {
-        return Builder.node(...[tag, ...Array.from(arguments)]);
-      };
-    });
-  }
 };

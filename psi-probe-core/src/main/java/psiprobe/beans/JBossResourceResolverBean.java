@@ -80,7 +80,7 @@ public class JBossResourceResolverBean implements ResourceResolver {
     return resources;
   }
 
-  private ApplicationResource createApplicationResource(MBeanServer server, ObjectName managedConnectionPoolOName) throws Exception {
+  private ApplicationResource createApplicationResource(MBeanServer server, ObjectName managedConnectionPoolOName) throws InvalidCriteriaException, MalformedObjectNameException, ReflectionException, AttributeNotFoundException, InstanceNotFoundException, MBeanException {
     ApplicationResource resource = new ApplicationResource();
     resource.setName(managedConnectionPoolOName.getKeyProperty("name"));
     resource.setType("jboss");
