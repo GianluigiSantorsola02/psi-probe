@@ -125,7 +125,15 @@ public class VisualScoreTag extends BodyTagSupport {
     }
 
     // Empty blocks
-    int emptyBlocks = showEmptyBlocks ? fullBlocks - (redWhole + blueWhole + (redPart > 0 ? 1 : 0) + (bluePart2 > 0 ? 1 : 0)) : 0;
+    int emptyBlocks = 0;
+
+    if (showEmptyBlocks) {
+      int redPartResult = (redPart > 0) ? 1 : 0;
+      int bluePart2Result = (bluePart2 > 0) ? 1 : 0;
+
+      emptyBlocks = fullBlocks - (redWhole + blueWhole + redPartResult + bluePart2Result);
+    }
+
     appendRepeatedBody(buf, body, emptyBlocks, "0+0");
 
     // End
