@@ -150,9 +150,9 @@ public class ProbeConfigStats {
    *
    * @return the cl traffic
    */
-  @Bean(name = "cl_traffic")
+  @Bean(name = "clTraffic")
   public StandardSeriesProvider getClTraffic() {
-    logger.debug("Instantiated cl_traffic");
+    logger.debug("Instantiated clTraffic");
     List<String> list = new ArrayList<>();
     list.add("cluster.sent");
     list.add("cluster.received");
@@ -167,9 +167,9 @@ public class ProbeConfigStats {
    *
    * @return the cl request
    */
-  @Bean(name = "cl_request")
+  @Bean(name = "clRequest")
   public StandardSeriesProvider getClRequest() {
-    logger.debug("Instantiated cl_request");
+    logger.debug("Instantiated clRequest");
     List<String> list = new ArrayList<>();
     list.add("cluster.req.sent");
     list.add("cluster.req.received");
@@ -218,9 +218,9 @@ public class ProbeConfigStats {
    *
    * @return the connector proc time
    */
-  @Bean(name = "connector_proc_time")
+  @Bean(name = "connectorProcTime")
   public StandardSeriesProvider getConnectorProcTime() {
-    logger.debug("Instantiated connector_proc_time");
+    logger.debug("Instantiated connectorProcTime");
     List<String> list = new ArrayList<>();
     list.add("stat.connector.{0}.proc_time");
 
@@ -234,9 +234,9 @@ public class ProbeConfigStats {
    *
    * @return the memory usage
    */
-  @Bean(name = "memory_usage")
+  @Bean(name = "memoryUsage")
   public StandardSeriesProvider getMemoryUsage() {
-    logger.debug("Instantiated memory_usage");
+    logger.debug("Instantiated memoryUsage");
     List<String> list = new ArrayList<>();
     list.add("memory.pool.{0}");
 
@@ -250,9 +250,9 @@ public class ProbeConfigStats {
    *
    * @return the os memory
    */
-  @Bean(name = "os_memory")
+  @Bean(name = "osMemory")
   public StandardSeriesProvider getOsMemory() {
-    logger.debug("Instantiated os_memory");
+    logger.debug("Instantiated osMemory");
     List<String> list = new ArrayList<>();
     list.add("os.memory.physical");
     list.add("os.memory.committed");
@@ -267,9 +267,9 @@ public class ProbeConfigStats {
    *
    * @return the swap usage
    */
-  @Bean(name = "swap_usage")
+  @Bean(name = "swapUsage")
   public StandardSeriesProvider getSwapUsage() {
-    logger.debug("Instantiated swap_usage");
+    logger.debug("Instantiated swapUsage");
     List<String> list = new ArrayList<>();
     list.add("os.memory.swap");
 
@@ -283,9 +283,9 @@ public class ProbeConfigStats {
    *
    * @return the cpu usage
    */
-  @Bean(name = "cpu_usage")
+  @Bean(name = "cpuUsage")
   public StandardSeriesProvider getCpuUsage() {
-    logger.debug("Instantiated cpu_usage");
+    logger.debug("Instantiated cpuUsage");
     List<String> list = new ArrayList<>();
     list.add("os.cpu");
 
@@ -299,9 +299,9 @@ public class ProbeConfigStats {
    *
    * @return the fd usage
    */
-  @Bean(name = "fd_usage")
+  @Bean(name = "fdUsage")
   public StandardSeriesProvider getFdUsage() {
-    logger.debug("Instantiated fd_usage");
+    logger.debug("Instantiated fdUsage");
     List<String> list = new ArrayList<>();
     list.add("os.fd.open");
     list.add("os.fd.max");
@@ -316,9 +316,9 @@ public class ProbeConfigStats {
    *
    * @return the app req
    */
-  @Bean(name = "app_req")
+  @Bean(name = "appReq")
   public StandardSeriesProvider getAppReq() {
-    logger.debug("Instantiated app_req");
+    logger.debug("Instantiated appReq");
     List<String> list = new ArrayList<>();
     list.add("app.requests.{0}");
     list.add("app.errors.{0}");
@@ -333,11 +333,11 @@ public class ProbeConfigStats {
    *
    * @return the app avg proc time
    */
-  @Bean(name = "app_avg_proc_time")
+  @Bean(name = "appAvgProcTime")
   public StandardSeriesProvider getAppAvgProcTime() {
-    logger.debug("Instantiated app_avg_proc_time");
+    logger.debug("Instantiated appAvgProcTime");
     List<String> list = new ArrayList<>();
-    list.add("app.avg_proc_time.{0}");
+    list.add("app.avgProcTime.{0}");
 
     StandardSeriesProvider provider = new StandardSeriesProvider();
     provider.setStatNames(list);
@@ -349,11 +349,11 @@ public class ProbeConfigStats {
    *
    * @return the total avg proc time
    */
-  @Bean(name = "total_avg_proc_time")
+  @Bean(name = "totalAvgProcTime")
   public StandardSeriesProvider getTotalAvgProcTime() {
-    logger.debug("Instantiated total_avg_proc_time");
+    logger.debug("Instantiated totalAvgProcTime");
     List<String> list = new ArrayList<>();
-    list.add("total.avg_proc_time");
+    list.add("total.avgProcTime");
 
     StandardSeriesProvider provider = new StandardSeriesProvider();
     provider.setStatNames(list);
@@ -365,9 +365,9 @@ public class ProbeConfigStats {
    *
    * @return the total req
    */
-  @Bean(name = "total_req")
+  @Bean(name = "totalReq")
   public StandardSeriesProvider getTotalReq() {
-    logger.debug("Instantiated total_req");
+    logger.debug("Instantiated totalReq");
     List<String> list = new ArrayList<>();
     list.add("total.requests");
     list.add("total.errors");
@@ -382,9 +382,9 @@ public class ProbeConfigStats {
    *
    * @return the datasource usage
    */
-  @Bean(name = "datasource_usage")
+  @Bean(name = "datasourceUsage")
   public StandardSeriesProvider getDatasourceUsage() {
-    logger.debug("Instantiated datasource_usage");
+    logger.debug("Instantiated datasourceUsage");
     List<String> list = new ArrayList<>();
     list.add("ds.est.{0}");
     list.add("ds.busy.{0}");
@@ -399,12 +399,12 @@ public class ProbeConfigStats {
    *
    * @return the all app avg proc time
    */
-  @Bean(name = "all_app_avg_proc_time")
+  @Bean(name = "allAppAvgProcTime")
   public MultipleSeriesProvider getAllAppAvgProcTime() {
-    logger.debug("Instantiated all_app_avg_proc_time");
+    logger.debug("Instantiated allAppAvgProcTime");
     MultipleSeriesProvider provider = new MultipleSeriesProvider();
     provider.setMovingAvgFrame(10);
-    provider.setStatNamePrefix("app.avg_proc_time.");
+    provider.setStatNamePrefix("app.avgProcTime.");
     provider.setTop(4);
     return provider;
   }
@@ -414,9 +414,9 @@ public class ProbeConfigStats {
    *
    * @return the all app req
    */
-  @Bean(name = "all_app_req")
+  @Bean(name = "allAppReq")
   public MultipleSeriesProvider getAllAppReq() {
-    logger.debug("Instantiated all_app_req");
+    logger.debug("Instantiated allAppReq");
     MultipleSeriesProvider provider = new MultipleSeriesProvider();
     provider.setMovingAvgFrame(10);
     provider.setStatNamePrefix("app.requests.");
