@@ -101,7 +101,7 @@ public abstract class AbstractThresholdListener extends AbstractStatsCollectionL
     String name = sce.getName();
     long threshold = getThreshold(name);
     long previousValue = getPreviousValue(name);
-    return previousValue != DEFAULT_VALUE && previousValue > threshold;
+    return previousValue > threshold;
   }
 
   /**
@@ -131,10 +131,8 @@ public abstract class AbstractThresholdListener extends AbstractStatsCollectionL
     }
     String threshold = getPropertyValue(name, "threshold");
     if (threshold == null && !isSeriesDisabled(name)) {
-      logger.info(
-              "Required property '{}' is not defined or inherited.  Disabling listener for '{}' series",
-              getPropertyKey(name, "threshold"), name);
-      setSeriesDisabled(name, true);
+      logger.info("Threshold not set for series " + name);
+      setSeriesDisabled(name);
       return DEFAULT_THRESHOLD;
     }
     try {
@@ -187,10 +185,9 @@ public abstract class AbstractThresholdListener extends AbstractStatsCollectionL
    * Sets the series disabled.
    *
    * @param name the name
-   * @param disabled the disabled
    */
-  protected void setSeriesDisabled(String name, boolean disabled) {
-    seriesDisabled.put(name, disabled);
+  protected void setSeriesDisabled(String name) {
+    seriesDisabled.put(name, true);
   }
 
 }
