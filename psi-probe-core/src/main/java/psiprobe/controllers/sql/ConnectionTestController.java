@@ -39,6 +39,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
  */
 @Controller
 public class ConnectionTestController extends AbstractContextHandlerController {
+  private static final String ERROR_MESSAGE_KEY1 = "errorMessage";
 
   /** The Constant logger. */
   private static final Logger log6 = LoggerFactory.getLogger(ConnectionTestController.class);
@@ -73,17 +74,16 @@ public class ConnectionTestController extends AbstractContextHandlerController {
       dataSource = getContainerWrapper().getResourceResolver().lookupDataSource(context,
           resourceName, getContainerWrapper());
     } catch (NamingException e) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
+      request.setAttribute(ERROR_MESSAGE_KEY1, Objects.requireNonNull(getMessageSourceAccessor()).getMessage(
           "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
       log6.trace("", e);
     }
 
     if (dataSource == null) {
-      request.setAttribute("errorMessage", getMessageSourceAccessor().getMessage(
+      request.setAttribute(ERROR_MESSAGE_KEY1, Objects.requireNonNull(getMessageSourceAccessor()).getMessage(
           "probe.src.dataSourceTest.resource.lookup.failure", new Object[] {resourceName}));
     } else {
       try {
-        // TODO: use Spring's jdbc template?
         try (Connection conn = dataSource.getConnection()) {
           DatabaseMetaData md = conn.getMetaData();
 
@@ -103,7 +103,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
           return new ModelAndView(getViewName(), "dbMetaData", dbMetaData);
         }
       } catch (SQLException e) {
-        String message = null;
+        String message;
         if (getMessageSourceAccessor() != null) {
           message = getMessageSourceAccessor().getMessage(
               "probe.src.dataSourceTest.connection.failure", new Object[] {e.getMessage()});
@@ -111,7 +111,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
           message = "Error occurred while getting the error message.";
         }
         log6.error(message, e);
-        request.setAttribute("errorMessage", message);
+        request.setAttribute(ERROR_MESSAGE_KEY1, message);
       }
     }
 
@@ -125,7 +125,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
 
   /**
    *
-   * Adds the db meta data entry.
+   * Adds the db metadata entry.
    *
    * @param list the list
    * @param name the name
