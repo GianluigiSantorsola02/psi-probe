@@ -47,7 +47,7 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
 
     if (context != null && !request.getContextPath().equals(contextName)) {
       try {
-        log.info("{} requested RELOAD of {}", request.getRemoteAddr(), contextName);
+        log16.info("{} requested RELOAD of {}", request.getRemoteAddr(), contextName);
         context.reload();
         // Logging action
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

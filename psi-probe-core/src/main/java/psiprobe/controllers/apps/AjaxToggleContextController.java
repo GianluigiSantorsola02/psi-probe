@@ -35,7 +35,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
 public class AjaxToggleContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger log = LoggerFactory.getLogger(AjaxToggleContextController.class);
+  private static final Logger log17 = LoggerFactory.getLogger(AjaxToggleContextController.class);
 
   @RequestMapping(path = "/app/toggle.ajax")
   @Override
@@ -69,7 +69,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
       boolean isStartAction = context.getState().isAvailable();
       String action = isStartAction ? "START" : "STOP";
 
-      log.info("{} requested {} of {}", request.getRemoteAddr(), action, contextName);
+      log17.info("{} requested {} of {}", request.getRemoteAddr(), action, contextName);
 
       if (isStartAction) {
         getContainerWrapper().getTomcatContainer().start(contextName);
@@ -81,11 +81,11 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
       if (messageSourceAccessor != null) {
         messageSourceAccessor.getMessage("probe.src.log." + action.toLowerCase(), name);
       } else {
-        log.error("Error: getMessageSourceAccessor() returned null!");
+        log17.error("Error: getMessageSourceAccessor() returned null!");
         // You can add additional error handling or logging code here
       }
     } catch (InterruptedException | LifecycleException | TomcatContainer.StartException | TomcatContainer.StopException e) {
-      log.error("Error during ajax request to START/STOP of '{}'", contextName, e);
+      log17.error("Error during ajax request to START/STOP of '{}'", contextName, e);
       Thread.currentThread().interrupt();
     }
   }
