@@ -259,7 +259,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    */
   protected float getFlapStartThreshold(String name) {
     String startThreshold = getPropertyValue(name, "flapStartThreshold");
-    return Utils.toFloat(startThreshold, getDefaultFlapStartThreshold());
+    return (float) Utils.toFloat();
   }
 
   /**
@@ -271,7 +271,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    */
   protected float getFlapStopThreshold(String name) {
     String stopThreshold = getPropertyValue(name, "flapStopThreshold");
-    return Utils.toFloat(stopThreshold, getDefaultFlapStopThreshold());
+    return (float) Utils.toFloat();
   }
 
   /**
@@ -283,7 +283,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    */
   protected float getFlapLowWeight(String name) {
     String lowWeight = getPropertyValue(name, "flapLowWeight");
-    return Utils.toFloat(lowWeight, getDefaultFlapLowWeight());
+    return (float) Utils.toFloat();
   }
 
   /**
@@ -295,7 +295,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    */
   protected float getFlapHighWeight(String name) {
     String highWeight = getPropertyValue(name, "flapHighWeight");
-    return Utils.toFloat(highWeight, getDefaultFlapHighWeight());
+    return (float) Utils.toFloat();
   }
 
   /**

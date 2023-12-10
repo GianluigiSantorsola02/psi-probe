@@ -192,38 +192,8 @@ public final class Utils {
     return num == null ? defaultValue : num;
   }
 
-  /**
-   * To float.
-   *
-   * @param num the num
-   * @param defaultValue the default value
-   *
-   * @return the float
-   */
-  public static float toFloat(String num, float defaultValue) {
-    if (num != null && !num.contains(" ")) {
-      try (Scanner scanner = new Scanner(num)) {
-        if (scanner.hasNextFloat()) {
-          return Float.parseFloat(num);
-        }
-      }
-    }
-    return defaultValue;
-  }
-
-  /**
-   * Gets the jsp encoding.
-   *
-   * @param is the is
-   *
-   * @return the jsp encoding
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
   public static String getJspEncoding(InputStream is) throws IOException {
-
     String encoding = null;
-    String contentType = null;
 
     Tokenizer jspTokenizer = new Tokenizer();
     jspTokenizer.addSymbol("\n", true);
@@ -231,6 +201,20 @@ public final class Utils {
     jspTokenizer.addSymbol("\t", true);
     jspTokenizer.addSymbol(new TokenizerSymbol("dir", "<%@", "%>", false, false, true, false));
 
+    try (Reader reader = new InputStreamReader(is, StandardCharsets.ISO_8859_1)) {
+      jspTokenizer.setReader(reader);
+      while (jspTokenizer.hasMore()) {
+        Token token = jspTokenizer.nextToken();
+        if ("dir".equals(token.getName())) {
+          encoding = processDirectiveToken(token);
+        }
+      }
+    }
+
+    return encoding != null ? encoding : "ISO-8859-1";
+  }
+
+  private static String processDirectiveToken(Token dirToken) {
     StringTokenizer directiveTokenizer = new StringTokenizer();
     directiveTokenizer.addSymbol("\n", true);
     directiveTokenizer.addSymbol(" ", true);
@@ -239,57 +223,68 @@ public final class Utils {
     directiveTokenizer.addSymbol("\"", "\"", false);
     directiveTokenizer.addSymbol("'", "'", false);
 
+    String encoding = null;
+
+    directiveTokenizer.setString(dirToken.getInnerText());
+    while (directiveTokenizer.hasMore()) {
+      Token directiveToken = directiveTokenizer.nextToken();
+      if ("page".equals(directiveToken.getText()) && directiveTokenizer.hasMore()) {
+        encoding = processPageDirective(directiveTokenizer);
+      }
+    }
+
+    return encoding;
+  }
+
+  private static String processPageDirective(StringTokenizer directiveTokenizer) {
+    String encoding = null;
+
+    while (directiveTokenizer.hasMore()) {
+      Token nextDirectiveToken = directiveTokenizer.nextToken();
+      if ("pageEncoding".equals(nextDirectiveToken.getText()) && directiveTokenizer.hasMore()) {
+        encoding = processPageEncodingDirective(directiveTokenizer);
+        break;
+      }
+      if ("contentType".equals(nextDirectiveToken.getText()) && directiveTokenizer.hasMore()) {
+        processContentTypeDirective(directiveTokenizer);
+      }
+    }
+
+    return encoding;
+  }
+
+  private static String processPageEncodingDirective(StringTokenizer directiveTokenizer) {
+    String encoding = null;
+
+    String nextTokenText = directiveTokenizer.nextToken().getText();
+    if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
+      encoding = directiveTokenizer.nextToken().getInnerText();
+    }
+
+    return encoding;
+  }
+
+  private static void processContentTypeDirective(StringTokenizer directiveTokenizer) {
+    String nextTokenText = directiveTokenizer.nextToken().getText();
+    if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
+      String contentType = directiveTokenizer.nextToken().getInnerText();
+      extractCharsetFromContentType(contentType);
+    }
+  }
+
+  private static void extractCharsetFromContentType(String contentType) {
     StringTokenizer contentTypeTokenizer = new StringTokenizer();
     contentTypeTokenizer.addSymbol(" ", true);
     contentTypeTokenizer.addSymbol(";", true);
 
-    try (Reader reader = new InputStreamReader(is, StandardCharsets.ISO_8859_1)) {
-      jspTokenizer.setReader(reader);
-      while (jspTokenizer.hasMore()) {
-        Token token = jspTokenizer.nextToken();
-        if ("dir".equals(token.getName())) {
-          directiveTokenizer.setString(token.getInnerText());
-          if (directiveTokenizer.hasMore()
-              && "page".equals(directiveTokenizer.nextToken().getText())) {
-            while (directiveTokenizer.hasMore()) {
-              Token directiveToken = directiveTokenizer.nextToken();
-              if ("pageEncoding".equals(directiveToken.getText()) && directiveTokenizer.hasMore()) {
-
-                  String nextTokenText = directiveTokenizer.nextToken().getText();
-                  if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
-                    encoding = directiveTokenizer.nextToken().getInnerText();
-                    break;
-                  }
-
-              }
-              if ("contentType".equals(directiveToken.getText()) && directiveTokenizer.hasMore()) {
-
-                  String nextTokenText = directiveTokenizer.nextToken().getText();
-                  if ("=".equals(nextTokenText) && directiveTokenizer.hasMore()) {
-                    contentType = directiveTokenizer.nextToken().getInnerText();
-                  }
-
-              }
-
-
-            }
-          }
-        }
+    contentTypeTokenizer.setString(contentType);
+    while (contentTypeTokenizer.hasMore()) {
+      String token = contentTypeTokenizer.nextToken().getText();
+      if (token.startsWith("charset=")) {
+        return;
       }
     }
 
-    if (encoding == null && contentType != null) {
-      contentTypeTokenizer.setString(contentType);
-      while (contentTypeTokenizer.hasMore()) {
-        String token = contentTypeTokenizer.nextToken().getText();
-        if (token.startsWith("charset=")) {
-          encoding = token.substring("charset=".length());
-          break;
-        }
-      }
-    }
-
-    return encoding != null ? encoding : "ISO-8859-1";
   }
 
   /**
@@ -302,77 +297,105 @@ public final class Utils {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public static void sendFile(HttpServletRequest request, HttpServletResponse response, File file)
-      throws IOException {
+          throws IOException {
 
     try (OutputStream out = response.getOutputStream();
-        RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+         RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+
       long fileSize = raf.length();
-      long rangeStart = 0;
-      long rangeFinish = fileSize - 1;
+      Range range = parseRangeHeader(request.getHeader("Range"), fileSize);
 
-      // accept attempts to resume download (if any)
-      String range = request.getHeader("Range");
-      if (range != null && range.startsWith("bytes=")) {
-        String pureRange = range.replace("bytes=", "");
-        int rangeSep = pureRange.indexOf('-');
-
-        try {
-          rangeStart = Long.parseLong(pureRange.substring(0, rangeSep));
-          if (rangeStart > fileSize || rangeStart < 0) {
-            rangeStart = 0;
-          }
-        } catch (NumberFormatException e) {
-          // keep rangeStart unchanged
-          logger.trace("", e);
-        }
-
-        if (rangeSep < pureRange.length() - 1) {
-          try {
-            rangeFinish = Long.parseLong(pureRange.substring(rangeSep + 1));
-            if (rangeFinish < 0 || rangeFinish >= fileSize) {
-              rangeFinish = fileSize - 1;
-            }
-          } catch (NumberFormatException e) {
-            logger.trace("", e);
-          }
-        }
-      }
-
-      // set some headers
       response.setContentType("application/x-download");
       response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
       response.setHeader("Accept-Ranges", "bytes");
-      response.setHeader("Content-Length", Long.toString(rangeFinish - rangeStart + 1));
-      response.setHeader("Content-Range",
-          "bytes " + rangeStart + "-" + rangeFinish + "/" + fileSize);
 
-      // seek to the requested offset
-      raf.seek(rangeStart);
+      if (range.isPartial()) {
+        sendPartialContent(response, range, fileSize);
+      } else {
+        response.setHeader("Content-Length", Long.toString(fileSize));
+        out.write(Files.readAllBytes(file.toPath()));
+      }
+    }
+  }
 
-      // send the file
-      byte[] buffer = new byte[4096];
+  private static Range parseRangeHeader(String rangeHeader, long fileSize) {
+    Range range = new Range(fileSize);
 
-      long len;
-      int totalRead = 0;
-      boolean nomore = false;
-      while (true) {
-        len = raf.read(buffer);
-        if (len > 0 && totalRead + len > rangeFinish - rangeStart + 1) {
-          // read more than required?
-          // adjust the length
-          len = rangeFinish - rangeStart + 1 - totalRead;
-          nomore = true;
-        }
+    if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+      String pureRange = rangeHeader.replace("bytes=", "");
+      String[] rangeParts = pureRange.split("-");
 
-        if (len <= 0) {
-          break;
-        }
-        out.write(buffer, 0, (int) len);
-        totalRead = totalRead + (int) len;
-        if (nomore) {
-          break;
+      try {
+        range.setStart(Long.parseLong(rangeParts[0]));
+      } catch (NumberFormatException ignored) {
+      }
+
+      if (rangeParts.length > 1) {
+        try {
+          range.setEnd(Long.parseLong(rangeParts[1]));
+        } catch (NumberFormatException ignored) {
         }
       }
+    }
+
+    return range;
+  }
+
+  private static void sendPartialContent(HttpServletResponse response, Range range, long fileSize)
+          throws IOException {
+
+    long rangeStart = range.getStart();
+    long rangeFinish = range.getEnd();
+
+    response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+    response.setHeader("Content-Range", "bytes " + rangeStart + "-" + rangeFinish + "/" + fileSize);
+    response.setHeader("Content-Length", Long.toString(rangeFinish - rangeStart + 1));
+
+    File file = new File(range.getFileName());
+    try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+      raf.seek(rangeStart);
+
+      byte[] buffer = new byte[4096];
+      int len;
+      while ((len = raf.read(buffer)) > 0) {
+        response.getOutputStream().write(buffer, 0, len);
+      }
+    }
+  }
+
+  private static class Range {
+    private final long fileSize;
+    private long start;
+    private long end;
+
+    public Range(long fileSize) {
+      this.fileSize = fileSize;
+      this.start = 0;
+      this.end = fileSize - 1;
+    }
+
+    public boolean isPartial() {
+      return start != 0 || end != fileSize - 1;
+    }
+
+    public long getStart() {
+      return start;
+    }
+
+    public void setStart(long start) {
+      this.start = start;
+    }
+
+    public long getEnd() {
+      return end;
+    }
+
+    public void setEnd(long end) {
+      this.end = end;
+    }
+
+    public String getFileName() {
+      return null;
     }
   }
 
@@ -552,5 +575,9 @@ public final class Utils {
       logger.trace("", e);
       return false;
     }
+  }
+
+  public static double toFloat() {
+      return 0;
   }
 }
