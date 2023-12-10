@@ -17,7 +17,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import psiprobe.TomcatContainer;
-import psiprobe.beans.ContainerListenerBean;
 
 /**
  * Starts a web application.
@@ -41,7 +40,7 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
     boolean shouldLogReload = messageSourceAccessor != null && mylogger.isInfoEnabled();
 
     if (shouldLogReload) {
-      mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
+      mylogger.info("{} requested reload of {}", name, contextName);
     }
     else if (logger.isInfoEnabled()) {
       mylogger.info("Failed to get message source accessor. Starting {} context.", contextName);
