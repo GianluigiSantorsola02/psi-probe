@@ -115,8 +115,6 @@ public class OshiController extends AbstractTomcatContainerController {
       mv.addObject("oshi", oshi);
       return mv;
     }
-
-    // TODO: Remove once no longer experimental
     oshi.add(
         "Oshi results are performed as a system dump to screen here using Oshi SystemInfoTest logic.");
     oshi.add(
@@ -584,7 +582,7 @@ public class OshiController extends AbstractTomcatContainerController {
   private static void printSoundCards(List<SoundCard> list) {
     oshi.add("Sound Cards:");
     for (SoundCard card : list) {
-      oshi.add(" " + String.valueOf(card));
+      oshi.add(" " + card.toString());
     }
   }
 
@@ -599,7 +597,7 @@ public class OshiController extends AbstractTomcatContainerController {
       oshi.add(" None detected.");
     } else {
       for (GraphicsCard card : list) {
-        oshi.add(" " + String.valueOf(card));
+        oshi.add(" " + card.toString());
       }
     }
   }
