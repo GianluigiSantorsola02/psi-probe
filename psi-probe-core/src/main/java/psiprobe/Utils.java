@@ -328,12 +328,14 @@ public final class Utils {
       try {
         range.setStart(Long.parseLong(rangeParts[0]));
       } catch (NumberFormatException ignored) {
+        range.setStart(0);
       }
 
       if (rangeParts.length > 1) {
         try {
           range.setEnd(Long.parseLong(rangeParts[1]));
         } catch (NumberFormatException ignored) {
+          range.setEnd(fileSize - 1);
         }
       }
     }
@@ -351,7 +353,8 @@ public final class Utils {
     response.setHeader("Content-Range", "bytes " + rangeStart + "-" + rangeFinish + "/" + fileSize);
     response.setHeader("Content-Length", Long.toString(rangeFinish - rangeStart + 1));
 
-    File file = new File(range.getFileName());
+      assert range.getFileName() != null;
+      File file = new File(range.getFileName());
     try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
       raf.seek(rangeStart);
 
@@ -570,7 +573,4 @@ public final class Utils {
     }
   }
 
-  public static double toFloat() {
-      return 0;
-  }
 }
