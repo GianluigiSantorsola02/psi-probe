@@ -105,7 +105,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     }
   }
   private void handleMultipartRequest(HttpServletRequest request) {
-    File tmpFile = null;
+    File tmpFile = new File("");
     String contextName = null;
     String where = null;
 
@@ -122,9 +122,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       handleFileUploadException(e, request, tmpFile);
     }
 
-    if (tmpFile != null) {
       processUploadedFile(tmpFile, contextName, where, request);
-    }
   }
 
   private static final String ERROR_MESSAGE = "errorMessage";
