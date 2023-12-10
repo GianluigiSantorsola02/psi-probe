@@ -214,6 +214,8 @@ public class Jdk14LoggerAccessor extends DefaultAccessor {
             case "java.util.logging.FileHandler":
                 handlerAccessor = new Jdk14FileHandlerAccessor();
                 break;
+          default:
+            break;
         }
 
       if (handlerAccessor != null) {
