@@ -10,6 +10,7 @@
  */
 package psiprobe.beans;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -67,72 +68,84 @@ public class JBossResourceResolverBean implements ResourceResolver {
 
   @Override
   public List<ApplicationResource> getApplicationResources() {
-
     List<ApplicationResource> resources = new ArrayList<>();
-
     MBeanServer server = getMBeanServer();
+
     if (server != null) {
       try {
-        Set<ObjectName> dsNames =
-            server.queryNames(new ObjectName("jboss.jca:service=ManagedConnectionPool,*"), null);
+        Set<ObjectName> dsNames = server.queryNames(new ObjectName("jboss.jca:service=ManagedConnectionPool,*"), null);
         for (ObjectName managedConnectionPoolOName : dsNames) {
-          ApplicationResource resource = new ApplicationResource();
-          resource.setName(managedConnectionPoolOName.getKeyProperty("name"));
-          resource.setType("jboss");
-          String criteria = (String) server.getAttribute(managedConnectionPoolOName, "Criteria");
-          if ("ByApplication".equals(criteria)) {
-            resource.setAuth("Application");
-          } else if ("ByContainerAndApplication".equals(criteria)) {
-            resource.setAuth("Both");
-          } else {
-            resource.setAuth("Container");
-          }
-          DataSourceInfo dsInfo = new DataSourceInfo();
-          dsInfo.setMaxConnections(
-              (Integer) server.getAttribute(managedConnectionPoolOName, "MaxSize"));
-          dsInfo.setEstablishedConnections(
-              (Integer) server.getAttribute(managedConnectionPoolOName, "ConnectionCount"));
-          dsInfo.setBusyConnections(
-              ((Long) server.getAttribute(managedConnectionPoolOName, "InUseConnectionCount"))
-                  .intValue());
-          ObjectName connectionFactoryOName = new ObjectName(
-              "jboss.jca:service=ManagedConnectionFactory,name=" + resource.getName());
-          Element elm = (Element) server.getAttribute(connectionFactoryOName,
-              "ManagedConnectionFactoryProperties");
-
-          if (elm != null) {
-            NodeList nl = elm.getChildNodes();
-            for (int i = 0; i < nl.getLength(); i++) {
-              Node node = nl.item(i);
-              Node na = node.getAttributes().getNamedItem("name");
-              if (na != null) {
-                if ("ConnectionURL".equals(na.getNodeValue())) {
-                  dsInfo.setJdbcUrl(node.getFirstChild().getNodeValue());
-                }
-
-                if ("UserName".equals(na.getNodeValue())) {
-                  dsInfo.setUsername(node.getFirstChild().getNodeValue());
-                }
-
-                // JMS datasource
-                if ("JmsProviderAdapterJNDI".equals(na.getNodeValue())) {
-                  dsInfo.setJdbcUrl(node.getFirstChild().getNodeValue());
-                  resource.setType("jms");
-                }
-              }
-            }
-          }
-
-          dsInfo.setResettable(true);
-
-          resource.setDataSourceInfo(dsInfo);
+          ApplicationResource resource = createApplicationResource(server, managedConnectionPoolOName);
           resources.add(resource);
         }
       } catch (Exception e) {
         logger.error("There was an error querying JBoss JMX server:", e);
       }
     }
+
     return resources;
+  }
+
+  private ApplicationResource createApplicationResource(MBeanServer server, ObjectName managedConnectionPoolOName) throws Exception {
+    ApplicationResource resource = new ApplicationResource();
+    resource.setName(managedConnectionPoolOName.getKeyProperty("name"));
+    resource.setType("jboss");
+
+    setAuthCriteria(server, managedConnectionPoolOName, resource);
+    setDataSourceInfo(server, managedConnectionPoolOName, resource);
+
+    return resource;
+  }
+
+  private void setAuthCriteria(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws Exception {
+    String criteria = (String) server.getAttribute(managedConnectionPoolOName, "Criteria");
+    if ("ByApplication".equals(criteria)) {
+      resource.setAuth("Application");
+    } else if ("ByContainerAndApplication".equals(criteria)) {
+      resource.setAuth("Both");
+    } else {
+      resource.setAuth("Container");
+    }
+  }
+
+  private void setDataSourceInfo(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws Exception {
+    DataSourceInfo dsInfo = new DataSourceInfo();
+    dsInfo.setMaxConnections((Integer) server.getAttribute(managedConnectionPoolOName, "MaxSize"));
+    dsInfo.setEstablishedConnections((Integer) server.getAttribute(managedConnectionPoolOName, "ConnectionCount"));
+    dsInfo.setBusyConnections(((Long) server.getAttribute(managedConnectionPoolOName, "InUseConnectionCount")).intValue());
+
+    ObjectName connectionFactoryOName = new ObjectName("jboss.jca:service=ManagedConnectionFactory,name=" + resource.getName());
+    Element elm = (Element) server.getAttribute(connectionFactoryOName, "ManagedConnectionFactoryProperties");
+
+    if (elm != null) {
+      processManagedConnectionFactoryProperties(elm, dsInfo);
+    }
+
+    dsInfo.setResettable(true);
+    resource.setDataSourceInfo(dsInfo);
+  }
+
+  private void processManagedConnectionFactoryProperties(Element elm, DataSourceInfo dsInfo) {
+    NodeList nl = elm.getChildNodes();
+    for (int i = 0; i < nl.getLength(); i++) {
+      Node node = nl.item(i);
+      Node na = node.getAttributes().getNamedItem("name");
+      if (na != null) {
+        processManagedConnectionFactoryProperty(dsInfo, node, na);
+      }
+    }
+  }
+
+  private void processManagedConnectionFactoryProperty(DataSourceInfo dsInfo, Node node, Node na) {
+    if ("ConnectionURL".equals(na.getNodeValue())) {
+      dsInfo.setJdbcUrl(node.getFirstChild().getNodeValue());
+    } else if ("UserName".equals(na.getNodeValue())) {
+      dsInfo.setUsername(node.getFirstChild().getNodeValue());
+    } else if ("JmsProviderAdapterJNDI".equals(na.getNodeValue())) {
+      dsInfo.setJdbcUrl(node.getFirstChild().getNodeValue());
+    } else if (node.getAttributes().getNamedItem("resource") != null) {
+        node.getAttributes().getNamedItem("resource").getNodeValue();
+      }
   }
 
   @Override
