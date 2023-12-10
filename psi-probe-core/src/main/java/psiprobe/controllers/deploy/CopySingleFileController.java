@@ -190,7 +190,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       }
     } finally {
       if (errMsg != null) {
-        request.setAttribute("errorMessage", errMsg);
+        request.setAttribute(ERROR_MESSAGE, errMsg);
       }
       if (!tmpFile.delete()) {
         logg.error("Unable to delete temp upload file");
