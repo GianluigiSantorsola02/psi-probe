@@ -13,11 +13,7 @@ package psiprobe.tools;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The Class Instruments.
@@ -71,9 +67,9 @@ public class Instruments {
   }
 
   /** The processed objects. */
-  private Set<Object> processedObjects = new HashSet<>(2048);
+  private final Set<Object> processedObjects = new HashSet<>(2048);
 
-  /** The this queue. */
+  /** The queue. */
   private final List<Object> thisQueue = new LinkedList<>();
 
   /** The next queue. */
@@ -108,20 +104,6 @@ public class Instruments {
   }
 
   /**
-   * Size of.
-   *
-   * @param obj the obj
-   * @param objects the objects
-   *
-   * @return the long
-   */
-  public static long sizeOf(Object obj, Set<Object> objects) {
-    Instruments instruments = new Instruments();
-    instruments.processedObjects = objects;
-    return instruments.internalSizeOf(obj);
-  }
-
-  /**
    * Internal size of.
    *
    * @param root the root
@@ -130,35 +112,38 @@ public class Instruments {
    */
   private long internalSizeOf(Object root) {
     long size = 0;
-    thisQueue.add(root);
-    while (!thisQueue.isEmpty()) {
-      Iterator<Object> it = thisQueue.iterator();
-      while (it.hasNext()) {
-        Object obj = it.next();
-        if (isInitialized() && obj != null
-            && (classLoader == null || classLoader == obj.getClass().getClassLoader())
-            && (!IGNORE_NIO || !obj.getClass().getName().startsWith("java.nio."))) {
-          ObjectWrapper ow = new ObjectWrapper(obj);
-          if (!processedObjects.contains(ow)) {
-            if (obj.getClass().isArray()) {
-              size += sizeOfArray(obj);
-            } else if (obj.getClass().isPrimitive()) {
-              size += sizeOfPrimitive(obj.getClass());
-            } else {
-              processedObjects.add(ow);
-              size += sizeOfObject(obj);
-            }
+    Queue<Object> queue = new LinkedList<>();
+    Set<ObjectWrapper> processedObjects = new HashSet<>();
+
+    queue.add(root);
+
+    while (!queue.isEmpty()) {
+      Object obj = queue.poll();
+
+      if (isInitialized() && obj != null
+              && (classLoader == null || classLoader == obj.getClass().getClassLoader())
+              && (!IGNORE_NIO || !obj.getClass().getName().startsWith("java.nio."))) {
+        ObjectWrapper ow = new ObjectWrapper(obj);
+        if (!processedObjects.contains(ow)) {
+          processedObjects.add(ow);
+
+          if (obj.getClass().isArray()) {
+            size += sizeOfArray(obj);
+          } else if (obj.getClass().isPrimitive()) {
+            size += sizeOfPrimitive(obj.getClass());
+          } else {
+            size += sizeOfObject(obj);
+              queue.addAll(Objects.requireNonNull(getObjectFields()));
           }
         }
-        it.remove();
-      }
-      // avoids ConcurrentModificationException
-      if (!nextQueue.isEmpty()) {
-        thisQueue.addAll(nextQueue);
-        nextQueue.clear();
       }
     }
+
     return size;
+  }
+
+  private Collection<?> getObjectFields() {
+    return null;
   }
 
   /**
@@ -170,26 +155,35 @@ public class Instruments {
    */
   private long sizeOfObject(Object obj) {
     long size = SIZE_OBJECT;
-    Class<? extends Object> clazz = obj.getClass();
+    Class<?> clazz = obj.getClass();
+
     while (clazz != null) {
-      Field[] fields = clazz.getDeclaredFields();
-      for (Field field : fields) {
-        if (!Modifier.isStatic(field.getModifiers())) {
-          if (field.getType().isPrimitive()) {
-            size += sizeOfPrimitive(field.getType());
+      size += getSizeOfFields(obj, clazz.getDeclaredFields());
+      clazz = clazz.getSuperclass();
+    }
+
+    return size;
+  }
+
+  private long getSizeOfFields(Object obj, Field[] fields) {
+    long size = 0;
+
+    for (Field field : fields) {
+      if (!Modifier.isStatic(field.getModifiers())) {
+        if (field.getType().isPrimitive()) {
+          size += sizeOfPrimitive(field.getType());
+        } else {
+          Object val = ACCESSOR.get(obj, field);
+          if (field.getType().isArray()) {
+            size += sizeOfArray(val);
           } else {
-            Object val = ACCESSOR.get(obj, field);
-            if (field.getType().isArray()) {
-              size += sizeOfArray(val);
-            } else {
-              size += SIZE_REFERENCE;
-              nextQueue.add(val);
-            }
+            size += SIZE_REFERENCE;
+            nextQueue.add(val);
           }
         }
       }
-      clazz = clazz.getSuperclass();
     }
+
     return size;
   }
 
