@@ -101,7 +101,7 @@ let Builder = {
 
   _attributes: function(attributes) {
     let attrs = [];
-    for(attribute in attributes)
+    for(let attribute in attributes)
       attrs.push((attribute in this.ATTR_MAP ? this.ATTR_MAP[attribute] : attribute) +
           '="' + attributes[attribute].toString().escapeHTML().gsub(/"/,'&quot;') + '"');
     return attrs.join(" ");
