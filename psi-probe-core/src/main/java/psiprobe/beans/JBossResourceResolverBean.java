@@ -10,27 +10,21 @@
  */
 package psiprobe.beans;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.DataSourceInfo;
+
+import javax.management.*;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An Adapter to convert information retrieved from JBoss JMX beans into internal resource model.
@@ -96,19 +90,29 @@ public class JBossResourceResolverBean implements ResourceResolver {
 
     return resource;
   }
-
-  private void setAuthCriteria(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws Exception {
-    String criteria = (String) server.getAttribute(managedConnectionPoolOName, "Criteria");
-    if ("ByApplication".equals(criteria)) {
-      resource.setAuth("Application");
-    } else if ("ByContainerAndApplication".equals(criteria)) {
-      resource.setAuth("Both");
-    } else {
-      resource.setAuth("Container");
+  public static class InvalidCriteriaException extends Exception {
+    public InvalidCriteriaException(String message) {
+      super(message);
     }
   }
 
-  private void setDataSourceInfo(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws Exception {
+  private void setAuthCriteria(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws InvalidCriteriaException {
+    try {
+      String criteria = (String) server.getAttribute(managedConnectionPoolOName, "Criteria");
+      if ("ByApplication".equals(criteria)) {
+        resource.setAuth("Application");
+      } else if ("ByContainerAndApplication".equals(criteria)) {
+        resource.setAuth("Both");
+      } else {
+        resource.setAuth("Container");
+      }
+    } catch (Exception e) {
+      throw new InvalidCriteriaException("Error setting authentication criteria: " + e.getMessage());
+    }
+  }
+
+
+  private void setDataSourceInfo(MBeanServer server, ObjectName managedConnectionPoolOName, ApplicationResource resource) throws MalformedObjectNameException, ReflectionException, AttributeNotFoundException, InstanceNotFoundException, MBeanException {
     DataSourceInfo dsInfo = new DataSourceInfo();
     dsInfo.setMaxConnections((Integer) server.getAttribute(managedConnectionPoolOName, "MaxSize"));
     dsInfo.setEstablishedConnections((Integer) server.getAttribute(managedConnectionPoolOName, "ConnectionCount"));
