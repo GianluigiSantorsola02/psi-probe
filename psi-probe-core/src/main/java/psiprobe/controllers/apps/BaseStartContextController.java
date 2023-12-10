@@ -30,7 +30,7 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
   private static final Logger mylogger = LoggerFactory.getLogger(BaseStartContextController.class);
 
   @Override
-  protected void executeAction(String contextName) throws ContainerListenerBean.CustomExceptionException, LifecycleException, TomcatContainer.StartException, InterruptedException {
+  protected void executeAction(String contextName) throws LifecycleException, TomcatContainer.StartException, InterruptedException {
     getContainerWrapper().getTomcatContainer().start(contextName);
 
     // Logging action
@@ -38,9 +38,12 @@ public class BaseStartContextController extends AbstractNoSelfContextHandlerCont
     // get username logger
     String name = auth.getName();
     MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-    if (messageSourceAccessor != null && logger.isInfoEnabled()) {
+    boolean shouldLogReload = messageSourceAccessor != null && mylogger.isInfoEnabled();
+
+    if (shouldLogReload) {
       mylogger.info(messageSourceAccessor.getMessage("probe.src.log.reload"), name, contextName);
-    } else if (logger.isInfoEnabled()) {
+    }
+    else if (logger.isInfoEnabled()) {
       mylogger.info("Failed to get message source accessor. Starting {} context.", contextName);
     }
 
