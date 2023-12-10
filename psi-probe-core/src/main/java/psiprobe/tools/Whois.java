@@ -85,61 +85,69 @@ public final class Whois {
    *
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  public static Response lookup(String server, int port, String query, long timeout,
-      String lineSeparator) throws IOException {
-
+  public static Response lookup(String server, int port, String query, long timeout, String lineSeparator) throws IOException {
     if (query == null) {
       return null;
     }
 
     Response response = new Response();
-
     response.server = server;
     response.port = port;
 
     try (Socket connection = AsyncSocketFactory.createSocket(server, port, timeout);
-        PrintStream out =
-            new PrintStream(connection.getOutputStream(), true, StandardCharsets.UTF_8.name());
-        BufferedReader in = new BufferedReader(
-            new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-      out.println(query);
-      StringBuilder sb = new StringBuilder();
+         PrintStream out = new PrintStream(connection.getOutputStream(), true, StandardCharsets.UTF_8.name());
+         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
 
-      String line;
-      while ((line = in.readLine()) != null) {
-        sb.append(line).append(lineSeparator);
-        line = line.trim();
-        if (!line.startsWith("%") && !line.startsWith("#")) {
-          int fs = line.indexOf(':');
-          if (fs > 0) {
-            String name = line.substring(0, fs);
-            String value = line.substring(fs + 1).trim();
-            response.data.put(name, value);
-          }
-        }
-      }
-      response.summary = sb.toString();
+      sendQuery(out, query);
+      readAndProcessResponse(in, response, lineSeparator);
 
-      Response newResponse = null;
       String referral = response.getData().get("ReferralServer");
-
       if (referral != null) {
-        try {
-          UrlParser url = new UrlParser(referral);
-          if ("whois".equals(url.getProtocol())) {
-            newResponse = lookup(url.getHost(), url.getPort() == -1 ? 43 : url.getPort(), query,
-                timeout, lineSeparator);
-          }
-        } catch (IOException e) {
-          logger.trace("Could not contact '{}'", referral, e);
-        }
+        handleReferral(referral, query, timeout, lineSeparator);
       }
-      if (newResponse != null) {
-        response = newResponse;
-      }
+
+    } catch (IOException e) {
+      logger.trace("Error during lookup for '{}:{}'", server, port, e);
     }
 
     return response;
+  }
+
+  private static void sendQuery(PrintStream out, String query) {
+    out.println(query);
+  }
+
+  private static void readAndProcessResponse(BufferedReader in, Response response, String lineSeparator) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    String line;
+    while ((line = in.readLine()) != null) {
+      processResponseLine(line, response);
+      sb.append(line).append(lineSeparator);
+    }
+    response.summary = sb.toString();
+  }
+
+  private static void processResponseLine(String line, Response response) {
+    line = line.trim();
+    if (!line.startsWith("%") && !line.startsWith("#")) {
+      int fs = line.indexOf(':');
+      if (fs > 0) {
+        String name = line.substring(0, fs);
+        String value = line.substring(fs + 1).trim();
+        response.data.put(name, value);
+      }
+    }
+  }
+
+  private static void handleReferral(String referral, String query, long timeout, String lineSeparator) {
+    try {
+      UrlParser url = new UrlParser(referral);
+      if ("whois".equals(url.getProtocol())) {
+        lookup(url.getHost(), url.getPort() == -1 ? 43 : url.getPort(), query, timeout, lineSeparator);
+      }
+    } catch (IOException e) {
+      logger.trace("Could not contact '{}'", referral, e);
+    }
   }
 
   /**
