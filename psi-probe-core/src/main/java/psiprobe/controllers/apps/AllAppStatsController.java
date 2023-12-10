@@ -21,6 +21,8 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 import psiprobe.tools.TimeExpression;
 
+import java.util.Objects;
+
 /**
  * The Class AllAppStatsController.
  */
@@ -68,7 +70,7 @@ public class AllAppStatsController extends ParameterizableViewController {
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
-    return super.handleRequestInternal(request, response).addObject("collectionPeriod",
+    return Objects.requireNonNull(super.handleRequestInternal(request, response)).addObject("collectionPeriod",
         getCollectionPeriod());
   }
 
