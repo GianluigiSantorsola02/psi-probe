@@ -3,7 +3,41 @@
 function element() {
     return this;
 }
+function handleToken(token, currentContext) {
+    let tagName;
 
+    if (token.indexOf('#') > -1) {
+        // Token is an ID selector
+        let bits = token.split('#');
+        tagName = bits[0];
+        let id = bits[1];
+        let element = document.getElementById(id);
+        if (tagName && element.nodeName.toLowerCase() !== tagName) {
+            // tag with that ID not found, return false
+            return [];
+        }
+        // Set currentContext to contain just this element
+        currentContext = [element];
+        return currentContext;
+    }
+
+    handleClassSelector(token, currentContext);
+
+    // Code to deal with attribute selectors
+    if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
+        const matchResult = token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/);
+        if (matchResult) {
+            tagName = matchResult[1];
+        }
+        if (!tagName) {
+            tagName = '*';
+        }
+    }
+
+    // Rest of your code...
+
+    return currentContext;
+}
 function createCheckFunction(attrOperator, attrName, attrValue) {
     let checkFunction;
 
@@ -149,33 +183,7 @@ document.getElementsBySelector = function(selector) {
     let attrValue;
     for (let token of tokens) {
 
-        if (token.indexOf('#') > -1) {
-            // Token is an ID selector
-            let bits = token.split('#');
-            let tagName = bits[0];
-            let id = bits[1];
-            let element = document.getElementById(id);
-            if (tagName && element.nodeName.toLowerCase() !== tagName) {
-                // tag with that ID not found, return false
-                return [];
-            }
-            // Set currentContext to contain just this element
-            currentContext = new Array(element);
-            continue; // Skip to next token
-        }
-            handleClassSelector(token, currentContext)
-        // Code to deal with attribute selectors
-        if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
-            const matchResult = regex.exec(inputString);
-            if (matchResult) {
-                tagName = matchResult[1];
-                attrName = matchResult[2];
-                attrOperator = matchResult[3];
-                attrValue = matchResult[4];
-            }
-            if (!tagName) {
-                tagName = '*';
-            }
+        handleToken(token, currentContext);
             // Grab all the tagName elements within current context
             let found = [];
             let foundCount = 0;
@@ -203,10 +211,6 @@ document.getElementsBySelector = function(selector) {
         }
     }
 
-        if (!currentContext[0]) {
-            return;
-        }
-
         // If we get here, token is JUST an element (not a class or ID selector)
 
     tagName = token;
@@ -217,5 +221,5 @@ document.getElementsBySelector = function(selector) {
             for (const element of elements) {
                 found[foundCount++] = element;
             }
-        }
+
     }
