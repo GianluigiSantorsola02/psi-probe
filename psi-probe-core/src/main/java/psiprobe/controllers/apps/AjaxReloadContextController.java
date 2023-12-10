@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 public class AjaxReloadContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
-  private static final Logger log = LoggerFactory.getLogger(AjaxReloadContextController.class);
+  private static final Logger log16 = LoggerFactory.getLogger(AjaxReloadContextController.class);
 
   @RequestMapping(path = "/app/reload.ajax")
   @Override
@@ -58,11 +58,11 @@ public class AjaxReloadContextController extends AbstractContextHandlerControlle
           messageSourceAccessor.getMessage("probe.src.log.reload", name);
         } else {
 
-          log.error("Error: getMessageSourceAccessor() returned null!");
+          log16.error("Error: getMessageSourceAccessor() returned null!");
 
         }
       } catch (Exception e) {
-        log.error("Error during ajax request to RELOAD of '{}'", contextName, e);
+        log16.error("Error during ajax request to RELOAD of '{}'", contextName, e);
       }
     }
     return new ModelAndView(getViewName(), "available",
