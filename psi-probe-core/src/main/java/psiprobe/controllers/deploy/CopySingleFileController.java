@@ -127,9 +127,11 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     }
   }
 
+  private static final String ERROR_MESSAGE = "errorMessage";
+
   private void handleFileUploadException(Exception e, HttpServletRequest request, File tmpFile) {
     logg.error("Could not process file upload", e);
-    request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
+    request.setAttribute(ERROR_MESSAGE, Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.file.uploadfailure", new Object[] {e.getMessage()}));
     if (tmpFile != null && tmpFile.exists() && !tmpFile.delete()) {
       logg.error("Unable to delete temp upload file");
@@ -154,11 +156,11 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
           logger.error("An error occurred while copying the file to the destination directory", e);
         }
       } else {
-        request.setAttribute("errorMessage", Objects.requireNonNull(getMessageSourceAccessor())
-                .getMessage("probe.src.dest.inaccessible", new Object[] {destFile.getAbsolutePath()}));}
+        request.setAttribute(ERROR_MESSAGE, Objects.requireNonNull(getMessageSourceAccessor())
+                .getMessage("probe.src.dest.inaccessible", new Object[] {destFile.getAbsolutePath()}));
+      }
     }
   }
-
   private void processUploadedFile(File tmpFile, String contextName, String where, HttpServletRequest request) {
     String errMsg = null;
 
