@@ -408,18 +408,11 @@ public final class Utils {
    */
   public static Thread getThreadByName(String name) {
     if (name != null) {
-      // get top ThreadGroup
-      ThreadGroup masterGroup = Thread.currentThread().getThreadGroup();
-      while (masterGroup.getParent() != null) {
-        masterGroup = masterGroup.getParent();
-      }
+      Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
 
-      Thread[] threads = new Thread[masterGroup.activeCount()];
-      int numThreads = masterGroup.enumerate(threads);
-
-      for (int i = 0; i < numThreads; i++) {
-        if (threads[i] != null && name.equals(threads[i].getName())) {
-          return threads[i];
+      for (Thread thread : threadMap.keySet()) {
+        if (thread.getName().equals(name)) {
+          return thread;
         }
       }
     }
