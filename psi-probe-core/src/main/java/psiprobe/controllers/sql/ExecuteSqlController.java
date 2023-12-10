@@ -21,8 +21,6 @@
 package psiprobe.controllers.sql;
 
 import org.apache.catalina.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
@@ -42,9 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ExecuteSqlController extends AbstractContextHandlerController {
 
-  /** The Constant logger. */
-  private static final Logger mylogger = LoggerFactory.getLogger(ExecuteSqlController.class);
-
   @RequestMapping(path = "/sql/record1set.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
@@ -56,7 +51,6 @@ public class ExecuteSqlController extends AbstractContextHandlerController {
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws ServletRequestBindingException {
 
-    String resourceName = ServletRequestUtils.getStringParameter(request, "resource");
     String errorString = "Error during resource lookup.";
     String sql = ServletRequestUtils.getStringParameter(request, "sql", "");
     final String errorMessageString = "errorMessage";
