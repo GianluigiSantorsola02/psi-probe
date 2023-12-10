@@ -6,8 +6,7 @@ function element() {
 
 function handleAttributeSelector(tagName, attrName, attrOperator, attrValue, currentContext) {
     let elements = [];
-    for (let i = 0; i < currentContext.length; i++) {
-        let element = currentContext[i];
+    for (let element of currentContext) {
         if (element.getAttribute(attrName) === attrValue) {
             elements.push(element);
         }
@@ -38,7 +37,7 @@ function handleToken(token, currentContext) {
     // Code to deal with attribute selectors
     if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
         const matchResult = token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/);
-        if (matchResult && matchResult[1]) {
+        if (matchResult ?. matchResult[1]) {
             tagName = matchResult[1];
             const attrName = matchResult[2];
             const attrOperator = matchResult[3];
