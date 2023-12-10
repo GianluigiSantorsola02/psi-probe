@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * Uploads and installs web application from a .WAR.
  */
@@ -59,10 +60,6 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
   private void handleMultipartRequest(HttpServletRequest request) {
     File tmpWar = null;
-    String contextName = null;
-    boolean update = false;
-    boolean compile = false;
-    boolean discard = false;
 
     try {
       FileItemFactory factory = new DiskFileItemFactory(1048000, new File(System.getProperty("java.io.tmpdir")));
@@ -98,13 +95,13 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
   private void handleFormField(FileItem fi) {
     if ("context".equals(fi.getFieldName())) {
-      String contextName = fi.getString();
+      fi.getString();
     } else if ("update".equals(fi.getFieldName()) && "yes".equals(fi.getString())) {
-      boolean update = true;
+      fi.getFieldName();
     } else if ("compile".equals(fi.getFieldName()) && "yes".equals(fi.getString())) {
-      boolean compile = true;
+      fi.getFieldName();
     } else if ("discard".equals(fi.getFieldName()) && "yes".equals(fi.getString())) {
-      boolean discard = true;
+      fi.getFieldName();
     }
   }
 
@@ -120,7 +117,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
     log4.error("Could not process file upload", e);
     String errorMessage = Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.war.uploadfailure", new Object[]{e.getMessage()});
-    request.setAttribute("errorMessage", errorMessage);
+    request.setAttribute(ERROR_MESSAGE_KEY, errorMessage);
 
     if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
       log4.error("Unable to delete temp war file");
@@ -132,9 +129,9 @@ public class UploadWarController extends AbstractTomcatContainerController {
       logger.error("Unable to delete temp war file");
     }
 
-    String errMsg = request.getAttribute("errorMessage") != null ? (String) request.getAttribute("errorMessage") : null;
+    String errMsg = request.getAttribute(ERROR_MESSAGE_KEY) != null ? (String) request.getAttribute(ERROR_MESSAGE_KEY) : null;
     if (errMsg != null) {
-      request.setAttribute("errorMessage", errMsg);
+      request.setAttribute(ERROR_MESSAGE_KEY, errMsg);
     }
   }
 
@@ -146,4 +143,5 @@ public class UploadWarController extends AbstractTomcatContainerController {
     super.setViewName(viewName);
   }
 
+  private static final String ERROR_MESSAGE_KEY = "errorMessage";
 }
