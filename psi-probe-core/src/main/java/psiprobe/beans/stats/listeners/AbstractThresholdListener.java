@@ -131,7 +131,6 @@ public abstract class AbstractThresholdListener extends AbstractStatsCollectionL
     }
     String threshold = getPropertyValue(name, "threshold");
     if (threshold == null && !isSeriesDisabled(name)) {
-      logger.info("Threshold not set for series " + name);
       setSeriesDisabled(name);
       return DEFAULT_THRESHOLD;
     }
