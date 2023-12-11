@@ -25,7 +25,7 @@
     </head>
 
     <body>
-    <caption>Description of sessions.jsp</caption>
+
         <%-- Make Tab #1 visually "active". --%>
         <c:set var="navTabApps" value="active" scope="request"/>
         <c:if test="${! empty param.webapp}">
@@ -118,6 +118,7 @@
 
                 <h3><spring:message code="probe.jsp.sessions.search.h3"/></h3>
                 <table id="searchFormTable">
+                    <caption>Description of sessions.jsp</caption>
                     <tr>
                         <th id="sessionId">
                             <spring:message code="probe.jsp.sessions.search.sessionId"/>

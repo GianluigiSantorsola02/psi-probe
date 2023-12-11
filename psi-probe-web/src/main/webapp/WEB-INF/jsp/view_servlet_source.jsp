@@ -20,7 +20,7 @@
     <c:set var="appTabJSPs" value="active" scope="request"/>
 
     <body>
-    <caption>Description of view_servlet_source.jsp</caption>
+
         <ul class="options">
             <li id="back">
                 <a href="<c:url value='/app/jsp.htm'>
@@ -51,6 +51,7 @@
             <h3><spring:message code="probe.jsp.servlet_source.h3.source"/></h3>
 
             <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
+                <caption>Description of view_servlet_source.jsp</caption>
                 <tr>
                     <th>View_servlet_Source.jsp</th>
                 </tr>

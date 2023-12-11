@@ -17,7 +17,7 @@
     </head>
 
     <body>
-    <caption>Description of view_jsp_source.jsp</caption>
+
         <c:set var="navTabApps" value="active" scope="request"/>
         <c:set var="use_decorator" value="application" scope="request"/>
         <c:set var="appTabJSPs" value="active" scope="request"/>
@@ -95,6 +95,7 @@
                     <h3><spring:message code="probe.jsp.viewsource.h3.source"/></h3>
 
                     <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
+                        <caption>Description of view_jsp_source.jsp</caption>
                         <tr>
                             <th>View_jsp_source.jsp</th>
                         </tr>
