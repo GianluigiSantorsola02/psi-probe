@@ -10,16 +10,14 @@
  */
 package psiprobe;
 
-import javax.imageio.ImageIO;
-import javax.servlet.ServletContextEvent;
-
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletContextEvent;
 
 import static org.apache.webbeans.util.Asserts.assertNotNull;
 
