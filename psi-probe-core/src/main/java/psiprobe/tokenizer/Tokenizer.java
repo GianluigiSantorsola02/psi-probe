@@ -167,7 +167,7 @@ public class Tokenizer {
       int symbolIndex = lookupSymbol(chr[0]);
 
       if (symbolIndex != -1) {
-        return handleSymbol(chr[0], symbolIndex);
+        return handleSymbol(symbolIndex);
       } else {
         token.text.append(chr);
         token.type = Tokenizer.TT_TOKEN;
@@ -182,7 +182,7 @@ public class Tokenizer {
     return token;
   }
 
-  private Token handleSymbol(char symbolChar, int symbolIndex) throws IOException {
+  private Token handleSymbol(int symbolIndex) throws IOException {
     TokenizerSymbol symbol = symbols.get(symbolIndex);
     boolean hideSymbol = symbol.hidden;
 
