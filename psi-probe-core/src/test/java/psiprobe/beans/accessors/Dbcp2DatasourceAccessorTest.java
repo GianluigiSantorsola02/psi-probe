@@ -64,6 +64,7 @@ class Dbcp2DatasourceAccessorTest {
    */
   @Test
   void getInfoTest() throws Exception {
+    Assertions.assertNotNull(accessor.getInfo(source));
     accessor.getInfo(source);
   }
 
