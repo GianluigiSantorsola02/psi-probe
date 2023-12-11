@@ -74,7 +74,9 @@ public class ProbeConfig implements WebMvcConfigurer {
   @Bean(name = "containerListener")
   public ContainerListenerBean getContainerListenerBean() {
     logger.debug("Instantiated containerListener");
-    ContainerWrapperBean containerWrapper = new ContainerWrapperBean(adapterClasses, forceFirstAdapter, resourceResolvers);
+    boolean forceFirstAdapter = false;
+    Map<String, ResourceResolver> resourceResolvers = new HashMap<>();
+    ContainerWrapperBean containerWrapper = new ContainerWrapperBean(null, forceFirstAdapter, resourceResolvers);
     return new ContainerListenerBean(containerWrapper);
   }
 
@@ -86,7 +88,9 @@ public class ProbeConfig implements WebMvcConfigurer {
   @Bean(name = "containerWrapper")
   public ContainerWrapperBean getContainerWrapperBean() {
     logger.debug("Instantiated containerWrapper");
-    return new ContainerWrapperBean(adapterClasses, forceFirstAdapter, resourceResolvers);
+    boolean forceFirstAdapter = false;
+    Map<String, ResourceResolver> resourceResolvers = new HashMap<>();
+    return new ContainerWrapperBean(null, forceFirstAdapter, resourceResolvers);
   }
 
   /**
