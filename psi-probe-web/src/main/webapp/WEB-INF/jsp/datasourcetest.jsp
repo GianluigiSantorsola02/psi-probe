@@ -19,11 +19,7 @@
         <script src="<c:url value='/js/datasourcetest.js'/>"></script>
     </head>
 
-    <%-- Provides GUI for datasource connectivity testing. Allows a user to enter an SQL query and
-     displays results returned by the query. --%>
-
     <body>
-    <caption>Description of datasourcetest.jsp</caption>
         <c:set var="navTabDatasources" value="active" scope="request"/>
 
         <div class="dataSourceTestMenu">
@@ -133,6 +129,7 @@
                     <span id="rowsAffected"></span><span id="pagebanner"></span><span id="pagelinks"></span>
                 </div>
                 <table id="resultsTable" style="border-spacing:0;border-collapse:separate;">
+                    <caption>Description of datasourcetest.jsp</caption>
                     <tr>
                         <th>DataSourceTest.jsp</th>
                     </tr>
