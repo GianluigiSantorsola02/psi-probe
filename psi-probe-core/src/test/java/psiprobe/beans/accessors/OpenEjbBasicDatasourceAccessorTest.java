@@ -11,14 +11,11 @@
 package psiprobe.beans.accessors;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 import mockit.Mocked;
 import mockit.Tested;
-
 import org.apache.openejb.resource.jdbc.dbcp.BasicDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -66,10 +63,9 @@ class OpenEjbBasicDatasourceAccessorTest {
   /**
    * Gets the info test.
    *
-   * @throws Exception the exception
    */
   @Test
-  void getInfoTest() throws Exception {
+  void getInfoTest() {
     accessor.getInfo(source);
   }
 
