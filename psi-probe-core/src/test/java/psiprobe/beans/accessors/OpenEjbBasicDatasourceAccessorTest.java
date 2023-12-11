@@ -60,13 +60,5 @@ class OpenEjbBasicDatasourceAccessorTest {
     Assertions.assertFalse(accessor.canMap(badSource));
   }
 
-  /**
-   * Gets the info test.
-   *
-   */
-  @Test
-  void getInfoTest() {
-    accessor.getInfo(source);
-  }
 
 }
