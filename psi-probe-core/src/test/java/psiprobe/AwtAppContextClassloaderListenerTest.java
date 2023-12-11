@@ -18,7 +18,10 @@ import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.apache.webbeans.util.Asserts.assertNotNull;
 
 /**
  * The Class AwtAppContextClassloaderListenerTest.
@@ -61,6 +64,7 @@ class AwtAppContextClassloaderListenerTest {
       {
         ImageIO.getCacheDirectory();
         result = new Exception();
+        assertNotNull( imageIO );
       }
     };
 
