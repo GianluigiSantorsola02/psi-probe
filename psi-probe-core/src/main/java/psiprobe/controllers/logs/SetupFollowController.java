@@ -10,28 +10,31 @@
  */
 package psiprobe.controllers.logs;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.ApplicationCreationException;
+import psiprobe.beans.LogResolverBean;
+import psiprobe.tools.logging.LogDestination;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.beans.ApplicationCreationException;
-import psiprobe.tools.logging.LogDestination;
+import java.io.File;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The Class SetupFollowController.
  */
 @Controller
 public class SetupFollowController extends AbstractLogHandlerController {
+
+  private static final LogResolverBean logResolver = new LogResolverBean();
+
+  public SetupFollowController() {
+    super(logResolver);
+  }
 
   @RequestMapping(path = "/follow.htm")
   @Override
@@ -42,7 +45,7 @@ public class SetupFollowController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException, ApplicationCreationException {
+      LogDestination logDest) throws ApplicationCreationException {
 
     File logFile = logDest.getFile();
     List<LogDestination> sources = getLogResolver().getLogSources(logFile);

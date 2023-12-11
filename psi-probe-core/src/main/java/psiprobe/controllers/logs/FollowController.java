@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.BackwardsFileStream;
 import psiprobe.tools.logging.LogDestination;
 
@@ -31,6 +32,12 @@ import java.util.Objects;
  */
 @Controller
 public class FollowController extends AbstractLogHandlerController {
+
+  private static final LogResolverBean logResolver = new LogResolverBean();
+
+  public FollowController() {
+    super(logResolver);
+  }
 
   @RequestMapping(path = "/follow.ajax")
   @Override
