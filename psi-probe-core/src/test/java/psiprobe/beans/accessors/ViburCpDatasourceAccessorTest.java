@@ -69,6 +69,7 @@ class ViburCpDatasourceAccessorTest {
   @Disabled
   @Test
   void getInfoTest() throws Exception {
+    Assertions.assertNotNull(accessor.getInfo(source));
     new Expectations() {
       {
         source.getJmxName();
