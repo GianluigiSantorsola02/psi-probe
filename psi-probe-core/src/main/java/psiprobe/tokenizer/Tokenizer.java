@@ -154,10 +154,9 @@ public class Tokenizer {
       pushCount--;
       return token;
     }
+
     if (upcomingToken.type != Tokenizer.TT_ERROR) {
-      token.assign(upcomingToken);
-      upcomingToken.type = Tokenizer.TT_ERROR;
-      return token;
+      return handleUpcomingToken();
     }
 
     token.init();
@@ -168,44 +167,59 @@ public class Tokenizer {
       int symbolIndex = lookupSymbol(chr[0]);
 
       if (symbolIndex != -1) {
-        // we have found a symbol
-        TokenizerToken workToken =
-            token.type == Tokenizer.TT_TOKEN && token.text.length() > 0 ? upcomingToken : token;
-        TokenizerSymbol symbol = symbols.get(symbolIndex);
-        boolean hideSymbol = symbol.hidden;
-
-        if (!hideSymbol) {
-          workToken.init();
-          workToken.text.append(symbol.startText);
-          workToken.type = Tokenizer.TT_SYMBOL;
-          workToken.name = symbol.name;
-        }
-
-        if (symbol.tailText != null) {
-          // the symbol is a block, look for the tailText
-          while (hasMore() && !compare(symbol.tailText.toCharArray(), 0)) {
-            read(chr, 1);
-            if (!hideSymbol) {
-              workToken.text.append(chr);
-              workToken.innerText.append(chr);
-            }
-          }
-
-          if (!hideSymbol) {
-            workToken.text.append(symbol.tailText);
-          }
-          workToken.type = Tokenizer.TT_BLOCK;
-        }
-
-        if (token.text.length() > 0) {
-          break;
-        }
+        return handleSymbol(symbolIndex);
       } else {
         token.text.append(chr);
         token.type = Tokenizer.TT_TOKEN;
       }
     }
     return token;
+  }
+
+  private Token handleUpcomingToken() {
+    token.assign(upcomingToken);
+    upcomingToken.type = Tokenizer.TT_ERROR;
+    return token;
+  }
+
+  private Token handleSymbol(int symbolIndex) throws IOException {
+    TokenizerSymbol symbol = symbols.get(symbolIndex);
+    boolean hideSymbol = symbol.hidden;
+
+    TokenizerToken workToken = (token.type == Tokenizer.TT_TOKEN && token.text.length() > 0) ? upcomingToken : token;
+
+    if (!hideSymbol) {
+      workToken.init();
+      workToken.text.append(symbol.startText);
+      workToken.type = Tokenizer.TT_SYMBOL;
+      workToken.name = symbol.name;
+    }
+
+    if (symbol.tailText != null) {
+      handleSymbolTailText(workToken, symbol);
+    }
+
+    if (token.text.length() > 0) {
+      return token;
+    } else {
+      return workToken;
+    }
+  }
+
+  private void handleSymbolTailText(TokenizerToken workToken, TokenizerSymbol symbol) throws IOException {
+    char[] chr = new char[1];
+    while (hasMore() && !compare(symbol.tailText.toCharArray(), 0)) {
+      read(chr, 1);
+      if (!symbol.hidden) {
+        workToken.text.append(chr);
+        workToken.innerText.append(chr);
+      }
+    }
+
+    if (!symbol.hidden) {
+      workToken.text.append(symbol.tailText);
+    }
+    workToken.type = Tokenizer.TT_BLOCK;
   }
 
   /**
@@ -276,10 +290,7 @@ public class Tokenizer {
       }
       while (index < symbols.size()) {
         TokenizerSymbol symbol = symbols.get(index);
-        if (symbol.compareTo(chrObj) != 0) {
-          break;
-        }
-        if (compare(symbol.startText.toCharArray(), 1)) {
+        if (symbol.compareTo(chrObj) == 0 && compare(symbol.startText.toCharArray(), 1)) {
           result = index;
           break;
         }
