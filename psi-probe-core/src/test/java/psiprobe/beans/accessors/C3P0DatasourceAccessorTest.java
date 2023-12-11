@@ -64,6 +64,7 @@ class C3P0DatasourceAccessorTest {
    */
   @Test
   void getInfoTest() throws Exception {
+    Assertions.assertNotNull(accessor.getInfo(source));
     accessor.getInfo(source);
   }
 
