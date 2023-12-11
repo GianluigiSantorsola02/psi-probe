@@ -15,7 +15,7 @@
     </head>
 
     <body>
-    <caption>Description of sysinfo.jsp</caption>
+
         <c:set var="navTabSystem" value="active" scope="request"/>
         <c:set var="systemTabOverview" value="active" scope="request"/>
         <c:set var="use_decorator" value="system" scope="request"/>
@@ -26,6 +26,7 @@
                     value="${(systemInformation.totalMemory - systemInformation.freeMemory) * 100 / systemInformation.maxMemory}"/>
 
             <table style="border-spacing:0;border-collapse:separate;">
+                <caption>Description of sysinfo.jsp</caption>
                 <tr>
                     <th>Sysinfo.jsp</th>
 
