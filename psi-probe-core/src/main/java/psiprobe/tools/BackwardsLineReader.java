@@ -65,39 +65,34 @@ public class BackwardsLineReader {
   public String readLine() throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
     boolean empty = false;
-    while (true) {
-      byte chr = (byte) bis.read();
+
+    boolean shouldBreak = false;
+    while (!shouldBreak) {
+      int chr = bis.read();
       if (chr == -1) {
-        // quit this loop, if the first of the backwards stream is
-        // reached
-        if (baos.toByteArray().length == 0) {
+        if (baos.size() == 0) {
           empty = true;
         }
-        break;
-      }
-      if (chr == '\n') {
+        shouldBreak = true;
+      } else if (chr == '\n') {
         skipLineFeed = false;
-        // quit this loop
-        break;
-      }
-      if (chr == '\r') {
+        shouldBreak = true;
+      } else if (chr == '\r') {
         if (skipLineFeed) {
-          // quit this loop. if the carriage return only was read
-          break;
+          shouldBreak = true;
+        } else {
+          continue;
         }
-        // go to next loop, if both the carriage return and
-        // the line feed were read
-        continue;
       }
       baos.write(chr);
     }
     if (!empty) {
       byte[] byteArray = baos.toByteArray();
       reverse(byteArray);
-      return encoding == null ? new String(byteArray, StandardCharsets.UTF_8)
-          : new String(byteArray, Charset.forName(encoding));
+      Charset charset = (encoding == null) ? StandardCharsets.UTF_8 : Charset.forName(encoding);
+      return new String(byteArray, charset);
     }
-    // return null if the end of the stream has been reached
+
     return null;
   }
 
