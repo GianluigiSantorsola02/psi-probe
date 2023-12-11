@@ -49,7 +49,7 @@ class OpenEjbBasicDatasourceAccessorTest {
   /**
    * Can map test.
    */
-  @Disabled
+
   @Test
   void canMapTest() {
     Assertions.assertTrue(accessor.canMap(source));
