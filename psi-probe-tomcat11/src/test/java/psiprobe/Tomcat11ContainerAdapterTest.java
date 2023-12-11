@@ -82,6 +82,7 @@ class Tomcat11ContainerAdapterTest {
    */
   @Test
   void addContextResourceLink() {
+    assertFalse(new Tomcat11ContainerAdapter().addContextResourceLink(context, null, false));
     final Tomcat11ContainerAdapter adapter = new Tomcat11ContainerAdapter();
     adapter.addContextResourceLink(context, new ArrayList<ApplicationResource>(), false);
   }
@@ -91,6 +92,7 @@ class Tomcat11ContainerAdapterTest {
    */
   @Test
   void addContextResource() {
+    assertFalse(new Tomcat11ContainerAdapter().addContextResource(context, null, false));
     final Tomcat11ContainerAdapter adapter = new Tomcat11ContainerAdapter();
     adapter.addContextResource(context, new ArrayList<ApplicationResource>(), false);
   }
@@ -147,6 +149,7 @@ class Tomcat11ContainerAdapterTest {
    */
   @Test
   void resourceExists() {
+    assertFalse(new Tomcat11ContainerAdapter().resourceExists("name", context));
     final Tomcat11ContainerAdapter adapter = new Tomcat11ContainerAdapter();
     assertTrue(adapter.resourceExists("name", context));
   }
@@ -159,6 +162,7 @@ class Tomcat11ContainerAdapterTest {
    */
   @Test
   void resourceStream() throws IOException {
+    assertNull(new Tomcat11ContainerAdapter().getResourceStream("name", context));
     final Tomcat11ContainerAdapter adapter = new Tomcat11ContainerAdapter();
     adapter.getResourceStream("name", context);
   }
@@ -168,6 +172,7 @@ class Tomcat11ContainerAdapterTest {
    */
   @Test
   void resourceAttributes() {
+    assertNull(new Tomcat11ContainerAdapter().getResourceAttributes("name", context));
     final Tomcat11ContainerAdapter adapter = new Tomcat11ContainerAdapter();
     adapter.getResourceAttributes("name", context);
   }

@@ -51,6 +51,7 @@ class Tomcat11AgentValveTest {
    */
   @Test
   void invoke() throws IOException, ServletException {
+    Assertions.assertNotNull(valve);
     valve.setNext(valveMock);
     valve.invoke(request, response);
   }
