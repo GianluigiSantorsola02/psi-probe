@@ -65,10 +65,6 @@ class HikariCpDatasourceAccessorTest {
    *
    * @throws Exception the exception
    */
-  @Disabled
-  @Test
-  void getInfoTest() throws Exception {
-    accessor.getInfo(source);
-  }
+
 
 }
