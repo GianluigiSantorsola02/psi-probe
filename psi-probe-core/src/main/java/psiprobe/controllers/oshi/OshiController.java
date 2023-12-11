@@ -335,10 +335,11 @@ public class OshiController extends AbstractTomcatContainerController {
     oshi.add(
         String.format("CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
     double[] loadAverage = processor.getSystemLoadAverage(3);
+    String loadString = "%.2";
     oshi.add("CPU load averages:"
-        + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
-        + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
-        + (loadAverage[2] < 0 ? " N/A" : String.format(" %.2f", loadAverage[2])));
+        + (loadAverage[0] < 0 ? " N/A" : String.format(loadString, loadAverage[0]))
+        + (loadAverage[1] < 0 ? " N/A" : String.format(loadString, loadAverage[1]))
+        + (loadAverage[2] < 0 ? " N/A" : String.format(loadString, loadAverage[2])));
     // per core CPU
     StringBuilder procCpu = new StringBuilder("CPU load per processor:");
     double[] load = processor.getProcessorCpuLoadBetweenTicks(prevProcTicks);
@@ -496,15 +497,17 @@ public class OshiController extends AbstractTomcatContainerController {
     for (OSFileStore fs : fileSystem.getFileStores()) {
       long usable = fs.getUsableSpace();
       long total = fs.getTotalSpace();
-      oshi.add(String.format(
-              " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s " +
-                      (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s") +
-                      " and is mounted at %s",
-              fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
-              fs.getType(), FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()),
-              100d * usable / total, FormatUtil.formatValue(fs.getFreeInodes(), ""),
+      oshi.add(String.format(" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s %s and is mounted at %s",
+              fs.getName(),
+              fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
+              fs.getType(),
+              FormatUtil.formatBytes(usable),
+              FormatUtil.formatBytes(fs.getTotalSpace()),
+              100d * usable / total,
+              FormatUtil.formatValue(fs.getFreeInodes(), ""),
               FormatUtil.formatValue(fs.getTotalInodes(), ""),
-              100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
+              100d * fs.getFreeInodes() / fs.getTotalInodes(),
+              (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty()) ? ("[" + fs.getLogicalVolume() + "]") : fs.getVolume(),
               fs.getMount()));    }
   }
 
