@@ -97,6 +97,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void addContextResource() {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     adapter.addContextResource(context, new ArrayList<ApplicationResource>(), false);
   }
@@ -153,6 +159,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void resourceExists() {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     assertTrue(adapter.resourceExists("name", context));
   }
@@ -164,6 +176,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void resourceStream() throws IOException {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     adapter.getResourceStream("name", context);
   }
@@ -173,6 +191,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void resourceAttributes() {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     adapter.getResourceAttributes("name", context);
   }
@@ -182,6 +206,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void getNamingToken() {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     assertNull(adapter.getNamingToken(context));
   }
