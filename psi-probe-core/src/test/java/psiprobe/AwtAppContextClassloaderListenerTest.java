@@ -71,13 +71,6 @@ class AwtAppContextClassloaderListenerTest {
     listener.contextInitialized(event);
   }
 
-  /**
-   * Context destroyed test.
-   */
-  @Test
-  void contextDestroyedTest() {
-    // Dummy Test as method is not implemented
-    listener.contextDestroyed(event);
-  }
+
 
 }
