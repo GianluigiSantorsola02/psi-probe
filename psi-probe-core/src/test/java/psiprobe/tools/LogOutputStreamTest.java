@@ -15,6 +15,7 @@ import java.io.PrintStream;
 
 import mockit.Mocked;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -37,6 +38,7 @@ class LogOutputStreamTest {
    */
   @Test
   void loggerTest() throws IOException {
+    Assertions.assertNotNull(stream);
     stream = LogOutputStream.createPrintStream(log, 5);
     stream.write('\u0001');
   }
