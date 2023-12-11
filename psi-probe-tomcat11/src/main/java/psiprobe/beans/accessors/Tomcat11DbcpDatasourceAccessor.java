@@ -43,7 +43,7 @@ public class Tomcat11DbcpDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public boolean canMap(Object resource) {
-    return "org.apache.tomcat.dbcp.dbcp2.BasicDataSource".equals(resource.getClass().getName())
+    return resource instanceof org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
         && resource instanceof BasicDataSource;
   }
 
