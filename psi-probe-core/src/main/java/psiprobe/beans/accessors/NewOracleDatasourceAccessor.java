@@ -37,8 +37,8 @@ import oracle.jdbc.pool.OracleDataSource;
  * @deprecated As of 21c, this is deleted by oracle, therefore please transition to ucp which we
  *             support now.
  */
-@Deprecated
-public class OracleDatasourceAccessor implements DatasourceAccessor {
+
+public class NewOracleDatasourceAccessor implements DatasourceAccessor {
 
   @Override
   public DataSourceInfo getInfo(Object resource) throws SQLException {
