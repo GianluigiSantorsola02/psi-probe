@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
-       <title> probe.jsp </title>
+
         <title>Probe - Tomcat management</title>
         <title>Probe - <decorator:title default="Tomcat management"/></title>
         <link type="image/gif" rel="shortcut icon" href="<c:url value='/css/favicon.gif'/>"/>
@@ -20,7 +20,7 @@
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='mainnav.css'/>"/>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='messages.css'/>"/>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='tooltip.css'/>"/>
-        <decorator:head/>
+        <title> probe.jsp </title>
     </head>
 
     <body>
