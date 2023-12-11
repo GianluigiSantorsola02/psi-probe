@@ -9,10 +9,11 @@
     <head><title><spring:message code="probe.jsp.title.quickcheck"/></title></head>
 
     <body>
-    <caption>Description of quickcheck.jsp</caption>
+
         <c:set var="navTabQuickCheck" value="active" scope="request"/>
 
         <table>
+            <caption>Description of quickcheck.jsp</caption>
             <tr>
                 <th>Check</th>
                 <th>Status</th>
