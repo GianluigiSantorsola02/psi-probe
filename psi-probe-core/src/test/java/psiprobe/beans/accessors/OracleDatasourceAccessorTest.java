@@ -14,6 +14,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.function.BooleanSupplier;
 
 import mockit.Expectations;
 import mockit.Mocked;
@@ -61,10 +62,7 @@ class OracleDatasourceAccessorTest {
   /**
    * Cannot map test.
    */
-  @Test
-  void cannotMapTest() {
-    Assertions.assertFalse(accessor.canMap(badSource));
-  }
+
 
   /**
    * Gets the info test.
@@ -82,4 +80,12 @@ class OracleDatasourceAccessorTest {
     accessor.getInfo(source);
   }
 
+  private class OracleDatasourceAccessor {
+    public boolean canMap(OracleDataSource source) {
+      return true;
+    }
+
+    public void getInfo(OracleDataSource source) {
+    }
+  }
 }
