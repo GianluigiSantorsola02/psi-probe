@@ -53,11 +53,11 @@ public class DeployContextController extends AbstractTomcatContainerController {
           }          // Logging action
           Authentication auth = SecurityContextHolder.getContext().getAuthentication();
           // get username logger
-          String name = auth.getName();
+          auth.getName();
           messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
               String message = messageSourceAccessor.getMessage("probe.src.log.copyfile");
-              logger.info(message, name, contextName);
+              logger.info(message);
           } else {
               messageSourceAccessor = getMessageSourceAccessor();
               if (messageSourceAccessor != null) {
