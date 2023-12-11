@@ -3,6 +3,17 @@
 function element() {
     return this;
 }
+
+function handleAttributeSelector(tagName, attrName, attrOperator, attrValue, currentContext) {
+    let elements = [];
+    for (let element of currentContext) {
+        if (element.getAttribute(attrName) === attrValue) {
+            elements.push(element);
+        }
+    }
+    return elements;
+}
+
 function handleToken(token, currentContext) {
     let tagName;
 
@@ -26,15 +37,14 @@ function handleToken(token, currentContext) {
     // Code to deal with attribute selectors
     if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
         const matchResult = token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/);
-        if (matchResult) {
+        if (matchResult ?. matchResult[1]) {
             tagName = matchResult[1];
-        }
-        if (!tagName) {
-            tagName = '*';
+            const attrName = matchResult[2];
+            const attrOperator = matchResult[3];
+            const attrValue = matchResult[4];
+            handleAttributeSelector(tagName, attrName, attrOperator, attrValue, currentContext);
         }
     }
-
-    // Rest of your code...
 
     return currentContext;
 }
@@ -213,7 +223,7 @@ document.getElementsBySelector = function(selector) {
 
         // If we get here, token is JUST an element (not a class or ID selector)
 
-    tagName = token;
+    let tagName = token;
 
         let foundCount = 0;
         for (const context of currentContext) {

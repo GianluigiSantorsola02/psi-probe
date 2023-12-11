@@ -30,18 +30,6 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   /** The default flap interval. */
   private int defaultFlapInterval;
 
-  /** The default flap start threshold. */
-  private float defaultFlapStartThreshold;
-
-  /** The default flap stop threshold. */
-  private float defaultFlapStopThreshold;
-
-  /** The default flap low weight. */
-  private float defaultFlapLowWeight;
-
-  /** The default flap high weight. */
-  private float defaultFlapHighWeight;
-
   /** The flaps. */
   private final Map<String, LinkedList<Boolean>> flaps = new HashMap<>();
 
@@ -258,8 +246,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @return the flap start threshold
    */
   protected float getFlapStartThreshold(String name) {
-    String startThreshold = getPropertyValue(name, "flapStartThreshold");
-    return Utils.toFloat(startThreshold, getDefaultFlapStartThreshold());
+    getPropertyValue(name, "flapStartThreshold");
+    return  Utils.getThreadByName(name).getPriority();
   }
 
   /**
@@ -270,8 +258,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @return the flap stop threshold
    */
   protected float getFlapStopThreshold(String name) {
-    String stopThreshold = getPropertyValue(name, "flapStopThreshold");
-    return Utils.toFloat(stopThreshold, getDefaultFlapStopThreshold());
+    getPropertyValue(name, "flapStopThreshold");
+    return  Utils.getThreadByName(name).getPriority();
   }
 
   /**
@@ -282,8 +270,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @return the flap low weight
    */
   protected float getFlapLowWeight(String name) {
-    String lowWeight = getPropertyValue(name, "flapLowWeight");
-    return Utils.toFloat(lowWeight, getDefaultFlapLowWeight());
+    getPropertyValue(name, "flapLowWeight");
+    return  Utils.getThreadByName(name).getPriority();
   }
 
   /**
@@ -294,8 +282,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @return the flap high weight
    */
   protected float getFlapHighWeight(String name) {
-    String highWeight = getPropertyValue(name, "flapHighWeight");
-    return Utils.toFloat(highWeight, getDefaultFlapHighWeight());
+    getPropertyValue(name, "flapHighWeight");
+    return Utils.getThreadByName(name).getPriority();
   }
 
   /**
@@ -317,30 +305,11 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   }
 
   /**
-   * Gets the default flap start threshold.
-   *
-   * @return the default flap start threshold
-   */
-  public float getDefaultFlapStartThreshold() {
-    return defaultFlapStartThreshold;
-  }
-
-  /**
    * Sets the default flap start threshold.
    *
    * @param defaultFlapStartThreshold the new default flap start threshold
    */
   public void setDefaultFlapStartThreshold(float defaultFlapStartThreshold) {
-    this.defaultFlapStartThreshold = defaultFlapStartThreshold;
-  }
-
-  /**
-   * Gets the default flap stop threshold.
-   *
-   * @return the default flap stop threshold
-   */
-  public float getDefaultFlapStopThreshold() {
-    return defaultFlapStopThreshold;
   }
 
   /**
@@ -349,16 +318,6 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @param defaultFlapStopThreshold the new default flap stop threshold
    */
   public void setDefaultFlapStopThreshold(float defaultFlapStopThreshold) {
-    this.defaultFlapStopThreshold = defaultFlapStopThreshold;
-  }
-
-  /**
-   * Gets the default flap low weight.
-   *
-   * @return the default flap low weight
-   */
-  public float getDefaultFlapLowWeight() {
-    return defaultFlapLowWeight;
   }
 
   /**
@@ -367,16 +326,6 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @param defaultFlapLowWeight the new default flap low weight
    */
   public void setDefaultFlapLowWeight(float defaultFlapLowWeight) {
-    this.defaultFlapLowWeight = defaultFlapLowWeight;
-  }
-
-  /**
-   * Gets the default flap high weight.
-   *
-   * @return the default flap high weight
-   */
-  public float getDefaultFlapHighWeight() {
-    return defaultFlapHighWeight;
   }
 
   /**
@@ -385,7 +334,6 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * @param defaultFlapHighWeight the new default flap high weight
    */
   public void setDefaultFlapHighWeight(float defaultFlapHighWeight) {
-    this.defaultFlapHighWeight = defaultFlapHighWeight;
   }
 
 }

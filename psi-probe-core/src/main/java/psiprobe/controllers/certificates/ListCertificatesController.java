@@ -10,6 +10,22 @@
  */
 package psiprobe.controllers.certificates;
 
+import org.apache.catalina.connector.Connector;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.controllers.AbstractTomcatContainerController;
+import psiprobe.model.certificates.*;
+
+import javax.management.ObjectName;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,29 +42,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.management.ObjectName;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.catalina.connector.Connector;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.coyote.ProtocolHandler;
-import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.controllers.AbstractTomcatContainerController;
-import psiprobe.model.certificates.Cert;
-import psiprobe.model.certificates.CertificateInfo;
-import psiprobe.model.certificates.ConnectorInfo;
-import psiprobe.model.certificates.OldConnectorInfo;
-import psiprobe.model.certificates.SslHostConfigInfo;
 
 /**
  * The Class ListCertificatesController.
@@ -117,11 +110,10 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    *
    * @return the certificates
    *
-   * @throws KeyStoreLoadException the exception
    */
 
   public List<Cert> getCertificates(String storeType, String storeFile, String storePassword)
-          throws KeyStoreLoadException, KeyStoreException {
+          throws KeyStoreException {
     KeyStore keyStore;
 
     // Get key store
@@ -178,20 +170,14 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
       throws IllegalAccessException, InvocationTargetException {
     List<ConnectorInfo> infos = new ArrayList<>();
     for (Connector connector : connectors) {
-      if (!connector.getSecure()) {
-        continue;
-      }
-
-      ProtocolHandler protocolHandler = connector.getProtocolHandler();
-
-      if (protocolHandler instanceof AbstractHttp11JsseProtocol) {
-        AbstractHttp11JsseProtocol<?> protocol = (AbstractHttp11JsseProtocol<?>) protocolHandler;
-        if (!protocol.getSecure()) {
-          continue;
+      if (connector.getSecure() && connector.getProtocolHandler() instanceof AbstractHttp11JsseProtocol) {
+        AbstractHttp11JsseProtocol<?> protocol = (AbstractHttp11JsseProtocol<?>) connector.getProtocolHandler();
+        if (protocol.getSecure()) {
+          infos.add(toConnectorInfo(protocol));
         }
-        infos.add(toConnectorInfo(protocol));
       }
     }
+
     return infos;
   }
 

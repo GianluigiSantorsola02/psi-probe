@@ -10,7 +10,7 @@
     PURPOSE.
 
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
+<%@ page contentType="text/html;charset=UTF-8" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
@@ -51,6 +51,7 @@
                 </c:when>
                 <c:otherwise>
                     <table id="resultsTable" style="padding:0;border-spacing:0;border-collapse:separate;">
+                        <caption>Description of appattributes.jsp</caption>
                         <tr>
                             <th>Header 1</th> <!-- Add your <th> content here -->
                             <td id="left_scroller" class="scroller">&#160;</td>
@@ -96,10 +97,7 @@
                                         </display:column>
                                     </display:table>
                                 </div>
-                            </td>
-                            <td id="right_scroller" class="scroller">&#160;</td>
-                        </tr>
-                    </table>
+                    <td id="right_scroller" class="scroller">&#160;</td>
                     <script>
                         setupScrollers('appAttrTblContainer');
                     </script>

@@ -70,7 +70,7 @@ public class KillThreadController extends ParameterizableViewController {
     }
 
     if (thread != null) {
-      thread.stop();
+      thread.interrupt();
     }
 
     String referer = request.getHeader("Referer");

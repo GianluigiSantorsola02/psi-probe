@@ -44,17 +44,15 @@ public class ToggleConnectorStatusController extends ParameterizableViewControll
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
 
-    String connectorName = ServletRequestUtils.getRequiredStringParameter(request, "cn");
-
+    ServletRequestUtils.getRequiredStringParameter(request, "cn");
     String port = ServletRequestUtils.getRequiredStringParameter(request, "port");
-
     String operation = ServletRequestUtils.getRequiredStringParameter(request, "operation");
 
     containerListener.toggleConnectorStatus(operation, port);
 
-    log11.info("Connector status toggled for {}", connectorName);
-    return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));
-  }
+    log11.info("Connector status toggled."); // Remove user-controlled data from the log message
+
+    return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));  }
 
   @Value("/connectors.htm")
   @Override

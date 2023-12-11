@@ -1,16 +1,5 @@
-<%--
 
-    Licensed under the GPL License. You may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-      https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-
-    THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
-    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
-    PURPOSE.
-
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
+<%@ page contentType="text/html;charset=UTF-8" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/page" prefix="page" %>
@@ -18,11 +7,11 @@
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
 
 
-<%-- Main site decorator. Face of the Probe. --%>
 
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
+       <title> probe.jsp </title>
         <title>Probe - Tomcat management</title>
         <title>Probe - <decorator:title default="Tomcat management"/></title>
         <link type="image/gif" rel="shortcut icon" href="<c:url value='/css/favicon.gif'/>"/>

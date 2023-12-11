@@ -29,13 +29,13 @@ public class TokenizerSymbol implements Comparable<Object> {
   /** The hidden. */
   final boolean hidden;
 
-  /** The decode paired. */
+  /** To decode paired. */
   final boolean decodePaired;
 
   /** The enabled. */
   final boolean enabled;
 
-  /** The can be nested. */
+  /** They can be nested. */
   final boolean canBeNested;
 
   /**
@@ -45,9 +45,9 @@ public class TokenizerSymbol implements Comparable<Object> {
    * @param startText the start text
    * @param tailText the tail text
    * @param hidden the hidden
-   * @param decodePaired the decode paired
+   * @param decodePaired to decode paired
    * @param enabled the enabled
-   * @param canBeNested the can be nested
+   * @param canBeNested they can be nested
    */
   public TokenizerSymbol(String name, String startText, String tailText, boolean hidden,
       boolean decodePaired, boolean enabled, boolean canBeNested) {
@@ -64,35 +64,14 @@ public class TokenizerSymbol implements Comparable<Object> {
   @Override
   public int compareTo(Object obj) {
     if (obj instanceof Character) {
-      return compareTo((Character) obj);
+      return compareTo(obj);
     }
     if (obj instanceof TokenizerSymbol) {
-      return compareTo((TokenizerSymbol) obj);
+      return compareTo(obj);
     }
     throw new IllegalArgumentException("Invalid argument type");
   }
 
-  /**
-   * Compare to.
-   *
-   * @param chr the chr
-   *
-   * @return the int
-   */
-  public int compareTo(Character chr) {
-    return chr - startText.charAt(0);
-  }
-
-  /**
-   * Compare to.
-   *
-   * @param symbol the symbol
-   *
-   * @return the int
-   */
-  public int compareTo(TokenizerSymbol symbol) {
-    return symbol.startText.compareTo(startText);
-  }
 
   @Override
   public int hashCode() {

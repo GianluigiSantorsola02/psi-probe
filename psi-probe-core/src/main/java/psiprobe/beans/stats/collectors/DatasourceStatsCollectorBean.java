@@ -78,12 +78,8 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
     }
   }
 
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
-  public void reset() throws Exception {
+
+  public void reset() throws ResetException, ContainerWrapperBean.DataSourceException, ContainerWrapperNotSetException {
     if (containerWrapper == null) {
       logger.error("Cannot reset application stats. Container wrapper is not set.");
       throw new ContainerWrapperNotSetException("Container wrapper is not set.");
@@ -94,16 +90,19 @@ public class DatasourceStatsCollectorBean extends AbstractStatsCollectorBean {
     }
   }
 
-  /**
-   * Reset.
-   *
-   * @param name the name
-   *
-   * @throws Exception the exception
-   */
-  public void reset(String name) throws Exception {
-    resetStats(PREFIX_ESTABLISHED + name);
-    resetStats(PREFIX_BUSY + name);
+  public static class ResetException extends Exception {
+    public ResetException(String message) {
+      super(message);
+    }
+  }
+
+  public void reset(String name) throws ResetException {
+    try {
+      resetStats(PREFIX_ESTABLISHED + name);
+      resetStats(PREFIX_BUSY + name);
+    } catch (Exception e) {
+      throw new ResetException("Error occurred while resetting stats: " + e.getMessage());
+    }
   }
 
   private static class ContainerWrapperNotSetException extends Exception {

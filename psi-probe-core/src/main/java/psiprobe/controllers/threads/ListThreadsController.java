@@ -68,43 +68,37 @@ public class ListThreadsController extends AbstractTomcatContainerController {
    * @return the list
    */
   private List<ThreadModel> enumerateThreads(final Map<String, String> classLoaderMap) {
-
-    // get top ThreadGroup
-    ThreadGroup masterGroup = Thread.currentThread().getThreadGroup();
-    while (masterGroup.getParent() != null) {
-      masterGroup = masterGroup.getParent();
-    }
-
-    // enumerate all Threads starting from top
     List<ThreadModel> threadList = new ArrayList<>();
 
-    Thread[] threads = new Thread[masterGroup.activeCount()];
-    int numThreads = masterGroup.enumerate(threads);
+    Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
 
-    for (int i = 0; i < numThreads; i++) {
+    for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet()) {
+      Thread thread = entry.getKey();
+
       ThreadModel threadModel = new ThreadModel();
-      threadModel.setThreadClass(threads[i].getClass().getName());
-      threadModel.setName(threads[i].getName());
-      threadModel.setPriority(threads[i].getPriority());
-      threadModel.setDaemon(threads[i].isDaemon());
-      threadModel.setInterrupted(threads[i].isInterrupted());
-      if (threads[i].getThreadGroup() != null) {
-        threadModel.setGroupName(threads[i].getThreadGroup().getName());
-      }
-      Object target = Instruments.getField(threads[i], "target");
+      threadModel.setThreadClass(thread.getClass().getName());
+      threadModel.setName(thread.getName());
+      threadModel.setPriority(thread.getPriority());
+      threadModel.setDaemon(thread.isDaemon());
+      threadModel.setInterrupted(thread.isInterrupted());
+      threadModel.setGroupName(thread.getThreadGroup().getName());
+
+      Object target = Instruments.getField(thread, "target");
       if (target != null) {
         threadModel.setRunnableClassName(target.getClass().getName());
       }
 
-      ClassLoader cl = threads[i].getContextClassLoader();
+      ClassLoader cl = thread.getContextClassLoader();
       if (cl != null) {
         if (classLoaderMap != null) {
           threadModel.setAppName(classLoaderMap.get(toUid(cl)));
         }
         threadModel.setClassLoader(toUid(cl));
       }
+
       threadList.add(threadModel);
     }
+
     return threadList;
   }
 
