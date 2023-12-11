@@ -53,18 +53,22 @@ class FlapListenerTests {
    */
   private void fill(StatsCollectionEvent sce) {
     listener.reset();
-    add(sce, defaultInterval);
+    add(sce, defaultInterval, null);
   }
 
   /**
    * Adds the.
    *
-   * @param sce the sce
+   * @param sce      the sce
    * @param quantity the quantity
    */
-  private void add(StatsCollectionEvent sce, int quantity) {
+  private void add(StatsCollectionEvent sce, int quantity,NullPointerException e) {
     for (int i = 0; i < quantity; i++) {
       listener.statsCollected(sce);
+      if(e!=null){
+        throw e;
+      }
+
     }
   }
 
@@ -150,7 +154,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     Assertions.assertTrue(listener.isFlappingStarted());
-    add(belowThreshold, 5);
+    add(belowThreshold, 5, new NullPointerException());
     Assertions.assertTrue(listener.isBelowThresholdFlappingStopped());
   }
 
@@ -164,7 +168,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     Assertions.assertTrue(listener.isFlappingStarted());
-    add(aboveThreshold, 5);
+    add(aboveThreshold, 5, new NullPointerException());
     Assertions.assertTrue(listener.isAboveThresholdFlappingStopped());
   }
 
@@ -178,7 +182,7 @@ class FlapListenerTests {
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
     Assertions.assertTrue(listener.isFlappingStarted());
-    add(belowThreshold, 5);
+    add(belowThreshold, 5, new NullPointerException());
     Assertions.assertTrue(listener.isBelowThresholdFlappingStopped());
   }
 
@@ -192,7 +196,7 @@ class FlapListenerTests {
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
     Assertions.assertTrue(listener.isFlappingStarted());
-    add(aboveThreshold, 5);
+    add(aboveThreshold, 5, new NullPointerException());
     Assertions.assertTrue(listener.isAboveThresholdFlappingStopped());
   }
 
@@ -333,9 +337,9 @@ class FlapListenerTests {
     }
 
     /**
-     * Checks if is flapping started.
+     * Checks if it is flapping started.
      *
-     * @return true, if is flapping started
+     * @return true, if it is flapping started
      */
     public boolean isFlappingStarted() {
       return flappingStarted;
