@@ -10,17 +10,15 @@
  */
 package psiprobe.controllers.logs;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
+import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 /**
@@ -29,7 +27,13 @@ import java.util.Objects;
 @Controller
 public class FollowedFileInfoController extends AbstractLogHandlerController {
 
-  @RequestMapping(path = "/ff_info.ajax")
+    private static final LogResolverBean logResolver = new LogResolverBean();
+
+    public FollowedFileInfoController() {
+        super(logResolver);
+    }
+
+    @RequestMapping(path = "/ff_info.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -38,7 +42,7 @@ public class FollowedFileInfoController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException {
+      LogDestination logDest) {
     return new ModelAndView(Objects.requireNonNull(getViewName())).addObject("log", logDest);
   }
 

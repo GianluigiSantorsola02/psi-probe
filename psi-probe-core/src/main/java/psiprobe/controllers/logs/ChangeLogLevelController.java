@@ -22,6 +22,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
 import psiprobe.tools.logging.jdk.Jdk14HandlerAccessor;
 import psiprobe.tools.logging.log4j.Log4JAppenderAccessor;
@@ -37,7 +38,13 @@ import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13AppenderAccesso
 @Controller
 public class ChangeLogLevelController extends AbstractLogHandlerController {
 
-  @RequestMapping(path = "/adm/changeloglevel.ajax")
+  private static final LogResolverBean logResolver = new LogResolverBean();
+
+  public ChangeLogLevelController() {
+        super(logResolver);
+    }
+
+    @RequestMapping(path = "/adm/changeloglevel.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -46,7 +53,7 @@ public class ChangeLogLevelController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException {
+      LogDestination logDest) throws ServletRequestBindingException {
 
     String level = ServletRequestUtils.getRequiredStringParameter(request, "level");
     if (Arrays.asList(logDest.getValidLevels()).contains(level)) {

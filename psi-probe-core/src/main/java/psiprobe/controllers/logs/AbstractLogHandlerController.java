@@ -33,7 +33,11 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
   private static final Logger log15 = LoggerFactory.getLogger(AbstractLogHandlerController.class);
 
   /** The log resolver. */
-  private LogResolverBean logResolver;
+  private final LogResolverBean logResolver;
+
+  protected AbstractLogHandlerController(LogResolverBean logResolver) {
+    this.logResolver = logResolver;
+  }
 
   /**
    * Gets the log resolver.
@@ -44,18 +48,9 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
     return logResolver;
   }
 
-  /**
-   * Sets the log resolver.
-   *
-   * @param logResolver the new log resolver
-   */
-  public void setLogResolver(LogResolverBean logResolver) {
-    this.logResolver = logResolver;
-  }
-
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
 
     String logType = ServletRequestUtils.getStringParameter(request, "logType");
     String webapp = ServletRequestUtils.getStringParameter(request, "webapp");
@@ -65,7 +60,7 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
     String logIndex = ServletRequestUtils.getStringParameter(request, "logIndex");
 
     LogDestination dest =
-        logResolver.getLogDestination(logType, webapp, context, root, logName, logIndex);
+            logResolver.getLogDestination(logType, webapp, context, root, logName, logIndex);
 
     ModelAndView modelAndView = null;
     boolean logFound = false;
@@ -74,18 +69,16 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
         modelAndView = handleLogFile(request, response, dest);
         logFound = true;
       } else {
-        log15.error("{}: file not found", dest.getFile());
+        log15.error("Log file not found");
       }
     } else {
-      log15.error("{}{} log{} not found", logType, root ? " root" : "",
-          root ? "" : " '" + logName + "'");
+      log15.error("Log not found");
     }
     if (!logFound) {
       response.sendError(404);
     }
     return modelAndView;
   }
-
   /**
    * Handle log file.
    *

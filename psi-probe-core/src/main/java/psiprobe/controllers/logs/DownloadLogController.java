@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.Utils;
+import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
 
 /**
@@ -36,6 +37,11 @@ public class DownloadLogController extends AbstractLogHandlerController {
 
   /** The Constant logger. */
   private static final Logger log5 = LoggerFactory.getLogger(DownloadLogController.class);
+  private static final LogResolverBean logResolver = new LogResolverBean();
+
+  public DownloadLogController() {
+    super(logResolver);
+  }
 
   @RequestMapping(path = "/download")
   @Override
