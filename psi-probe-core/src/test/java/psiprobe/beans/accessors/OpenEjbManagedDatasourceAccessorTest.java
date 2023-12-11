@@ -11,14 +11,11 @@
 package psiprobe.beans.accessors;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 import mockit.Mocked;
 import mockit.Tested;
-
 import org.apache.openejb.resource.jdbc.managed.local.ManagedDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -46,16 +43,7 @@ class OpenEjbManagedDatasourceAccessorTest {
     badSource = new ComboPooledDataSource();
   }
 
-  /**
-   * Can map test.
-   */
-  @Disabled
-  @Test
-  void canMapTest() {
-    Assertions.assertTrue(accessor.canMap(source));
-  }
-
-  /**
+    /**
    * Cannot map test.
    */
   @Test
