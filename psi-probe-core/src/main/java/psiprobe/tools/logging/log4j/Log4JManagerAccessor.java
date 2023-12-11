@@ -87,7 +87,7 @@ public class Log4JManagerAccessor extends DefaultAccessor {
       accessor.setApplication(getApplication());
       return accessor;
     } catch (Exception e) {
-      logger.error("{}#getLogger('{}') failed", getTarget().getClass().getName(), name, e);
+      logger.error("Error occurred while getting logger for a specific operation");
     }
     return null;
   }

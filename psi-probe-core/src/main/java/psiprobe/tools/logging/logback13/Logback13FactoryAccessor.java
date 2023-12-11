@@ -84,20 +84,13 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
    */
   public Logback13LoggerAccessor getLogger(String name) {
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
-      Method getLogger = MethodUtils.getAccessibleMethod(clazz, "getLogger", String.class);
-
-      Object logger = getLogger.invoke(getTarget(), name);
-      if (logger == null) {
-        throw new NullPointerException(getTarget() + ".getLogger(\"" + name + "\") returned null");
-      }
       Logback13LoggerAccessor accessor = new Logback13LoggerAccessor();
       accessor.setTarget(logger);
       accessor.setApplication(getApplication());
       return accessor;
 
     } catch (Exception e) {
-      logger.error("{}.getLogger('{}') failed", getTarget(), name, e);
+      logger.error("Error occurred while getting logger");
     }
     return null;
   }
@@ -111,7 +104,7 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
   public List<Logback13AppenderAccessor> getAppenders() {
     List<Logback13AppenderAccessor> appenders = new ArrayList<>();
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
+      Class<?> clazz = getTarget().getClass();
       Method getLoggerList = MethodUtils.getAccessibleMethod(clazz, "getLoggerList");
 
       List<Object> loggers = (List<Object>) getLoggerList.invoke(getTarget());
