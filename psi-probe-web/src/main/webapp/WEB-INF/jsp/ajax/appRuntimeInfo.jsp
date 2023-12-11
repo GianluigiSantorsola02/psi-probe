@@ -15,6 +15,7 @@
         <span id="r_appStatusUp" style="display: none;">true</span>
 
         <table class="statsTable" style="padding:0;border-spacing:0;border-collapse:separate;">
+            <caption>Description of appRuntimeInfo.jsp</caption>
             <thead>
                 <tr>
                     <th class="leftMost">
@@ -42,7 +43,7 @@
                 </tr>
             </thead>
             <tbody>
-            <caption>Description of appRuntimeInfo.jsp</caption>
+
                 <tr>
                     <td class="leftMost">
                         <a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${app.name}' /><c:param name='size'><c:out value='${param.size}' /></c:param></c:url>">${app.sessionCount}</a>
