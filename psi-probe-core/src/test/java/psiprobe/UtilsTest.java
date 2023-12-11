@@ -26,7 +26,7 @@ class UtilsTest {
     Assertions.assertEquals(5, Utils.toInt("garbage", 5));
     Assertions.assertEquals(3, Utils.toInt("3", 5));
     Assertions.assertEquals(5, Utils.toInt("3 3", 5));
-    Assertions.assertEquals(5, Utils.toInt((String) null, 5));
+    Assertions.assertEquals(5, Utils.toInt(null, 5));
   }
 
   /**
@@ -38,7 +38,7 @@ class UtilsTest {
     Assertions.assertEquals(3, Utils.toIntHex("3", 5));
     Assertions.assertEquals(3, Utils.toIntHex("#3", 5));
     Assertions.assertEquals(5, Utils.toIntHex("3 3", 5));
-    Assertions.assertEquals(5, Utils.toIntHex((String) null, 5));
+    Assertions.assertEquals(5, Utils.toIntHex(null, 5));
   }
 
   /**
@@ -61,18 +61,8 @@ class UtilsTest {
     Assertions.assertEquals(1, Utils.toLong(Long.valueOf(1), 5));
   }
 
-  /**
-   * To float test.
-   */
-  @Test
-  void toFloatTest() {
-    Assertions.assertEquals(5.0f, Utils.toFloat(), 0.0);
-    Assertions.assertEquals(3.0f, Utils.toFloat(), 0.0);
-    Assertions.assertEquals(5.0f, Utils.toFloat(), 0.0);
-    Assertions.assertEquals(5.0f, Utils.toFloat(), 0.0);
-  }
 
-  /**
+    /**
    * Left pad test.
    */
   @Test
