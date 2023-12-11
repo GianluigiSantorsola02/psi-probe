@@ -113,7 +113,7 @@ public class TomcatSlf4jLogback13FactoryAccessor extends DefaultAccessor {
       return accessor;
 
     } catch (Exception e) {
-      logger.error("{}.getLogger('{}') failed", getTarget(), name, e);
+      logger.error("Error occurred while getting logger");
     }
     return null;
   }
