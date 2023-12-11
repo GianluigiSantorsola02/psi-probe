@@ -19,7 +19,7 @@ Sound = {
     if(options.replace ?. this.tracks[options.track]) {
       $R(0, this.tracks[options.track].id).each(function(id){
         let sound = $('sound_'+options.track+'_'+id);
-        sound.Stop && sound.Stop();
+        sound?.Stop?.();
         sound.remove();
       });
       this.tracks[options.track] = null;
