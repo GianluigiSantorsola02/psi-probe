@@ -11,19 +11,14 @@
 package psiprobe.beans.accessors;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.function.BooleanSupplier;
-
 import mockit.Expectations;
 import mockit.Mocked;
-
+import oracle.jdbc.pool.OracleDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import oracle.jdbc.pool.OracleDataSource;
+import java.util.Properties;
 
 /**
  * The Class OracleDatasourceAccessorTest.
@@ -43,10 +38,9 @@ class OracleDatasourceAccessorTest {
   /**
    * Before.
    *
-   * @throws SQLException the SQL exception
    */
   @BeforeEach
-  void before() throws SQLException {
+  void before() {
     accessor = new OracleDatasourceAccessor();
     badSource = new ComboPooledDataSource();
   }
@@ -56,15 +50,11 @@ class OracleDatasourceAccessorTest {
    */
   @Test
   void canMapTest() {
-    Assertions.assertTrue(accessor.canMap(source));
+    Assertions.assertTrue(accessor.canMap());
   }
 
-  /**
-   * Cannot map test.
-   */
 
-
-  /**
+    /**
    * Gets the info test.
    *
    * @throws Exception the exception
@@ -77,15 +67,15 @@ class OracleDatasourceAccessorTest {
         result = new Properties();
       }
     };
-    accessor.getInfo(source);
+    accessor.getInfo();
   }
 
-  private class OracleDatasourceAccessor {
-    public boolean canMap(OracleDataSource source) {
+  private static class OracleDatasourceAccessor {
+    public boolean canMap() {
       return true;
     }
 
-    public void getInfo(OracleDataSource source) {
+    public void getInfo() {
     }
   }
 }
