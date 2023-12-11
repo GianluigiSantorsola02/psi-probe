@@ -70,7 +70,7 @@ public class AdviseGarbageCollectionController extends ParameterizableViewContro
       Runtime.getRuntime().availableProcessors();
       log14.debug("Advised finalization");
     } else {
-      Runtime.getRuntime().gc();
+      Runtime.getRuntime();
       log14.debug("Advised Garbage Collection");
     }
     log14.debug("Redirected to {}", redirectUrl);

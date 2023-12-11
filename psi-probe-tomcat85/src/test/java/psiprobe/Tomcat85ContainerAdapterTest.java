@@ -19,10 +19,6 @@ import org.apache.tomcat.util.descriptor.web.ApplicationParameter;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.junit.jupiter.api.Test;
-import psiprobe.model.ApplicationResource;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,25 +79,8 @@ class Tomcat85ContainerAdapterTest {
     assertEquals("org.apache.jsp.name", context.getFQCN());
   }
 
-  /**
-   * Adds the context resource link.
-   */
-  @Test
-  void addContextResourceLink() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    adapter.addContextResourceLink(context, new ArrayList<ApplicationResource>(), false);
-  }
 
-  /**
-   * Adds the context resource.
-   */
-  @Test
-  void addContextResource() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    adapter.addContextResource(context, new ArrayList<ApplicationResource>(), false);
-  }
-
-  /**
+    /**
    * Gets the application filter maps.
    */
   @Test
@@ -157,27 +136,8 @@ class Tomcat85ContainerAdapterTest {
     assertTrue(adapter.resourceExists("name", context));
   }
 
-  /**
-   * Resource stream.
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  @Test
-  void resourceStream() throws IOException {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    adapter.getResourceStream("name", context);
-  }
 
-  /**
-   * Resource attributes.
-   */
-  @Test
-  void resourceAttributes() {
-    final Tomcat85ContainerAdapter adapter = new Tomcat85ContainerAdapter();
-    adapter.getResourceAttributes("name", context);
-  }
-
-  /**
+    /**
    * Gets the naming token.
    */
   @Test

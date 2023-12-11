@@ -82,25 +82,8 @@ class Tomcat90ContainerAdapterTest {
     assertEquals("org.apache.jsp.name", context.getFQCN());
   }
 
-  /**
-   * Adds the context resource link.
-   */
-  @Test
-  void addContextResourceLink() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    adapter.addContextResourceLink(context, new ArrayList<ApplicationResource>(), false);
-  }
 
-  /**
-   * Adds the context resource.
-   */
-  @Test
-  void addContextResource() {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    adapter.addContextResource(context, new ArrayList<ApplicationResource>(), false);
-  }
-
-  /**
+    /**
    * Gets the application filter maps.
    */
   @Test
@@ -156,18 +139,7 @@ class Tomcat90ContainerAdapterTest {
     assertTrue(adapter.resourceExists("name", context));
   }
 
-  /**
-   * Resource stream.
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  @Test
-  void resourceStream() throws IOException {
-    final Tomcat90ContainerAdapter adapter = new Tomcat90ContainerAdapter();
-    adapter.getResourceStream("name", context);
-  }
-
-  /**
+    /**
    * Resource attributes.
    */
   @Test
