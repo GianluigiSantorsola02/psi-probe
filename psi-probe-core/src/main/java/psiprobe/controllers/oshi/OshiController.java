@@ -497,12 +497,11 @@ public class OshiController extends AbstractTomcatContainerController {
     for (OSFileStore fs : fileSystem.getFileStores()) {
       long usable = fs.getUsableSpace();
       long total = fs.getTotalSpace();
-      oshi.add(String.format(" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s %s and is mounted at %s",
+      oshi.add(String.format(" [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s %s and is mounted at %s",
               fs.getName(),
               fs.getDescription().isEmpty() ? "file system" : fs.getDescription(),
               fs.getType(),
               FormatUtil.formatBytes(usable),
-              FormatUtil.formatBytes(fs.getTotalSpace()),
               100d * usable / total,
               FormatUtil.formatValue(fs.getFreeInodes(), ""),
               FormatUtil.formatValue(fs.getTotalInodes(), ""),
