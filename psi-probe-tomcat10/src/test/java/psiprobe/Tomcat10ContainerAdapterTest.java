@@ -82,6 +82,12 @@ class Tomcat10ContainerAdapterTest {
    */
   @Test
   void addContextResourceLink() {
+    Assertions.assertNotNull(new Expectations() {
+      {
+        context.findResources();
+        result = new ApplicationResource();
+      }
+    })
     final Tomcat10ContainerAdapter adapter = new Tomcat10ContainerAdapter();
     adapter.addContextResourceLink(context, new ArrayList<ApplicationResource>(), false);
   }
