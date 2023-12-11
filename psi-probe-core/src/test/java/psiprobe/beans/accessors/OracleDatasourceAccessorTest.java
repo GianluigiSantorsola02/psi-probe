@@ -65,6 +65,7 @@ class OracleDatasourceAccessorTest {
       {
         source.getConnectionCacheProperties();
         result = new Properties();
+        Assertions.assertTrue(accessor.canMap());
       }
     };
     accessor.getInfo();
