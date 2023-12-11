@@ -62,10 +62,10 @@ class TomcatJdbcPoolDatasourceAccessorTest {
   /**
    * Gets the info test.
    *
-   * @throws Exception the exception
    */
   @Test
-  void getInfoTest() throws Exception {
+  void getInfoTest() {
+    Assertions.assertNotNull(accessor.getInfo(source));
     accessor.getInfo(source);
   }
 
