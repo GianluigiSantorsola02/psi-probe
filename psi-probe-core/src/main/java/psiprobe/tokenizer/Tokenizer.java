@@ -196,7 +196,7 @@ public class Tokenizer {
     }
 
     if (symbol.tailText != null) {
-      handleSymbolTailText(workToken, symbol, symbolChar);
+      handleSymbolTailText(workToken, symbol);
     }
 
     if (token.text.length() > 0) {
@@ -206,7 +206,7 @@ public class Tokenizer {
     }
   }
 
-  private void handleSymbolTailText(TokenizerToken workToken, TokenizerSymbol symbol, char symbolChar) throws IOException {
+  private void handleSymbolTailText(TokenizerToken workToken, TokenizerSymbol symbol) throws IOException {
     char[] chr = new char[1];
     while (hasMore() && !compare(symbol.tailText.toCharArray(), 0)) {
       read(chr, 1);
