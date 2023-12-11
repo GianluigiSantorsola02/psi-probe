@@ -106,7 +106,6 @@
                         <dd><input id="file1" type="file" name="file1" size="90"/></dd>
                         <dt><label for="context"><spring:message code="probe.jsp.deployment.s3.context.label"/>&#160;</label></dt>
                         <dd>
-                            <!--input id="context" type="text" name="context" size="90"/-->
                             <select id="context" name="context" style="width: 90px">
                                 <c:forEach var="app" items="${apps}">
                                     <option value="${app.value}">${app.label}</option>
