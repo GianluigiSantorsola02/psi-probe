@@ -22,12 +22,15 @@ import org.slf4j.LoggerFactory;
  * An {@code OutputStream} which writes to a commons-logging {@code Log} at a particular level.
  */
 public final class LogOutputStream extends OutputStream {
-
+  @Override
+  public void write(byte[] b, int off, int len) {
+    if (shouldWrite()) {
+      String message = new String(b, off, len);
+      buf.append(message);
+    }
+  }
   /** The Constant INTERNAL_LOGGER. */
   private static final Logger INTERNAL_LOGGER = LoggerFactory.getLogger(LogOutputStream.class);
-
-  /** The Constant LEVEL_OFF. */
-  public static final int LEVEL_OFF = 0;
 
   /** The Constant LEVEL_TRACE. */
   public static final int LEVEL_TRACE = 1;
@@ -43,9 +46,6 @@ public final class LogOutputStream extends OutputStream {
 
   /** The Constant LEVEL_ERROR. */
   public static final int LEVEL_ERROR = 5;
-
-  /** The Constant LEVEL_FATAL. */
-  public static final int LEVEL_FATAL = 6;
 
   /** The logger. */
   private final Logger logger;
@@ -161,7 +161,7 @@ public final class LogOutputStream extends OutputStream {
    * @param message the message to be written
    */
   private void log(String message) {
-    if (message == null || "".equals(message)) {
+    if (message == null || message.isEmpty()) {
       return;
     }
     switch (level) {
