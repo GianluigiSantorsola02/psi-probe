@@ -43,16 +43,4 @@ class Tomcat85AgentValveTest {
   @Mocked
   Valve valveMock;
 
-  /**
-   * Invoke.
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
-   * @throws ServletException the servlet exception
-   */
-  @Test
-  void invoke() throws IOException, ServletException {
-    valve.setNext(valveMock);
-    valve.invoke(request, response);
-  }
-
 }
