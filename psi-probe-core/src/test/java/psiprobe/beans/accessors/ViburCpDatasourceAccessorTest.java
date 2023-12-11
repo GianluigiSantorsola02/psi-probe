@@ -61,22 +61,5 @@ class ViburCpDatasourceAccessorTest {
     Assertions.assertFalse(accessor.canMap(badSource));
   }
 
-  /**
-   * Gets the info test.
-   *
-   * @throws Exception the exception
-   */
-  @Disabled
-  @Test
-  void getInfoTest() throws Exception {
-    Assertions.assertNotNull(accessor.getInfo(source));
-    new Expectations() {
-      {
-        source.getJmxName();
-        result = "viburJmx";
-      }
-    };
-    accessor.getInfo(source);
-  }
 
 }
