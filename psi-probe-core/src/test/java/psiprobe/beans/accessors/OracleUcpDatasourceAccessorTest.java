@@ -73,10 +73,10 @@ class OracleUcpDatasourceAccessorTest {
   /**
    * Gets the info test.
    *
-   * @throws Exception the exception
    */
   @Test
-  void getInfoTest() throws Exception {
+  void getInfoTest() {
+    Assertions.assertTrue(accessor.canMap(source));
     accessor.getInfo(source);
   }
 
