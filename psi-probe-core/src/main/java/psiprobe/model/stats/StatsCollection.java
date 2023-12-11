@@ -304,7 +304,7 @@ public class StatsCollection implements InitializingBean, DisposableBean, Applic
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
     WebApplicationContext wac = (WebApplicationContext) applicationContext;
-    if (wac.getServletContext() != null) {
+    if ( Objects.requireNonNull(wac.getServletContext()).getAttribute("javax.servlet.context.tempdir") == null) {
       contextTempDir = (File) wac.getServletContext().getAttribute("javax.servlet.context.tempdir");
     }
     else {
