@@ -10,17 +10,11 @@
  */
 package psiprobe.tools.logging.jdk;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
+import psiprobe.tools.logging.DefaultAccessor;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-
-import org.apache.commons.lang3.reflect.MethodUtils;
-
-import psiprobe.tools.logging.DefaultAccessor;
-import psiprobe.tools.logging.LogDestination;
 
 /**
  * The Class Jdk14ManagerAccessor.
@@ -76,31 +70,9 @@ public class Jdk14ManagerAccessor extends DefaultAccessor {
       accessor.setApplication(getApplication());
       return accessor;
     } catch (Exception e) {
-      logger.error("{}#getLogger('{}') failed", getTarget().getClass().getName(), name, e);
+      logger.error("Error occurred while getting logger");
     }
     return null;
-  }
-
-  /**
-   * Gets the handlers.
-   *
-   * @return the handlers
-   */
-  @SuppressWarnings("unchecked")
-  public List<LogDestination> getHandlers() {
-    List<LogDestination> allHandlers = new ArrayList<>();
-    try {
-      for (String name : Collections
-          .list((Enumeration<String>) MethodUtils.invokeMethod(getTarget(), "getLoggerNames"))) {
-        Jdk14LoggerAccessor accessor = getLogger(name);
-        if (accessor != null) {
-          allHandlers.addAll(accessor.getHandlers());
-        }
-      }
-    } catch (Exception e) {
-      logger.error("{}#getLoggerNames() failed", getTarget().getClass().getName(), e);
-    }
-    return allHandlers;
   }
 
 }
