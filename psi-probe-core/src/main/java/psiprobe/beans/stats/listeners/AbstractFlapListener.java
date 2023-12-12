@@ -45,6 +45,18 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(true);
+    if ( flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      flappingStopped(sce);
+    }
+  }
+
+  private void flappingStopped(StatsCollectionEvent sce) {
+    flaps.put(sce.getName(), new LinkedList<>());
+    flappingStates.put(sce.getName(), false);
+    flaps.get(sce.getName()).add(false);
+    if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      flappingStarted(sce);
+    }
   }
 
   /**
@@ -56,6 +68,9 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), false);
     flaps.get(sce.getName()).add(false);
+    if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      belowThresholdFlappingStopped(sce);
+    }
   }
 
   /**
@@ -67,6 +82,9 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(false);
+    if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      aboveThresholdFlappingStopped(sce);
+    }
   }
 
   /**
@@ -78,6 +96,9 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(true);
+    if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      belowThresholdNotFlapping(sce);
+    }
   }
 
   /**
@@ -89,6 +110,9 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(false);
+    if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
+      aboveThresholdNotFlapping(sce);
+    }
 
   }
 
