@@ -32,7 +32,8 @@ class ProbeConfigTest {
 
   @Test
   void checkListenerTest() {
-    Assertions.assertNotNull(datasourceMappers);
+
+    Assertions.assertEquals(1, datasourceMappers.size());
   }
 
 }
