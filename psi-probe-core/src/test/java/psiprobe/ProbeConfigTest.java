@@ -21,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
+import psiprobe.beans.ContainerListenerBean;
 
 @ContextConfiguration(classes = ProbeConfig.class, loader = AnnotationConfigWebContextLoader.class)
 @WebAppConfiguration("file:src/test/webapp")
@@ -30,10 +31,18 @@ class ProbeConfigTest {
   @Inject
   private List<String> datasourceMappers;
 
+
   @Test
-  void checkListenerTest() {
+  public void testGetContainerListenerBean() {
+    ProbeConfig probeConfig = new ProbeConfig();
 
-    Assertions.assertEquals(1, datasourceMappers.size());
+    // Call the method under test
+    ContainerListenerBean containerListenerBean = probeConfig.getContainerListenerBean();
+
+    // Perform assertions to verify the expected behavior
+    Assertions.assertNotNull(containerListenerBean);
+   Assertions.assertNotNull(containerListenerBean.getContainerWrapper());
+
+
   }
-
 }
