@@ -53,22 +53,17 @@ class FlapListenerTests {
    */
   private void fill(StatsCollectionEvent sce) {
     listener.reset();
-    add(sce, defaultInterval, null);
+    add(sce);
   }
 
   /**
    * Adds the.
    *
-   * @param sce      the sce
-   * @param quantity the quantity
+   * @param sce the sce
    */
-  private void add(StatsCollectionEvent sce, int quantity,NullPointerException e) {
-    for (int i = 0; i < quantity; i++) {
+  private void add(StatsCollectionEvent sce) {
+    for (int i = 0; i < 10; i++) {
       listener.statsCollected(sce);
-      if(e!=null){
-        throw e;
-      }
-
     }
   }
 
@@ -129,7 +124,7 @@ class FlapListenerTests {
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
+    Assertions.assertTrue(listener.flappingStarted(aboveThreshold));
   }
 
   /**
@@ -141,7 +136,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
+    Assertions.assertTrue(listener.flappingStarted(belowThreshold));
   }
 
   /**
@@ -153,9 +148,8 @@ class FlapListenerTests {
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
-    add(belowThreshold, 5, new NullPointerException());
-    Assertions.assertTrue(listener.isBelowThresholdFlappingStopped());
+    Assertions.assertTrue(listener.flappingStarted(belowThreshold));
+    Assertions.assertTrue(listener.belowThresholdFlappingStopped( belowThreshold));
   }
 
   /**
@@ -167,9 +161,8 @@ class FlapListenerTests {
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
-    add(aboveThreshold, 5, new NullPointerException());
-    Assertions.assertTrue(listener.isAboveThresholdFlappingStopped());
+    Assertions.assertTrue(listener.flappingStarted(belowThreshold));
+    Assertions.assertTrue(listener.aboveThresholdFlappingStopped( belowThreshold));
   }
 
   /**
@@ -181,9 +174,8 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
-    add(belowThreshold, 5, new NullPointerException());
-    Assertions.assertTrue(listener.isBelowThresholdFlappingStopped());
+    Assertions.assertTrue(listener.flappingStarted(aboveThreshold));
+    Assertions.assertTrue(listener.aboveThresholdFlappingStopped(aboveThreshold));
   }
 
   /**
@@ -195,9 +187,8 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
-    Assertions.assertTrue(listener.isFlappingStarted());
-    add(aboveThreshold, 5, new NullPointerException());
-    Assertions.assertTrue(listener.isAboveThresholdFlappingStopped());
+    Assertions.assertTrue(listener.flappingStarted(aboveThreshold));
+    Assertions.assertTrue(listener.aboveThresholdFlappingStopped( aboveThreshold));
   }
 
   /**
@@ -210,15 +201,6 @@ class FlapListenerTests {
 
     /** The threshold. */
     private final long threshold;
-
-    /** The flapping started. */
-    private boolean flappingStarted;
-
-    /** The above threshold flapping stopped. */
-    private boolean aboveThresholdFlappingStopped;
-
-    /** The below threshold flapping stopped. */
-    private boolean belowThresholdFlappingStopped;
 
     /** The above threshold not flapping. */
     private boolean aboveThresholdNotFlapping;
@@ -254,18 +236,18 @@ class FlapListenerTests {
     }
 
     @Override
-    protected void flappingStarted(StatsCollectionEvent sce) {
-      flappingStarted = true;
+    protected boolean flappingStarted(StatsCollectionEvent sce) {
+      return super.flappingStarted(sce);
     }
 
     @Override
-    protected void aboveThresholdFlappingStopped(StatsCollectionEvent sce) {
-      aboveThresholdFlappingStopped = true;
+    protected boolean aboveThresholdFlappingStopped(StatsCollectionEvent sce) {
+      return super.aboveThresholdFlappingStopped(sce);
     }
 
     @Override
     protected void belowThresholdFlappingStopped(StatsCollectionEvent sce) {
-      belowThresholdFlappingStopped = true;
+        super.belowThresholdFlappingStopped(sce);
     }
 
     @Override
@@ -276,6 +258,7 @@ class FlapListenerTests {
     @Override
     protected void belowThresholdNotFlapping(StatsCollectionEvent sce) {
       belowThresholdNotFlapping = true;
+        super.belowThresholdNotFlapping(sce);
     }
 
     @Override
@@ -293,20 +276,8 @@ class FlapListenerTests {
      * Reset flags.
      */
     public void resetFlags() {
-      flappingStarted = false;
-      aboveThresholdFlappingStopped = false;
-      belowThresholdFlappingStopped = false;
       aboveThresholdNotFlapping = false;
       belowThresholdNotFlapping = false;
-    }
-
-    /**
-     * Checks if is above threshold flapping stopped.
-     *
-     * @return true, if is above threshold flapping stopped
-     */
-    public boolean isAboveThresholdFlappingStopped() {
-      return aboveThresholdFlappingStopped;
     }
 
     /**
@@ -319,30 +290,12 @@ class FlapListenerTests {
     }
 
     /**
-     * Checks if is below threshold flapping stopped.
-     *
-     * @return true, if is below threshold flapping stopped
-     */
-    public boolean isBelowThresholdFlappingStopped() {
-      return belowThresholdFlappingStopped;
-    }
-
-    /**
      * Checks if is below threshold not flapping.
      *
      * @return true, if is below threshold not flapping
      */
     public boolean isBelowThresholdNotFlapping() {
       return belowThresholdNotFlapping;
-    }
-
-    /**
-     * Checks if it is flapping started.
-     *
-     * @return true, if it is flapping started
-     */
-    public boolean isFlappingStarted() {
-      return flappingStarted;
     }
 
   }

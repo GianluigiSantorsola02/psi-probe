@@ -41,13 +41,14 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    *
    * @param sce the sce
    */
-  protected void flappingStarted(StatsCollectionEvent sce ) {
+  protected boolean flappingStarted(StatsCollectionEvent sce ) {
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(true);
     if ( flaps.get(sce.getName()).size() >= defaultFlapInterval) {
       flappingStopped(sce);
     }
+    return true;
   }
 
   private void flappingStopped(StatsCollectionEvent sce) {
@@ -64,13 +65,14 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    *
    * @param sce the sce
    */
-  protected void aboveThresholdFlappingStopped(StatsCollectionEvent sce ){
+  protected boolean aboveThresholdFlappingStopped(StatsCollectionEvent sce ){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), false);
     flaps.get(sce.getName()).add(false);
     if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
       belowThresholdFlappingStopped(sce);
     }
+    return true;
   }
 
   /**
@@ -81,7 +83,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   protected void belowThresholdFlappingStopped(StatsCollectionEvent sce ){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
-    flaps.get(sce.getName()).add(false);
+    flaps.get(sce.getName()).add(true);
     if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
       aboveThresholdFlappingStopped(sce);
     }
@@ -113,7 +115,6 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
       aboveThresholdNotFlapping(sce);
     }
-
   }
 
   @Override

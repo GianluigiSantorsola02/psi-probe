@@ -10,7 +10,6 @@
  */
 package psiprobe.beans.stats.listeners;
 
-import javax.inject.Inject;
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -38,12 +37,12 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
   private MessageSourceAccessor messageSourceAccessor;
 
   /** The mailer. */
-  private Mailer mailer;
+  private final Mailer mailer;
 
-  @Inject
-  public void mailer(Mailer mailer) {
+  public MemoryPoolMailingListener(Mailer mailer) {
     this.mailer = mailer;
   }
+
   /**
    * Gets the message source accessor.
    *
@@ -67,15 +66,6 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
     return mailer;
   }
 
-  /**
-   * Sets the mailer.
-   *
-   * @param mailer the new mailer
-   */
-  public void setMailer(Mailer mailer) {
-    this.mailer = mailer;
-  }
-
   @Override
   public void afterPropertiesSet() throws Exception {
     if (getMailer().getSmtp() == null) {
@@ -88,13 +78,15 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
   }
 
   @Override
-  protected void flappingStarted(StatsCollectionEvent sce) {
+  protected boolean flappingStarted(StatsCollectionEvent sce) {
     sendMail(sce, "flappingStart", false);
+      return false;
   }
 
   @Override
-  protected void aboveThresholdFlappingStopped(StatsCollectionEvent sce) {
+  protected boolean aboveThresholdFlappingStopped(StatsCollectionEvent sce) {
     sendMail(sce, "aboveThreshold", true);
+    return false;
   }
 
   @Override

@@ -32,6 +32,7 @@ import psiprobe.beans.stats.providers.ConnectorSeriesProvider;
 import psiprobe.beans.stats.providers.MultipleSeriesProvider;
 import psiprobe.beans.stats.providers.StandardSeriesProvider;
 import psiprobe.model.stats.StatsCollection;
+import psiprobe.tools.Mailer;
 
 /**
  * The Class ProbeConfigStats.
@@ -130,7 +131,8 @@ public class ProbeConfigStats {
   public List<StatsCollectionListener> getMemoryPoolMailingListener() {
     logger.debug("Instantiated listeners");
     List<StatsCollectionListener> list = new ArrayList<>();
-    list.add(new MemoryPoolMailingListener());
+    Mailer mailer = new Mailer();
+    list.add(new MemoryPoolMailingListener(mailer));
     return list;
   }
 
