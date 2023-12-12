@@ -54,8 +54,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    */
   protected void aboveThresholdFlappingStopped(StatsCollectionEvent sce ){
     flaps.put(sce.getName(), new LinkedList<>());
-    flappingStates.put(sce.getName(), true);
-
+    flappingStates.put(sce.getName(), false);
+    flaps.get(sce.getName()).add(false);
   }
 
   /**
@@ -66,7 +66,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   protected void belowThresholdFlappingStopped(StatsCollectionEvent sce ){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
-
+    flaps.get(sce.getName()).add(false);
   }
 
   /**
@@ -77,7 +77,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   protected void aboveThresholdNotFlapping(StatsCollectionEvent sce){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
-
+    flaps.get(sce.getName()).add(true);
   }
 
   /**
@@ -88,6 +88,8 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
   protected void belowThresholdNotFlapping(StatsCollectionEvent sce){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
+    flaps.get(sce.getName()).add(false);
+
   }
 
   @Override
