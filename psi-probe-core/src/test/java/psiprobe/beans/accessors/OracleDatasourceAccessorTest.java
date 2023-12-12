@@ -60,7 +60,8 @@ class OracleDatasourceAccessorTest {
    * @throws Exception the exception
    */
     @Test
-    public void getInfoTest() throws SQLException {
+    protected void getInfoTest() throws SQLException {
+      Assertions.assertFalse(Objects.nonNull(accessor.getInfo()));
 
 
 
@@ -86,7 +87,8 @@ class OracleDatasourceAccessorTest {
       return true;
     }
 
-    public void getInfo() {
+    public Object getInfo() {
+      return null;
     }
   }
 }

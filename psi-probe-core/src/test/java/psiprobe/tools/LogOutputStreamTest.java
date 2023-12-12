@@ -34,11 +34,10 @@ class LogOutputStreamTest {
   /**
    * Logger test.
    *
-   * @throws IOException Signals that an I/O exception has occurred.
    */
   @Test
-  void loggerTest() throws IOException {
-    Assertions.assertNotNull(stream);
+  void loggerTest() {
+    Assertions.assertNull(stream);
     stream = LogOutputStream.createPrintStream(log, 5);
     stream.write('\u0001');
   }
