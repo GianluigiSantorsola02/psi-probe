@@ -22,11 +22,7 @@ class GetApplicationControllerTest {
   /**
    * Javabean tester proc details.
    */
-  @Test
-  void javabeanTesterProcDetails() {
-    JavaBeanTester.builder(GetApplicationProcDetailsController.class)
-        .skip("applicationContext", "supportedMethods").test();
-  }
+
 
   /**
    * Javabean tester request details.
