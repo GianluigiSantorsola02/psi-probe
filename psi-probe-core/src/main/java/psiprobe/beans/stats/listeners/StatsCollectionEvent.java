@@ -25,13 +25,6 @@ public class StatsCollectionEvent {
 
   /**
    * Instantiates a new stats collection event.
-   */
-  public StatsCollectionEvent() {
-    // Required due to override
-  }
-
-  /**
-   * Instantiates a new stats collection event.
    *
    * @param name the name
    * @param data the data
@@ -49,7 +42,8 @@ public class StatsCollectionEvent {
    * @param data the data
    */
   public StatsCollectionEvent(String name, long time, long data) {
-    this(name, new XYDataItem(time, data));
+    this.name = name;
+    this.data = new XYDataItem(time, data);
   }
 
   /**

@@ -41,7 +41,10 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    *
    * @param sce the sce
    */
-  protected abstract void flappingStarted(StatsCollectionEvent sce);
+  protected void flappingStarted(StatsCollectionEvent sce ) {
+    flaps.put(sce.getName(), new LinkedList<>());
+    flappingStates.put(sce.getName(), true);
+  } ;
 
   /**
    * Above threshold flapping stopped.
@@ -111,7 +114,7 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
     boolean flappingState = getFlappingState(name);
     if (flappingStateChanged) {
       if (flappingState) {
-        flappingStarted(sce);
+        flappingStarted(sce) ;
       } else if (above) {
         aboveThresholdFlappingStopped(sce);
       } else {

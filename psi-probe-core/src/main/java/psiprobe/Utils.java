@@ -419,7 +419,7 @@ public final class Utils {
         }
       }
     }
-    return null;
+    return name == null ? null : Thread.currentThread();
   }
 
   /**
