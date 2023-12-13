@@ -39,7 +39,7 @@ public class DataSourceTestController extends ParameterizableViewController {
   /** The history size. */
   private int historySize;
 
-  /** The replace pattern. */
+  /** The replacement pattern. */
   private String replacePattern;
 
   /** The collection period. */
@@ -168,9 +168,9 @@ public class DataSourceTestController extends ParameterizableViewController {
   }
 
   /**
-   * Sets the replace pattern.
+   * Sets the replacement pattern.
    *
-   * @param replacePattern the new replace pattern
+   * @param replacePattern the new replacement pattern
    */
   @Value("^http(s)?://[a-zA-Z\\-\\.0-9]+(:[0-9]+)?")
   public void setReplacePattern(String replacePattern) {

@@ -10,17 +10,16 @@
  */
 package psiprobe.controllers.threads;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-
 import psiprobe.Utils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class ImplSelectorController.
@@ -35,15 +34,6 @@ public class ImplSelectorController extends AbstractController {
   private String impl2Controller;
 
   /**
-   * Gets the impl1 controller.
-   *
-   * @return the impl1 controller
-   */
-  public String getImpl1Controller() {
-    return impl1Controller;
-  }
-
-  /**
    * Sets the impl1 controller.
    *
    * @param impl1Controller the new impl1 controller
@@ -51,15 +41,6 @@ public class ImplSelectorController extends AbstractController {
   @Value("forward:/th_impl1.htm")
   public void setImpl1Controller(String impl1Controller) {
     this.impl1Controller = impl1Controller;
-  }
-
-  /**
-   * Gets the impl2 controller.
-   *
-   * @return the impl2 controller
-   */
-  public String getImpl2Controller() {
-    return impl2Controller;
   }
 
   /**
@@ -72,7 +53,7 @@ public class ImplSelectorController extends AbstractController {
     this.impl2Controller = impl2Controller;
   }
 
-  @RequestMapping(path = "/threads.htm")
+  @GetMapping(path = "/threads.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
