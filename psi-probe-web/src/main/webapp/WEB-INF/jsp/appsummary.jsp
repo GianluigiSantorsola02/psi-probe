@@ -95,7 +95,7 @@
                     <h3><spring:message code="probe.jsp.app.summary.h3.static"/></h3>
                     <div id="appInfo">
                         <spring:message code="probe.jsp.app.summary.application"/>&#160;
-                        <span class="value"><a href="${app.name}${app.name ne '/' ? '/' : ''}" target="_blank">${app.name}</a></span>
+                        <span class="value"><a href="${app.name}${app.name ne '/' ? '/' : ''}" target="_blank" rel="noopener">>${app.name}</a></span>
                         <spring:message code="probe.jsp.app.summary.docBase"/>&#160;<span class="value">${app.docBase}</span>
                         <spring:message code="probe.jsp.app.summary.description"/>&#160;<span class="value">${app.displayName}</span>
                         <spring:message code="probe.jsp.app.summary.servletVersion"/>&#160;<span class="value">${app.servletVersion}</span>
