@@ -10,15 +10,14 @@
  */
 package psiprobe.controllers.system;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import java.util.List;
 
 /**
  * Creates an instance of SysPropsController.
@@ -32,7 +31,7 @@ public class SysPropsController extends BaseSysInfoController {
     super.setFilterOutKeys(filterOutKeys);
   }
 
-  @RequestMapping(path = "/sysprops.htm")
+  @GetMapping(path = "/sysprops.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
