@@ -82,8 +82,11 @@ let Effect = {
       return (-Math.cos(pos*Math.PI)/2) + .5;
     },
     flicker: function() {
-      let pos = ((-Math.cos(Math.PI * pos)/4) + .75) + Math.random()/4;
-      return pos > 1 ? 1 : pos;
+      let array = new Uint32Array(1);
+      window.crypto.getRandomValues(array);
+      let secureRandom = array[0] / 0xFFFFFFFF;
+      let pos = Math.sin(secureRandom * 2 * Math.PI);
+      return secureRandom > 1 ? 1 : pos;
     },
     spring: function(pos) {
       return 1 - (Math.cos(pos * 4.5 * Math.PI) * Math.exp(-pos * 6));
@@ -717,7 +720,7 @@ Effect.SlideUp = function(element) {
   );
 };
 
-// Bug in opera makes the TD containing this element expand for a instance after finish
+// Bug in opera makes the TD containing this element expand for an instance after finish
 Effect.Squish = function(element) {
   return new Effect.Scale(element, window.opera ? 1 : 0, {
     restoreAfterFinish: true,

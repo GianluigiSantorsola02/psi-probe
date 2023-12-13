@@ -536,8 +536,6 @@ const Draggable = Class.create({
 Draggable._dragging = { };
 
 const Sortable = {
-  SERIALIZE_RULE: /^[^_](\w*)(.*)$/.test( '<li id="foo">') ? 'li' : 'div',
-
   sortables: { },
 
   _findRootElement: function(element) {
