@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 import psiprobe.controllers.AbstractTomcatContainerController;
@@ -43,7 +43,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
   /** The Constant logger. */
   private static final Logger log4 = LoggerFactory.getLogger(UploadWarController.class);
 
-  @RequestMapping(path = "/adm/war.htm")
+  @GetMapping(path = "/adm/war.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
