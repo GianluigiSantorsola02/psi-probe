@@ -3894,10 +3894,14 @@ let
 		"TAG": new RegExp( "^(" + characterEncoding.replace( "w", "w*" ) + ")" ),
 		"ATTR": new RegExp( "^" + attributes ),
 		"PSEUDO": new RegExp( "^" + pseudos ),
-		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
-            "*(even|odd|(([+-]|)(\\d+)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
-            "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
-		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
+      "CHILD_REGEX": new RegExp(
+          "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
+          "\\s*(even|odd|([+-]?)(\\d*)n" +
+          "(?:\\s*([+-])\\s*(\\d+)|))\\s*\\)|)",
+          "i"
+      ),
+
+      "bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
       "needsContext": new RegExp(
           "^(?:" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
           whitespace + "*((?:-?\\d)+)" + whitespace + "*\\)|)(?=[^-]|$))", "i"
