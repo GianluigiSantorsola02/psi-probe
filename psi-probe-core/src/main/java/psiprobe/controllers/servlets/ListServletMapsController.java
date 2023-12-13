@@ -10,21 +10,19 @@
  */
 package psiprobe.controllers.servlets;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.ServletMapping;
 import psiprobe.tools.ApplicationUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Retrieves a list of servlet mappings for a particular web application or all web applications if
@@ -33,7 +31,7 @@ import psiprobe.tools.ApplicationUtils;
 @Controller
 public class ListServletMapsController extends AbstractContextHandlerController {
 
-  @RequestMapping(path = "/servletmaps.htm")
+  @GetMapping(path = "/servletmaps.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
