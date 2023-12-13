@@ -79,14 +79,16 @@ public abstract class AbstractFlapListener extends AbstractThresholdListener {
    * Below threshold flapping stopped.
    *
    * @param sce the sce
+   * @return
    */
-  protected void belowThresholdFlappingStopped(StatsCollectionEvent sce ){
+  protected boolean belowThresholdFlappingStopped(StatsCollectionEvent sce ){
     flaps.put(sce.getName(), new LinkedList<>());
     flappingStates.put(sce.getName(), true);
     flaps.get(sce.getName()).add(true);
     if (flaps.get(sce.getName()).size() >= defaultFlapInterval) {
       aboveThresholdFlappingStopped(sce);
     }
+    return false;
   }
 
   /**
