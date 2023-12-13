@@ -10,18 +10,16 @@
  */
 package psiprobe.controllers.datasources;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.controllers.AbstractTomcatContainerController;
+import psiprobe.model.ApplicationResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.controllers.AbstractTomcatContainerController;
-import psiprobe.model.ApplicationResource;
+import java.util.List;
 
 /**
  * Creates a list of all configured datasources for all web applications within the container.
@@ -29,7 +27,7 @@ import psiprobe.model.ApplicationResource;
 @Controller
 public class ListAllJdbcResourcesController extends AbstractTomcatContainerController {
 
-  @RequestMapping(path = "/datasources.htm")
+  @GetMapping(path = "/datasources.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
