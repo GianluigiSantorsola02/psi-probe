@@ -34,7 +34,7 @@ let Scriptaculous = {
       return s.src.match(js);
     }).each(function(s) {
       let path = s.src.replace(js, ''),
-          includes = s.src.match( /\?([\w\W]+)$/ );
+          includes = <s className="src match"></s>.exec(s.src);
       (includes ? includes[1] : 'builder,effects,dragdrop,controls,slider,sound').split(',').each(
        function(include) { Scriptaculous.require(path+include+'.js') });
     });
