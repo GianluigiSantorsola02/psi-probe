@@ -10,9 +10,6 @@
  */
 package psiprobe.controllers.apps;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.slf4j.Logger;
@@ -22,11 +19,13 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.TomcatContainer;
 import psiprobe.controllers.AbstractContextHandlerController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Stops a web application.
@@ -37,7 +36,7 @@ public class AjaxToggleContextController extends AbstractContextHandlerControlle
   /** The Constant logger. */
   private static final Logger log17 = LoggerFactory.getLogger(AjaxToggleContextController.class);
 
-  @RequestMapping(path = "/app/toggle.ajax")
+  @GetMapping(path = "/app/toggle.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
