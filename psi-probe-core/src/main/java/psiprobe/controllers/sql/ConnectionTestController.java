@@ -10,16 +10,6 @@
  */
 package psiprobe.controllers.sql;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +17,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.HtmlUtils;
-
 import psiprobe.controllers.AbstractContextHandlerController;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Verifies if a database connection can be established through a given datasource. Displays basic
@@ -44,7 +42,7 @@ public class ConnectionTestController extends AbstractContextHandlerController {
   /** The Constant logger. */
   private static final Logger log6 = LoggerFactory.getLogger(ConnectionTestController.class);
 
-  @RequestMapping(path = "/sql/connection.ajax")
+  @GetMapping(path = "/sql/connection.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
