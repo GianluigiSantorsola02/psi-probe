@@ -13,7 +13,7 @@ package psiprobe.controllers.logs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.BackwardsFileStream;
@@ -39,7 +39,7 @@ public class FollowController extends AbstractLogHandlerController {
     super(logResolver);
   }
 
-  @RequestMapping(path = "/follow.ajax")
+  @GetMapping(path = "/follow.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
