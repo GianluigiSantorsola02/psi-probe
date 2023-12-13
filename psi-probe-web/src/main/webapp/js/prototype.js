@@ -2667,10 +2667,14 @@ function getStyle_IE(element, style) {
     if (typeof window.Element === 'undefined') return false;
     if (!HAS_EXTENDED_CREATE_ELEMENT_SYNTAX) return false;
     let proto = window.Element.prototype;
+    let el;
     if (proto) {
-      let id = '_' + (Math.random() + '').slice(2),
+      let array = new Uint32Array(1);
+      window.crypto.getRandomValues(array);
+      let id = '_' + array[0];
 
-       el = document.createElement(tagName);
+
+      el = document.createElement(tagName);
       proto[id] = 'x';
       let isBuggy = (el[id] !== 'x');
       delete proto[id];
@@ -5462,7 +5466,9 @@ function matcherFromGroupMatchers(elementMatchers, setMatchers) {
     let matchedCount = 0;
     let unmatched = seed && [];
     let elems = seed || (byElement && Expr.find["TAG"]("*", outermost));
-    let dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
+    let array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    let dirrunsUnique = (dirruns += contextBackup == null ? 1 : array[0] || 0.1);
     let len = elems.length;
 
     if (outermost) {
