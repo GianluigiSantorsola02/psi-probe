@@ -36,7 +36,7 @@ function handleToken(token, currentContext) {
 
     // Code to deal with attribute selectors
     if (token.match(/^(\w*)\[(\w+)([=~|^$*]?)=?"?([^\]"]*)"?]$/)) {
-        const matchResult = token.match(/^(\w+)\[(\w+)([=~|^$*]?)="?([^"\]]*)"?$/);
+        const matchResult = token.match(/^(\w*)\[(\w+)([=~|^$*]?)="?([^"\]]*)"?$/);
         if (matchResult ?. matchResult[1]) {
             tagName = matchResult[1];
             const attrName = matchResult[2];
