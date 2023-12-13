@@ -10,19 +10,18 @@
  */
 package psiprobe.controllers.connectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.beans.stats.collectors.ConnectorStatsCollectorBean;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class ResetConnectorStatsController.
@@ -55,7 +54,7 @@ public class ResetConnectorStatsController extends ParameterizableViewController
     this.collectorBean = collectorBean;
   }
 
-  @RequestMapping(path = "/app/connectorReset.htm")
+  @GetMapping(path = "/app/connectorReset.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
