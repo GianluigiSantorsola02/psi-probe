@@ -10,15 +10,14 @@
  */
 package psiprobe.controllers.system;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.tools.TimeExpression;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class MemoryStatsController.
@@ -36,7 +35,7 @@ public class MemoryStatsController extends BaseMemoryStatsController {
     super.setCollectionPeriod(TimeExpression.inSeconds(collectionPeriod));
   }
 
-  @RequestMapping(path = "/memory.htm")
+  @GetMapping(path = "/memory.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
