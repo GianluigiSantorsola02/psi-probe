@@ -10,20 +10,18 @@
  */
 package psiprobe.controllers.jsp;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.Utils;
 import psiprobe.controllers.AbstractContextHandlerController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * The Class DownloadServletController.
@@ -31,7 +29,7 @@ import psiprobe.controllers.AbstractContextHandlerController;
 @Controller
 public class DownloadServletController extends AbstractContextHandlerController {
 
-  @RequestMapping(path = "/app/downloadserv.htm")
+  @GetMapping(path = "/app/downloadserv.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
