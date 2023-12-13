@@ -246,8 +246,9 @@ class FlapListenerTests {
     }
 
     @Override
-    protected void belowThresholdFlappingStopped(StatsCollectionEvent sce) {
+    protected boolean belowThresholdFlappingStopped(StatsCollectionEvent sce) {
         super.belowThresholdFlappingStopped(sce);
+      return false;
     }
 
     @Override

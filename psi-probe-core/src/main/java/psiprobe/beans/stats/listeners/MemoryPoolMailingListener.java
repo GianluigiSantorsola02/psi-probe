@@ -90,8 +90,9 @@ public class MemoryPoolMailingListener extends AbstractFlapListener
   }
 
   @Override
-  protected void belowThresholdFlappingStopped(StatsCollectionEvent sce) {
+  protected boolean belowThresholdFlappingStopped(StatsCollectionEvent sce) {
     sendMail(sce, "belowThreshold", true);
+    return false;
   }
 
   @Override
