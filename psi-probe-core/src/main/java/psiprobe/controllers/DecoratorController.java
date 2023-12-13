@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,7 +52,7 @@ public class DecoratorController extends PostParameterizableViewController {
     this.messagesBasename = messagesBasename;
   }
 
-  @RequestMapping(path = "/decorator.htm")
+  @GetMapping(path = "/decorator.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
