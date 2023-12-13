@@ -10,24 +10,22 @@
  */
 package psiprobe.controllers.logs;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.Utils;
 import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * The Class DownloadLogController.
@@ -43,7 +41,7 @@ public class DownloadLogController extends AbstractLogHandlerController {
     super(logResolver);
   }
 
-  @RequestMapping(path = "/download")
+  @GetMapping(path = "/download")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {

@@ -75,7 +75,7 @@ class FlapListenerTests {
     listener.reset();
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
-    Assertions.assertTrue(listener.belowThresholdNotFlapping( belowThreshold));
+    Assertions.assertTrue(listener.isBelowThresholdNotFlapping());
   }
 
   /**
@@ -149,7 +149,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     Assertions.assertTrue(listener.flappingStarted(belowThreshold));
-    Assertions.assertTrue(listener.aboveThresholdFlappingStopped( belowThreshold));
+    Assertions.assertTrue(listener.belowThresholdFlappingStopped( belowThreshold));
   }
 
   /**
@@ -162,7 +162,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     Assertions.assertTrue(listener.flappingStarted(belowThreshold));
-    Assertions.assertTrue(listener.aboveThresholdFlappingStopped(aboveThreshold));
+    Assertions.assertTrue(listener.aboveThresholdFlappingStopped( belowThreshold));
   }
 
   /**
@@ -256,10 +256,9 @@ class FlapListenerTests {
     }
 
     @Override
-    protected boolean belowThresholdNotFlapping(StatsCollectionEvent sce) {
+    protected void belowThresholdNotFlapping(StatsCollectionEvent sce) {
       belowThresholdNotFlapping = true;
         super.belowThresholdNotFlapping(sce);
-      return true;
     }
 
     @Override
