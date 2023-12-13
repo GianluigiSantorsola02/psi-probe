@@ -10,26 +10,24 @@
  */
 package psiprobe.controllers.jsp;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.jsp.Summary;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The Class RecompileJspController.
@@ -40,7 +38,7 @@ public class RecompileJspController extends AbstractContextHandlerController {
   /** The Constant logger. */
   private static final Logger mylogger = LoggerFactory.getLogger(RecompileJspController.class);
 
-  @RequestMapping(path = "/app/recompile.htm")
+  @GetMapping(path = "/app/recompile.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
