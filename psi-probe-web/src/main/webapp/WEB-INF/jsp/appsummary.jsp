@@ -49,7 +49,7 @@
                 </c:set>
                 <ul class="options">
                     <li id="appSurfTo">
-                        <a href="${app.name}${app.name ne '/' ? '/' : ''}" target="_blank">
+                        <a href="${app.name}${app.name ne '/' ? '/' : ''}" target="_blank" rel="noopener">>
                             <spring:message code="probe.jsp.app.summary.menu.goTo"/>
                         </a>
                     </li>
