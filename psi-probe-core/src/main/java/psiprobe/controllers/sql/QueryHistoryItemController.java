@@ -10,22 +10,20 @@
  */
 package psiprobe.controllers.sql;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-
 import psiprobe.model.sql.DataSourceTestInfo;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Retrieves a single query from a history list.
@@ -36,7 +34,7 @@ public class QueryHistoryItemController extends AbstractController {
   /** The Constant logger. */
   private static final Logger log7 = LoggerFactory.getLogger(QueryHistoryItemController.class);
 
-  @RequestMapping(path = "/sql/queryHistoryItem.ajax")
+  @GetMapping(path = "/sql/queryHistoryItem.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
