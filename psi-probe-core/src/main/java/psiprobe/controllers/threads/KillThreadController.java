@@ -10,18 +10,17 @@
  */
 package psiprobe.controllers.threads;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.Utils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class KillThreadController.
@@ -29,29 +28,20 @@ import psiprobe.Utils;
 @Controller
 public class KillThreadController extends ParameterizableViewController {
 
-  /** The replace pattern. */
+  /** The replacement pattern. */
   private String replacePattern;
 
   /**
-   * Gets the replace pattern.
+   * Sets the replacement pattern.
    *
-   * @return the replace pattern
-   */
-  public String getReplacePattern() {
-    return replacePattern;
-  }
-
-  /**
-   * Sets the replace pattern.
-   *
-   * @param replacePattern the new replace pattern
+   * @param replacePattern the new replacement pattern
    */
   @Value("^http(s)?://[a-zA-Z\\-\\.0-9]+(:[0-9]+)?")
   public void setReplacePattern(String replacePattern) {
     this.replacePattern = replacePattern;
   }
 
-  @RequestMapping(path = "/adm/kill.htm")
+  @GetMapping(path = "/adm/kill.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
