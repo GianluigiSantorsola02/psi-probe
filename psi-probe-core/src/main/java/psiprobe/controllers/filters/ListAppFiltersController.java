@@ -10,20 +10,18 @@
  */
 package psiprobe.controllers.filters;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.FilterInfo;
 import psiprobe.tools.ApplicationUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Retrieves a list of filter mappings or filter definitions of a web application.
@@ -31,7 +29,7 @@ import psiprobe.tools.ApplicationUtils;
 @Controller
 public class ListAppFiltersController extends AbstractContextHandlerController {
 
-  @RequestMapping(path = "/appfilters.htm")
+  @GetMapping(path = "/appfilters.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
