@@ -1,6 +1,7 @@
 
 let Scriptaculous = {
-  Version: '1.9.0',
+  Version: '1.9.0', REQUIRED_PROTOTYPE: "",
+
   require: function(libraryName) {
     try{
       // inserting via DOM fails in Safari 2.0, so brute force approach
@@ -13,7 +14,6 @@ let Scriptaculous = {
       document.getElementsByTagName('head')[0].appendChild(script);
     }
   },
-  REQUIRED_PROTOTYPE: '1.6.0.3',
   load: function() {
     function convertVersionString(versionString) {
       let v = versionString.replace(/_.*|\./g, '');
