@@ -34,56 +34,31 @@
  */
 package psiprobe.controllers.oshi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
+import oshi.hardware.*;
+import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.hardware.CentralProcessor.TickType;
+import oshi.software.os.*;
+import oshi.software.os.OperatingSystem.ProcessFiltering;
+import oshi.software.os.OperatingSystem.ProcessSorting;
+import oshi.util.FormatUtil;
+import oshi.util.Util;
+import psiprobe.controllers.AbstractTomcatContainerController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.CentralProcessor.PhysicalProcessor;
-import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.Display;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.GraphicsCard;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWPartition;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.LogicalVolumeGroup;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.PhysicalMemory;
-import oshi.hardware.PowerSource;
-import oshi.hardware.Sensors;
-import oshi.hardware.SoundCard;
-import oshi.hardware.UsbDevice;
-import oshi.hardware.VirtualMemory;
-import oshi.software.os.FileSystem;
-import oshi.software.os.InternetProtocolStats;
-import oshi.software.os.NetworkParams;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OSService;
-import oshi.software.os.OSSession;
-import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystem.ProcessFiltering;
-import oshi.software.os.OperatingSystem.ProcessSorting;
-import oshi.util.FormatUtil;
-import oshi.util.Util;
-
-import psiprobe.controllers.AbstractTomcatContainerController;
 
 /**
  * Creates an instance of Operating System and Hardware Information based on Oshi SystemInfoTest.
@@ -99,7 +74,7 @@ public class OshiController extends AbstractTomcatContainerController {
   /** Oshi Cache. */
   private static final List<String> oshi = new ArrayList<>();
 
-  @RequestMapping(path = "/adm/oshi.htm")
+  @GetMapping(path = "/adm/oshi.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -140,7 +115,7 @@ public class OshiController extends AbstractTomcatContainerController {
   /**
    * Process initialization using Oshi System Info Test.
    * <p>
-   * Code copied and adjusted for Psi Probem from Oshi SystemInfoTest.main at revision
+   * Code copied and adjusted for Psi Probem from Oshi SystemInfoTest. Main at revision
    *
    * <pre>
    * <a href="https://github.com/oshi/oshi/blob/cf45b1f528f99ca353655dea5f154940c76c0bdb/oshi-core/src/test/java/oshi/SystemInfoTest.java">...</a>
