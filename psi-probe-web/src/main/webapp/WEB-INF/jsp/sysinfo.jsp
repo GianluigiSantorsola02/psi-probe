@@ -50,7 +50,7 @@
 
         <div id="osInformation">
             <h3><spring:message code="probe.jsp.sysinfo.os.title"/></h3>
-            <span class="name"><spring:message code="probe.jsp.sysinfo.os.jvm"/></span>&#160;<a href="${systemInformation.systemProperties['java.vendor.url']}" target="_blank">
+            <span class="name"><spring:message code="probe.jsp.sysinfo.os.jvm"/></span>&#160;<a href="${systemInformation.systemProperties['java.vendor.url']}" target="_blank" rel="noopener">>
                 ${systemInformation.systemProperties['java.runtime.name'] }&#160;
                 ${systemInformation.systemProperties['java.runtime.version'] }&#160;
                 ${systemInformation.systemProperties['java.vm.name'] })
