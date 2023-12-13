@@ -10,13 +10,13 @@
  */
 package psiprobe.controllers.connectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class GetConnectorProcTimeController.
@@ -24,7 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class GetConnectorProcTimeController extends BaseGetConnectorController {
 
-  @RequestMapping(path = "/cnprocdetails.ajax")
+  @GetMapping(path = "/cnprocdetails.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
