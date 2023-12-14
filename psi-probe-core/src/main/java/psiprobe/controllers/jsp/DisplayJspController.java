@@ -24,6 +24,11 @@ import psiprobe.model.jsp.Summary;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * The Class DisplayJspController.
@@ -58,11 +63,20 @@ public class DisplayJspController extends AbstractContextHandlerController {
 
     if (compile) {
       return new ModelAndView(new RedirectView(
-          request.getRequestURI() + "?webapp=" + (contextName.length() == 0 ? "/" : contextName)));
+            constructRedirectUrl(request.getRequestURI(), contextName)));
     }
     return new ModelAndView(getViewName(), "summary", summary);
   }
 
+  private String constructRedirectUrl(String requestUri, String contextName) {
+    String encodedContextName;
+    try {
+      encodedContextName = URLEncoder.encode(contextName, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      encodedContextName = contextName;
+    }
+      return requestUri + "?webapp=" + (encodedContextName.isEmpty() ? "/" : encodedContextName);
+  }
   @Value("showjsps")
   @Override
   public void setViewName(String viewName) {
