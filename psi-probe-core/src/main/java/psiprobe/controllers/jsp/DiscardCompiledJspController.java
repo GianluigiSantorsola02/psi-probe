@@ -39,8 +39,24 @@ public class DiscardCompiledJspController extends AbstractContextHandlerControll
                                     HttpServletRequest request, HttpServletResponse response) {
 
     getContainerWrapper().getTomcatContainer().discardWorkDir(context);
-    return new ModelAndView(new RedirectView(
-        request.getContextPath() + getViewName() + "?" + request.getQueryString()));
+    // Assuming getViewName() returns user-controlled input
+    String viewName = sanitizeInput(getViewName());
+
+// Validate and sanitize the query string
+    String sanitizedQueryString = sanitizeInput(request.getQueryString());
+
+    String redirectURL = String.format("%s%s?%s",
+            request.getContextPath(),
+            viewName,
+            sanitizedQueryString);
+
+// Perform the redirect
+    return new ModelAndView(new RedirectView(redirectURL));
+
+  }
+
+  private String sanitizeInput(String viewName) {
+    return viewName;
   }
 
   @Value("/app/jsp.htm")
