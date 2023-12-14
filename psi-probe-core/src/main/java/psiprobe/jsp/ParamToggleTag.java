@@ -16,9 +16,12 @@ import java.net.URLEncoder;
 import java.util.Collections;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.springframework.web.bind.ServletRequestUtils;
+
+import static org.codelibs.jhighlight.tools.StringUtils.encodeHtml;
 
 /**
  * The Class ParamToggleTag.
@@ -50,7 +53,8 @@ public class ParamToggleTag extends TagSupport {
       }
     }
     try {
-      pageContext.getOut().print(query);
+      JspWriter out = pageContext.getOut();
+      out.print(encodeHtml(String.valueOf(query)));
     } catch (IOException e) {
       throw new JspException("Exception printing query string to JspWriter", e);
     }
