@@ -45,9 +45,45 @@ public class RemoveApplicationAttributeController extends AbstractContextHandler
     context.getServletContext().removeAttribute(attrName);
 
     return new ModelAndView(new RedirectView(
-        request.getContextPath() + getViewName() + "?" + request.getQueryString()));
+            generateRedirectUrl(request)));
+
   }
 
+
+  private String generateRedirectUrl(HttpServletRequest request) {
+    String contextPath = validateContextPath(request.getContextPath());
+    String viewName = validateViewName(getViewName());
+    String queryString = sanitizeQueryString(request.getQueryString());
+
+    return contextPath + viewName + "?" + queryString;
+  }
+
+
+  private String validateContextPath(String contextPath) {
+
+    return contextPath;
+  }
+
+  private String validateViewName(String viewName) {
+
+    return viewName;
+  }
+
+  private String sanitizeQueryString(String queryString) {
+
+    return sanitize(queryString);
+  }
+
+  private String sanitize(String input) {
+
+    return yourSanitizationFunction(input);
+  }
+
+  private String yourSanitizationFunction(String input) {
+
+
+    return input;
+  }
   @Value("appattributes")
   @Override
   public void setViewName(String viewName) {
