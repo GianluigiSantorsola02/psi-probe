@@ -69,7 +69,16 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
       List<FileItem> fileItems = upload.parseRequest(new ServletRequestContext(request));
       for (FileItem fi : fileItems) {
-        processFileItem(fi);
+        String fileName = fi.getName();
+        if (fileName != null) {
+          String cleanFileName = FilenameUtils.getName(fileName).replaceAll("[^A-Za-z0-9\\-]", "_");
+          File uploadedFile = new File("/path/to/upload/directory/" + cleanFileName);
+          if (uploadedFile.getCanonicalPath().startsWith("/path/to/upload/directory/")) {
+            fi.write(uploadedFile);
+          } else {
+            throw new Exception("Invalid file path");
+          }
+        }
       }
     } catch (Exception e) {
       handleFileUploadException(e, request, tmpWar);
