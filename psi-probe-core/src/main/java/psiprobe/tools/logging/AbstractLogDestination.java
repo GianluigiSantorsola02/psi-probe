@@ -9,6 +9,8 @@
  * PURPOSE.
  */
 package psiprobe.tools.logging;
+import psiprobe.controllers.deploy.DirectoryTraversalException;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.io.IOException;
@@ -56,18 +58,18 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
     String absolutePath;
 
     if (file.isAbsolute()) {
-      throw new RuntimeException("Potential directory traversal attempt - absolute path not allowed");
+      throw new DirectoryTraversalException("Potential directory traversal attempt - absolute path not allowed");
     }
 
     try {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      throw new RuntimeException("Potential directory traversal attempt", e);
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new RuntimeException("Potential directory traversal attempt");
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
   }
   @Override
