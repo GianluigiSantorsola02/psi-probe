@@ -12,8 +12,6 @@ package psiprobe.controllers.deploy;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,10 +47,7 @@ public class DeployContextController extends AbstractTomcatContainerController {
           MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
           if (getContainerWrapper().getTomcatContainer().installContext(contextName) && messageSourceAccessor != null) {
               request.setAttribute("successMessage", messageSourceAccessor.getMessage("probe.src.deploy.context.success", new Object[]{contextName}));
-          }          // Logging action
-          Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-          // get username logger
-          auth.getName();
+          }
           messageSourceAccessor = getMessageSourceAccessor();
           if (messageSourceAccessor != null) {
               String message = messageSourceAccessor.getMessage("probe.src.log.copyfile");
