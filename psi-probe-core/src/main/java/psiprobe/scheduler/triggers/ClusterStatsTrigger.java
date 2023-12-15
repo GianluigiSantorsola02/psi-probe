@@ -10,10 +10,8 @@
  */
 package psiprobe.scheduler.triggers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
-
 import psiprobe.tools.TimeExpression;
 
 /**
@@ -27,11 +25,22 @@ public class ClusterStatsTrigger extends CronTriggerFactoryBean {
    * @param periodExpression the period expression
    * @param phaseExpression the phase expression
    */
-  @Autowired
   public void setCronExpression(
-      @Value("${psiprobe.beans.stats.collectors.cluster.period}") String periodExpression,
-      @Value("${psiprobe.beans.stats.collectors.cluster.phase}") String phaseExpression) {
-    super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
+          @Value("${psiprobe.beans.stats.collectors.connector.period}") String periodExpression,
+          @Value("${psiprobe.beans.stats.collectors.connector.phase}") String phaseExpression) throws TimeExpression.NewCustomException {
+
+    String sanitizedPeriodExpression = validateAndSanitize(periodExpression);
+    String sanitizedPhaseExpression = validateAndSanitize(phaseExpression);
+
+    super.setCronExpression(TimeExpression.cronExpression(sanitizedPeriodExpression, sanitizedPhaseExpression));
+  }
+
+  private String validateAndSanitize(String input) throws TimeExpression.NewCustomException {
+    setCronExpression(input, input);
+    if (input == null) {
+      return  "0 * * * * ?";
+    }
+    return input;
   }
 
 }

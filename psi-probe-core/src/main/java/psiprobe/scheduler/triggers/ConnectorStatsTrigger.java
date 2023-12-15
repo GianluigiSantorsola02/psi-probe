@@ -27,14 +27,14 @@ public class ConnectorStatsTrigger extends CronTriggerFactoryBean {
    */
   public void setCronExpression(
           @Value("${psiprobe.beans.stats.collectors.connector.period}") String periodExpression,
-          @Value("${psiprobe.beans.stats.collectors.connector.phase}") String phaseExpression) {
+          @Value("${psiprobe.beans.stats.collectors.connector.phase}") String phaseExpression) throws TimeExpression.NewCustomException {
     String sanitizedPeriodExpression = validateAndSanitize(periodExpression);
     String sanitizedPhaseExpression = validateAndSanitize(phaseExpression);
 
     super.setCronExpression(TimeExpression.cronExpression(sanitizedPeriodExpression, sanitizedPhaseExpression));
   }
 
-  private String validateAndSanitize(String input) {
+  private String validateAndSanitize(String input) throws TimeExpression.NewCustomException {
     setCronExpression(input, input);
     if (input == null) {
       return  "0 * * * * ?";
