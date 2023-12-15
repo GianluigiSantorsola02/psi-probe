@@ -54,7 +54,7 @@ public class AllAppStatsController extends ParameterizableViewController {
    * @param collectionPeriod the new collection period using expression
    */
   @Value("${psiprobe.beans.stats.collectors.connector.period}")
-  public void setCollectionPeriod(String collectionPeriod) {
+  public void setCollectionPeriod(String collectionPeriod) throws TimeExpression.NewCustomException {
     this.collectionPeriod = TimeExpression.inSeconds(collectionPeriod);
   }
 

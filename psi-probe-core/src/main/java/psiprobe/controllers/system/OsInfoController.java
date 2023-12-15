@@ -44,7 +44,7 @@ public class OsInfoController extends BaseSysInfoController {
    * @param collectionPeriod the new collection period by expression
    */
   @Value("${psiprobe.beans.stats.collectors.runtime.period}")
-  public void setCollectionPeriod(String collectionPeriod) {
+  public void setCollectionPeriod(String collectionPeriod) throws TimeExpression.NewCustomException {
     super.setCollectionPeriod(TimeExpression.inSeconds(collectionPeriod));
   }
 

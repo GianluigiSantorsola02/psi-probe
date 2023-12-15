@@ -26,8 +26,7 @@ public final class TimeExpression {
    * Data points.
    *
    * @param period the period
-   * @param span the span
-   *
+   * @param span   the span
    * @return the long
    */
   public static long dataPoints(long period, long span) {
@@ -41,11 +40,10 @@ public final class TimeExpression {
    * Cron expression.
    *
    * @param periodExpression the period expression
-   * @param phaseExpression the phase expression
-   *
+   * @param phaseExpression  the phase expression
    * @return the string
    */
-  public static String cronExpression(String periodExpression, String phaseExpression) {
+  public static String cronExpression(String periodExpression, String phaseExpression) throws NewCustomException {
     return cronExpression(inSeconds(periodExpression), inSeconds(phaseExpression));
   }
 
@@ -53,8 +51,7 @@ public final class TimeExpression {
    * Cron expression.
    *
    * @param period the period
-   * @param phase the phase
-   *
+   * @param phase  the phase
    * @return the string
    */
   public static String cronExpression(long period, long phase) {
@@ -96,15 +93,14 @@ public final class TimeExpression {
       }
     }
     return secondsCron + " " + minutesCron + " " + hoursCron + " " + daysCron + " " + monthsCron
-        + " " + dowCron;
+            + " " + dowCron;
   }
 
   /**
    * Cron subexpression.
    *
    * @param period the period
-   * @param phase the phase
-   *
+   * @param phase  the phase
    * @return the string
    */
   private static String cronSubexpression(long period, long phase) {
@@ -121,35 +117,33 @@ public final class TimeExpression {
    * In seconds.
    *
    * @param expression the expression
-   *
    * @return the long
    */
-  public static long inSeconds(String expression) {
+  public static long inSeconds(String expression) throws NewCustomException {
     if (expression == null || expression.isEmpty()) {
       return 0;
     }
     if (expression.matches("\\d+[smhd]")) {
       long multiplier = multiplier(expression.charAt(expression.length() - 1));
       if (multiplier == 0) {
-        throw new IllegalArgumentException("Invalid unit in expression: " + expression);
+        throw new NewCustomException("Invalid unit in expression: " + expression);
       }
       long value = Integer.parseInt(expression.substring(0, expression.length() - 1));
       if (value < 0) {
-        throw new IllegalArgumentException("Invalid value in expression: " + expression);
+        throw new NewCustomException("Invalid value in expression: " + expression);
       }
       return value * multiplier;
     }
-    throw new IllegalArgumentException("Invalid expression format: " + expression);
+    throw new NewCustomException("Invalid expression format: " + expression);
   }
 
   /**
    * Multiplier.
    *
    * @param unit the unit
-   *
    * @return the int
    */
-  private static int multiplier(char unit) {
+  private static int multiplier(char unit) throws NewCustomException {
     switch (unit) {
       case 's':
         return 1;
@@ -158,8 +152,14 @@ public final class TimeExpression {
       case 'h':
         return 60 * 60;
       default:
-        throw new IllegalArgumentException("Invalid unit: " + unit);
+        throw new NewCustomException("Invalid unit: " + unit);
     }
   }
 
+  public static class NewCustomException extends Exception {
+    public NewCustomException(String message) {
+      super(message);
+    }
+
+  }
 }

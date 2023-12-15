@@ -31,7 +31,7 @@ public class MemoryStatsController extends BaseMemoryStatsController {
    * @param collectionPeriod the new collection period
    */
   @Value("${psiprobe.beans.stats.collectors.memory.period}")
-  public void setCollectionPeriod(String collectionPeriod) {
+  public void setCollectionPeriod(String collectionPeriod) throws TimeExpression.NewCustomException {
     super.setCollectionPeriod(TimeExpression.inSeconds(collectionPeriod));
   }
 
