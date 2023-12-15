@@ -10,28 +10,50 @@
  */
 package psiprobe.scheduler.triggers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
-
 import psiprobe.tools.TimeExpression;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * The Class DatasourceStatsTrigger.
  */
 public class DatasourceStatsTrigger extends CronTriggerFactoryBean {
 
-  /**
-   * Sets the cron expression.
-   *
-   * @param periodExpression the period expression
-   * @param phaseExpression the phase expression
-   */
-  @Autowired
-  public void setCronExpression(
-      @Value("${psiprobe.beans.stats.collectors.datasource.period}") String periodExpression,
-      @Value("${psiprobe.beans.stats.collectors.datasource.phase}") String phaseExpression) {
-    super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
+  public void setCronExpression() {
+    Properties prop = new Properties();
+    InputStream input = null;
+    try {
+      String filename = "config.properties";
+      input = getClass().getClassLoader().getResourceAsStream(filename);
+      if (input == null) {
+        System.out.println("Sorry, unable to find " + filename);
+        return;
+      }
+      prop.load(input);
+      String periodExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.period");
+      String phaseExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.phase");
+      super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    } finally {
+      if (input != null) {
+        try {
+          input.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
   }
 
+  @Override
+  public void setCronExpression(String cronExpression) {
+    super.setCronExpression(cronExpression);
+  }
+  static {
+    new DatasourceStatsTrigger().setCronExpression();
+  }
 }
