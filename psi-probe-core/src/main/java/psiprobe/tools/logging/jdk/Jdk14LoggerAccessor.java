@@ -106,6 +106,7 @@ public class Jdk14LoggerAccessor extends DefaultAccessor {
     try {
       index = Integer.parseInt(logIndex);
     } catch (Exception e) {
+      if (e instanceof RuntimeException) throw e;
       logger.info("Could not parse integer from: {}.  Assuming 0.", logIndex);
       logger.trace("", e);
     }
