@@ -66,7 +66,7 @@ public class DisplayJspController extends AbstractContextHandlerController {
               .queryParam("context", contextName)
               .build()
               .toUriString();
-      if (Pattern.matches("^https?://[a-z0-9]+(.[a-z0-9-]+)*(:[0-9]+)?/.*$", redirectUrl)) {
+      if (Pattern.matches("^https?://[a-z0-9]+(?:.[a-z0-9-]+)*(:[0-9]+)?/.*$", redirectUrl)) {
         if (redirectUrl.startsWith(request.getScheme() + "://" + request.getServerName())) {
           return new ModelAndView(new RedirectView(redirectUrl));
         }
