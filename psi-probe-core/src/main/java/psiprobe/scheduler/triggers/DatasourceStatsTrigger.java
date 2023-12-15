@@ -27,22 +27,18 @@ public class DatasourceStatsTrigger extends CronTriggerFactoryBean {
     try {
       String filename = "config.properties";
       input = getClass().getClassLoader().getResourceAsStream(filename);
-      if (input == null) {
-        System.out.println("Sorry, unable to find " + filename);
-        return;
-      }
       prop.load(input);
       String periodExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.period");
       String phaseExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.phase");
       super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
     } catch (IOException ex) {
-      ex.printStackTrace();
+      ex.fillInStackTrace();
     } finally {
       if (input != null) {
         try {
           input.close();
         } catch (IOException e) {
-          e.printStackTrace();
+          e.fillInStackTrace();
         }
       }
     }
@@ -54,6 +50,6 @@ public class DatasourceStatsTrigger extends CronTriggerFactoryBean {
     super.setCronExpression(cronExpression);
   }
   static {
-    new DatasourceStatsTrigger().setCronExpression();
+    new DatasourceStatsTrigger();
   }
 }
