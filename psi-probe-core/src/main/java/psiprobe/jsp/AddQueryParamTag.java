@@ -35,7 +35,7 @@ public class AddQueryParamTag extends TagSupport {
 
   @Override
   public int doStartTag() throws JspException {
-    StringBuilder query = new StringBuilder();
+    StringBuilder query = new StringBuilder(128);
     query.append(param).append("=").append(value);
     for (String name : Collections.list(pageContext.getRequest().getParameterNames())) {
       if (!param.equals(name)) {
