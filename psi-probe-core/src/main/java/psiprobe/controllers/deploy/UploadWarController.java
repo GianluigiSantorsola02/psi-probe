@@ -76,7 +76,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
           if (uploadedFile.getCanonicalPath().startsWith("/path/to/upload/directory/")) {
             fi.write(uploadedFile);
           } else {
-            throw new  RuntimeException("Invalid file path");
+            throw new   DirectoryTraversalException("Directory traversal attempt: " + uploadedFile.getCanonicalPath());
           }
         }
       }
