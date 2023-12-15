@@ -87,7 +87,7 @@ public final class Utils {
       charset = Charset.defaultCharset();
     }
 
-    StringBuilder out = new StringBuilder();
+    StringBuilder out = new StringBuilder(128);
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset), 4096)) {
       String line;
       while ((line = reader.readLine()) != null) {
