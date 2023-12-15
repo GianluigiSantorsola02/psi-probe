@@ -53,6 +53,8 @@ public class AdviseGarbageCollectionController extends ParameterizableViewContro
     return super.handleRequest(request, response);
   }
 
+  @Value("${trusted.domain}")
+  private String trustedDomain;
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
@@ -61,7 +63,7 @@ public class AdviseGarbageCollectionController extends ParameterizableViewContro
 
     String referer = request.getHeader("Referer");
     String redirectUrl;
-    if (referer != null) {
+    if (referer != null && referer.contains(trustedDomain)) {
       redirectUrl = referer.replaceAll(replacePattern, "");
     } else {
       redirectUrl = request.getContextPath() + getViewName();
