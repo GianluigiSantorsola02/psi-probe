@@ -44,16 +44,8 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   /** The collection period. */
   private long collectionPeriod;
 
-  /**
-   * Gets the filter out keys.
-   *
-   * @return the filter out keys
-   */
-  public List<String> getFilterOutKeys() {
-    return filterOutKeys;
-  }
 
-  /**
+    /**
    * Sets the filter out keys.
    *
    * @param filterOutKeys the new filter out keys
@@ -127,5 +119,10 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     mv.addObject("collectionPeriod", getCollectionPeriod());
     return mv;
   }
-
+  private static final Object lock = new Object();
+  public List<String> getFilterOutKeys() {
+    synchronized (lock) {
+      return filterOutKeys;
+    }
+  }
 }

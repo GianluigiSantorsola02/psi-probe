@@ -372,8 +372,10 @@ public final class Utils {
     private final long fileSize;
     private long start;
     private long end;
+    private String fileName;
 
     public Range(long fileSize) {
+
       this.fileSize = fileSize;
       this.start = 0;
       this.end = fileSize - 1;
@@ -387,6 +389,9 @@ public final class Utils {
       return start;
     }
 
+    public String getFileName() {
+      return fileName;
+    }
     public void setStart(long start) {
       this.start = start;
     }
@@ -399,8 +404,8 @@ public final class Utils {
       this.end = end;
     }
 
-    public String getFileName() {
-      return null;
+    public void setFileName(String fileName) {
+      this.fileName = fileName;
     }
   }
 

@@ -33,14 +33,14 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
   private static final Logger log2 = LoggerFactory.getLogger(BaseUndeployContextController.class);
 
   /** The failure view name. */
-  private String failureViewName;
-
+  private volatile String failureViewName;
   /**
    * Gets the failure view name.
    *
    * @return the failure view name
    */
-  public String getFailureViewName() {
+  public synchronized String getFailureViewName() {
+
     return failureViewName;
   }
 
@@ -49,7 +49,8 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
    *
    * @param failureViewName the new failure view name
    */
-  public void setFailureViewName(String failureViewName) {
+  public synchronized void setFailureViewName(String failureViewName) {
+
     this.failureViewName = failureViewName;
   }
 
