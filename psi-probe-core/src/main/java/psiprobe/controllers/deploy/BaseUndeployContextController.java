@@ -39,7 +39,7 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
    *
    * @return the failure view name
    */
-  public String getFailureViewName() {
+  public synchronized String getFailureViewName() {
 
     return failureViewName;
   }

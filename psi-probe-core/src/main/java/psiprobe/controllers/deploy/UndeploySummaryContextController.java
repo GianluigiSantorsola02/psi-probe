@@ -39,7 +39,7 @@ public class UndeploySummaryContextController extends BaseUndeployContextControl
 
   @Value("/appsummary.htm")
   @Override
-  public void setFailureViewName(String failureViewName) {
+  public  synchronized void setFailureViewName(String failureViewName) {
     super.setFailureViewName(failureViewName);
   }
 
