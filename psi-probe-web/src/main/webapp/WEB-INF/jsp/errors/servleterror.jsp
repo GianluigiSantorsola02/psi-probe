@@ -37,9 +37,10 @@
                 Throwable error = (Throwable) request.getAttribute("javax.servlet.error.exception");
                 if (error instanceof NoClassDefFoundError && error != null && error.getMessage().startsWith("org/apache/catalina")) {
 
-                    File conf = new File(System.getProperty("catalina.base"), "conf/Catalina/localhost");
+                    File conf = new File(System.getProperty("catalina.base") + File.separator + "conf" + File.separator + "Catalina" + File.separator + "localhost");
 
-                    %>
+
+                %>
                     <div id="errorMessage">
                         <p>
                             It seems that Probe application does not have sufficient access to Tomcat core libraries.
