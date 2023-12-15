@@ -17,6 +17,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 import psiprobe.model.jsp.Summary;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
 /**
  * The Class DisplayJspController.
@@ -59,8 +61,16 @@ public class DisplayJspController extends AbstractContextHandlerController {
     request.getSession(false).setAttribute(SUMMARY_ATTRIBUTE, summary);
 
     if (compile) {
-      return new ModelAndView(new RedirectView(
-            constructRedirectUrl(request.getRequestURI(), contextName)));
+      String redirectUrl = UriComponentsBuilder.fromUriString(request.getRequestURI())
+              .replacePath(request.getContextPath() + "/jspCompiler")
+              .queryParam("context", contextName)
+              .build()
+              .toUriString();
+      if (Pattern.matches("^https?://[a-z0-9]+(.[a-z0-9-]+)*(:[0-9]+)?/.*$", redirectUrl)) {
+        if (redirectUrl.startsWith(request.getScheme() + "://" + request.getServerName())) {
+          return new ModelAndView(new RedirectView(redirectUrl));
+        }
+      }
     }
     return new ModelAndView(getViewName(), "summary", summary);
   }
