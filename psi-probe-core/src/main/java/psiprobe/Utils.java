@@ -353,16 +353,18 @@ public final class Utils {
     response.setHeader("Content-Range", "bytes " + rangeStart + "-" + rangeFinish + "/" + fileSize);
     response.setHeader("Content-Length", Long.toString(rangeFinish - rangeStart + 1));
 
-      assert range.getFileName() != null;
+    if (range.getFileName() != null && !range.getFileName().contains("/") && !range.getFileName().contains("\\")) {
       File file = new File(range.getFileName());
-    try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-      raf.seek(rangeStart);
-
-      byte[] buffer = new byte[4096];
-      int len;
-      while ((len = raf.read(buffer)) > 0) {
-        response.getOutputStream().write(buffer, 0, len);
+      try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+        raf.seek(rangeStart);
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = raf.read(buffer)) > 0) {
+          response.getOutputStream().write(buffer, 0, len);
+        }
       }
+    } else {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
     }
   }
 
