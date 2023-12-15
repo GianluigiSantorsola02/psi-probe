@@ -66,24 +66,15 @@ public class DisplayJspController extends AbstractContextHandlerController {
               .queryParam("context", contextName)
               .build()
               .toUriString();
-      if (Pattern.matches("^https?://[a-z0-9]+(?:.[a-z0-9-]+)*(:[0-9]+)?/.*$", redirectUrl)) {
-        if (redirectUrl.startsWith(request.getScheme() + "://" + request.getServerName())) {
+      if ((Pattern.matches("^https?://[a-z0-9]+(?:\\.[a-z0-9-]+)*+(:\\d+)?/.*$", redirectUrl)) &&   (redirectUrl.startsWith(request.getScheme() + "://" + request.getServerName()))){
+
           return new ModelAndView(new RedirectView(redirectUrl));
-        }
+
       }
     }
     return new ModelAndView(getViewName(), "summary", summary);
   }
 
-  private String constructRedirectUrl(String requestUri, String contextName) {
-    String encodedContextName;
-    try {
-      encodedContextName = URLEncoder.encode(contextName, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      encodedContextName = contextName;
-    }
-      return requestUri + "?webapp=" + (encodedContextName.isEmpty() ? "/" : encodedContextName);
-  }
   @Value("showjsps")
   @Override
   public void setViewName(String viewName) {
