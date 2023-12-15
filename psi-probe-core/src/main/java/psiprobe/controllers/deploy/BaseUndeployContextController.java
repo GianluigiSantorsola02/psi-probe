@@ -10,22 +10,18 @@
  */
 package psiprobe.controllers.deploy;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 
 /**
@@ -66,14 +62,9 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
         throw new IllegalStateException(messageSourceAccessor.getMessage("probe.src.contextAction.cannotActOnSelf"));
       }
       getContainerWrapper().getTomcatContainer().remove(contextName);
-      // Logging action
-      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-      // get username logger
-      String name = auth.getName();
-        messageSourceAccessor = getMessageSourceAccessor();
+      messageSourceAccessor = getMessageSourceAccessor();
       if (messageSourceAccessor != null) {
-        String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", name, Locale.forLanguageTag(contextName));
-        log2.info(message);
+        String message = messageSourceAccessor.getMessage("probe.src.log.undeploy", Locale.forLanguageTag(contextName));        log2.info(message);
       }else {
         log2.info("Failed to get message source accessor. Undeploying {} context.", contextName);
       }
