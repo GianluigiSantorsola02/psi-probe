@@ -41,9 +41,12 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.util.ClassUtils;
 import psiprobe.beans.ResourceResolverBean;
+import psiprobe.controllers.deploy.DirectoryTraversalException;
 import psiprobe.model.FilterMapping;
 import psiprobe.model.jsp.Item;
 import psiprobe.model.jsp.Summary;
+
+
 /**
  * Abstraction layer to implement some functionality, which is common between different container
  * adapters.
@@ -93,9 +96,9 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      ensurePathIsRelative(System.getProperty("catalina.base"));
+      ensurePathIsRelative(System.getProperty(CATALINA_BASE));
       ensurePathIsRelative(base.toURI());
-      base = new File(System.getProperty("catalina.base"), host.getAppBase());
+      base = new File(System.getProperty(CATALINA_BASE), host.getAppBase());
     }
     return base;
   }
@@ -111,23 +114,23 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     String absolutePath;
 
     if (file.isAbsolute()) {
-      throw new RuntimeException("Potential directory traversal attempt - absolute path not allowed");
+      throw new DirectoryTraversalException("Potential directory traversal attempt - absolute path not allowed");
     }
 
     try {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      throw new RuntimeException("Potential directory traversal attempt", e);
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new RuntimeException("Potential directory traversal attempt");
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
   }
   @Override
   public String getConfigBase() {
-    File configBase = new File(System.getProperty("catalina.base"), "conf");
+    File configBase = new File(System.getProperty(CATALINA_BASE), "conf");
     Container baseHost = null;
     Container thisContainer = host;
     while (thisContainer != null) {
@@ -627,4 +630,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
   static class InstallContextInternalException extends Exception {
   }
+
+  private static final String CATALINA_BASE = "catalina.base";
 }
