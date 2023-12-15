@@ -30,8 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -130,7 +128,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     }
 
     // Load key store from file
-    try (InputStream storeInput = getStoreInputStream(storeFile)) {
+    try (InputStream storeInput = getStoreInputStream()) {
       keyStore.load(storeInput, password);
     } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
       log16.error("Error loading store file {}", storeFile, e);
@@ -185,31 +183,14 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    * Tries to open a InputStream the same way as Tomcat ConfigFileLoader
    * {@link org.apache.tomcat.util.file.ConfigFileLoader#getInputStream(String) getInputStream}.
    *
-   * @param path the path of a store file (absolute or relative to CATALINA.BASE), or URI to store
-   *        file (absolute or relative to CATALINA.BASE).
-   *
    * @return the input stream of the path file
    *
    * @throws IOException if path can not be resolved
    */
-  private InputStream getStoreInputStream(String path) throws IOException {
-    File file = new File(path);
-    if (file.exists()) {
-      return Files.newInputStream(file.toPath());
-    }
-
+  private InputStream getStoreInputStream() throws IOException {
     File catalinaBaseFolder = new File(System.getProperty("catalina.base"));
-    file = new File(catalinaBaseFolder, path);
-
-    if (file.exists()) {
-      return Files.newInputStream(file.toPath());
-    }
-
-    URI uri = catalinaBaseFolder.toURI().resolve(path);
-
-    URL url = uri.toURL();
-
-    return url.openConnection().getInputStream();
+    File file = new File(catalinaBaseFolder, "/conf/keystore.jks");
+    return Files.newInputStream(file.toPath());
   }
 
   /**
