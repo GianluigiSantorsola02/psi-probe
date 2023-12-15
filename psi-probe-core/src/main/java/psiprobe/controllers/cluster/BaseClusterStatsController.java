@@ -28,11 +28,12 @@ import psiprobe.model.jmx.Cluster;
 public class BaseClusterStatsController extends AbstractTomcatContainerController {
 
   /** The cluster wrapper. */
-  private AppStatsCollectorBean statsCollector;
-
+  private volatile AppStatsCollectorBean statsCollector;
   @Inject
   public void statsCollector(AppStatsCollectorBean statsCollector) {
-    this.statsCollector = statsCollector;
+    synchronized(this) {
+      this.statsCollector = statsCollector;
+    }
   }
   /** The load members. */
   private boolean loadMembers = true;
