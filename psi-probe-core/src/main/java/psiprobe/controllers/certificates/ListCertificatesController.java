@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -50,7 +51,10 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
   /** The Constant logger. */
   private static final Logger log16 = LoggerFactory.getLogger(ListCertificatesController.class);
 
-  @GetMapping(path = "/certificates.htm")
+    public ListCertificatesController() throws IOException {
+    }
+
+    @GetMapping(path = "/certificates.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -128,7 +132,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     }
 
     // Load key store from file
-    try (InputStream storeInput = getStoreInputStream()) {
+    try (InputStream storeInput = getStoreInputStream( storeFile)) {
       keyStore.load(storeInput, password);
     } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
       log16.error("Error loading store file {}", storeFile, e);
@@ -187,11 +191,16 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    *
    * @throws IOException if path can not be resolved
    */
-  private InputStream getStoreInputStream() throws IOException {
-    File catalinaBaseFolder = new File(System.getProperty("catalina.base"));
-    File file = new File(catalinaBaseFolder, "/conf/keystore.jks");
-    return Files.newInputStream(file.toPath());
+  private InputStream getStoreInputStream(String uri) throws IOException  {
+    File file = new File(uri);
+    if (!file.exists()) {
+      throw new IOException("File not found: " + uri);
+    }
+      return Files.newInputStream((Path) inputStream);
   }
+  String customUri = System.getProperty("catalina.base") + "/conf/keystore.jks";
+  InputStream inputStream = getStoreInputStream(customUri);
+
 
   /**
    * To connector info.
