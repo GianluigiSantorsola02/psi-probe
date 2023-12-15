@@ -31,7 +31,7 @@ public class DatasourceStatsTrigger extends CronTriggerFactoryBean {
       String periodExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.period");
       String phaseExpression = prop.getProperty("psiprobe.beans.stats.collectors.datasource.phase");
       super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
-    } catch (IOException ex) {
+    } catch (IOException | TimeExpression.NewCustomException ex) {
       ex.fillInStackTrace();
     } finally {
       if (input != null) {
@@ -45,11 +45,4 @@ public class DatasourceStatsTrigger extends CronTriggerFactoryBean {
 
   }
 
-  @Override
-  public void setCronExpression(String cronExpression) {
-    super.setCronExpression(cronExpression);
-  }
-  static {
-    new DatasourceStatsTrigger();
-  }
 }
