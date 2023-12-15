@@ -52,7 +52,9 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
   private static final Logger log16 = LoggerFactory.getLogger(ListCertificatesController.class);
 
     public ListCertificatesController() throws IOException {
+          // Exception generated through reflection
     }
+
 
     @GetMapping(path = "/certificates.htm")
   @Override
