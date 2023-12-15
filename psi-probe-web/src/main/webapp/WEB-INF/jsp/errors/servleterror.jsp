@@ -10,9 +10,7 @@
     PURPOSE.
 
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
-<%@ page import="java.io.ByteArrayOutputStream" %>
-<%@ page import="java.io.PrintStream" %>
+<%@ page contentType="text/html;charset=UTF-8" language="" session="false" %>
 <%@ page import="java.io.File" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -24,8 +22,8 @@
 
     <head>
         <title>Probe - Error</title>
-        <link type="text/css" rel="stylesheet" href="<c:url value='css/classic/main.css'/>"/>
-        <link type="text/css" rel="stylesheet" href="<c:url value='css/classic/messages.css'/>"/>
+        <link type="text/css" rel="stylesheet" href="<c:url value='https://example.com/css/classic/main.css'/>"/>
+        <link type="text/css" rel="stylesheet" href="<c:url value='https://example.com/css/classic/messages.css'/>"/>
     </head>
 
     <body>
