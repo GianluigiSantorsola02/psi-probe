@@ -38,7 +38,7 @@ public class ParamToggleTag extends TagSupport {
   public int doStartTag() throws JspException {
     boolean getSize =
         ServletRequestUtils.getBooleanParameter(pageContext.getRequest(), param, false);
-    StringBuilder query = new StringBuilder();
+    StringBuilder query = new StringBuilder(128);
     query.append(param).append("=").append(!getSize);
     String encoding = pageContext.getResponse().getCharacterEncoding();
     for (String name : Collections.list(pageContext.getRequest().getParameterNames())) {
