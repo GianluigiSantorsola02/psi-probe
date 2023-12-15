@@ -76,7 +76,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
           if (uploadedFile.getCanonicalPath().startsWith("/path/to/upload/directory/")) {
             fi.write(uploadedFile);
           } else {
-            throw new Exception("Invalid file path");
+            throw new  RuntimeException("Invalid file path");
           }
         }
       }
@@ -99,6 +99,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
     if (fi.getName() != null && !fi.getName().isEmpty()) {
       File tmpWar = new File(System.getProperty("java.io.tmpdir"), FilenameUtils.getName(fi.getName()));
       writeToFile(fi, tmpWar);
+      processFileItem(fi);
     }
   }
 
