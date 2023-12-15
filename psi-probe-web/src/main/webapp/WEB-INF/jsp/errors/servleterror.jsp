@@ -10,7 +10,7 @@
     PURPOSE.
 
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="" session="false" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ page import="java.io.File" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
