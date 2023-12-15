@@ -12,6 +12,8 @@ package psiprobe.tools.logging.catalina;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import psiprobe.controllers.deploy.DirectoryTraversalException;
 import psiprobe.tools.Instruments;
 import psiprobe.tools.logging.AbstractLogDestination;
 import java.io.IOException;
@@ -60,18 +62,18 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     String absolutePath;
 
     if (file.isAbsolute()) {
-      throw new RuntimeException("Potential directory traversal attempt - absolute path not allowed");
+      throw new DirectoryTraversalException("Potential directory traversal attempt - absolute path not allowed");
     }
 
     try {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      throw new RuntimeException("Potential directory traversal attempt", e);
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new RuntimeException("Potential directory traversal attempt");
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
   }
