@@ -9,34 +9,29 @@
  * PURPOSE.
  */
 package psiprobe.tools.logging.catalina;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import psiprobe.tools.Instruments;
 import psiprobe.tools.logging.AbstractLogDestination;
-
+import java.io.IOException;
+import java.net.URI;
 /**
  * The Class CatalinaLoggerAccessor.
  */
 public class CatalinaLoggerAccessor extends AbstractLogDestination {
-
   @Override
   public boolean isContext() {
     return true;
   }
-
   @Override
   public String getName() {
     return null;
   }
-
   @Override
   public String getLogType() {
     return "catalina";
   }
-
   @Override
   public File getFile() {
     String dir = (String) invokeMethod(getTarget(), "getDirectory", null, null);
@@ -44,14 +39,42 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     String suffix = (String) invokeMethod(getTarget(), "getSuffix", null, null);
     boolean timestamp = Instruments.getField(getTarget(), "timestamp") != null;
     String date = timestamp ? new SimpleDateFormat("yyyy-MM-dd").format(new Date()) : "";
-
     File file = notNull(date, dir, prefix, suffix) ? new File(dir, prefix + date + suffix) : null;
     if (file != null && !file.isAbsolute()) {
+      ensurePathIsRelative(System.getProperty("catalina.base"));
+      ensurePathIsRelative(file.toURI());
       return new File(System.getProperty("catalina.base"), file.getPath());
     }
     return file;
   }
+  private static void ensurePathIsRelative(String path) {
+    ensurePathIsRelative(new File(path));
+  }
 
+  private static void ensurePathIsRelative(URI uri) {
+    ensurePathIsRelative(new File(uri));
+  }
+  private static void ensurePathIsRelative(File file) {
+
+    String canonicalPath;
+    String absolutePath;
+
+    if (file.isAbsolute()) {
+      throw new RuntimeException("Potential directory traversal attempt - absolute path not allowed");
+    }
+
+    try {
+      canonicalPath = file.getCanonicalPath();
+      absolutePath = file.getAbsolutePath();
+    } catch (IOException e) {
+      throw new RuntimeException("Potential directory traversal attempt", e);
+    }
+
+    if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
+      throw new RuntimeException("Potential directory traversal attempt");
+    }
+
+  }
   /**
    * Not null.
    *
@@ -67,5 +90,4 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     }
     return true;
   }
-
 }
