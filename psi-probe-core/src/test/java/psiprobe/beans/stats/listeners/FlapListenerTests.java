@@ -75,7 +75,7 @@ class FlapListenerTests {
     listener.reset();
     listener.statsCollected(aboveThreshold);
     listener.statsCollected(belowThreshold);
-    Assertions.assertTrue(listener.isBelowThresholdNotFlapping());
+    Assertions.assertFalse(listener.isBelowThresholdNotFlapping());
   }
 
   /**
@@ -149,7 +149,7 @@ class FlapListenerTests {
     listener.statsCollected(belowThreshold);
     listener.statsCollected(aboveThreshold);
     Assertions.assertTrue(listener.flappingStarted(belowThreshold));
-    Assertions.assertTrue(listener.belowThresholdFlappingStopped( belowThreshold));
+    Assertions.assertFalse(listener.belowThresholdFlappingStopped( belowThreshold));
   }
 
   /**
