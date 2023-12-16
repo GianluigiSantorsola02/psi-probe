@@ -17,7 +17,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
 
@@ -44,45 +43,8 @@ public class RemoveApplicationAttributeController extends AbstractContextHandler
     String attrName = ServletRequestUtils.getStringParameter(request, "attr");
     context.getServletContext().removeAttribute(attrName);
 
-    return new ModelAndView(new RedirectView(
-            generateRedirectUrl(request)));
 
-  }
-
-
-  private String generateRedirectUrl(HttpServletRequest request) {
-    String contextPath = validateContextPath(request.getContextPath());
-    String viewName = validateViewName(getViewName());
-    String queryString = sanitizeQueryString(request.getQueryString());
-
-    return contextPath + viewName + "?" + queryString;
-  }
-
-
-  private String validateContextPath(String contextPath) {
-
-    return contextPath;
-  }
-
-  private String validateViewName(String viewName) {
-
-    return viewName;
-  }
-
-  private String sanitizeQueryString(String queryString) {
-
-    return sanitize(queryString);
-  }
-
-  private String sanitize(String input) {
-
-    return yourSanitizationFunction(input);
-  }
-
-  private String yourSanitizationFunction(String input) {
-
-
-    return input;
+        return null;
   }
   @Value("appattributes")
   @Override
