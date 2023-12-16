@@ -19,7 +19,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 import javax.naming.NamingException;
@@ -41,7 +40,7 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
   private static final Logger mylogger = LoggerFactory.getLogger(ResetDataSourceController.class);
 
   /**
-   * The replace pattern.
+   * The replacement pattern.
    */
   private String replacePattern;
 
@@ -72,7 +71,7 @@ public class ResetDataSourceController extends AbstractContextHandlerController 
     handleResetErrors(request);
 
     mylogger.debug("Redirected to {}", redirectUrl);
-    return new ModelAndView(new RedirectView(redirectUrl));
+    return null;
   }
 
   private String getResourceName(HttpServletRequest request) {
