@@ -18,7 +18,6 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,7 +75,7 @@ public class AdviseGarbageCollectionController extends ParameterizableViewContro
       log14.debug("Advised Garbage Collection");
     }
     log14.debug("Redirected to {}", redirectUrl);
-    return new ModelAndView(new RedirectView(redirectUrl));
+    return null;
   }
 
   @Value("/sysinfo.htm")
