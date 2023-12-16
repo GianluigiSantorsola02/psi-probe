@@ -70,7 +70,7 @@ public class KillThreadController extends ParameterizableViewController {
     } else {
       redirectUrl = request.getContextPath() + getViewName();
     }
-    return new ModelAndView(new RedirectView(redirectUrl));
+    return null;
   }
 
   @Value("redirect:/threads.htm")
