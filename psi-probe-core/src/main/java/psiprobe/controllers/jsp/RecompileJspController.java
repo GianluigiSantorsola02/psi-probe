@@ -70,9 +70,7 @@ public class RecompileJspController extends AbstractContextHandlerController {
         getContainerWrapper().getTomcatContainer().recompileJsps(context, summary, names);
         request.getSession(false).setAttribute(DisplayJspController.SUMMARY_ATTRIBUTE, summary);
     }
-    return new ModelAndView(new RedirectView(request.getContextPath()
-        + ServletRequestUtils.getStringParameter(request, "view", getViewName()) + "?"
-        + request.getQueryString()));
+    return null;
   }
 
   @Value("/app/jsp.htm")
