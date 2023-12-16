@@ -13,10 +13,8 @@ package psiprobe.controllers.jsp;
 import org.apache.catalina.Context;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +38,7 @@ public class DiscardCompiledJspController extends AbstractContextHandlerControll
                                     HttpServletRequest request, HttpServletResponse response) {
 
     getContainerWrapper().getTomcatContainer().discardWorkDir(context);
-    return new ModelAndView(
-        new RedirectView(
-            request.getContextPath()  + ServletRequestUtils.getStringParameter(request, "view", getViewName())
-        ));
+    return null;
   }
 
   @Value("/app/jsp.htm")
