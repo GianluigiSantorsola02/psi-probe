@@ -18,7 +18,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.controllers.AbstractContextHandlerController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,8 +48,7 @@ public class RemoveSessAttributeController extends AbstractContextHandlerControl
       session.getSession().removeAttribute(attrName);
     }
 
-    return new ModelAndView(new RedirectView(
-        request.getContextPath() + getViewName() + "?" + request.getQueryString()));
+     return null;
   }
 
   @Value("/attributes.htm")
