@@ -29,7 +29,38 @@ import java.util.Map;
 public class BaseSysInfoController extends AbstractTomcatContainerController {
 
   /** The filter out keys. */
-  private List<String> filterOutKeys = new ArrayList<>();
+  private static final ThreadLocal<List<String>> threadLocalFilterOutKeys = new ThreadLocal<>();
+
+  public void processUserRequest(HttpServletRequest request) {
+    // Retrieve or create user-specific filterOutKeys list
+    List<String> userFilterOutKeys = getUserFilterOutKeys();
+
+    // Set the filterOutKeys for the current thread
+    setThreadLocalFilterOutKeys(userFilterOutKeys);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
+  }
+
+
+  private List<String> getUserFilterOutKeys() {
+    // Retrieve or create user-specific filterOutKeys list
+    List<String> userFilterOutKeys = threadLocalFilterOutKeys.get();
+    if (userFilterOutKeys == null) {
+      userFilterOutKeys = new ArrayList<>();
+      threadLocalFilterOutKeys.set(userFilterOutKeys);
+    }
+    return userFilterOutKeys;
+  }
+
+  private void setThreadLocalFilterOutKeys(List<String> userFilterOutKeys) {
+    threadLocalFilterOutKeys.set(userFilterOutKeys);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalFilterOutKeys.remove();
+  }
 
   /** The runtime info accessor. */
   private final RuntimeInfoAccessorBean runtimeInfoAccessor;
@@ -53,15 +84,6 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     this.runtimeInfoAccessor = runtimeInfoAccessor;
   }
 
-
-  /**
-   * Sets the filter out keys.
-   *
-   * @param filterOutKeys the new filter out keys
-   */
-  public void setFilterOutKeys(List<String> filterOutKeys) {
-    this.filterOutKeys = filterOutKeys;
-  }
 
   /**
    * Gets the runtime info accessor.
@@ -93,11 +115,12 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     }
 
     if (!SecurityUtils.hasAttributeValueRole(getServletContext())) {
-      for (String key : filterOutKeys) {
+      for (String key : threadLocalFilterOutKeys.get()) {
         sysProps.remove(key);
       }
     }
 
+    processUserRequest(request);
     systemInformation.setSystemProperties(sysProps);
 
     ModelAndView mv = new ModelAndView(getViewName());
