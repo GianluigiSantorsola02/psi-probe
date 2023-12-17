@@ -15,16 +15,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractContextHandlerController;
+import psiprobe.controllers.apps.BaseViewXmlConfController;
 import psiprobe.model.jsp.Summary;
+import psiprobe.tools.ApplicationUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +51,7 @@ public class RecompileJspController extends AbstractContextHandlerController {
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
-                                    HttpServletRequest request, HttpServletResponse response) {
+                                    HttpServletRequest request, HttpServletResponse response) throws ApplicationUtils.ApplicationResourcesException, ServletRequestBindingException, BaseViewXmlConfController.DisplayTargetException, ContainerListenerBean.CustomExceptionException, BaseViewXmlConfController.UnknownDisplayTargetException, ContainerListenerBean.CustomException, IOException, ViewServletSourceController.FileProcessingException {
 
     HttpSession session = request.getSession(false);
     Summary summary = (Summary) session.getAttribute(DisplayJspController.SUMMARY_ATTRIBUTE);
@@ -70,7 +74,7 @@ public class RecompileJspController extends AbstractContextHandlerController {
         getContainerWrapper().getTomcatContainer().recompileJsps(context, summary, names);
         request.getSession(false).setAttribute(DisplayJspController.SUMMARY_ATTRIBUTE, summary);
     }
-    return null;
+    return super.handleContext(contextName, context, request, response);
   }
 
   @Value("/app/jsp.htm")

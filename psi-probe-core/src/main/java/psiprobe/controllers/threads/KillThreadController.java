@@ -16,11 +16,11 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
-import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.Utils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 /**
  * The Class KillThreadController.
@@ -63,14 +63,7 @@ public class KillThreadController extends ParameterizableViewController {
       thread.interrupt();
     }
 
-    String referer = request.getHeader("Referer");
-    String redirectUrl;
-    if (referer != null) {
-      redirectUrl = referer.replaceAll(replacePattern, "");
-    } else {
-      redirectUrl = request.getContextPath() + getViewName();
-    }
-    return null;
+    return new ModelAndView(Objects.requireNonNull(getViewName()));
   }
 
   @Value("redirect:/threads.htm")
