@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import psiprobe.beans.LogResolverBean;
 import psiprobe.tools.logging.LogDestination;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -35,12 +34,38 @@ public class ListLogsController extends ParameterizableViewController {
   private String errorView;
 
   /** The log resolver. */
-  private LogResolverBean logResolver;
+  private static final ThreadLocal<LogResolverBean> threadLocalLogResolver = new ThreadLocal<>();
 
-  @Inject
-  public void logResolver(LogResolverBean logResolver) {
-    this.logResolver = logResolver;
+  public void processUserRequest() {
+    // Retrieve or set user-specific logResolver
+    LogResolverBean userLogResolver = getUserLogResolver();
+
+    // Set the logResolver for the current thread
+    setThreadLocalLogResolver(userLogResolver);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
   }
+
+  private LogResolverBean getUserLogResolver() {
+    // Retrieve or set user-specific logResolver
+    LogResolverBean userLogResolver = threadLocalLogResolver.get();
+    if (userLogResolver == null) {
+      userLogResolver = new LogResolverBean();  // Create a new instance if not yet initialized
+      threadLocalLogResolver.set(userLogResolver);
+    }
+    return userLogResolver;
+  }
+
+  private void setThreadLocalLogResolver(LogResolverBean userLogResolver) {
+    threadLocalLogResolver.set(userLogResolver);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalLogResolver.remove();
+  }
+
   /**
    * Sets the error view.
    *
@@ -49,24 +74,6 @@ public class ListLogsController extends ParameterizableViewController {
   @Value("logs_notsupported")
   public void setErrorView(String errorView) {
     this.errorView = errorView;
-  }
-
-  /**
-   * Gets the log resolver.
-   *
-   * @return the log resolver
-   */
-  public LogResolverBean getLogResolver() {
-    return logResolver;
-  }
-
-  /**
-   * Sets the log resolver.
-   *
-   * @param logResolver the new log resolver
-   */
-  public void setLogResolver(LogResolverBean logResolver) {
-    this.logResolver = logResolver;
   }
 
   @GetMapping(path = {"/logs", "/list.htm"})
@@ -81,10 +88,11 @@ public class ListLogsController extends ParameterizableViewController {
       HttpServletResponse response) throws Exception {
 
     boolean showAll = ServletRequestUtils.getBooleanParameter(request, "apps", false);
-    List<LogDestination> uniqueList = logResolver.getLogDestinations(showAll);
+    List<LogDestination> uniqueList = getUserLogResolver().getLogDestinations(showAll);
     if (!uniqueList.isEmpty()) {
       return new ModelAndView(Objects.requireNonNull(getViewName())).addObject("logs", uniqueList);
     }
+    processUserRequest();
     return new ModelAndView(errorView);
   }
 
