@@ -63,7 +63,37 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   }
 
   /** The runtime info accessor. */
-  private final RuntimeInfoAccessorBean runtimeInfoAccessor;
+  private static final ThreadLocal<RuntimeInfoAccessorBean> threadLocalRuntimeInfoAccessor = new ThreadLocal<>();
+
+  public void processUserRequest1() {
+    // Retrieve or set user-specific runtimeInfoAccessor
+    RuntimeInfoAccessorBean userRuntimeInfoAccessor = getUserRuntimeInfoAccessor();
+
+    // Set the runtimeInfoAccessor for the current thread
+    setThreadLocalRuntimeInfoAccessor(userRuntimeInfoAccessor);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal1();
+  }
+
+  private RuntimeInfoAccessorBean getUserRuntimeInfoAccessor() {
+    // Retrieve or set user-specific runtimeInfoAccessor
+    RuntimeInfoAccessorBean userRuntimeInfoAccessor = threadLocalRuntimeInfoAccessor.get();
+    if (userRuntimeInfoAccessor == null) {
+      userRuntimeInfoAccessor = new RuntimeInfoAccessorBean();  // Create a new instance if not yet initialized
+      threadLocalRuntimeInfoAccessor.set(userRuntimeInfoAccessor);
+    }
+    return userRuntimeInfoAccessor;
+  }
+
+  private void setThreadLocalRuntimeInfoAccessor(RuntimeInfoAccessorBean userRuntimeInfoAccessor) {
+    threadLocalRuntimeInfoAccessor.set(userRuntimeInfoAccessor);
+  }
+
+  private void cleanupThreadLocal1() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalRuntimeInfoAccessor.remove();
+  }
 
   /** The collection period. */
   private final ThreadLocal<Long> collectionPeriodThreadLocal = new ThreadLocal<>();
@@ -81,7 +111,7 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
 
 
   public BaseSysInfoController(RuntimeInfoAccessorBean runtimeInfoAccessor) {
-    this.runtimeInfoAccessor = runtimeInfoAccessor;
+    this.setThreadLocalRuntimeInfoAccessor(runtimeInfoAccessor);
   }
 
 
@@ -91,7 +121,7 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
    * @return the runtime info accessor
    */
   public RuntimeInfoAccessorBean getRuntimeInfoAccessor() {
-    return runtimeInfoAccessor;
+    return getUserRuntimeInfoAccessor();
   }
 
   /**
@@ -121,6 +151,7 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     }
 
     processUserRequest();
+    processUserRequest1();
     systemInformation.setSystemProperties(sysProps);
 
     ModelAndView mv = new ModelAndView(getViewName());
