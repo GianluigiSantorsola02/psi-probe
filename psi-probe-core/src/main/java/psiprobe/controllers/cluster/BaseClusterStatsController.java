@@ -10,36 +10,62 @@
  */
 package psiprobe.controllers.cluster;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.TomcatContainer;
 import psiprobe.beans.ClusterWrapperBean;
-import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.jmx.Cluster;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The Class BaseClusterStatsController.
  */
-public class BaseClusterStatsController extends AbstractTomcatContainerController {
+public abstract class BaseClusterStatsController extends AbstractTomcatContainerController {
 
-  /** The cluster wrapper. */
-  private volatile AppStatsCollectorBean statsCollector;
-  @Inject
-  public void statsCollector(AppStatsCollectorBean statsCollector) {
-    synchronized(this) {
-      this.statsCollector = statsCollector;
-    }
-  }
   /** The load members. */
-  private boolean loadMembers = true;
+  private static final ThreadLocal<Boolean> threadLocalLoadMembers = new ThreadLocal<>();
+
+  public void processUserRequest() {
+    // Retrieve or set user-specific loadMembers flag
+    boolean userLoadMembers = getUserLoadMembers();
+
+    // Set the loadMembers flag for the current thread
+    setThreadLocalLoadMembers(userLoadMembers);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
+  }
+
+  private boolean getUserLoadMembers() {
+    // Retrieve or set user-specific loadMembers flag
+    Boolean userLoadMembers = threadLocalLoadMembers.get();
+    if (userLoadMembers == null) {
+      userLoadMembers = true;  // Set default value if not yet initialized
+      threadLocalLoadMembers.set(userLoadMembers);
+    }
+    return userLoadMembers;
+  }
+
+  void setThreadLocalLoadMembers(boolean userLoadMembers) {
+    threadLocalLoadMembers.set(userLoadMembers);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalLoadMembers.remove();
+  }
+
 
   /** The collection period. */
   private long collectionPeriod;
+
+  public BaseClusterStatsController() {
+    super();
+  }
+
 
   /**
    * Gets the cluster wrapper.
@@ -50,25 +76,7 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
       return new ClusterWrapperBean();
   }
 
-  /**
-   * Checks if is load members.
-   *
-   * @return true, if is load members
-   */
-  public boolean isLoadMembers() {
-    return loadMembers;
-  }
-
-  /**
-   * Sets the load members.
-   *
-   * @param loadMembers the new load members
-   */
-  public void setLoadMembers(boolean loadMembers) {
-    this.loadMembers = loadMembers;
-  }
-
-  /**
+    /**
    * Gets the collection period.
    *
    * @return the collection period
@@ -92,16 +100,12 @@ public class BaseClusterStatsController extends AbstractTomcatContainerControlle
 
     TomcatContainer container = getContainerWrapper().getTomcatContainer();
     Cluster cluster = getClusterWrapper().getCluster(container.getName(), container.getHostName(),
-        isLoadMembers());
+        getUserLoadMembers());
+    processUserRequest();
     return new ModelAndView(getViewName()).addObject("cluster", cluster)
         .addObject("collectionPeriod", getCollectionPeriod());
   }
 
-  public AppStatsCollectorBean getStatsCollector() {
-    return statsCollector;
-  }
-
-  public void setStatsCollector(AppStatsCollectorBean statsCollector) {
-    this.statsCollector = statsCollector;
-  }
+  @Value("false")
+  public abstract void setLoadMembers(boolean loadMembers);
 }

@@ -24,10 +24,14 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ClusterRequestsStatsController extends BaseClusterStatsController {
 
-  @Value("false")
+    public ClusterRequestsStatsController() {
+        super();
+    }
+
+    @Value("false")
   @Override
   public void setLoadMembers(boolean loadMembers) {
-    super.setLoadMembers(loadMembers);
+    super.setThreadLocalLoadMembers(loadMembers);
   }
 
   @GetMapping(path = "/cluster/requests.ajax")

@@ -24,7 +24,16 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ClusterMembersStatsController extends BaseClusterStatsController {
 
-  @GetMapping(path = "/cluster/members.ajax")
+    public ClusterMembersStatsController() {
+        super();
+    }
+
+    @Override
+    public void setLoadMembers(boolean loadMembers) {
+        super.setThreadLocalLoadMembers(loadMembers);
+    }
+
+    @GetMapping(path = "/cluster/members.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {

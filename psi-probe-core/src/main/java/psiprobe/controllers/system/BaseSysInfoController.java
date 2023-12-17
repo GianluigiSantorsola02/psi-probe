@@ -31,7 +31,7 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   /** The filter out keys. */
   private static final ThreadLocal<List<String>> threadLocalFilterOutKeys = new ThreadLocal<>();
 
-  public void processUserRequest(HttpServletRequest request) {
+  public void processUserRequest() {
     // Retrieve or create user-specific filterOutKeys list
     List<String> userFilterOutKeys = getUserFilterOutKeys();
 
@@ -120,7 +120,7 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
       }
     }
 
-    processUserRequest(request);
+    processUserRequest();
     systemInformation.setSystemProperties(sysProps);
 
     ModelAndView mv = new ModelAndView(getViewName());
