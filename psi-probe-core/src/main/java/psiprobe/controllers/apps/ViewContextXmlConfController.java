@@ -39,7 +39,7 @@ public class ViewContextXmlConfController extends BaseViewXmlConfController {
   @Value("context.xml")
   @Override
   public void setDisplayTarget(String downloadTarget) {
-    super.setDisplayTarget(downloadTarget);
+    super.setDisplayTarget(Long.parseLong(downloadTarget));
   }
 
   @Value("/adm/downloadcontextxml.htm")

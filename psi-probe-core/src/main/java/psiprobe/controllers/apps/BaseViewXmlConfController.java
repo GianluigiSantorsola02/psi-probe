@@ -45,29 +45,25 @@ public abstract class BaseViewXmlConfController extends AbstractContextHandlerCo
   /** The Constant TARGET_CONTEXT_XML. */
   private static final String TARGET_CONTEXT_XML = "context.xml";
 
-  /** Type of a file to be displayed. */
-  private String displayTarget;
+  /** Type of file to be displayed. */
+  private final ThreadLocal<Long> displayTargetThreadLocal = new ThreadLocal<>();
+
+  // Other fields and methods...
+
+  public long getDisplayTarget() {
+    Long target = displayTargetThreadLocal.get();
+    return target != null ? target : 0L;
+  }
+
+  public void setDisplayTarget(long displayTarget) {
+    displayTargetThreadLocal.set(displayTarget);
+  }
 
   /** Url that will be used in the view to download the file. */
   private String downloadUrl;
 
-  /**
-   * Gets the display target.
-   *
-   * @return the display target
-   */
-  public String getDisplayTarget() {
-    return displayTarget;
-  }
-
-  /**
-   * Sets the display target.
-   *
-   * @param displayTarget the new display target
-   */
-  public void setDisplayTarget(String displayTarget) {
-    this.displayTarget = displayTarget;
-  }
+  @Value("context.xml")
+  public abstract void setDisplayTarget(String downloadTarget);
 
   /**
    * Sets the download url.
@@ -82,22 +78,18 @@ public abstract class BaseViewXmlConfController extends AbstractContextHandlerCo
   public ModelAndView handleContext(String contextName, Context context,
                                     HttpServletRequest request, HttpServletResponse response) throws DisplayTargetException, UnknownDisplayTargetException, IOException {
 
-    if (displayTarget == null) {
-      throw new DisplayTargetException("Display target is not set for " + getClass().getName());
-    }
-
-    ModelAndView mv = new ModelAndView(getViewName());
+      ModelAndView mv = new ModelAndView(getViewName());
     File xmlFile;
 
-    if (TARGET_WEB_XML.equals(displayTarget)) {
+    if (TARGET_WEB_XML.equals(getDisplayTarget())) {
       xmlFile = handleWebXmlDisplayTarget(context, mv);
-    } else if (TARGET_CONTEXT_XML.equals(displayTarget)) {
+    } else if (TARGET_CONTEXT_XML.equals(getDisplayTarget())) {
       xmlFile = handleContextXmlDisplayTarget(context, mv);
     } else {
       throw new UnknownDisplayTargetException("Unknown display target " + getDisplayTarget());
     }
 
-    mv.addObject("displayTarget", displayTarget);
+    mv.addObject("displayTarget", getDisplayTarget());
     mv.addObject("downloadUrl", downloadUrl);
 
     if (xmlFile != null) {
