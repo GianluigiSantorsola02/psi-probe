@@ -33,26 +33,37 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
   private static final Logger log2 = LoggerFactory.getLogger(BaseUndeployContextController.class);
 
   /** The failure view name. */
-  private volatile String failureViewName;
-  /**
-   * Gets the failure view name.
-   *
-   * @return the failure view name
-   */
-  public synchronized String getFailureViewName() {
+  private static final ThreadLocal<String> threadLocalFailureViewName = new ThreadLocal<>();
 
-    return failureViewName;
+  public void processUserRequest() {
+    // Retrieve or set user-specific failureViewName
+    String userFailureViewName = getUserFailureViewName();
+
+    // Set the failureViewName for the current thread
+    setThreadLocalFailureViewName(userFailureViewName);
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
   }
 
-  /**
-   * Sets the failure view name.
-   *
-   * @param failureViewName the new failure view name
-   */
-  public synchronized void setFailureViewName(String failureViewName) {
-
-    this.failureViewName = failureViewName;
+  private String getUserFailureViewName() {
+    // Retrieve or set user-specific failureViewName
+    String userFailureViewName = threadLocalFailureViewName.get();
+    if (userFailureViewName == null) {
+      userFailureViewName = "defaultFailureViewName";  // Set default value if not yet initialized
+      threadLocalFailureViewName.set(userFailureViewName);
+    }
+    return userFailureViewName;
   }
+
+  private void setThreadLocalFailureViewName(String userFailureViewName) {
+    threadLocalFailureViewName.set(userFailureViewName);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalFailureViewName.remove();
+  }
+
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
@@ -72,9 +83,11 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
     } catch (Exception e) {
       request.setAttribute("errorMessage", e.getMessage());
       log2.error("Error during undeploy of '{}'", contextName, e);
-      return new ModelAndView(new InternalResourceView(
-          getFailureViewName() == null ? getViewName() : getFailureViewName()));
+        getUserFailureViewName();
+        return new ModelAndView(new InternalResourceView(
+                threadLocalFailureViewName.get()));
     }
+    processUserRequest();
     return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));
   }
 
