@@ -24,10 +24,25 @@ import java.util.Objects;
 public class BaseMemoryStatsController extends ParameterizableViewController {
 
   /** The jvm memory info accessor bean. */
-  private JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean;
+  private final JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean;
 
   /** The collection period. */
-  private long collectionPeriod;
+  private final ThreadLocal<Long> collectionPeriodThreadLocal = new ThreadLocal<>();
+
+  // Other fields and methods...
+
+  public long getCollectionPeriod() {
+    Long period = collectionPeriodThreadLocal.get();
+    return period != null ? period : 0L;
+  }
+
+  public void setCollectionPeriod(long collectionPeriod) {
+    collectionPeriodThreadLocal.set(collectionPeriod);
+  }
+
+  public BaseMemoryStatsController(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean) {
+    this.jvmMemoryInfoAccessorBean = jvmMemoryInfoAccessorBean;
+  }
 
   /**
    * Gets the jvm memory info accessor bean.
@@ -36,33 +51,6 @@ public class BaseMemoryStatsController extends ParameterizableViewController {
    */
   public JvmMemoryInfoAccessorBean getJvmMemoryInfoAccessorBean() {
     return jvmMemoryInfoAccessorBean;
-  }
-
-  /**
-   * Sets the jvm memory info accessor bean.
-   *
-   * @param jvmMemoryInfoAccessorBean the new jvm memory info accessor bean
-   */
-  public void setJvmMemoryInfoAccessorBean(JvmMemoryInfoAccessorBean jvmMemoryInfoAccessorBean) {
-    this.jvmMemoryInfoAccessorBean = jvmMemoryInfoAccessorBean;
-  }
-
-  /**
-   * Gets the collection period.
-   *
-   * @return the collection period
-   */
-  public long getCollectionPeriod() {
-    return collectionPeriod;
-  }
-
-  /**
-   * Sets the collection period.
-   *
-   * @param collectionPeriod the new collection period
-   */
-  public void setCollectionPeriod(long collectionPeriod) {
-    this.collectionPeriod = collectionPeriod;
   }
 
   @Override
