@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.RuntimeInfoAccessorBean;
 import psiprobe.tools.TimeExpression;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Controller
 public class OsInfoController extends BaseSysInfoController {
+
+  private static final RuntimeInfoAccessorBean runtimeInfoAccessor =  new RuntimeInfoAccessorBean() ;
+
+  public OsInfoController() {
+    super(runtimeInfoAccessor);
+  }
 
   @GetMapping(path = "/adm/osinfo.htm")
   @Override

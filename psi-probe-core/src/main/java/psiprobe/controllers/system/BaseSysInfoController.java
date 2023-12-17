@@ -10,21 +10,18 @@
  */
 package psiprobe.controllers.system;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.web.servlet.ModelAndView;
-
 import psiprobe.beans.RuntimeInfoAccessorBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 import psiprobe.model.SystemInformation;
 import psiprobe.tools.SecurityUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Creates an instance of SystemInformation.
@@ -35,17 +32,29 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   private List<String> filterOutKeys = new ArrayList<>();
 
   /** The runtime info accessor. */
-  private RuntimeInfoAccessorBean runtimeInfoAccessor;
+  private final RuntimeInfoAccessorBean runtimeInfoAccessor;
 
-  @Inject
-  public void runtimeInfoAccessor(RuntimeInfoAccessorBean runtimeInfoAccessor) {
+  /** The collection period. */
+  private final ThreadLocal<Long> collectionPeriodThreadLocal = new ThreadLocal<>();
+
+  // Other fields and methods...
+
+  public long getCollectionPeriod() {
+    Long period = collectionPeriodThreadLocal.get();
+    return period != null ? period : 0L;
+  }
+
+  public void setCollectionPeriod(long collectionPeriod) {
+    collectionPeriodThreadLocal.set(collectionPeriod);
+  }
+
+
+  public BaseSysInfoController(RuntimeInfoAccessorBean runtimeInfoAccessor) {
     this.runtimeInfoAccessor = runtimeInfoAccessor;
   }
-  /** The collection period. */
-  private long collectionPeriod;
 
 
-    /**
+  /**
    * Sets the filter out keys.
    *
    * @param filterOutKeys the new filter out keys
@@ -64,32 +73,10 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
   }
 
   /**
-   * Sets the runtime info accessor.
-   *
-   * @param runtimeInfoAccessor the new runtime info accessor
-   */
-  public void setRuntimeInfoAccessor(RuntimeInfoAccessorBean runtimeInfoAccessor) {
-    this.runtimeInfoAccessor = runtimeInfoAccessor;
-  }
-
-  /**
    * Gets the collection period.
    *
    * @return the collection period
    */
-  public long getCollectionPeriod() {
-    return collectionPeriod;
-  }
-
-  /**
-   * Sets the collection period.
-   *
-   * @param collectionPeriod the new collection period
-   */
-  public void setCollectionPeriod(long collectionPeriod) {
-    this.collectionPeriod = collectionPeriod;
-  }
-
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
       HttpServletResponse response) throws Exception {
@@ -118,11 +105,5 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     mv.addObject("runtime", getRuntimeInfoAccessor().getRuntimeInformation());
     mv.addObject("collectionPeriod", getCollectionPeriod());
     return mv;
-  }
-  private static final Object lock = new Object();
-  public List<String> getFilterOutKeys() {
-    synchronized (lock) {
-      return filterOutKeys;
-    }
   }
 }

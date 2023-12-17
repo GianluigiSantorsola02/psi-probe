@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.RuntimeInfoAccessorBean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +26,13 @@ import java.util.List;
 @Controller
 public class SysPropsController extends BaseSysInfoController {
 
-  @Value("jmxremote.password")
+    private static final RuntimeInfoAccessorBean runtimeInfoAccessor = new RuntimeInfoAccessorBean();
+
+    public SysPropsController() {
+        super(runtimeInfoAccessor);
+    }
+
+    @Value("jmxremote.password")
   @Override
   public void setFilterOutKeys(List<String> filterOutKeys) {
     super.setFilterOutKeys(filterOutKeys);

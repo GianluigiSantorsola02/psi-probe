@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
+import psiprobe.beans.RuntimeInfoAccessorBean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +25,13 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class OsInfoAjaxController extends BaseSysInfoController {
 
-  @GetMapping(path = "/adm/osinfo.ajax")
+    private static final RuntimeInfoAccessorBean runtimeInfoAccessor = new RuntimeInfoAccessorBean();
+
+    public OsInfoAjaxController() {
+        super(runtimeInfoAccessor);
+    }
+
+    @GetMapping(path = "/adm/osinfo.ajax")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
