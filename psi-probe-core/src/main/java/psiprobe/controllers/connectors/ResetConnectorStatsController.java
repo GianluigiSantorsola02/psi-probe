@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.springframework.web.servlet.view.RedirectView;
 import psiprobe.beans.stats.collectors.ConnectorStatsCollectorBean;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,29 +29,38 @@ import javax.servlet.http.HttpServletResponse;
 public class ResetConnectorStatsController extends ParameterizableViewController {
 
   /** The collector bean. */
-  private ConnectorStatsCollectorBean collectorBean;
+  private static final ThreadLocal<ConnectorStatsCollectorBean> threadLocalCollectorBean = new ThreadLocal<>();
 
-  @Inject
-  public void collectorBean(ConnectorStatsCollectorBean collectorBean) {
-    this.collectorBean = collectorBean;
-  }
-  /**
-   * Gets the collector bean.
-   *
-   * @return the collector bean
-   */
-  public ConnectorStatsCollectorBean getCollectorBean() {
-    return collectorBean;
+  public void processUserRequest() {
+    // Retrieve or set user-specific collectorBean
+    ConnectorStatsCollectorBean userCollectorBean = getUserCollectorBean();
+
+    // Set the collectorBean for the current thread
+    setThreadLocalCollectorBean(userCollectorBean);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
   }
 
-  /**
-   * Sets the collector bean.
-   *
-   * @param collectorBean the new collector bean
-   */
-  public void setCollectorBean(ConnectorStatsCollectorBean collectorBean) {
-    this.collectorBean = collectorBean;
+  private ConnectorStatsCollectorBean getUserCollectorBean() {
+    // Retrieve or set user-specific collectorBean
+    ConnectorStatsCollectorBean userCollectorBean = threadLocalCollectorBean.get();
+    if (userCollectorBean == null) {
+      userCollectorBean = new ConnectorStatsCollectorBean();  // Create a new instance if not yet initialized
+      threadLocalCollectorBean.set(userCollectorBean);
+    }
+    return userCollectorBean;
   }
+
+  private void setThreadLocalCollectorBean(ConnectorStatsCollectorBean userCollectorBean) {
+    threadLocalCollectorBean.set(userCollectorBean);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalCollectorBean.remove();
+  }
+
 
   @GetMapping(path = "/app/connectorReset.htm")
   @Override
@@ -66,7 +74,8 @@ public class ResetConnectorStatsController extends ParameterizableViewController
       HttpServletResponse response) throws Exception {
 
     String connectorName = ServletRequestUtils.getRequiredStringParameter(request, "cn");
-    collectorBean.reset(connectorName);
+    getUserCollectorBean().reset(connectorName);
+    processUserRequest();
     return new ModelAndView(new RedirectView(request.getContextPath() + getViewName()));
   }
 
