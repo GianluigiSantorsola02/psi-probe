@@ -38,6 +38,11 @@ public class GetApplicationRuntimeInfoController extends BaseViewXmlConfControll
   }
 
   @Override
+  public void setDisplayTarget(String downloadTarget) {
+
+  }
+
+  @Override
   public void setDownloadTarget(String downloadTarget) {
   logger.debug("setDownloadTarget");
   }

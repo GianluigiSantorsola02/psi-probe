@@ -60,19 +60,42 @@ public abstract class BaseViewXmlConfController extends AbstractContextHandlerCo
   }
 
   /** Url that will be used in the view to download the file. */
-  private String downloadUrl;
+  private static final ThreadLocal<String> threadLocalDownloadUrl = new ThreadLocal<>();
+
+  public void processUserRequest() {
+    // Retrieve or set user-specific downloadUrl
+    String userDownloadUrl = getUserDownloadUrl();
+
+    // Set the downloadUrl for the current thread
+    setThreadLocalDownloadUrl(userDownloadUrl);
+
+    // Ensure to clean up the thread-local variable after the request is processed
+    cleanupThreadLocal();
+  }
+
+  private String getUserDownloadUrl() {
+    // Retrieve or set user-specific downloadUrl
+    String userDownloadUrl = threadLocalDownloadUrl.get();
+    if (userDownloadUrl == null) {
+      userDownloadUrl = "defaultDownloadUrl";  // Set default value if not yet initialized
+      threadLocalDownloadUrl.set(userDownloadUrl);
+    }
+    return userDownloadUrl;
+  }
+
+  private void setThreadLocalDownloadUrl(String userDownloadUrl) {
+    threadLocalDownloadUrl.set(userDownloadUrl);
+  }
+
+  private void cleanupThreadLocal() {
+    // Remove the thread-local variable after the request is processed
+    threadLocalDownloadUrl.remove();
+  }
+
 
   @Value("context.xml")
   public abstract void setDisplayTarget(String downloadTarget);
 
-  /**
-   * Sets the download url.
-   *
-   * @param downloadUrl the new download url
-   */
-  public void setDownloadUrl(String downloadUrl) {
-    this.downloadUrl = downloadUrl;
-  }
 
   @Override
   public ModelAndView handleContext(String contextName, Context context,
@@ -90,14 +113,14 @@ public abstract class BaseViewXmlConfController extends AbstractContextHandlerCo
     }
 
     mv.addObject("displayTarget", getDisplayTarget());
-    mv.addObject("downloadUrl", downloadUrl);
+    mv.addObject("downloadUrl", getUserDownloadUrl());
 
     if (xmlFile != null) {
       handleXmlFile(xmlFile, mv, contextName);
     } else {
       theLogger.debug("Cannot determine path to {} file of {} application.", getDisplayTarget(), contextName);
     }
-
+    processUserRequest();
     return mv;
   }
 

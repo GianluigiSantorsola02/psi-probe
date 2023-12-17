@@ -49,6 +49,11 @@ public class GetApplicationSummaryController extends BaseViewXmlConfController {
   }
 
   @Override
+  public void setDisplayTarget(String downloadTarget) {
+
+  }
+
+  @Override
   public void setDownloadTarget(String downloadTarget) {
     logger.warn("The application summary cannot be downloaded.");
   }
