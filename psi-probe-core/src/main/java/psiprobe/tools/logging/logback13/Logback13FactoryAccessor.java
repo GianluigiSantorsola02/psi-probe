@@ -133,10 +133,10 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
     }
   }
 
-  public List<?> findServiceProviders() throws SLF4JProviderBindingException {
+  public List<Object> findServiceProviders() throws SLF4JProviderBindingException {
     try {
       Method findServiceProviders = loggerFactory.getClass().getDeclaredMethod("findServiceProviders");
-      return (List<?>) findServiceProviders.invoke(loggerFactory);
+      return (List<Object>) findServiceProviders.invoke(loggerFactory);
     } catch (Exception e) {
       // Handle reflection exception
       throw new SLF4JProviderBindingException("Error invoking findServiceProviders");
