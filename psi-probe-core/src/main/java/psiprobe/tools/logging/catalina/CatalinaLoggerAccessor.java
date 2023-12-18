@@ -35,7 +35,7 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     return "catalina";
   }
   @Override
-  public File getFile() {
+  public File getFile() throws IllegalAccessException {
     String dir = (String) invokeMethod(getTarget(), "getDirectory", null, null);
     String prefix = (String) invokeMethod(getTarget(), "getPrefix", null, null);
     String suffix = (String) invokeMethod(getTarget(), "getSuffix", null, null);

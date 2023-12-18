@@ -47,7 +47,7 @@ public class FollowController extends AbstractLogHandlerController {
   }
 
   @Override
-  protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response, LogDestination logDest) throws IOException {
+  protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response, LogDestination logDest) throws IOException, IllegalAccessException {
     ModelAndView mv = new ModelAndView(Objects.requireNonNull(getViewName()));
     File file = logDest.getFile();
 

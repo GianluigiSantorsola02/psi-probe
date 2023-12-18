@@ -23,7 +23,7 @@ public abstract class AbstractLoggerAccessorVisitor extends DefaultAccessor {
   /**
    * Visit.
    */
-  public void visit() {
+  public void visit() throws IllegalAccessException {
     Object logger = Instruments.getField(getTarget(), "logger");
     if (logger != null) {
       if (logger.getClass().equals(java.util.logging.Logger.class)) {

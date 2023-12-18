@@ -79,7 +79,7 @@ public class Instruments {
    *
    * @return the long
    */
-  public static long sizeOf(Object obj) {
+  public static long sizeOf(Object obj) throws IllegalAccessException {
     return new Instruments().internalSizeOf(obj);
   }
 
@@ -91,7 +91,7 @@ public class Instruments {
    *
    * @return the long
    */
-  public static long sizeOf(Object obj, ClassLoader cl) {
+  public static long sizeOf(Object obj, ClassLoader cl) throws IllegalAccessException {
     Instruments instruments = new Instruments();
     instruments.classLoader = cl;
     return instruments.internalSizeOf(obj);
@@ -104,7 +104,7 @@ public class Instruments {
    *
    * @return the long
    */
-  private long internalSizeOf(Object root) {
+  private long internalSizeOf(Object root) throws IllegalAccessException {
     long size = 0;
     Queue<Object> queue = new LinkedList<>();
     Set<ObjectWrapper> processedObjects = new HashSet<>(2048);
@@ -147,7 +147,7 @@ public class Instruments {
    *
    * @return the long
    */
-  private long sizeOfObject(Object obj) {
+  private long sizeOfObject(Object obj) throws IllegalAccessException {
     long size = SIZE_OBJECT;
     Class<?> clazz = obj.getClass();
 
@@ -159,7 +159,7 @@ public class Instruments {
     return size;
   }
 
-  private long getSizeOfFields(Object obj, Field[] fields) {
+  private long getSizeOfFields(Object obj, Field[] fields) throws IllegalAccessException {
     long size = 0;
 
     for (Field field : fields) {
@@ -257,7 +257,7 @@ public class Instruments {
    *
    * @return the field
    */
-  public static Object getField(Object obj, String name) {
+  public static Object getField(Object obj, String name) throws IllegalAccessException {
     if (isInitialized()) {
       Field field = findField(obj.getClass(), name);
       if (field != null) {

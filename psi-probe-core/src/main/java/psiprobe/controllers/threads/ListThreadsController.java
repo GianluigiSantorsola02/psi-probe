@@ -65,7 +65,7 @@ public class ListThreadsController extends AbstractTomcatContainerController {
    *
    * @return the list
    */
-  private List<ThreadModel> enumerateThreads(final Map<String, String> classLoaderMap) {
+  private List<ThreadModel> enumerateThreads(final Map<String, String> classLoaderMap) throws IllegalAccessException {
     List<ThreadModel> threadList = new ArrayList<>();
 
     Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();

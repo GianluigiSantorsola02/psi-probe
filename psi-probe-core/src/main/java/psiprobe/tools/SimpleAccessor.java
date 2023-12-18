@@ -24,7 +24,7 @@ public class SimpleAccessor implements Accessor {
   private static final Logger logger = LoggerFactory.getLogger(SimpleAccessor.class);
 
   @Override
-  public Object get(Object obj, Field field) {
+  public Object get(Object obj, Field field) throws IllegalAccessException {
     boolean accessible = pre(field);
     try {
       return get0(obj, field);
@@ -65,11 +65,9 @@ public class SimpleAccessor implements Accessor {
     boolean accessible = field.isAccessible();
     if (!accessible) {
       try {
-        field.set(field.getDeclaringClass(), null);
+        field.setAccessible(true);
       } catch (SecurityException ex) {
         logger.trace("", ex);
-      } catch (IllegalAccessException e) {
-        throw new IllegalArgumentException(e);
       }
     }
     return accessible;
@@ -81,14 +79,12 @@ public class SimpleAccessor implements Accessor {
    * @param field the field
    * @param value the value
    */
-  private void post(Field field, boolean value) {
+  private void post(Field field, boolean value) throws IllegalAccessException {
     if (!value) {
       try {
-        field.set(field.getDeclaringClass(), null);
+        field.setAccessible(false);
       } catch (SecurityException ex) {
         logger.trace("", ex);
-      } catch (IllegalAccessException e) {
-        throw new IllegalArgumentException(e);
       }
     }
   }

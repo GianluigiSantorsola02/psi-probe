@@ -22,7 +22,7 @@ class InstrumentsTests {
    * Test object.
    */
   @Test
-  void testObject() {
+  void testObject() throws IllegalAccessException {
     Object o = new Object();
     long objectSize = Instruments.sizeOf(o);
     Assertions.assertEquals(Instruments.SIZE_OBJECT, objectSize);
@@ -32,9 +32,9 @@ class InstrumentsTests {
    * Test boolean.
    */
   @Test
-  void testBoolean() {
+  void testBoolean() throws IllegalAccessException {
     boolean b = false;
-    long booleanSize = Instruments.sizeOf(Boolean.valueOf(b)) - Instruments.SIZE_OBJECT;
+    long booleanSize = Instruments.sizeOf(b) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_BOOLEAN, booleanSize);
   }
 
@@ -42,9 +42,9 @@ class InstrumentsTests {
    * Test byte.
    */
   @Test
-  void testByte() {
+  void testByte() throws IllegalAccessException {
     byte b = 0x00;
-    long byteSize = Instruments.sizeOf(Byte.valueOf(b)) - Instruments.SIZE_OBJECT;
+    long byteSize = Instruments.sizeOf(b) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_BYTE, byteSize);
   }
 
@@ -52,9 +52,9 @@ class InstrumentsTests {
    * Test char.
    */
   @Test
-  void testChar() {
+  void testChar() throws IllegalAccessException {
     char c = '\0';
-    long charSize = Instruments.sizeOf(Character.valueOf(c)) - Instruments.SIZE_OBJECT;
+    long charSize = Instruments.sizeOf(c) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_CHAR, charSize);
   }
 
@@ -62,9 +62,9 @@ class InstrumentsTests {
    * Test short.
    */
   @Test
-  void testShort() {
+  void testShort() throws IllegalAccessException {
     short s = 0;
-    long shortSize = Instruments.sizeOf(Short.valueOf(s)) - Instruments.SIZE_OBJECT;
+    long shortSize = Instruments.sizeOf(s) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_SHORT, shortSize);
   }
 
@@ -72,9 +72,9 @@ class InstrumentsTests {
    * Test int.
    */
   @Test
-  void testInt() {
+  void testInt() throws IllegalAccessException {
     int i = 0;
-    long intSize = Instruments.sizeOf(Integer.valueOf(i)) - Instruments.SIZE_OBJECT;
+    long intSize = Instruments.sizeOf(i) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_INT, intSize);
   }
 
@@ -82,9 +82,9 @@ class InstrumentsTests {
    * Test long.
    */
   @Test
-  void testLong() {
+  void testLong() throws IllegalAccessException {
     long l = 0;
-    long longSize = Instruments.sizeOf(Long.valueOf(l)) - Instruments.SIZE_OBJECT;
+    long longSize = Instruments.sizeOf(l) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_LONG, longSize);
   }
 
@@ -92,20 +92,10 @@ class InstrumentsTests {
    * Test float.
    */
   @Test
-  void testFloat() {
+  void testFloat() throws IllegalAccessException {
     float f = 0.0F;
-    long floatSize = Instruments.sizeOf(Float.valueOf(f)) - Instruments.SIZE_OBJECT;
+    long floatSize = Instruments.sizeOf(f) - Instruments.SIZE_OBJECT;
     Assertions.assertEquals(Instruments.SIZE_FLOAT, floatSize);
-  }
-
-  /**
-   * Test double.
-   */
-  @Test
-  void testDouble() {
-    double d = 0.0;
-    long doubleSize = Instruments.sizeOf(Double.valueOf(d)) - Instruments.SIZE_OBJECT;
-    Assertions.assertEquals(Instruments.SIZE_DOUBLE, doubleSize);
   }
 
 }

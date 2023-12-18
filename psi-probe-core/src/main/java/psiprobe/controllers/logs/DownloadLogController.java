@@ -50,7 +50,7 @@ public class DownloadLogController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws ServletRequestBindingException, IOException {
+      LogDestination logDest) throws ServletRequestBindingException, IOException, IllegalAccessException {
 
     boolean compressed =
         "true".equals(ServletRequestUtils.getStringParameter(request, "compressed"));

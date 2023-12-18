@@ -26,7 +26,7 @@ public class Jdk14FileHandlerAccessor extends Jdk14HandlerAccessor {
    * Currently, we only access the latest log file with index 0.
    */
   @Override
-  public File getFile() {
+  public File getFile() throws IllegalAccessException {
     File[] files = (File[]) Instruments.getField(getTarget(), "files");
     if (files == null || files.length == 0) {
       throw new IllegalStateException("File handler does not manage any files");

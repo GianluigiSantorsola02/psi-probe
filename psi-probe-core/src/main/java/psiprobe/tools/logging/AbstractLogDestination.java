@@ -73,16 +73,16 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
     }
   }
   @Override
-  public File getFile() {
+  public File getFile() throws IllegalAccessException {
     return getStdoutFile();
   }
   @Override
-  public long getSize() {
+  public long getSize() throws IllegalAccessException {
     File file = getFile();
     return file != null && file.exists() ? file.length() : 0;
   }
   @Override
-  public Timestamp getLastModified() {
+  public Timestamp getLastModified() throws IllegalAccessException {
     File file = getFile();
     return file != null && file.exists() ? new Timestamp(file.lastModified()) : null;
   }

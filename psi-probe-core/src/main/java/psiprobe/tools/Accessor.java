@@ -25,6 +25,6 @@ public interface Accessor {
    *
    * @return the object
    */
-  Object get(Object obj, Field field);
+  Object get(Object obj, Field field) throws IllegalAccessException;
 
 }

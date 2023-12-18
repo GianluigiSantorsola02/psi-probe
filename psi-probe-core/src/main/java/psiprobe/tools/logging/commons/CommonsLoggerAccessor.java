@@ -25,7 +25,7 @@ public class CommonsLoggerAccessor extends DefaultAccessor {
    *
    * @return the destinations
    */
-  public List<LogDestination> getDestinations() {
+  public List<LogDestination> getDestinations() throws IllegalAccessException {
     GetAllDestinationsVisitor visitor = new GetAllDestinationsVisitor();
     visitor.setTarget(getTarget());
     visitor.setApplication(getApplication());
@@ -40,7 +40,7 @@ public class CommonsLoggerAccessor extends DefaultAccessor {
    *
    * @return the destination
    */
-  public LogDestination getDestination(String logIndex) {
+  public LogDestination getDestination(String logIndex) throws IllegalAccessException {
     GetSingleDestinationVisitor visitor = new GetSingleDestinationVisitor(logIndex);
     visitor.setTarget(getTarget());
     visitor.setApplication(getApplication());

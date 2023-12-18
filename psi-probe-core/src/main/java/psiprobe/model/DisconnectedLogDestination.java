@@ -75,7 +75,7 @@ public class DisconnectedLogDestination implements LogDestination, Serializable 
    *
    * @return the disconnected log destination
    */
-  public DisconnectedLogDestination builder(LogDestination destination) {
+  public DisconnectedLogDestination builder(LogDestination destination) throws IllegalAccessException {
     this.application = destination.getApplication();
     this.root = destination.isRoot();
     this.context = destination.isContext();

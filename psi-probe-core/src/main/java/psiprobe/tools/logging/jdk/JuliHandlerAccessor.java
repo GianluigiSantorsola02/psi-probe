@@ -20,7 +20,7 @@ import psiprobe.tools.Instruments;
 public class JuliHandlerAccessor extends Jdk14HandlerAccessor {
 
   @Override
-  public File getFile() {
+  public File getFile() throws IllegalAccessException {
     String dir = (String) Instruments.getField(getTarget(), "directory");
     String prefix = (String) Instruments.getField(getTarget(), "prefix");
     String suffix = (String) Instruments.getField(getTarget(), "suffix");

@@ -45,7 +45,7 @@ public class SetupFollowController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws ApplicationCreationException {
+      LogDestination logDest) throws ApplicationCreationException, IllegalAccessException {
 
     File logFile = logDest.getFile();
     List<LogDestination> sources = getLogResolver().getLogSources(logFile);

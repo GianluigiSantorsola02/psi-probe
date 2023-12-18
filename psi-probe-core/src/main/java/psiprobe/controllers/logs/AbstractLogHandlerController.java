@@ -91,6 +91,6 @@ public abstract class AbstractLogHandlerController extends ParameterizableViewCo
    * @throws HandleLogFileException the exception
    */
   protected abstract ModelAndView handleLogFile(HttpServletRequest request,
-      HttpServletResponse response, LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException, ApplicationCreationException;
+      HttpServletResponse response, LogDestination logDest) throws HandleLogFileException, ServletRequestBindingException, IOException, ApplicationCreationException, IllegalAccessException;
 
 }

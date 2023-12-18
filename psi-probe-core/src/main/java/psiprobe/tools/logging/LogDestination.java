@@ -74,21 +74,21 @@ public interface LogDestination {
    *
    * @return the file
    */
-  File getFile();
+  File getFile() throws IllegalAccessException;
 
   /**
    * Gets the size.
    *
    * @return the size
    */
-  long getSize();
+  long getSize() throws IllegalAccessException;
 
   /**
    * Gets the last modified.
    *
    * @return the last modified
    */
-  Timestamp getLastModified();
+  Timestamp getLastModified() throws IllegalAccessException;
 
   /**
    * Type of the log, e.g. "log4j", "jdk", "commons-" etc.

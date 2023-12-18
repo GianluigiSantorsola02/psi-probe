@@ -43,7 +43,6 @@ import psiprobe.tools.logging.slf4jlogback.TomcatSlf4jLogbackLoggerAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13FactoryAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13LoggerAccessor;
 
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -100,7 +99,7 @@ public class LogResolverBean {
    *
    * @return the log destinations
    */
-  public List<LogDestination> getLogDestinations(boolean all) throws ApplicationCreationException {
+  public List<LogDestination> getLogDestinations(boolean all) throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> allAppenders = getAllLogDestinations();
 
     if (allAppenders.isEmpty()) {
@@ -130,7 +129,7 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources(File logFile) throws ApplicationCreationException {
+  public List<LogDestination> getLogSources(File logFile) throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> filtered = new LinkedList<>();
     List<LogDestination> sources = getLogSources();
     for (LogDestination dest : sources) {
@@ -146,7 +145,7 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources() throws ApplicationCreationException {
+  public List<LogDestination> getLogSources() throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> sources = new LinkedList<>();
 
     List<LogDestination> allAppenders = getAllLogDestinations();
@@ -168,7 +167,7 @@ public class LogResolverBean {
    *
    * @return the all log destinations
    */
-  private List<LogDestination> getAllLogDestinations() throws ApplicationCreationException {
+  private List<LogDestination> getAllLogDestinations() throws ApplicationCreationException, IllegalAccessException {
     if (!Instruments.isInitialized()) {
       return Collections.emptyList();
     }
@@ -280,23 +279,13 @@ public class LogResolverBean {
     }
   }
 
-  private Log4J2LoggerContextAccessor getWebLoggerContextAccessor(ClassLoader cl, ServletContext servletContext) {
-    try {
-      Log4J2WebLoggerContextUtilsAccessor webLoggerContextUtilsAccessor =
-              new Log4J2WebLoggerContextUtilsAccessor(cl);
-      return webLoggerContextUtilsAccessor.getWebLoggerContext(servletContext);
-    } catch (Exception e) {
-      logger.debug("Log4J2LoggerContextAccessor instantiation failed", e);
-      return null; // or handle the exception case accordingly
-    }
-  }
   /**
    * Interrogate context.
    *
    * @param ctx the ctx
    * @param allAppenders the all appenders
    */
-  private void interrogateContext(Context ctx, List<LogDestination> allAppenders) throws ApplicationCreationException {
+  private void interrogateContext(Context ctx, List<LogDestination> allAppenders) throws ApplicationCreationException, IllegalAccessException {
     Application application = getApplication(ctx);
 
     Object contextLogger = ctx.getLogger();
@@ -329,7 +318,7 @@ public class LogResolverBean {
     return logger.getClass().getName().startsWith("org.apache.commons.logging");
   }
 
-  private void interrogateCommonsLogger(Context ctx, Application application, List<LogDestination> allAppenders) {
+  private void interrogateCommonsLogger(Context ctx, Application application, List<LogDestination> allAppenders) throws IllegalAccessException {
     CommonsLoggerAccessor commonsAccessor = new CommonsLoggerAccessor();
     commonsAccessor.setTarget(ctx.getLogger());
     commonsAccessor.setApplication(application);
@@ -345,35 +334,6 @@ public class LogResolverBean {
     catalinaAccessor.setApplication(application);
     catalinaAccessor.setTarget(ctx.getLogger());
     allAppenders.add(catalinaAccessor);
-  }
-
-  public void interrogateLog4J2Loggers(ClassLoader cl, ServletContext servletContext,
-                                        Application application, List<LogDestination> allAppenders) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
-    Log4J2LoggerContextAccessor loggerContextAccessor = getWebLoggerContextAccessor(cl, servletContext);
-    List<Object> loggerContexts = getLoggerContexts(cl);
-
-    for (Object loggerContext : loggerContexts) {
-      Map<String, Object> loggerConfigs = getLoggerConfigs(loggerContext);
-
-      for (Object loggerConfig : loggerConfigs.values()) {
-        Log4J2LoggerConfigAccessor logConfigAccessor = new Log4J2LoggerConfigAccessor();
-        logConfigAccessor.setTarget(loggerConfig);
-        logConfigAccessor.setApplication(application);
-        logConfigAccessor.setContext(true);
-        logConfigAccessor.setLoggerContext(loggerContextAccessor);
-        Method getAppenders = MethodUtils.getAccessibleMethod(loggerConfig.getClass(), "getAppenders");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> appenders = (Map<String, Object>) getAppenders.invoke(loggerConfig);
-
-        for (Object appender : appenders.values()) {
-          Log4J2AppenderAccessor appenderAccessor = new Log4J2AppenderAccessor();
-          appenderAccessor.setTarget(appender);
-          appenderAccessor.setLoggerAccessor(logConfigAccessor);
-          appenderAccessor.setApplication(application);
-          allAppenders.add(appenderAccessor);
-        }
-      }
-    }
   }
 
   /**
@@ -435,7 +395,7 @@ public class LogResolverBean {
    *
    * @return the catalina log destination
    */
-  private LogDestination getCatalinaLogDestination(Context ctx, Application application) {
+  private LogDestination getCatalinaLogDestination(Context ctx, Application application) throws IllegalAccessException {
     Object log = ctx.getLogger();
     if (log != null) {
       CatalinaLoggerAccessor logAccessor = new CatalinaLoggerAccessor();
@@ -458,7 +418,7 @@ public class LogResolverBean {
    * @return the commons log destination
    */
   private LogDestination getCommonsLogDestination(Context ctx, Application application,
-      String logIndex) {
+      String logIndex) throws IllegalAccessException {
     Object contextLogger = ctx.getLogger();
     CommonsLoggerAccessor commonsAccessor = new CommonsLoggerAccessor();
     commonsAccessor.setTarget(contextLogger);
@@ -729,8 +689,18 @@ public class LogResolverBean {
 
     @Override
     public final int compare(LogDestination o1, LogDestination o2) {
-      String name1 = convertToString(o1);
-      String name2 = convertToString(o2);
+      String name1;
+      try {
+        name1 = convertToString(o1);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+      String name2;
+      try {
+        name2 = convertToString(o2);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
       return name1.compareTo(name2);
     }
 
@@ -741,7 +711,7 @@ public class LogResolverBean {
      *
      * @return the string
      */
-    protected abstract String convertToString(LogDestination d1);
+    protected abstract String convertToString(LogDestination d1) throws IllegalAccessException;
 
   }
 
@@ -767,7 +737,7 @@ public class LogResolverBean {
     }
 
     @Override
-    protected String convertToString(LogDestination dest) {
+    protected String convertToString(LogDestination dest) throws IllegalAccessException {
       File file = dest.getFile();
       String fileName = file == null ? "" : file.getAbsolutePath();
       String name;
@@ -795,7 +765,7 @@ public class LogResolverBean {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected String convertToString(LogDestination dest) {
+    protected String convertToString(LogDestination dest) throws IllegalAccessException {
       File file = dest.getFile();
       String fileName = file == null ? "" : file.getAbsolutePath();
       Application app = dest.getApplication();
