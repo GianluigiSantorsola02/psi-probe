@@ -198,10 +198,9 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     if (!file.exists()) {
       throw new IOException("File not found: " + uri);
     }
-      assert inputStream != null;
       return Files.newInputStream((Path) inputStream);
   }
-  String customUri = System.getProperty("catalina.base");
+  String customUri = System.getProperty("catalina.base") + File.separator + "conf" + File.separator + "server.xml";
   InputStream inputStream = getStoreInputStream(customUri);
 
 
