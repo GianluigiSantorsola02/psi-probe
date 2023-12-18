@@ -69,7 +69,7 @@ public class SimpleAccessor implements Accessor {
       } catch (SecurityException ex) {
         logger.trace("", ex);
       } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
+        throw new IllegalArgumentException(e);
       }
     }
     return accessible;
@@ -88,7 +88,7 @@ public class SimpleAccessor implements Accessor {
       } catch (SecurityException ex) {
         logger.trace("", ex);
       } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
+        throw new IllegalArgumentException(e);
       }
     }
   }
