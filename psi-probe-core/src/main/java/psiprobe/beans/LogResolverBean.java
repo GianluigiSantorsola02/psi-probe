@@ -270,7 +270,7 @@ public class LogResolverBean {
       case "logback":
         return getLogbackLogDestination(cl, application, root, logName, logIndex);
       case "logback13":
-        return getLogback13LogDestination(cl, application, root, logName, logIndex);
+        return getLogback13LogDestination(cl, application, root, logIndex);
       case "tomcatSlf4jLogback":
         return getLogbackTomcatJuliLogDestination(cl, application, root, logName, logIndex);
       case "tomcatSlf4jLogback13":
@@ -645,17 +645,16 @@ public class LogResolverBean {
    * @param cl the cl
    * @param application the application
    * @param root the root
-   * @param logName the log name
    * @param appenderName the appender name
    *
    * @return the logback log destination
    */
   private LogDestination getLogback13LogDestination(ClassLoader cl, Application application,
-      boolean root, String logName, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                                    boolean root, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
     Logback13FactoryAccessor manager = new Logback13FactoryAccessor(cl);
     manager.setApplication(application);
-    Logback13LoggerAccessor log = root ? manager.getRootLogger() : manager.getLogger(logName);
+    Logback13LoggerAccessor log = root ? manager.getRootLogger() : manager.getLogger();
     if (log != null) {
       return log.getAppender(appenderName);
     }

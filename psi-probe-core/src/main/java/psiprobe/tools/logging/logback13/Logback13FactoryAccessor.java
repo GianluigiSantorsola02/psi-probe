@@ -10,14 +10,13 @@
  */
 package psiprobe.tools.logging.logback13;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
+import psiprobe.tools.logging.DefaultAccessor;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.reflect.MethodUtils;
-
-import psiprobe.tools.logging.DefaultAccessor;
 
 public class Logback13FactoryAccessor extends DefaultAccessor {
 
@@ -29,16 +28,15 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
    * @throws ClassNotFoundException the class not found exception
    * @throws IllegalAccessException the illegal access exception
    * @throws InvocationTargetException the invocation target exception
-   * @throws NoSuchMethodException the no such method exception
    * @throws SecurityException the security exception
    * @throws IllegalArgumentException the illegal argument exception
    */
   public Logback13FactoryAccessor(ClassLoader cl)
           throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
-          NoSuchMethodException, SecurityException, IllegalArgumentException, SLF4JProviderBindingException {
+          SecurityException, IllegalArgumentException, SLF4JProviderBindingException {
 
     // Get the SLF4J provider binding, which may or may not be Logback, depending on the binding.
-    final List<?> providers = findServiceProviders(cl);
+    final List<?> providers = findServiceProviders();
 
     if (providers.isEmpty()) {
         throw new SLF4JProviderBindingException("The SLF4J provider binding was not Logback");
@@ -72,17 +70,15 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
   public Logback13LoggerAccessor getRootLogger() {
     // Logback has no dedicated getRootLogger() method, so we simply access the root logger
     // by its well-defined name.
-    return getLogger("ROOT");
+    return getLogger();
   }
 
   /**
    * Returns the Logback logger with a given name.
    *
-   * @param name the name
-   *
    * @return the Logger with the given name
    */
-  public Logback13LoggerAccessor getLogger(String name) {
+  public Logback13LoggerAccessor getLogger() {
     try {
       Logback13LoggerAccessor accessor = new Logback13LoggerAccessor();
       accessor.setTarget(logger);
@@ -121,30 +117,29 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
     return appenders;
   }
 
-  /**
-   * Find service providers.
-   *
-   * @param cl the cl
-   *
-   * @return the list
-   *
-   * @throws NoSuchMethodException the no such method exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws IllegalArgumentException the illegal argument exception
-   * @throws InvocationTargetException the invocation target exception
-   */
-  private static List<?> findServiceProviders(final ClassLoader cl)
-      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    final Class<?> loggerFactory = cl.loadClass("org.slf4j.LoggerFactory");
-    final Method findServiceProviders = loggerFactory.getDeclaredMethod("findServiceProviders");
-    // Make package protected accessible
-    findServiceProviders.setAccessible(true);
-    final List<?> providers = (List<?>) findServiceProviders.invoke(null);
-    findServiceProviders.setAccessible(false);
-    return providers;
+  private Object loggerFactory;
+
+  public void MyLoggerFactoryWrapper(ClassLoader cl) throws ClassNotFoundException, SLF4JProviderBindingException {
+    Class<?> loggerFactoryClass = cl.loadClass("org.slf4j.LoggerFactory");
+    this.loggerFactory = instantiateLoggerFactory(loggerFactoryClass);
   }
 
+  private static Object instantiateLoggerFactory(Class<?> loggerFactoryClass) throws SLF4JProviderBindingException {
+    try {
+      return loggerFactoryClass.getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      // Handle instantiation exception
+      throw new SLF4JProviderBindingException("Error instantiating LoggerFactory");
+    }
+  }
+
+  public List<?> findServiceProviders() throws SLF4JProviderBindingException {
+    try {
+      Method findServiceProviders = loggerFactory.getClass().getDeclaredMethod("findServiceProviders");
+      return (List<?>) findServiceProviders.invoke(loggerFactory);
+    } catch (Exception e) {
+      // Handle reflection exception
+      throw new SLF4JProviderBindingException("Error invoking findServiceProviders");
+    }
+  }
 }
