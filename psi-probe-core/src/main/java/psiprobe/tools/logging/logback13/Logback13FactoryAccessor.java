@@ -119,7 +119,7 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
 
   private Object loggerFactory;
 
-  public void MyLoggerFactoryWrapper(ClassLoader cl) throws ClassNotFoundException, SLF4JProviderBindingException {
+  public void myLoggerFactoryWrapper(ClassLoader cl) throws ClassNotFoundException, SLF4JProviderBindingException {
     Class<?> loggerFactoryClass = cl.loadClass("org.slf4j.LoggerFactory");
     this.loggerFactory = instantiateLoggerFactory(loggerFactoryClass);
   }
