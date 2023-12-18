@@ -10,22 +10,6 @@
  */
 package psiprobe.controllers.certificates;
 
-import org.apache.catalina.connector.Connector;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.ModelAndView;
-import psiprobe.controllers.AbstractTomcatContainerController;
-import psiprobe.model.certificates.*;
-
-import javax.management.ObjectName;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +26,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.management.ObjectName;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.connector.Connector;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import psiprobe.controllers.AbstractTomcatContainerController;
+import psiprobe.model.certificates.*;
+
 /**
  * The Class ListCertificatesController.
  */
@@ -51,12 +53,12 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
   /** The Constant logger. */
   private static final Logger log16 = LoggerFactory.getLogger(ListCertificatesController.class);
 
-    public ListCertificatesController() throws IOException {
-          // Exception generated through reflection
-    }
+  public ListCertificatesController() throws IOException {
+    // Exception generated through reflection
+  }
 
 
-    @GetMapping(path = "/certificates.htm")
+  @GetMapping(path = "/certificates.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
@@ -117,7 +119,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    */
 
   public List<Cert> getCertificates(String storeType, String storeFile, String storePassword)
-          throws KeyStoreException {
+      throws KeyStoreException {
     KeyStore keyStore;
 
     // Get key store
@@ -134,7 +136,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     }
 
     // Load key store from file
-    try (InputStream storeInput = getStoreInputStream( storeFile)) {
+    try (InputStream storeInput = getStoreInputStream(storeFile)) {
       keyStore.load(storeInput, password);
     } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
       log16.error("Error loading store file {}", storeFile, e);
@@ -171,11 +173,13 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    * @throws InvocationTargetException the invocation target exception
    */
   private List<ConnectorInfo> getConnectorInfos(List<Connector> connectors)
-          throws IllegalAccessException, InvocationTargetException {
+      throws IllegalAccessException, InvocationTargetException {
     List<ConnectorInfo> infos = new ArrayList<>();
     for (Connector connector : connectors) {
-      if (connector.getSecure() && connector.getProtocolHandler() instanceof AbstractHttp11JsseProtocol) {
-        AbstractHttp11JsseProtocol<?> protocol = (AbstractHttp11JsseProtocol<?>) connector.getProtocolHandler();
+      if (connector.getSecure()
+          && connector.getProtocolHandler() instanceof AbstractHttp11JsseProtocol) {
+        AbstractHttp11JsseProtocol<?> protocol =
+            (AbstractHttp11JsseProtocol<?>) connector.getProtocolHandler();
         if (protocol.getSecure()) {
           infos.add(toConnectorInfo(protocol));
         }
@@ -193,14 +197,15 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    *
    * @throws IOException if path can not be resolved
    */
-  private InputStream getStoreInputStream(String uri) throws IOException  {
+  private InputStream getStoreInputStream(String uri) throws IOException {
     File file = new File(uri);
     if (!file.exists()) {
       throw new IOException("File not found: " + uri);
     }
-      return Files.newInputStream((Path) inputStream);
+    return Files.newInputStream((Path) inputStream);
   }
-  String customUri = System.getProperty("catalina.base") + File.separator + "conf";
+
+  String customUri = "src/site/site.xml";
   InputStream inputStream = getStoreInputStream(customUri);
 
 
