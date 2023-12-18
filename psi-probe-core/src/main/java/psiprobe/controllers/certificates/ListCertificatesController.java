@@ -171,7 +171,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
    * @throws InvocationTargetException the invocation target exception
    */
   private List<ConnectorInfo> getConnectorInfos(List<Connector> connectors)
-      throws IllegalAccessException, InvocationTargetException {
+          throws IllegalAccessException, InvocationTargetException {
     List<ConnectorInfo> infos = new ArrayList<>();
     for (Connector connector : connectors) {
       if (connector.getSecure() && connector.getProtocolHandler() instanceof AbstractHttp11JsseProtocol) {
