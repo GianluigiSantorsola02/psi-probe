@@ -30,7 +30,7 @@ public class StatsSerializerTrigger extends CronTriggerFactoryBean {
   @Autowired
   public void setCronExpression(
       @Value("${psiprobe.beans.stats.serializer.period}") String periodExpression,
-      @Value("${psiprobe.beans.stats.serializer.phase}") String phaseExpression) {
+      @Value("${psiprobe.beans.stats.serializer.phase}") String phaseExpression) throws TimeExpression.NewCustomException {
     super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
   }
 

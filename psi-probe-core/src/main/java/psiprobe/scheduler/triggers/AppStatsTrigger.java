@@ -30,7 +30,7 @@ public class AppStatsTrigger extends CronTriggerFactoryBean {
   @Autowired
   public void setCronExpression(
       @Value("${psiprobe.beans.stats.collectors.app.period}") String periodExpression,
-      @Value("${psiprobe.beans.stats.collectors.app.phase}") String phaseExpression) {
+      @Value("${psiprobe.beans.stats.collectors.app.phase}") String phaseExpression) throws TimeExpression.NewCustomException {
     super.setCronExpression(TimeExpression.cronExpression(periodExpression, phaseExpression));
   }
 
