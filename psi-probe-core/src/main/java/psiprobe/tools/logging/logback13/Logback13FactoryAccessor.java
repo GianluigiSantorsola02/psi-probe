@@ -52,14 +52,14 @@ public class Logback13FactoryAccessor extends DefaultAccessor {
     // Call the logger factory
     Method getLoggerFactory =
         MethodUtils.getAccessibleMethod(provider.getClass(), "getLoggerFactory");
-    Object loggerFactory = getLoggerFactory.invoke(provider);
+    Object mloggerFactory = getLoggerFactory.invoke(provider);
 
     // Check if the binding is indeed Logback
     Class<?> loggerFactoryClass = cl.loadClass("ch.qos.logback.classic.LoggerContext");
-    if (!loggerFactoryClass.isInstance(loggerFactory)) {
+    if (!loggerFactoryClass.isInstance(mloggerFactory)) {
       throw new SLF4JProviderBindingException("The SLF4J provider binding was not Logback");
     }
-    setTarget(loggerFactory);
+    setTarget(mloggerFactory);
   }
 
   /**
