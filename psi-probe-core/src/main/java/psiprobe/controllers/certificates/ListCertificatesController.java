@@ -200,7 +200,7 @@ public class ListCertificatesController extends AbstractTomcatContainerControlle
     }
       return Files.newInputStream((Path) inputStream);
   }
-  String customUri = System.getProperty("catalina.base") + "/conf/keystore.jks";
+  String customUri = System.getProperty("catalina.base") + "/conf/catalina.properties";
   InputStream inputStream = getStoreInputStream(customUri);
 
 
