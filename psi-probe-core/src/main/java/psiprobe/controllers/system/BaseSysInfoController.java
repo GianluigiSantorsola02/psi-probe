@@ -10,6 +10,7 @@
  */
 package psiprobe.controllers.system;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.beans.RuntimeInfoAccessorBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
@@ -26,7 +27,7 @@ import java.util.Map;
 /**
  * Creates an instance of SystemInformation.
  */
-public class BaseSysInfoController extends AbstractTomcatContainerController {
+public abstract class BaseSysInfoController extends AbstractTomcatContainerController {
 
   /** The filter out keys. */
   private static final ThreadLocal<List<String>> threadLocalFilterOutKeys = new ThreadLocal<>();
@@ -159,5 +160,9 @@ public class BaseSysInfoController extends AbstractTomcatContainerController {
     mv.addObject("runtime", getRuntimeInfoAccessor().getRuntimeInformation());
     mv.addObject("collectionPeriod", getCollectionPeriod());
     return mv;
+  }
+
+  @Value("jmxremote.password")
+  public void setFilterOutKeys(List<String> filterOutKeys) {
   }
 }

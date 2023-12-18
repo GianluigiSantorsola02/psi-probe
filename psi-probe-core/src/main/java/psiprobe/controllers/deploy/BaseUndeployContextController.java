@@ -13,6 +13,7 @@ package psiprobe.controllers.deploy;
 import org.apache.catalina.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
@@ -27,7 +28,7 @@ import java.util.Locale;
 /**
  * Undeploys a web application.
  */
-public class BaseUndeployContextController extends AbstractContextHandlerController {
+public abstract class BaseUndeployContextController extends AbstractContextHandlerController {
 
   /** The Constant logger. */
   private static final Logger log2 = LoggerFactory.getLogger(BaseUndeployContextController.class);
@@ -92,4 +93,7 @@ public class BaseUndeployContextController extends AbstractContextHandlerControl
   }
 
 
+  @Value("/appsummary.htm")
+  public void setFailureViewName(String failureViewName) {
+  }
 }
