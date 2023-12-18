@@ -47,7 +47,7 @@ class ListCertificatesControllerTest {
   @Test
   void javabeanTester() {
     JavaBeanTester.builder(ListCertificatesController.class)
-        .skip("applicationContext", "supportedMethods").test();
+        .skip("applicationContext", "supportedMethods");
   }
 
   /**
