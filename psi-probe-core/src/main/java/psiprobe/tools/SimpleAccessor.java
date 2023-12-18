@@ -65,9 +65,11 @@ public class SimpleAccessor implements Accessor {
     boolean accessible = field.isAccessible();
     if (!accessible) {
       try {
-        field.setAccessible(true);
+        field.set(field.getDeclaringClass(), null);
       } catch (SecurityException ex) {
         logger.trace("", ex);
+      } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
       }
     }
     return accessible;
@@ -82,9 +84,11 @@ public class SimpleAccessor implements Accessor {
   private void post(Field field, boolean value) {
     if (!value) {
       try {
-        field.setAccessible(false);
+        field.set(field.getDeclaringClass(), null);
       } catch (SecurityException ex) {
         logger.trace("", ex);
+      } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
       }
     }
   }
