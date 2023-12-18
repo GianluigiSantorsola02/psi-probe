@@ -12,6 +12,7 @@ package psiprobe.tools.logging.slf4jlogback13;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,7 +101,7 @@ public class TomcatSlf4jLogback13FactoryAccessor extends DefaultAccessor {
    */
   public TomcatSlf4jLogback13LoggerAccessor getLogger(String name) {
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
+      Class<?> clazz = getTarget().getClass();
       Method getLogger = MethodUtils.getAccessibleMethod(clazz, "getLogger", String.class);
 
       Object logger = getLogger.invoke(getTarget(), name);
@@ -128,7 +129,7 @@ public class TomcatSlf4jLogback13FactoryAccessor extends DefaultAccessor {
   public List<TomcatSlf4jLogback13AppenderAccessor> getAppenders() {
     List<TomcatSlf4jLogback13AppenderAccessor> appenders = new ArrayList<>();
     try {
-      Class<? extends Object> clazz = getTarget().getClass();
+      Class<?> clazz = getTarget().getClass();
       Method getLoggerList = MethodUtils.getAccessibleMethod(clazz, "getLoggerList");
 
       List<Object> loggers = (List<Object>) getLoggerList.invoke(getTarget());
@@ -160,15 +161,17 @@ public class TomcatSlf4jLogback13FactoryAccessor extends DefaultAccessor {
    * @throws InvocationTargetException the invocation target exception
    */
   private static List<?> findServiceProviders(final ClassLoader cl)
-      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+          throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     final Class<?> loggerFactory = cl.loadClass("org.apache.juli.logging.org.slf4j.LoggerFactory");
     final Method findServiceProviders = loggerFactory.getDeclaredMethod("findServiceProviders");
-    // Make package protected accessible
-    findServiceProviders.setAccessible(true);
-    final List<?> providers = (List<?>) findServiceProviders.invoke(null);
-    findServiceProviders.setAccessible(false);
-    return providers;
+
+    // Check if the method is not public
+    if (!Modifier.isPublic(findServiceProviders.getModifiers())) {
+      throw new IllegalAccessException("Method is not public");
+    }
+
+      return (List<?>) findServiceProviders.invoke(null);
   }
 
 }
