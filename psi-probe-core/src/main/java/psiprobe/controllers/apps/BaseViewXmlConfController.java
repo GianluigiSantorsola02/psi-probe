@@ -165,6 +165,10 @@ public abstract class BaseViewXmlConfController extends AbstractContextHandlerCo
     }
   }
 
+  @Value("/adm/downloadcontextxml.htm")
+  public void setDownloadUrl(String downloadUrl) {
+  }
+
   @Value("context.xml")
   public abstract void setDownloadTarget(String downloadTarget);
 
