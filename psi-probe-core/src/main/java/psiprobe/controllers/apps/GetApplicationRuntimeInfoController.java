@@ -39,7 +39,7 @@ public class GetApplicationRuntimeInfoController extends BaseViewXmlConfControll
 
   @Override
   public void setDisplayTarget(String downloadTarget) {
-
+    super.setDisplayTarget(Long.parseLong(downloadTarget));
   }
 
   @Override

@@ -111,7 +111,7 @@ public abstract class BaseSysInfoController extends AbstractTomcatContainerContr
   }
 
 
-  public BaseSysInfoController(RuntimeInfoAccessorBean runtimeInfoAccessor) {
+  protected BaseSysInfoController(RuntimeInfoAccessorBean runtimeInfoAccessor) {
     this.setThreadLocalRuntimeInfoAccessor(runtimeInfoAccessor);
   }
 

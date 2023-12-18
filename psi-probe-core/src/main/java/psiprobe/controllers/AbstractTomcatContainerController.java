@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.AbstractController;
 import psiprobe.beans.ContainerWrapperBean;
-import psiprobe.beans.stats.collectors.AppStatsCollectorBean;
 
 /**
  * Base class for controllers requiring access to ContainerWrapperBean.

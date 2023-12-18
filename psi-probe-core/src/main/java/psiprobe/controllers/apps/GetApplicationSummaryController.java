@@ -50,7 +50,7 @@ public class GetApplicationSummaryController extends BaseViewXmlConfController {
 
   @Override
   public void setDisplayTarget(String downloadTarget) {
-
+    super.setDisplayTarget(Long.parseLong(downloadTarget));
   }
 
   @Override

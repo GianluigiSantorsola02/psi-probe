@@ -62,7 +62,7 @@ public abstract class BaseClusterStatsController extends AbstractTomcatContainer
   /** The collection period. */
   private long collectionPeriod;
 
-  public BaseClusterStatsController() {
+  protected BaseClusterStatsController() {
     super();
   }
 

@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psiprobe.beans.ContainerListenerBean;
 
 /**
  * The Class SimpleAccessor.

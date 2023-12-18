@@ -650,7 +650,7 @@ public class LogResolverBean {
    * @return the logback log destination
    */
   private LogDestination getLogback13LogDestination(ClassLoader cl, Application application,
-                                                    boolean root, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                                    boolean root, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
 
     Logback13FactoryAccessor manager = new Logback13FactoryAccessor(cl);
     manager.setApplication(application);
