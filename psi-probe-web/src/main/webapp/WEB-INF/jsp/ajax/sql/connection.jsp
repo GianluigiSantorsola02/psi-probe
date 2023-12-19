@@ -18,11 +18,12 @@
 
 <div id="sqlResultsContainer">
 
-    <c:if test="${! empty errorMessage}">
+    <c:if test="${not empty errorMessage}">
         <div class="errorMessage">
-            <p>${errorMessage}</p>
+            <p><c:out value="${errorMessage}" /></p>
         </div>
     </c:if>
+
 
     <c:if test="${! empty dbMetaData}">
         <div id="dbMetaData" class="sqlResultsContainer">
