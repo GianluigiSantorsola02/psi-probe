@@ -29,6 +29,8 @@ import javax.inject.Inject;
 @WebAppConfiguration
 class ListCertificatesControllerTest {
 
+
+
   /** The ctx. */
   @Inject
   private WebApplicationContext ctx;
@@ -37,12 +39,12 @@ class ListCertificatesControllerTest {
     this.ctx = ctx;
   }
 
-//  @Test
-//  void javabeanTester() {
-//    JavaBeanTester.builder(ListCertificatesController.class)
-//        .skip("applicationContext", "supportedMethods");
-//
-//  }
+  @Test
+  void javabeanTester() {
+    JavaBeanTester.builder(ListCertificatesController.class)
+        .skip("applicationContext", "supportedMethods");
+
+  }
 
 //  /**
 //   * Test get certificates.
