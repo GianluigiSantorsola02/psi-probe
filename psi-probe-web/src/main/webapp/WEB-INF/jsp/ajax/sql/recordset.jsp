@@ -21,7 +21,7 @@
 
     <c:if test="${! empty errorMessage}">
         <div id="rs_error" class="errorMessage">
-            <p>${errorMessage}</p>
+            <!-- Error message is not displayed -->
         </div>
     </c:if>
 
