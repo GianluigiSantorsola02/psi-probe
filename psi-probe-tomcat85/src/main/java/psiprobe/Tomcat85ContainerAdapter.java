@@ -270,6 +270,10 @@ public class Tomcat85ContainerAdapter extends AbstractTomcatContainer {
   @Override
   protected void processSummaryItems(ServletConfig servletConfig, Context context, Summary summary) {
 
+    String contextName = context.getName();
+    if (contextName != null && !contextName.isEmpty()) {
+      summary.add("Context", contextName);
+    }
   }
 
   /**

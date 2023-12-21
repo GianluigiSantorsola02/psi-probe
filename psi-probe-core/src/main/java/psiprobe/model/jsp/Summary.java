@@ -84,4 +84,10 @@ public class Summary implements Serializable {
     this.outOfDateCount = outOfDateCount;
   }
 
+    public void add(String context, String contextName) {
+        Item item = new Item();
+        item.setContext(context);
+        item.setContextName(contextName);
+        items.put(context, item);
+    }
 }
