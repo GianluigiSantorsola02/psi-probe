@@ -30,9 +30,7 @@
 
         <c:if test="${! empty errorMessage}">
             <div class="errorMessage">
-                <p>
-                    ${errorMessage}
-                </p>
+                <!-- Error message is not displayed -->
             </div>
         </c:if>
 
