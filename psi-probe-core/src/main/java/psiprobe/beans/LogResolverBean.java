@@ -10,12 +10,19 @@
  */
 package psiprobe.beans;
 
+import java.io.File;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Loader;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import psiprobe.model.Application;
 import psiprobe.model.DisconnectedLogDestination;
 import psiprobe.tools.ApplicationUtils;
@@ -42,12 +49,6 @@ import psiprobe.tools.logging.slf4jlogback.TomcatSlf4jLogbackFactoryAccessor;
 import psiprobe.tools.logging.slf4jlogback.TomcatSlf4jLogbackLoggerAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13FactoryAccessor;
 import psiprobe.tools.logging.slf4jlogback13.TomcatSlf4jLogback13LoggerAccessor;
-
-import java.io.File;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * The Class LogResolverBean.
@@ -99,7 +100,8 @@ public class LogResolverBean {
    *
    * @return the log destinations
    */
-  public List<LogDestination> getLogDestinations(boolean all) throws ApplicationCreationException, IllegalAccessException {
+  public List<LogDestination> getLogDestinations(boolean all)
+          throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> allAppenders = getAllLogDestinations();
 
     if (allAppenders.isEmpty()) {
@@ -115,7 +117,7 @@ public class LogResolverBean {
     allAppenders.sort(cmp);
     for (LogDestination dest : allAppenders) {
       if (Collections.binarySearch(uniqueList, dest, cmp) < 0
-          && (all || dest.getFile() == null || dest.getFile().exists())) {
+              && (all || dest.getFile() == null || dest.getFile().exists())) {
         uniqueList.add(new DisconnectedLogDestination().builder(dest));
       }
     }
@@ -129,7 +131,8 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources(File logFile) throws ApplicationCreationException, IllegalAccessException {
+  public List<LogDestination> getLogSources(File logFile)
+          throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> filtered = new LinkedList<>();
     List<LogDestination> sources = getLogSources();
     for (LogDestination dest : sources) {
@@ -145,7 +148,8 @@ public class LogResolverBean {
    *
    * @return the log sources
    */
-  public List<LogDestination> getLogSources() throws ApplicationCreationException, IllegalAccessException {
+  public List<LogDestination> getLogSources()
+          throws ApplicationCreationException, IllegalAccessException {
     List<LogDestination> sources = new LinkedList<>();
 
     List<LogDestination> allAppenders = getAllLogDestinations();
@@ -167,7 +171,8 @@ public class LogResolverBean {
    *
    * @return the all log destinations
    */
-  private List<LogDestination> getAllLogDestinations() throws ApplicationCreationException, IllegalAccessException {
+  private List<LogDestination> getAllLogDestinations()
+          throws ApplicationCreationException, IllegalAccessException {
     if (!Instruments.isInitialized()) {
       return Collections.emptyList();
     }
@@ -199,10 +204,13 @@ public class LogResolverBean {
   }
 
 
-   private static final String LOG_4J2_STRING = "log4j2String";
+  private static final String LOG_4J2_STRING = "log4j2String";
 
   public LogDestination getLogDestination(String logType, String webapp, boolean context,
-                                          boolean root, String logName, String logIndex) throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                          boolean root, String logName, String logIndex)
+          throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException,
+          ClassNotFoundException, InvocationTargetException, IllegalAccessException,
+          NoSuchMethodException {
     LogDestination result;
     Context ctx = null;
     Application application = null;
@@ -219,8 +227,10 @@ public class LogResolverBean {
     return result;
   }
 
-  private LogDestination handleLogType(String logType, Context ctx, Application application, boolean context,
-                                       boolean root, String logName, String logIndex) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+  private LogDestination handleLogType(String logType, Context ctx, Application application,
+                                       boolean context, boolean root, String logName, String logIndex)
+          throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException,
+          IllegalAccessException, NoSuchMethodException {
     LogDestination result = null;
     if (logName != null && "stdout".equals(logType)) {
       result = getStdoutLogDestination(logName);
@@ -246,8 +256,8 @@ public class LogResolverBean {
   }
 
   private boolean isSupportedLogger(String logType) {
-    List<String> supportedLoggers = Arrays.asList("jdk", "log4j", LOG_4J2_STRING, "logback", "logback13",
-            "tomcatSlf4jLogback", "tomcatSlf4jLogback13");
+    List<String> supportedLoggers = Arrays.asList("jdk", "log4j", LOG_4J2_STRING, "logback",
+            "logback13", "tomcatSlf4jLogback", "tomcatSlf4jLogback13");
     return supportedLoggers.contains(logType);
   }
 
@@ -260,7 +270,9 @@ public class LogResolverBean {
   }
 
   private LogDestination getLogDestinationByType(String logType, ClassLoader cl,
-                                                 Application application, boolean root, String logName, String logIndex) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                                 Application application, boolean root, String logName, String logIndex)
+          throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException,
+          IllegalAccessException, NoSuchMethodException {
     switch (logType) {
       case "jdk":
         return getJdk14LogDestination(cl, application, root, logName, logIndex);
@@ -285,7 +297,8 @@ public class LogResolverBean {
    * @param ctx the ctx
    * @param allAppenders the all appenders
    */
-  private void interrogateContext(Context ctx, List<LogDestination> allAppenders) throws ApplicationCreationException, IllegalAccessException {
+  private void interrogateContext(Context ctx, List<LogDestination> allAppenders)
+          throws ApplicationCreationException, IllegalAccessException {
     Application application = getApplication(ctx);
 
     Object contextLogger = ctx.getLogger();
@@ -300,7 +313,8 @@ public class LogResolverBean {
     }
 
     if (application.isAvailable()) {
-      interrogateCommonsLogger(ctx, application, allAppenders);}
+      interrogateCommonsLogger(ctx, application, allAppenders);
+    }
   }
 
   private Application getApplication(Context ctx) throws ApplicationCreationException {
@@ -318,7 +332,8 @@ public class LogResolverBean {
     return logger.getClass().getName().startsWith("org.apache.commons.logging");
   }
 
-  private void interrogateCommonsLogger(Context ctx, Application application, List<LogDestination> allAppenders) throws IllegalAccessException {
+  private void interrogateCommonsLogger(Context ctx, Application application,
+                                        List<LogDestination> allAppenders) throws IllegalAccessException {
     CommonsLoggerAccessor commonsAccessor = new CommonsLoggerAccessor();
     commonsAccessor.setTarget(ctx.getLogger());
     commonsAccessor.setApplication(application);
@@ -329,7 +344,8 @@ public class LogResolverBean {
     return logger.getClass().getName().startsWith("org.apache.catalina.logger");
   }
 
-  private void interrogateCatalinaLogger(Context ctx, Application application, List<LogDestination> allAppenders) {
+  private void interrogateCatalinaLogger(Context ctx, Application application,
+                                         List<LogDestination> allAppenders) {
     CatalinaLoggerAccessor catalinaAccessor = new CatalinaLoggerAccessor();
     catalinaAccessor.setApplication(application);
     catalinaAccessor.setTarget(ctx.getLogger());
@@ -395,7 +411,8 @@ public class LogResolverBean {
    *
    * @return the catalina log destination
    */
-  private LogDestination getCatalinaLogDestination(Context ctx, Application application) throws IllegalAccessException {
+  private LogDestination getCatalinaLogDestination(Context ctx, Application application)
+          throws IllegalAccessException {
     Object log = ctx.getLogger();
     if (log != null) {
       CatalinaLoggerAccessor logAccessor = new CatalinaLoggerAccessor();
@@ -418,7 +435,7 @@ public class LogResolverBean {
    * @return the commons log destination
    */
   private LogDestination getCommonsLogDestination(Context ctx, Application application,
-      String logIndex) throws IllegalAccessException {
+                                                  String logIndex) throws IllegalAccessException {
     Object contextLogger = ctx.getLogger();
     CommonsLoggerAccessor commonsAccessor = new CommonsLoggerAccessor();
     commonsAccessor.setTarget(contextLogger);
@@ -438,7 +455,7 @@ public class LogResolverBean {
    * @return the jdk14 log destination
    */
   private LogDestination getJdk14LogDestination(ClassLoader cl, Application application,
-      boolean root, String logName, String handlerIndex) {
+                                                boolean root, String logName, String handlerIndex) {
 
     try {
       Jdk14ManagerAccessor manager = new Jdk14ManagerAccessor(cl);
@@ -465,7 +482,7 @@ public class LogResolverBean {
    * @return the log4j log destination
    */
   private LogDestination getLog4JLogDestination(ClassLoader cl, Application application,
-      boolean root, String logName, String appenderName) {
+                                                boolean root, String logName, String appenderName) {
 
     try {
       Log4JManagerAccessor manager = new Log4JManagerAccessor(cl);
@@ -477,7 +494,7 @@ public class LogResolverBean {
     } catch (Exception | SLF4JBridgeException e) {
       logger.debug("getLog4JLogDestination failed", e);
     }
-      return null;
+    return null;
   }
 
   /**
@@ -492,16 +509,16 @@ public class LogResolverBean {
    * @return the log4j2 log destination
    */
   private LogDestination getLog4J2LogDestination(Context ctx, Application application, boolean root,
-      String logName, String appenderName) {
+                                                 String logName, String appenderName) {
 
     Log4J2AppenderAccessor result = null;
     try {
       Loader loader = ctx.getLoader();
       ClassLoader classLoader = loader.getClassLoader();
       Log4J2WebLoggerContextUtilsAccessor webLoggerContextUtilsAccessor =
-          new Log4J2WebLoggerContextUtilsAccessor(classLoader);
+              new Log4J2WebLoggerContextUtilsAccessor(classLoader);
       Log4J2LoggerContextAccessor loggerContextAccessor =
-          webLoggerContextUtilsAccessor.getWebLoggerContext(ctx.getServletContext());
+              webLoggerContextUtilsAccessor.getWebLoggerContext(ctx.getServletContext());
       List<Object> loggerContexts = getLoggerContexts(classLoader);
       Object loggerConfig = null;
       for (Object loggerContext : loggerContexts) {
@@ -538,13 +555,14 @@ public class LogResolverBean {
    * @throws InvocationTargetException the invocation target exception
    */
   private Map<String, Object> getLoggerConfigs(Object loggerContext)
-      throws IllegalAccessException, InvocationTargetException {
+          throws IllegalAccessException, InvocationTargetException {
     Method getConfiguration =
-        MethodUtils.getAccessibleMethod(loggerContext.getClass(), "getConfiguration");
+            MethodUtils.getAccessibleMethod(loggerContext.getClass(), "getConfiguration");
     Object configuration = getConfiguration.invoke(loggerContext);
     Method getLoggerConfigs =
-        MethodUtils.getAccessibleMethod(configuration.getClass(), "getLoggers");
-      return Collections.unmodifiableMap((Map<String, Object>) getLoggerConfigs.invoke(configuration));
+            MethodUtils.getAccessibleMethod(configuration.getClass(), "getLoggers");
+    return Collections
+            .unmodifiableMap((Map<String, Object>) getLoggerConfigs.invoke(configuration));
   }
 
   /**
@@ -563,10 +581,10 @@ public class LogResolverBean {
    * @throws SecurityException the security exception
    */
   private List<Object> getLoggerContexts(ClassLoader cl) throws ClassNotFoundException,
-      InstantiationException, IllegalAccessException, InvocationTargetException,
-      IllegalArgumentException, NoSuchMethodException, SecurityException {
+          InstantiationException, IllegalAccessException, InvocationTargetException,
+          IllegalArgumentException, NoSuchMethodException, SecurityException {
     Class<?> clazz =
-        cl.loadClass("org.apache.logging.log4j.core.selector.ClassLoaderContextSelector");
+            cl.loadClass("org.apache.logging.log4j.core.selector.ClassLoaderContextSelector");
     Object classLoaderContextSelector = clazz.getDeclaredConstructor().newInstance();
     Method getLoggerContexts = MethodUtils.getAccessibleMethod(clazz, "getLoggerContexts");
     return (List<Object>) getLoggerContexts.invoke(classLoaderContextSelector);
@@ -584,7 +602,7 @@ public class LogResolverBean {
    * @return the logback log destination
    */
   private LogDestination getLogbackLogDestination(ClassLoader cl, Application application,
-      boolean root, String logName, String appenderName) {
+                                                  boolean root, String logName, String appenderName) {
 
     try {
       LogbackFactoryAccessor manager = new LogbackFactoryAccessor(cl);
@@ -596,7 +614,7 @@ public class LogResolverBean {
     } catch (Exception | TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
       logger.debug("getLogbackLogDestination failed", e);
     }
-      return null;
+    return null;
   }
 
   /**
@@ -610,7 +628,8 @@ public class LogResolverBean {
    * @return the logback log destination
    */
   private LogDestination getLogback13LogDestination(ClassLoader cl, Application application,
-                                                    boolean root, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+                                                    boolean root, String appenderName) throws SLF4JProviderBindingException,
+          ClassNotFoundException, InvocationTargetException, IllegalAccessException {
 
     Logback13FactoryAccessor manager = new Logback13FactoryAccessor(cl);
     manager.setApplication(application);
@@ -633,20 +652,20 @@ public class LogResolverBean {
    * @return the logback tomcat juli log destination
    */
   private LogDestination getLogbackTomcatJuliLogDestination(ClassLoader cl, Application application,
-      boolean root, String logName, String appenderName) {
+                                                            boolean root, String logName, String appenderName) {
 
     try {
       TomcatSlf4jLogbackFactoryAccessor manager = new TomcatSlf4jLogbackFactoryAccessor(cl);
       manager.setApplication(application);
       TomcatSlf4jLogbackLoggerAccessor log =
-          root ? manager.getRootLogger() : manager.getLogger(logName);
+              root ? manager.getRootLogger() : manager.getLogger(logName);
       if (log != null) {
         return log.getAppender(appenderName);
       }
     } catch (Exception | TomcatSlf4jLogbackFactoryAccessor.SLF4JBindingException e) {
       logger.debug("getTomcatSlf4jLogbackLogDestination failed", e);
     }
-      return null;
+    return null;
   }
 
   /**
@@ -661,16 +680,18 @@ public class LogResolverBean {
    * @return the logback tomcat juli log destination
    */
   private LogDestination getLogback13TomcatJuliLogDestination(ClassLoader cl,
-      Application application, boolean root, String logName, String appenderName) throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                                              Application application, boolean root, String logName, String appenderName)
+          throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException,
+          IllegalAccessException, NoSuchMethodException {
 
 
-      TomcatSlf4jLogback13FactoryAccessor manager = new TomcatSlf4jLogback13FactoryAccessor(cl);
-      manager.setApplication(application);
-      TomcatSlf4jLogback13LoggerAccessor log =
-          root ? manager.getRootLogger() : manager.getLogger(logName);
-      if (log != null) {
-        return log.getAppender(appenderName);
-      }
+    TomcatSlf4jLogback13FactoryAccessor manager = new TomcatSlf4jLogback13FactoryAccessor(cl);
+    manager.setApplication(application);
+    TomcatSlf4jLogback13LoggerAccessor log =
+            root ? manager.getRootLogger() : manager.getLogger(logName);
+    if (log != null) {
+      return log.getAppender(appenderName);
+    }
 
     return null;
   }
@@ -679,7 +700,7 @@ public class LogResolverBean {
    * The Class AbstractLogComparator.
    */
   private abstract static class AbstractLogComparator
-      implements Comparator<LogDestination>, Serializable {
+          implements Comparator<LogDestination>, Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
@@ -693,13 +714,13 @@ public class LogResolverBean {
       try {
         name1 = convertToString(o1);
       } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+        throw new ClassCastException(e.getMessage());
       }
       String name2;
       try {
         name2 = convertToString(o2);
       } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+        throw new ClassCastException(e.getMessage());
       }
       return name1.compareTo(name2);
     }
@@ -719,7 +740,7 @@ public class LogResolverBean {
    * The Class LogDestinationComparator.
    */
   private static class LogDestinationComparator extends AbstractLogComparator
-      implements Serializable {
+          implements Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
@@ -775,7 +796,7 @@ public class LogResolverBean {
       String root = dest.isRoot() ? "is" : "not";
       String logName = dest.getName();
       return appName + DELIM + logType + DELIM + context + DELIM + root + DELIM + logName + DELIM
-          + fileName;
+              + fileName;
     }
 
   }
