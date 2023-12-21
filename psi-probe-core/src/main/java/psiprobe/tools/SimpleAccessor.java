@@ -79,7 +79,7 @@ public class SimpleAccessor implements Accessor {
    * @param field the field
    * @param value the value
    */
-  private void post(Field field, boolean value) throws IllegalAccessException {
+  private void post(Field field, boolean value) {
     if (!value) {
       try {
         field.setAccessible(false);
