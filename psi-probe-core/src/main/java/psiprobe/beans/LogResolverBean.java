@@ -54,6 +54,13 @@ import java.util.*;
  */
 public class LogResolverBean {
 
+  public static class LogComparisonException extends Exception {
+
+    public LogComparisonException(String message) {
+      super(message);
+    }
+  }
+
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(LogResolverBean.class);
 
@@ -675,6 +682,8 @@ public class LogResolverBean {
     return null;
   }
 
+
+
   /**
    * The Class AbstractLogComparator.
    */
@@ -693,13 +702,21 @@ public class LogResolverBean {
       try {
         name1 = convertToString(o1);
       } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+        try {
+          throw new LogComparisonException(e.getMessage());
+        } catch (LogComparisonException ex) {
+          throw new RuntimeException(ex);
+        }
       }
       String name2;
       try {
         name2 = convertToString(o2);
       } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+        try {
+          throw new LogComparisonException(e.getMessage());
+        } catch (LogComparisonException ex) {
+          throw new RuntimeException(ex);
+        }
       }
       return name1.compareTo(name2);
     }

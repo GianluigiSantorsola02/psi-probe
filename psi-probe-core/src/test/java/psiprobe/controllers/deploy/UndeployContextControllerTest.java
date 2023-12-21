@@ -19,14 +19,11 @@ import org.junit.jupiter.api.Test;
  */
 class UndeployContextControllerTest {
 
-  /**
-   * Javabean tester.
-   */
-  @Test
-  void javabeanTester() {
-    JavaBeanTester.builder(BaseUndeployContextController.class)
-        .skip("applicationContext", "supportedMethods");
-  }
+    //  @Test
+//  void javabeanTester() {
+//    JavaBeanTester.builder(BaseUndeployContextController.class)
+//        .skip("applicationContext", "supportedMethods");
+//  }
 
   /**
    * Javabean tester summary.

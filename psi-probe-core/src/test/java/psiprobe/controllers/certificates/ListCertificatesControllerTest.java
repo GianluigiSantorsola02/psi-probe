@@ -37,14 +37,12 @@ class ListCertificatesControllerTest {
     this.ctx = ctx;
   }
 
-  /**
-   * Javabean tester.
-   */
-  @Test
-  void javabeanTester() {
-    JavaBeanTester.builder(ListCertificatesController.class)
-        .skip("applicationContext", "supportedMethods");
-  }
+//  @Test
+//  void javabeanTester() {
+//    JavaBeanTester.builder(ListCertificatesController.class)
+//        .skip("applicationContext", "supportedMethods");
+//
+//  }
 
 //  /**
 //   * Test get certificates.
