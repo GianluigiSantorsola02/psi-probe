@@ -31,7 +31,7 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
 
   @Override
   public File getFile() throws IllegalAccessException {
-    String PotDirTraversal = "Potential directory traversal attempt";
+    String potDirTraversal = "Potential directory traversal attempt";
 
     String dir = (String) invokeMethod(getTarget(), "getDirectory", null, null);
     String prefix = (String) invokeMethod(getTarget(), "getPrefix", null, null);
@@ -42,7 +42,7 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
 
     // Validate the file path to prevent directory traversal
     if (!filePath.startsWith(Paths.get(dir).normalize())) {
-      throw new DirectoryTraversalException(PotDirTraversal);
+      throw new DirectoryTraversalException(potDirTraversal);
     }
 
     File file = filePath.toFile();
@@ -65,7 +65,7 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
   private static void ensurePathIsRelative(File file) {
     String canonicalPath;
     String absolutePath;
-    String PotDirTraversal = "Potential directory traversal attempt";
+    String potDirTraversal = "Potential directory traversal attempt";
 
     if (file.isAbsolute()) {
       throw new DirectoryTraversalException("Potential directory traversal attempt - absolute path not allowed");
@@ -75,20 +75,12 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      throw new DirectoryTraversalException(PotDirTraversal);
+      throw new DirectoryTraversalException(potDirTraversal);
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new DirectoryTraversalException(PotDirTraversal);
+      throw new DirectoryTraversalException(potDirTraversal);
     }
   }
 
-  private boolean notNull(String... strings) {
-    for (String string : strings) {
-      if (string == null) {
-        return false;
-      }
-    }
-    return true;
-  }
 }
