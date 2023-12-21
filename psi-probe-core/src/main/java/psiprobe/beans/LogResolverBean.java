@@ -11,6 +11,7 @@
 package psiprobe.beans;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -101,7 +102,7 @@ public class LogResolverBean {
    * @return the log destinations
    */
   public List<LogDestination> getLogDestinations(boolean all)
-          throws ApplicationCreationException, IllegalAccessException {
+          throws ApplicationCreationException, IllegalAccessException, IOException {
     List<LogDestination> allAppenders = getAllLogDestinations();
 
     if (allAppenders.isEmpty()) {
@@ -132,7 +133,7 @@ public class LogResolverBean {
    * @return the log sources
    */
   public List<LogDestination> getLogSources(File logFile)
-          throws ApplicationCreationException, IllegalAccessException {
+          throws ApplicationCreationException, IllegalAccessException, IOException {
     List<LogDestination> filtered = new LinkedList<>();
     List<LogDestination> sources = getLogSources();
     for (LogDestination dest : sources) {
@@ -149,7 +150,7 @@ public class LogResolverBean {
    * @return the log sources
    */
   public List<LogDestination> getLogSources()
-          throws ApplicationCreationException, IllegalAccessException {
+          throws ApplicationCreationException, IllegalAccessException, IOException {
     List<LogDestination> sources = new LinkedList<>();
 
     List<LogDestination> allAppenders = getAllLogDestinations();
@@ -172,7 +173,7 @@ public class LogResolverBean {
    * @return the all log destinations
    */
   private List<LogDestination> getAllLogDestinations()
-          throws ApplicationCreationException, IllegalAccessException {
+          throws ApplicationCreationException, IllegalAccessException, IOException {
     if (!Instruments.isInitialized()) {
       return Collections.emptyList();
     }
@@ -210,7 +211,7 @@ public class LogResolverBean {
                                           boolean root, String logName, String logIndex)
           throws ApplicationUtils.ApplicationResourcesException, SLF4JProviderBindingException,
           ClassNotFoundException, InvocationTargetException, IllegalAccessException,
-          NoSuchMethodException {
+          NoSuchMethodException, IOException {
     LogDestination result;
     Context ctx = null;
     Application application = null;
@@ -230,7 +231,7 @@ public class LogResolverBean {
   private LogDestination handleLogType(String logType, Context ctx, Application application,
                                        boolean context, boolean root, String logName, String logIndex)
           throws SLF4JProviderBindingException, ClassNotFoundException, InvocationTargetException,
-          IllegalAccessException, NoSuchMethodException {
+          IllegalAccessException, NoSuchMethodException, IOException {
     LogDestination result = null;
     if (logName != null && "stdout".equals(logType)) {
       result = getStdoutLogDestination(logName);
@@ -357,7 +358,7 @@ public class LogResolverBean {
    *
    * @param appenders the appenders
    */
-  private void interrogateStdOutFiles(List<LogDestination> appenders) {
+  private void interrogateStdOutFiles(List<LogDestination> appenders) throws IOException {
     for (String fileName : stdoutFiles) {
       FileLogAccessor fla = resolveStdoutLogDestination(fileName);
       if (fla != null) {
@@ -373,7 +374,7 @@ public class LogResolverBean {
    *
    * @return the stdout log destination
    */
-  private LogDestination getStdoutLogDestination(String logName) {
+  private LogDestination getStdoutLogDestination(String logName) throws IOException {
     for (String fileName : stdoutFiles) {
       if (fileName.equals(logName)) {
         FileLogAccessor fla = resolveStdoutLogDestination(fileName);
@@ -392,9 +393,15 @@ public class LogResolverBean {
    *
    * @return the file log accessor
    */
-  private FileLogAccessor resolveStdoutLogDestination(String fileName) {
+  private FileLogAccessor resolveStdoutLogDestination(String fileName) throws IOException {
+    if (!fileName.matches("^[a-zA-Z0-9_.]+$")) {
+      logger.warn("Invalid log name: " + fileName);
+      return null;
+    }
+
     File stdout = new File(System.getProperty("catalina.base"), "logs/" + fileName);
-    if (stdout.exists()) {
+
+    if (stdout.exists() && stdout.isFile() && stdout.getCanonicalPath().startsWith("/path/to/catalina/base/logs/")) {
       FileLogAccessor fla = new FileLogAccessor();
       fla.setName(fileName);
       fla.setFile(stdout);
@@ -402,6 +409,7 @@ public class LogResolverBean {
     }
     return null;
   }
+
 
   /**
    * Gets the catalina log destination.
