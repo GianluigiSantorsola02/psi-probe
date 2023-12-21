@@ -21,10 +21,7 @@ import java.util.Set;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Valve;
-import org.apache.catalina.WebResource;
+import org.apache.catalina.*;
 import org.apache.catalina.deploy.NamingResourcesImpl;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -54,8 +51,10 @@ public class Tomcat85ContainerAdapter extends AbstractTomcatContainer {
 
   @Override
   public void stop(String name) throws StopException, LifecycleException, InterruptedException {
-
+    logger.info("Tomcat stopped");
   }
+
+
 
   @Override
   public boolean canBoundTo(String binding) {

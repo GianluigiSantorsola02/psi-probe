@@ -86,8 +86,7 @@ public class Summary implements Serializable {
 
     public void add(String context, String contextName) {
         Item item = new Item();
-        item.setContext(context);
-        item.setContextName(contextName);
+        item.setName(contextName);
         items.put(context, item);
     }
 }
