@@ -90,11 +90,10 @@ public class TrustStoreController extends AbstractTomcatContainerController {
     try {
       KeyStore ks = KeyStore.getInstance("JKS");
       ks.load(fis, chars);
-    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
-      mylogger.error("Failed to load keystore: ", e);
-      throw new KeyStoreLoadException(e.getMessage(), e);
-    } catch (IOException e) {
-      throw new KeyStoreLoadException(e.getMessage(), e);
+    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+      String errorMessage = "Failed to load keystore: " + e.getMessage();
+      mylogger.error(errorMessage, e);
+      throw new KeyStoreLoadException(errorMessage, e);
     }
   }
 

@@ -54,7 +54,7 @@ public class Tomcat90ContainerAdapter extends AbstractTomcatContainer {
 
   @Override
   public void stop(String name) throws StopException, LifecycleException, InterruptedException {
-
+    logger.info("Tomcat stopped");
   }
 
   @Override
@@ -269,6 +269,10 @@ public class Tomcat90ContainerAdapter extends AbstractTomcatContainer {
   @Override
   protected void processSummaryItems(ServletConfig servletConfig, Context context, Summary summary) {
 
+    String contextName = context.getName();
+    if (contextName != null && !contextName.isEmpty()) {
+      summary.add("Context", contextName);
+    }
   }
 
   /**
