@@ -34,10 +34,8 @@
         <c:choose>
             <c:when test="${! empty resources}">
                 <c:if test="${! empty requestScope.errorMessage}">
-                    <div class="erroMessage">
-                        <p>
-                            ${requestScope.errorMessage}
-                        </p>
+                    <div class="errorMessage">
+                        <!-- Error message is not displayed -->
                     </div>
                 </c:if>
                 <div id="resources">
