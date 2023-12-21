@@ -253,7 +253,7 @@ public class Tomcat85ContainerAdapter extends AbstractTomcatContainer {
   }
 
   @Override
-  public InputStream getResourceStream(String name, Context context) throws IOException {
+  public InputStream getResourceStream(String name, Context context) {
     WebResource resource = context.getResources().getResource(name);
     return resource.getInputStream();
   }
