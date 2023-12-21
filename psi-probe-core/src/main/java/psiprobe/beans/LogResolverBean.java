@@ -395,7 +395,7 @@ public class LogResolverBean {
    */
   private FileLogAccessor resolveStdoutLogDestination(String fileName) throws IOException {
     if (!fileName.matches("^[a-zA-Z0-9_.]+$")) {
-      logger.warn("Invalid log name: " + fileName);
+      logger.warn("Invalid log name: {}", fileName);
       return null;
     }
 
