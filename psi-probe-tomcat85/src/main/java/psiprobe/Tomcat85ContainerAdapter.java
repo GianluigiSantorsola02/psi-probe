@@ -10,34 +10,26 @@
  */
 package psiprobe;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-
-import org.apache.catalina.*;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Valve;
+import org.apache.catalina.WebResource;
 import org.apache.catalina.deploy.NamingResourcesImpl;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.naming.ContextAccessController;
-import org.apache.tomcat.util.descriptor.web.ApplicationParameter;
-import org.apache.tomcat.util.descriptor.web.ContextResource;
-import org.apache.tomcat.util.descriptor.web.ContextResourceLink;
-import org.apache.tomcat.util.descriptor.web.FilterDef;
-import org.apache.tomcat.util.descriptor.web.FilterMap;
-
+import org.apache.tomcat.util.descriptor.web.*;
 import psiprobe.model.ApplicationParam;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.FilterInfo;
 import psiprobe.model.FilterMapping;
 import psiprobe.model.jsp.Summary;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * The Class Tomcat85ContainerAdapter.
