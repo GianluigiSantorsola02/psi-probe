@@ -189,10 +189,8 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     if (ctx != null) {
       try {
         stop(name);
-      } catch (InterruptedException e) {
+      } catch (InterruptedException | StopException | LifecycleException e) {
         Thread.currentThread().interrupt();
-        logger.info("Stopping '{}' threw this exception:", name, e);
-      } catch (StopException | LifecycleException e) {
         logger.info("Stopping '{}' threw this exception:", name, e);
       }
       File appDir;
@@ -227,14 +225,11 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       }
 
       File configFile = getConfigFile(ctx);
-
       // Validate and sanitize the configFile path before deleting
       if (isValidConfigFile(configFile)) {
         logger.debug(DELETE_LOG_MESSAGE, configFile.getAbsolutePath());
         Utils.delete(configFile);
       } else {
-        // Handle invalid or malicious configFile path
-        logger.error("Invalid or malicious configFile path: {}", configFile.getAbsolutePath());
         throw new RemoveInternalException();
       }
 

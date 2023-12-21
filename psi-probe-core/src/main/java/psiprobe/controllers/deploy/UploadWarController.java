@@ -118,7 +118,8 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
   // Helper method to get the safe temporary directory
   private String getSafeTempDir() {
-    return "/path/to/safe/temporary/directory/";
+    String path ="/path/to/safe/temporary/directory/";
+    return path;
   }
 
   private void handleFormField(FileItem fi) {

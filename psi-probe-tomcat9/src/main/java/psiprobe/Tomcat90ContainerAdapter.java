@@ -18,9 +18,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.deploy.NamingResourcesImpl;
@@ -38,6 +40,7 @@ import psiprobe.model.ApplicationParam;
 import psiprobe.model.ApplicationResource;
 import psiprobe.model.FilterInfo;
 import psiprobe.model.FilterMapping;
+import psiprobe.model.jsp.Summary;
 
 /**
  * The Class Tomcat90ContainerAdapter.
@@ -47,6 +50,11 @@ public class Tomcat90ContainerAdapter extends AbstractTomcatContainer {
   @Override
   protected Valve createValve() {
     return new Tomcat90AgentValve();
+  }
+
+  @Override
+  public void stop(String name) throws StopException, LifecycleException, InterruptedException {
+
   }
 
   @Override
@@ -256,6 +264,11 @@ public class Tomcat90ContainerAdapter extends AbstractTomcatContainer {
     result[0] = resource.getContentLength();
     result[1] = resource.getLastModified();
     return result;
+  }
+
+  @Override
+  protected void processSummaryItems(ServletConfig servletConfig, Context context, Summary summary) {
+
   }
 
   /**
