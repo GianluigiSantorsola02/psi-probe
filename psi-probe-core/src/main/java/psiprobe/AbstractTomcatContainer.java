@@ -182,16 +182,17 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     }
   }
   @Override
-  public void remove(String name) throws RemoveException, RemoveInternalException, CheckChangesException {
+  public void remove(String name)
+          throws RemoveException, RemoveInternalException, CheckChangesException {
     name = formatContextName(name);
     Context ctx = findContext(name);
     if (ctx != null) {
       try {
         stop(name);
-      }catch (InterruptedException e) {
+      } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         logger.info("Stopping '{}' threw this exception:", name, e);
-      }catch (StopException | LifecycleException e) {
+      } catch (StopException | LifecycleException e) {
         logger.info("Stopping '{}' threw this exception:", name, e);
       }
       File appDir;
@@ -202,19 +203,71 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
         appDir = docBase;
       }
       logger.debug(DELETE_LOG_MESSAGE, appDir.getAbsolutePath());
-      Utils.delete(appDir);
+
+      // Validate and sanitize the appDir path before deleting
+      if (isValidAppDir(appDir)) {
+        Utils.delete(appDir);
+      } else {
+        // Handle invalid or malicious appDir path
+        logger.error("Invalid or malicious appDir path: {}", appDir.getAbsolutePath());
+        throw new RemoveInternalException();
+      }
+
       String warFilename = formatContextFilename(name);
       File warFile = new File(getAppBase(), warFilename + ".war");
       logger.debug(DELETE_LOG_MESSAGE, warFile.getAbsolutePath());
-      Utils.delete(warFile);
+
+      // Validate and sanitize the warFile path before deleting
+      if (isValidWarFile(warFile)) {
+        Utils.delete(warFile);
+      } else {
+        // Handle invalid or malicious warFile path
+        logger.error("Invalid or malicious warFile path: {}", warFile.getAbsolutePath());
+        throw new RemoveInternalException();
+      }
+
       File configFile = getConfigFile(ctx);
-      if (configFile != null) {
+
+      // Validate and sanitize the configFile path before deleting
+      if (isValidConfigFile(configFile)) {
         logger.debug(DELETE_LOG_MESSAGE, configFile.getAbsolutePath());
         Utils.delete(configFile);
+      } else {
+        // Handle invalid or malicious configFile path
+        logger.error("Invalid or malicious configFile path: {}", configFile.getAbsolutePath());
+        throw new RemoveInternalException();
       }
+
       removeInternal(name);
     }
   }
+
+  // Helper method to validate and sanitize the appDir path
+  private boolean isValidAppDir(File appDir) {
+    // Example: Check that the appDir is within the expected directory structure
+    String expectedAppBase = getAppBase().getAbsolutePath();
+    return appDir.exists() && appDir.isDirectory() &&
+            appDir.getAbsolutePath().startsWith(expectedAppBase);
+  }
+
+
+  // Helper method to validate and sanitize the warFile path
+  private boolean isValidWarFile(File warFile) {
+    // Example: Check that the warFile is within the expected directory structure
+    String expectedAppBase = getAppBase().getAbsolutePath();
+    return warFile.exists() && warFile.isFile() &&
+            warFile.getAbsolutePath().startsWith(expectedAppBase);
+  }
+
+
+  private boolean isValidConfigFile(File configFile) {
+    // Example: Check that the configFile is within the expected directory structure
+    String expectedConfigBase = getAppBase().getAbsolutePath();
+    return configFile != null && configFile.exists() && configFile.isFile() &&
+            configFile.getAbsolutePath().startsWith(expectedConfigBase);
+  }
+
+
   /**
    * Removes the internal.
    *

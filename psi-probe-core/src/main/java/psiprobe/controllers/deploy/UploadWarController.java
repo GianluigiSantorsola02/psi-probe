@@ -97,10 +97,28 @@ public class UploadWarController extends AbstractTomcatContainerController {
 
   private void handleWarFileItem(FileItem fi) {
     if (fi.getName() != null && !fi.getName().isEmpty()) {
-      File tmpWar = new File(System.getProperty("java.io.tmpdir"), FilenameUtils.getName(fi.getName()));
-      writeToFile(fi, tmpWar);
-      processFileItem(fi);
+      String cleanFileName = FilenameUtils.getName(fi.getName()).replaceAll("[^A-Za-z0-9\\-]", "_");
+      File tmpWar = new File(getSafeTempDir(), cleanFileName);
+
+      try {
+        // Ensure that the canonical path of the temporary file is under the safe directory
+        if (tmpWar.getCanonicalPath().startsWith(getSafeTempDir())) {
+          writeToFile(fi, tmpWar);
+          processFileItem(fi);
+        } else {
+          throw new DirectoryTraversalException(
+                  "Directory traversal attempt: " + tmpWar.getCanonicalPath());
+        }
+      } catch (Exception e) {
+        log4.error("Error handling war file item", e);
+        // Handle the exception appropriately, e.g., log or throw a custom exception
+      }
     }
+  }
+
+  // Helper method to get the safe temporary directory
+  private String getSafeTempDir() {
+    return "/path/to/safe/temporary/directory/";
   }
 
   private void handleFormField(FileItem fi) {

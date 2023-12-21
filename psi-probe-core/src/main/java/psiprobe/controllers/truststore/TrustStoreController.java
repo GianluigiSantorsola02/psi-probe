@@ -5,11 +5,12 @@
  *   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  * THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+ * WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE.
  */
 package psiprobe.controllers.truststore;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,27 +34,21 @@ import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
-/**
- * The Class TrustStoreController.
- */
 @Controller
 public class TrustStoreController extends AbstractTomcatContainerController {
 
-
-  /** The Constant logger. */
   private static final Logger mylogger = LoggerFactory.getLogger(TrustStoreController.class);
 
   @GetMapping(path = "/truststore.htm")
   @Override
   public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
+          throws Exception {
     return super.handleRequest(request, response);
   }
 
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-      HttpServletResponse response) throws Exception {
+                                               HttpServletResponse response) throws Exception {
     List<Map<String, String>> certificateList = new ArrayList<>();
     try {
       String trustStoreType = System.getProperty("javax.net.ssl.trustStoreType");
@@ -63,10 +58,11 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       } else {
         ks = KeyStore.getInstance("JKS");
       }
-      String trustStore = System.getProperty("javax.net.ssl.trustStore");
-      String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-      if (trustStore != null) {
-        loadKeyStore(Files.newInputStream(Paths.get(trustStore)), trustStorePassword.toCharArray());
+
+      // Validate and sanitize user input (trustStore)
+      String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
+      if (StringUtils.isNotBlank(trustStorePath)) {
+        loadKeyStore(Files.newInputStream(Paths.get(trustStorePath)), getPasswordFromUserInput());
 
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
@@ -77,7 +73,7 @@ public class TrustStoreController extends AbstractTomcatContainerController {
             attributes.put("alias", alias);
             attributes.put("cn", cert.getSubjectX500Principal().toString());
             attributes.put("expirationDate",
-                new SimpleDateFormat("yyyy-MM-dd").format(cert.getNotAfter()));
+                    new SimpleDateFormat("yyyy-MM-dd").format(cert.getNotAfter()));
             certificateList.add(attributes);
           }
         }
@@ -95,10 +91,17 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       KeyStore ks = KeyStore.getInstance("JKS");
       ks.load(fis, chars);
     } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
-      mylogger.error("", e);
+      mylogger.error("Failed to load keystore: ", e);
+      throw new KeyStoreLoadException(e.getMessage(), e);
     } catch (IOException e) {
-        throw new KeyStoreLoadException(e.getMessage(), e);
+      throw new KeyStoreLoadException(e.getMessage(), e);
     }
+  }
+
+  // Validate and sanitize user input (trustStorePassword)
+  private char[] getPasswordFromUserInput() {
+    String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+    return StringUtils.isNotBlank(trustStorePassword) ? trustStorePassword.toCharArray() : new char[0];
   }
 
   @Value("truststore")
@@ -106,5 +109,4 @@ public class TrustStoreController extends AbstractTomcatContainerController {
   public void setViewName(String viewName) {
     super.setViewName(viewName);
   }
-
 }
