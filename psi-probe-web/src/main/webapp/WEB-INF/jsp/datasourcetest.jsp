@@ -8,8 +8,7 @@
 <html lang="${lang}">
 
     <head>
-        <title><spring:message htmlEscape="true" code="probe.jsp.title.testDataSource" arguments="${param.webapp},${param.resource}"/></title>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='datasourcetest.css'/>"/>
+        <title><spring:message htmlEscape="true" code="probe.jsp.title.testDataSource" arguments="${fn:escapeXml(param.webapp)},${fn:escapeXml(param.resource)}"/></title>        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='datasourcetest.css'/>"/>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
         <script src="<c:url value='/js/prototype.js'/>"></script>
         <script src="<c:url value='/js/behaviour.js'/>"></script>
@@ -78,8 +77,7 @@
                 <c:if test="${param.webapp != null}">
                     <input type="hidden" name="webapp" value='<c:out value="${param.webapp}" />'/>
                 </c:if>
-                <input type="hidden" name="resource" value='<c:out value="${param.resource}" />'/>
-                <dl id="sqlDL">
+                <input type="hidden" name="resource" value='<c:out value="${fn:escapeXml(param.resource)}" />'/>                <dl id="sqlDL">
                     <dt><label for="sql"><spring:message code="probe.jsp.dataSourceTest.sqlForm.sql.label"/></label></dt>
                     <dd id="sqlContainer">
                         <textarea id="sql" name="sql" rows="5" cols="80"></textarea>
