@@ -13,7 +13,9 @@ package psiprobe.tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * The Class SimpleAccessor.
@@ -62,11 +64,13 @@ public class SimpleAccessor implements Accessor {
    * @return true, if successful
    */
   private boolean pre(Field field) {
-    boolean accessible = field.isAccessible();
+    boolean accessible = Modifier.isPublic(field.getModifiers());
     if (!accessible) {
       try {
-        field.setAccessible(true);
-      } catch (SecurityException ex) {
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.set(AccessibleObject.class, field);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.PRIVATE & ~Modifier.PROTECTED);
+      } catch (NoSuchFieldException | IllegalAccessException ex) {
         logger.trace("", ex);
       }
     }
@@ -82,8 +86,11 @@ public class SimpleAccessor implements Accessor {
   private void post(Field field, boolean value) {
     if (!value) {
       try {
-        field.setAccessible(false);
-      } catch (SecurityException ex) {
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.set(AccessibleObject.class, field);
+        int modifiers = field.getModifiers() & ~Modifier.PRIVATE & ~Modifier.PROTECTED;
+        modifiersField.setInt(field, modifiers);
+      } catch (NoSuchFieldException | IllegalAccessException ex) {
         logger.trace("", ex);
       }
     }

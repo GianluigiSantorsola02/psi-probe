@@ -48,11 +48,13 @@ public class RememberVisibilityController extends AbstractController {
       cookieName = sanitizeCookieName(cookieName);
 
       // expire the cookies at the current date + 10years (roughly, nevermind leap years)
-      response.addHeader("Set-Cookie",
-              cookieName + "=" + state + "; Expires="
-                      + "; Secure=true; HttpOnly=true");
+      response.addHeader("Set-Cookie", sanitizeHeaderValue(cookieName) + "=" + sanitizeHeaderValue(state) + "; Expires=" + "; Secure=true; HttpOnly=true");
     }
     return null;
+  }
+
+  private String sanitizeHeaderValue(String cookieName) {
+    return Functions.sanitizeHeaderValue(cookieName);
   }
 
   private String sanitizeCookieName(String cookieName) {

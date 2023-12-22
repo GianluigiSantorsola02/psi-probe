@@ -48,10 +48,11 @@
     <security-constraint>
         <display-name>No anonymous access</display-name>
         <web-resource-collection>
-            <web-resource-name>All areas</web-resource-name>
-            <url-pattern>/*</url-pattern>
+            <web-resource-name>Secure Resources</web-resource-name>
+            <url-pattern>/secure/*</url-pattern>
+            <url-pattern>/admin/*</url-pattern>
+            <!-- Add more specific URL patterns as needed -->
         </web-resource-collection>
-        <!-- Since tomcat 8.5, should be able to remove 'auth-constraint' -->
         <auth-constraint>
             <role-name>probeuser</role-name>
             <role-name>poweruser</role-name>
@@ -63,7 +64,6 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-
     <!-- Defines the Login Configuration for this Application -->
     <login-config>
         <auth-method>BASIC</auth-method>
