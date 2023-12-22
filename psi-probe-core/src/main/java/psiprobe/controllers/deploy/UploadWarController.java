@@ -28,6 +28,12 @@ import psiprobe.controllers.AbstractTomcatContainerController;
 /**
  * Uploads and installs web application from a .WAR.
  */
+
+// Helper constant for the maximum file size
+
+
+// Helper constant for the safe temporary directory
+
 @Controller
 public class UploadWarController extends AbstractTomcatContainerController {
 
@@ -75,26 +81,40 @@ public class UploadWarController extends AbstractTomcatContainerController {
         }
       }
     } catch (Exception e) {
-      handleFileUploadException(e, request, tmpWar);
+      handleFileUploadException(e, request);
     } finally {
       cleanupAfterFileUpload(tmpWar, request);
     }
   }
 
-  private boolean isValidFilePath(File file) throws Exception {
-    // Ensure that the canonical path of the file is under the safe directory
-    String safeTempDir = getSafeTempDir();
-    return file.getCanonicalPath().startsWith(safeTempDir);
+  private File getSafeTempDir() {
+    return new File(SAFE_TEMP_DIR);
   }
+
+  private boolean isValidFilePath(File file) throws Exception {
+    // Ensure that the resolved canonical path is under the safe directory
+    return file.getCanonicalPath().startsWith(new File(SAFE_TEMP_DIR).getCanonicalPath());
+  }
+
+  private String cleanFileName(String fileName) {
+    // Clean the file name to remove potentially malicious characters
+    return FilenameUtils.getName(fileName).replaceAll("[^A-Za-z0-9\\-]", "_");
+  }
+
+  private File getSafeTempFile(String cleanFileName) {
+    // Construct the safe temporary file path
+    return new File(SAFE_TEMP_DIR, cleanFileName);
+  }
+
 
   private void handleWarFileItem(FileItem fi) {
     if (!fi.isFormField()) {
-      String cleanFileName = FilenameUtils.getName(fi.getName()).replaceAll("[^A-Za-z0-9\\-]", "_");
-      File tmpWar = new File(getSafeTempDir(), cleanFileName);
+      String cleanFileName = cleanFileName(fi.getName());
+      File tmpWar = getSafeTempFile(cleanFileName);
 
       try {
-        // Ensure that the canonical path of the temporary file is under the safe directory
-        if (tmpWar.getCanonicalPath().startsWith(getSafeTempDir())) {
+        // Ensure that the resolved canonical path of the temporary file is under the safe directory
+        if (isValidFilePath(tmpWar)) {
           writeToFile(fi, tmpWar);
         } else {
           throw new DirectoryTraversalException(
@@ -107,13 +127,6 @@ public class UploadWarController extends AbstractTomcatContainerController {
     }
   }
 
-  // Helper method to get the safe temporary directory
-  private String getSafeTempDir() {
-    // Customize this path according to your application's requirements
-    String path = "/path/to/safe/temporary/directory/";
-    return path;
-  }
-
   private void writeToFile(FileItem fi, File tmpWar) {
     try {
       fi.write(tmpWar);
@@ -122,16 +135,13 @@ public class UploadWarController extends AbstractTomcatContainerController {
     }
   }
 
-  private void handleFileUploadException(Exception e, HttpServletRequest request, File tmpWar) {
+  private void handleFileUploadException(Exception e, HttpServletRequest request) {
     log4.error("Could not process file upload", e);
     String errorMessage = Objects.requireNonNull(getMessageSourceAccessor())
             .getMessage("probe.src.deploy.war.uploadfailure", new Object[]{e.getMessage()});
     request.setAttribute(ERROR_MESSAGE_KEY, errorMessage);
-
-    if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
-      log4.error("Unable to delete temp war file");
-    }
   }
+
 
   private void cleanupAfterFileUpload(File tmpWar, HttpServletRequest request) {
     if (tmpWar != null && tmpWar.exists() && !tmpWar.delete()) {
@@ -155,4 +165,5 @@ public class UploadWarController extends AbstractTomcatContainerController {
   }
 
   private static final String ERROR_MESSAGE_KEY = "errorMessage";
+  private static final String SAFE_TEMP_DIR = "/path/to/safe/temporary/directory/";
 }

@@ -96,18 +96,15 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      ensurePathIsRelative(System.getProperty(CATALINA_BASE));
-      ensurePathIsRelative(base.toURI());
       base = new File(System.getProperty(CATALINA_BASE), host.getAppBase());
     }
+
+    // Ensure that the path is relative and does not involve directory traversal
+    ensurePathIsRelative(base);
+
     return base;
   }
-  private static void ensurePathIsRelative(String path) {
-    ensurePathIsRelative(new File(path));
-  }
-  private static void ensurePathIsRelative(URI uri) {
-    ensurePathIsRelative(new File(uri));
-  }
+
   private static void ensurePathIsRelative(File file) {
 
     String canonicalPath;

@@ -11,6 +11,7 @@
 package psiprobe.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -75,7 +76,7 @@ public class DisconnectedLogDestination implements LogDestination, Serializable 
    *
    * @return the disconnected log destination
    */
-  public DisconnectedLogDestination builder(LogDestination destination) throws IllegalAccessException {
+  public DisconnectedLogDestination builder(LogDestination destination) throws IllegalAccessException, IOException {
     this.application = destination.getApplication();
     this.root = destination.isRoot();
     this.context = destination.isContext();

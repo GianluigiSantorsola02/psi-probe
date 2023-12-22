@@ -84,7 +84,6 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     return applications;
   }
 
-
   private void processFileItems(List<FileItem> fileItems) throws Exception {
     String where = null;
     File tmpFile = null;
@@ -130,12 +129,11 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     return fileName.replaceAll("[^A-Za-z0-9]", "_");
   }
 
-  // Helper method to obtain a safe directory
   private File getSafeDirectory() {
+    // Customize this path according to your application's requirements
     return new File("/path/to/safe/directory");
   }
 
-  // Helper method to sanitize the path
   private String sanitizePath(String path) {
     if (path == null || path.isEmpty()) {
       return "";
@@ -148,7 +146,8 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     String contextName = null;
     String where = null;
 
-    FileItemFactory factory = new DiskFileItemFactory(1048000, new File(System.getProperty("java.io.tmpdir")));
+    FileItemFactory factory =
+            new DiskFileItemFactory(1048000, new File(System.getProperty("java.io.tmpdir")));
     ServletFileUpload upload = new ServletFileUpload(factory);
     upload.setSizeMax(-1);
     upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
@@ -161,8 +160,9 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       handleFileUploadException(e, request, tmpFile);
     }
 
-      processUploadedFile(tmpFile, contextName, where, request);
+    processUploadedFile(tmpFile, contextName, where, request);
   }
+
 
   private static final String ERROR_MESSAGE = "errorMessage";
 
@@ -198,7 +198,9 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       }
     }
   }
-  private void processUploadedFile(File tmpFile, String contextName, String where, HttpServletRequest request) {
+
+  private void processUploadedFile(File tmpFile, String contextName, String where,
+                                   HttpServletRequest request) {
     String errMsg = null;
 
     try {
@@ -214,16 +216,17 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
 
           if (destFile.exists()) {
             processDestFile(destFile, tmpFile, request);
-          }
-          else {
-            errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notPath");
+          } else {
+            errMsg = Objects.requireNonNull(getMessageSourceAccessor())
+                    .getMessage("probe.src.deploy.file.notPath");
           }
         } else {
-          errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notExists",
-                  new Object[] {visibleContextName});
+          errMsg = Objects.requireNonNull(getMessageSourceAccessor())
+                  .getMessage("probe.src.deploy.file.notExists", new Object[] {visibleContextName});
         }
       } else {
-        errMsg = Objects.requireNonNull(getMessageSourceAccessor()).getMessage("probe.src.deploy.file.notFile.failure");
+        errMsg = Objects.requireNonNull(getMessageSourceAccessor())
+                .getMessage("probe.src.deploy.file.notFile.failure");
       }
     } finally {
       if (errMsg != null) {
