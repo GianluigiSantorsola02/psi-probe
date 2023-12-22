@@ -36,4 +36,8 @@ public final class Functions {
     public static String sanitizeCookieName(String cookieName) {
         return cookieName.replace("\"", "");
     }
+
+    public static String sanitizeHeaderValue(String cookieName) {
+  return cookieName.replace("\"", "");
+    }
 }
