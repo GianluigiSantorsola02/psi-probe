@@ -72,13 +72,14 @@ public class ContainerWrapperBean {
       synchronized (lock) {
         if (tomcatContainer == null) {
           initializeTomcatContainer(wrapper);
+          return;
         }
+        return;
       }
     }
 
     unregisterContainerAdapter(wrapper);
   }
-
   private void initializeTomcatContainer(Wrapper wrapper) {
     String serverInfo = ServerInfo.getServerInfo();
     logger.info("Server info: {}", serverInfo);
