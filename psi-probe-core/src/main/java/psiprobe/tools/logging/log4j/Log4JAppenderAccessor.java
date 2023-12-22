@@ -11,6 +11,7 @@
 package psiprobe.tools.logging.log4j;
 
 import java.io.File;
+import java.io.IOException;
 
 import psiprobe.tools.logging.AbstractLogDestination;
 
@@ -75,7 +76,7 @@ public class Log4JAppenderAccessor extends AbstractLogDestination {
   }
 
   @Override
-  public File getFile() {
+  public File getFile() throws IOException {
     String fileName = (String) getProperty(getTarget(), "file", null);
     return fileName != null ? new File(fileName) : getStdoutFile();
   }

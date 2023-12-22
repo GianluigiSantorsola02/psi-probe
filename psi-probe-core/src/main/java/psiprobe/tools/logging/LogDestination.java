@@ -11,6 +11,7 @@
 package psiprobe.tools.logging;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 
 import psiprobe.model.Application;
@@ -74,21 +75,21 @@ public interface LogDestination {
    *
    * @return the file
    */
-  File getFile() throws IllegalAccessException;
+  File getFile() throws IllegalAccessException, IOException;
 
   /**
    * Gets the size.
    *
    * @return the size
    */
-  long getSize() throws IllegalAccessException;
+  long getSize() throws IllegalAccessException, IOException;
 
   /**
    * Gets the last modified.
    *
    * @return the last modified
    */
-  Timestamp getLastModified() throws IllegalAccessException;
+  Timestamp getLastModified() throws IllegalAccessException, IOException;
 
   /**
    * Type of the log, e.g. "log4j", "jdk", "commons-" etc.

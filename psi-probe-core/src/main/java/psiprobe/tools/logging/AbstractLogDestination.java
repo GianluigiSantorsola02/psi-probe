@@ -40,12 +40,23 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
    *
    * @return the stdout file
    */
-  protected File getStdoutFile() {
-    ensurePathIsRelative(System.getProperty("catalina.base"));
-    ensurePathIsRelative(new File("stdout").toURI());
-    File file = new File(System.getProperty("catalina.base"), "logs/catalina.out");
-    return file.exists() ? file : new File("stdout");
+  protected File getStdoutFile() throws IOException {
+    File catalinaBase = new File(System.getProperty("catalina.base"));
+    if (!catalinaBase.isDirectory()) {
+      throw new DirectoryTraversalException("Invalid catalina.base directory");
+    }
+
+    // Resolve the file against the base path and get its canonical path
+    File resolvedFile = new File(catalinaBase, "logs/catalina.out").getCanonicalFile();
+
+    // Ensure that the resolved canonical path is still under the base path
+    if (!resolvedFile.toPath().startsWith(catalinaBase.toPath())) {
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
+    }
+
+    return resolvedFile;
   }
+
   private static void ensurePathIsRelative(String path) {
     ensurePathIsRelative(new File(path));
   }
@@ -73,16 +84,16 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
     }
   }
   @Override
-  public File getFile() throws IllegalAccessException {
+  public File getFile() throws IllegalAccessException, IOException {
     return getStdoutFile();
   }
   @Override
-  public long getSize() throws IllegalAccessException {
+  public long getSize() throws IllegalAccessException, IOException {
     File file = getFile();
     return file != null && file.exists() ? file.length() : 0;
   }
   @Override
-  public Timestamp getLastModified() throws IllegalAccessException {
+  public Timestamp getLastModified() throws IllegalAccessException, IOException {
     File file = getFile();
     return file != null && file.exists() ? new Timestamp(file.lastModified()) : null;
   }

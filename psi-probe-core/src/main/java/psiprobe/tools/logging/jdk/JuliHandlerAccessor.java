@@ -11,6 +11,7 @@
 package psiprobe.tools.logging.jdk;
 
 import java.io.File;
+import java.io.IOException;
 
 import psiprobe.tools.Instruments;
 
@@ -20,7 +21,7 @@ import psiprobe.tools.Instruments;
 public class JuliHandlerAccessor extends Jdk14HandlerAccessor {
 
   @Override
-  public File getFile() throws IllegalAccessException {
+  public File getFile() throws IllegalAccessException, IOException {
     String dir = (String) Instruments.getField(getTarget(), "directory");
     String prefix = (String) Instruments.getField(getTarget(), "prefix");
     String suffix = (String) Instruments.getField(getTarget(), "suffix");

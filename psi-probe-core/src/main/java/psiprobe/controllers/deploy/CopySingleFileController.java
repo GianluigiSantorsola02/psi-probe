@@ -85,25 +85,68 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
   }
 
   private void processFileItems(List<FileItem> fileItems) throws Exception {
-    File tmpFile = null;
-    String where = null;
 
-    for (FileItem fi : fileItems) {
-      if (!fi.isFormField()) {
-        if (fi.getName() != null && !fi.getName().isEmpty()) {
-          tmpFile = new File(System.getProperty("java.io.tmpdir"), FilenameUtils.getName(fi.getName()));
-          fi.write(tmpFile);
-        }
-      }  else if ("where".equals(fi.getFieldName())) {
-        where = fi.getString();
+      String where = null;
+
+      File tmpFile = null;
+      for (FileItem fi : fileItems) {
+          if (!fi.isFormField()) {
+              if (fi.getName() != null && !fi.getName().isEmpty()) {
+// Validate and sanitize the file name
+                  String sanitizedFileName = sanitizeFileName(FilenameUtils.getName(fi.getName()));
+
+// Construct the safe temporary file path
+                  File tmpDir = null;
+                  tmpFile = new File(tmpDir, sanitizedFileName);
+                  fi.write(tmpFile);
+              }
+          } else if ("where".equals(fi.getFieldName())) {
+              where = fi.getString();
+          }
       }
-    }
 
-    if (tmpFile != null) {
-        assert where != null;
-        FileUtils.copyFile(tmpFile, new File(where));
-    }
+      if (tmpFile != null) {
+          assert where != null;
+// Validate and sanitize the 'where' path
+          String sanitizedPath = sanitizePath(where);
+          File destinationFile = new File(sanitizedPath);
+
+// Ensure that the resolved canonical path is still under a safe directory
+          try {
+              File canonicalDestinationFile = destinationFile.getCanonicalFile();
+              File safeDirectory = getSafeDirectory(); // Define a method to obtain a safe directory
+
+              if (!canonicalDestinationFile.toPath().startsWith(safeDirectory.toPath())) {
+                  throw new DirectoryTraversalException("Potential directory traversal attempt");
+              }
+          } catch (IOException e) {
+              // Handle the exception as needed
+              e.printStackTrace();
+          }
+
+// Perform the file copy operation
+          FileUtils.copyFile(tmpFile, destinationFile);
+      }
   }
+  private String sanitizeFileName(String fileName) {
+    if (fileName == null || fileName.isEmpty()) {
+      return "";
+    }
+    return fileName.replaceAll("[^A-Za-z0-9]", "_");
+  }
+
+  private File getSafeDirectory() {
+
+    return new File("/path/to/safe/directory");
+  }
+
+  private String sanitizePath(String path) {
+    if (path == null || path.isEmpty()) {
+      return "";
+    }
+    return path.replaceAll("[^A-Za-z0-9]", "_");
+  }
+
   private void handleMultipartRequest(HttpServletRequest request) {
     File tmpFile = new File("");
     String contextName = null;
