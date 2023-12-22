@@ -67,14 +67,18 @@ public class ContainerWrapperBean {
    */
 
   @Value("false")
+
   public void setWrapper(Wrapper wrapper) {
     if (tomcatContainer == null) {
-      synchronized (lock) {
-        if (tomcatContainer == null) {
-          initializeTomcatContainer(wrapper);
-          return;
+      if (lock.equals(wrapper)) {
+        try {
+          if (tomcatContainer == null) {
+            initializeTomcatContainer(wrapper);
+            return;
+          }
+        } finally {
+          lock.notifyAll();
         }
-        return;
       }
     }
 
