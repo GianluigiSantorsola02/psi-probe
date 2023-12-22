@@ -49,8 +49,8 @@
         <display-name>No anonymous access</display-name>
         <web-resource-collection>
             <web-resource-name>Secure Resources</web-resource-name>
-            <url-pattern>/secure/*</url-pattern>
-            <url-pattern>/admin/*</url-pattern>
+            <url-pattern>/secure/jk/jfc/xdf/</url-pattern>
+            <url-pattern>/admin/jk/jfc/xdf/</url-pattern>
             <!-- Add more specific URL patterns as needed -->
         </web-resource-collection>
         <auth-constraint>
