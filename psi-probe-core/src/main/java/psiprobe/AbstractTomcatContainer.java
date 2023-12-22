@@ -183,7 +183,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
   @Override
   public void remove(String name)
-          throws RemoveException, RemoveInternalException, CheckChangesException {
+          throws RemoveException, RemoveInternalException, CheckChangesException, IOException {
     name = formatContextName(name);
     Context ctx = findContext(name);
     if (ctx != null) {
@@ -217,17 +217,14 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       File warFile = new File(appBase, sanitizedWarFilename + ".war");
 
 // Ensure that the resolved canonical path is still under the appBase directory
-      try {
+
         File canonicalAppBase = appBase.getCanonicalFile();
         File canonicalWarFile = warFile.getCanonicalFile();
 
         if (!canonicalWarFile.toPath().startsWith(canonicalAppBase.toPath())) {
           throw new DirectoryTraversalException("Potential directory traversal attempt");
         }
-      } catch (IOException e) {
-        // Handle the exception as needed
-        e.printStackTrace();
-      }
+
       logger.debug(DELETE_LOG_MESSAGE, warFile.getAbsolutePath());
 
       // Validate and sanitize the warFile path before deleting

@@ -112,17 +112,14 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
           File destinationFile = new File(sanitizedPath);
 
 // Ensure that the resolved canonical path is still under a safe directory
-          try {
+
               File canonicalDestinationFile = destinationFile.getCanonicalFile();
               File safeDirectory = getSafeDirectory(); // Define a method to obtain a safe directory
 
               if (!canonicalDestinationFile.toPath().startsWith(safeDirectory.toPath())) {
                   throw new DirectoryTraversalException("Potential directory traversal attempt");
               }
-          } catch (IOException e) {
-              // Handle the exception as needed
-              e.printStackTrace();
-          }
+
 
 // Perform the file copy operation
           FileUtils.copyFile(tmpFile, destinationFile);

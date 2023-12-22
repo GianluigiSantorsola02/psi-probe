@@ -99,7 +99,7 @@ public interface TomcatContainer {
    * @param name the context path
    *
    */
-  void remove(String name) throws AbstractTomcatContainer.RemoveInternalException, AbstractTomcatContainer.CheckChangesException, RemoveException;
+  void remove(String name) throws AbstractTomcatContainer.RemoveInternalException, AbstractTomcatContainer.CheckChangesException, RemoveException, IOException;
 
   /**
    * Installs .war file at the given context name.

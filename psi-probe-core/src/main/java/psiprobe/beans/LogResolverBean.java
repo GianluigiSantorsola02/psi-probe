@@ -404,17 +404,14 @@ public class LogResolverBean {
     File stdout = new File(logsDirectory, fileName);
 
 // Ensure that the resolved canonical path is still under the logs directory
-    try {
+
       File canonicalLogsDir = logsDirectory.getCanonicalFile();
       File canonicalStdout = stdout.getCanonicalFile();
 
       if (!canonicalStdout.toPath().startsWith(canonicalLogsDir.toPath())) {
         throw new DirectoryTraversalException("Potential directory traversal attempt");
       }
-    } catch (IOException e) {
-      // Handle the exception as needed
-      e.printStackTrace();
-    }
+
 
     if (stdout.exists() && stdout.isFile() && stdout.getCanonicalPath().startsWith("/path/to/catalina/base/logs/")) {
       FileLogAccessor fla = new FileLogAccessor();

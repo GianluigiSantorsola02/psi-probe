@@ -100,22 +100,19 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
     }
   }
 
-  private void performFileTest(TomcatTestReport tomcatTestReport) {
+  private void performFileTest(TomcatTestReport tomcatTestReport) throws IOException {
 // Validate and sanitize the tmpDir path
     File tmpDir = getValidatedTmpDir();
 
 // Ensure that the resolved canonical path is still under the system tmpdir directory
-    try {
+
       File canonicalTmpDir = tmpDir.getCanonicalFile();
       File systemTmpDir = new File(System.getProperty("java.io.tmpdir")).getCanonicalFile();
 
       if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
         throw new ClassCastException("Potential directory traversal attempt");
       }
-    } catch (IOException e) {
-      // Handle the exception as needed
-      e.printStackTrace();
-    }
+
     int fileCount = tomcatTestReport.getDefaultFileCount();
     List<File> files = new ArrayList<>();
     List<OutputStream> fileStreams = new ArrayList<>();
