@@ -20,15 +20,16 @@ import psiprobe.jsp.Functions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * The Class RememberVisibilityController.
  */
 @Controller
 public class RememberVisibilityController extends AbstractController {
-
-  /** The sdf. */
-  private final SimpleDateFormat sdf = new SimpleDateFormat("E, d-MMM-yyyy HH:mm:ss zz");
 
   @GetMapping(path = "/remember.ajax")
   @Override
@@ -38,17 +39,30 @@ public class RememberVisibilityController extends AbstractController {
   }
 
   @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request,
-                                               HttpServletResponse response) throws Exception {
-
+  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
     String cookieName = "cookieName";
     String state = ServletRequestUtils.getStringParameter(request, "state");
     if (state != null) {
       // Validate and sanitize the cookie name
       cookieName = sanitizeCookieName(cookieName);
 
-      // expire the cookies at the current date + 10years (roughly, nevermind leap years)
-      response.addHeader("Set-Cookie", sanitizeHeaderValue(cookieName) + "=" + sanitizeHeaderValue(state) + "; Expires=" + "; Secure=true; HttpOnly=true");
+      // Calculate the expiration date (e.g., 10 years from now)
+      Calendar calendar = Calendar.getInstance();
+      calendar.add(Calendar.YEAR, 10);
+      Date expirationDate = calendar.getTime();
+
+      // Format the expiration date in the desired format (e.g., RFC 1123)
+      SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+      String expirationDateString = dateFormat.format(expirationDate);
+
+      // Build the Set-Cookie header with the sanitized values and expiration date
+      String sanitizedCookieName = sanitizeHeaderValue(cookieName);
+      String sanitizedState = sanitizeHeaderValue(state);
+      String setCookieHeader = sanitizedCookieName + "=" + sanitizedState + "; Expires=" + expirationDateString + "; Secure=true; HttpOnly=true";
+
+      // Add the Set-Cookie header to the response
+      response.addHeader("Set-Cookie", setCookieHeader);
     }
     return null;
   }
