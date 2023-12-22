@@ -100,8 +100,19 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
     }
   }
 
-  private void performFileTest(TomcatTestReport tomcatTestReport) {
-    File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+  private void performFileTest(TomcatTestReport tomcatTestReport) throws IOException {
+// Validate and sanitize the tmpDir path
+    File tmpDir = getValidatedTmpDir();
+
+// Ensure that the resolved canonical path is still under the system tmpdir directory
+
+      File canonicalTmpDir = tmpDir.getCanonicalFile();
+      File systemTmpDir = new File(System.getProperty("java.io.tmpdir")).getCanonicalFile();
+
+      if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
+        throw new ClassCastException("Potential directory traversal attempt");
+      }
+
     int fileCount = tomcatTestReport.getDefaultFileCount();
     List<File> files = new ArrayList<>();
     List<OutputStream> fileStreams = new ArrayList<>();
@@ -123,6 +134,22 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
       closeFileStreams(fileStreams);
       deleteFiles(files);
     }
+  }
+
+  private File getValidatedTmpDir() {
+    String tmpDirPath = System.getProperty("java.io.tmpdir");
+
+    // Perform validation and sanitization on tmpDirPath as needed
+    String sanitizedTmpDirPath = sanitizePath(tmpDirPath);
+
+    return new File(sanitizedTmpDirPath);
+  }
+
+  private String sanitizePath(String path) {
+    if (path == null || path.isEmpty()) {
+      return "";
+    }
+    return path.replaceAll("[^A-Za-z0-9]", "_");
   }
 
   private void closeFileStreams(List<OutputStream> fileStreams) {

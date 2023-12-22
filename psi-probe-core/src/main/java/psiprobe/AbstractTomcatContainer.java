@@ -183,9 +183,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
   @Override
   public void remove(String name)
-          throws RemoveException, RemoveInternalException, CheckChangesException {
+          throws RemoveException, RemoveInternalException, CheckChangesException, IOException {
     name = formatContextName(name);
     Context ctx = findContext(name);
+
     if (ctx != null) {
       try {
         stop(name);
@@ -193,38 +194,48 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
         Thread.currentThread().interrupt();
         logger.info("Stopping '{}' threw this exception:", name, e);
       }
-      File appDir;
-      File docBase = new File(String.valueOf(ctx.getClass()));
-      if (!docBase.isAbsolute()) {
-        appDir = new File(getAppBase(), String.valueOf(ctx.getClass()));
-      } else {
-        appDir = docBase;
-      }
-      logger.debug(DELETE_LOG_MESSAGE, appDir.getAbsolutePath());
+
+      // Construct the appDir using getAppBase and context name
+      File appDir = new File(getAppBase(), name);
 
       // Validate and sanitize the appDir path before deleting
-      if (isValidAppDir(appDir)) {
-        Utils.delete(appDir);
-      } else {
+      if (!isValidAppDir(appDir)) {
         // Handle invalid or malicious appDir path
         logger.error("Invalid or malicious appDir path: {}", appDir.getAbsolutePath());
         throw new RemoveInternalException();
       }
 
+      logger.debug(DELETE_LOG_MESSAGE, appDir.getAbsolutePath());
+      Utils.delete(appDir);
+
+      // Construct the warFile path
       String warFilename = formatContextFilename(name);
-      File warFile = new File(getAppBase(), warFilename + ".war");
+      File appBase = getAppBase();
+      String sanitizedWarFilename = sanitizeFilename(warFilename);
+      File warFile = new File(appBase, sanitizedWarFilename + ".war");
+
+      // Ensure that the resolved canonical path is still under the appBase directory
+      File canonicalAppBase = appBase.getCanonicalFile();
+      File canonicalWarFile = warFile.getCanonicalFile();
+
+      if (!canonicalWarFile.toPath().startsWith(canonicalAppBase.toPath())) {
+        throw new DirectoryTraversalException("Potential directory traversal attempt");
+      }
+
       logger.debug(DELETE_LOG_MESSAGE, warFile.getAbsolutePath());
 
       // Validate and sanitize the warFile path before deleting
-      if (isValidWarFile(warFile)) {
-        Utils.delete(warFile);
-      } else {
+      if (!isValidWarFile(warFile)) {
         // Handle invalid or malicious warFile path
         logger.error("Invalid or malicious warFile path: {}", warFile.getAbsolutePath());
         throw new RemoveInternalException();
       }
 
+      Utils.delete(warFile);
+
+      // Get and delete the configFile
       File configFile = getConfigFile(ctx);
+
       // Validate and sanitize the configFile path before deleting
       if (isValidConfigFile(configFile)) {
         logger.debug(DELETE_LOG_MESSAGE, configFile.getAbsolutePath());
@@ -235,6 +246,10 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       removeInternal(name);
     }
+  }
+
+  private String sanitizeFilename(String warFilename) {
+    return warFilename.replaceAll("[^a-zA-Z0-9_.-]", "_");
   }
 
   // Helper method to validate and sanitize the appDir path
@@ -607,7 +622,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     try {
       Boolean result = (Boolean) mbeanServer.invoke(deployerOName, "isServiced", new String[] {name},
               new String[] {String.class.getName()});
-      if (!result.booleanValue()) {
+      if (!result) {
         mbeanServer.invoke(deployerOName, "addServiced", new String[] {name},
                 new String[] {String.class.getName()});
         try {

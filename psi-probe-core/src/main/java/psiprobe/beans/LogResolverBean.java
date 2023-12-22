@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import psiprobe.controllers.deploy.DirectoryTraversalException;
 import psiprobe.model.Application;
 import psiprobe.model.DisconnectedLogDestination;
 import psiprobe.tools.ApplicationUtils;
@@ -399,7 +400,18 @@ public class LogResolverBean {
       return null;
     }
 
-    File stdout = new File(System.getProperty("catalina.base"), "logs/" + fileName);
+    File logsDirectory = new File(System.getProperty("catalina.base"), "logs");
+    File stdout = new File(logsDirectory, fileName);
+
+// Ensure that the resolved canonical path is still under the logs directory
+
+      File canonicalLogsDir = logsDirectory.getCanonicalFile();
+      File canonicalStdout = stdout.getCanonicalFile();
+
+      if (!canonicalStdout.toPath().startsWith(canonicalLogsDir.toPath())) {
+        throw new DirectoryTraversalException("Potential directory traversal attempt");
+      }
+
 
     if (stdout.exists() && stdout.isFile() && stdout.getCanonicalPath().startsWith("/path/to/catalina/base/logs/")) {
       FileLogAccessor fla = new FileLogAccessor();
@@ -420,7 +432,7 @@ public class LogResolverBean {
    * @return the catalina log destination
    */
   private LogDestination getCatalinaLogDestination(Context ctx, Application application)
-          throws IllegalAccessException {
+          throws IllegalAccessException, IOException {
     Object log = ctx.getLogger();
     if (log != null) {
       CatalinaLoggerAccessor logAccessor = new CatalinaLoggerAccessor();
@@ -721,16 +733,18 @@ public class LogResolverBean {
       String name1;
       try {
         name1 = convertToString(o1);
-      } catch (IllegalAccessException e) {
+      } catch (IllegalAccessException | IOException e) {
         throw new ClassCastException(e.getMessage());
       }
-      String name2;
+        String name2;
       try {
         name2 = convertToString(o2);
       } catch (IllegalAccessException e) {
         throw new ClassCastException(e.getMessage());
+      } catch (IOException e) {
+          throw new RuntimeException(e);
       }
-      return name1.compareTo(name2);
+        return name1.compareTo(name2);
     }
 
     /**
@@ -740,7 +754,7 @@ public class LogResolverBean {
      *
      * @return the string
      */
-    protected abstract String convertToString(LogDestination d1) throws IllegalAccessException;
+    protected abstract String convertToString(LogDestination d1) throws IllegalAccessException, IOException;
 
   }
 
@@ -766,7 +780,7 @@ public class LogResolverBean {
     }
 
     @Override
-    protected String convertToString(LogDestination dest) throws IllegalAccessException {
+    protected String convertToString(LogDestination dest) throws IllegalAccessException, IOException {
       File file = dest.getFile();
       String fileName = file == null ? "" : file.getAbsolutePath();
       String name;
@@ -794,7 +808,7 @@ public class LogResolverBean {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected String convertToString(LogDestination dest) throws IllegalAccessException {
+    protected String convertToString(LogDestination dest) throws IllegalAccessException, IOException {
       File file = dest.getFile();
       String fileName = file == null ? "" : file.getAbsolutePath();
       Application app = dest.getApplication();

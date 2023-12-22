@@ -21,6 +21,7 @@ import psiprobe.tools.logging.LogDestination;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ public class SetupFollowController extends AbstractLogHandlerController {
 
   @Override
   protected ModelAndView handleLogFile(HttpServletRequest request, HttpServletResponse response,
-      LogDestination logDest) throws ApplicationCreationException, IllegalAccessException {
+      LogDestination logDest) throws ApplicationCreationException, IllegalAccessException, IOException {
 
     File logFile = logDest.getFile();
     List<LogDestination> sources = getLogResolver().getLogSources(logFile);

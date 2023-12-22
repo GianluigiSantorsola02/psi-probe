@@ -30,7 +30,7 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
   }
 
   @Override
-  public File getFile() throws IllegalAccessException {
+  public File getFile() throws IllegalAccessException, IOException {
     String potDirTraversal = "Potential directory traversal attempt";
 
     String dir = (String) invokeMethod(getTarget(), "getDirectory", null, null);
@@ -47,10 +47,20 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
 
     File file = filePath.toFile();
     if (!file.isAbsolute()) {
-      ensurePathIsRelative(System.getProperty("catalina.base"));
-      ensurePathIsRelative(file.toURI());
-      return new File(System.getProperty("catalina.base"), file.getPath());
+      File basePath = new File(System.getProperty("catalina.base"));
+      if (!basePath.isDirectory()) {
+        throw new DirectoryTraversalException("Invalid catalina.base directory");
+      }
+
+      File resolvedFile = new File(basePath, file.getPath()).getCanonicalFile();
+
+      if (!resolvedFile.toPath().startsWith(basePath.toPath())) {
+        throw new DirectoryTraversalException("Potential directory traversal attempt");
+      }
+
+      return resolvedFile;
     }
+
     return file;
   }
 

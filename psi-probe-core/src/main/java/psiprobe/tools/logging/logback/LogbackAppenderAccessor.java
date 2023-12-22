@@ -15,6 +15,7 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 
 import java.io.File;
+import java.io.IOException;
 
 import psiprobe.tools.logging.AbstractLogDestination;
 
@@ -91,7 +92,7 @@ public class LogbackAppenderAccessor extends AbstractLogDestination {
    * @return the file this appender writes to
    */
   @Override
-  public File getFile() {
+  public File getFile() throws IOException {
     String fileName = (String) getProperty(getTarget(), "file", null);
     return fileName != null ? new File(fileName) : getStdoutFile();
   }
