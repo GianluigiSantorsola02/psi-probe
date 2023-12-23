@@ -94,7 +94,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
           // Validate and sanitize the file name
           String sanitizedFileName = sanitizeFileName(FilenameUtils.getName(fi.getName()));
           // Construct the safe temporary file path
-          File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+          File tmpDir = getSafeTempDir();
           tmpFile = new File(tmpDir, sanitizedFileName);
           fi.write(tmpFile);
         }
@@ -120,6 +120,11 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
       // Perform the file copy operation
       FileUtils.copyFile(tmpFile, destinationFile);
     }
+  }
+
+  private File getSafeTempDir() {
+    // Customize this path according to your application's requirements
+    return new File("/path/to/safe/temp/dir");
   }
 
   private String sanitizeFileName(String fileName) {

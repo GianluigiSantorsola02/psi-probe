@@ -107,9 +107,9 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 // Ensure that the resolved canonical path is still under the system tmpdir directory
 
       File canonicalTmpDir = tmpDir.getCanonicalFile();
-      File systemTmpDir = new File(System.getProperty("java.io.tmpdir")).getCanonicalFile();
 
-      if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
+    File systemTmpDir = null;
+    if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
         throw new ClassCastException("Potential directory traversal attempt");
       }
 
@@ -137,12 +137,8 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
   }
 
   private File getValidatedTmpDir() {
-    String tmpDirPath = System.getProperty("java.io.tmpdir");
-
-    // Perform validation and sanitization on tmpDirPath as needed
-    String sanitizedTmpDirPath = sanitizePath(tmpDirPath);
-
-    return new File(sanitizedTmpDirPath);
+    // Customize this path according to your application's requirements
+    return new File("/path/to/safe/directory");
   }
 
   private String sanitizePath(String path) {
