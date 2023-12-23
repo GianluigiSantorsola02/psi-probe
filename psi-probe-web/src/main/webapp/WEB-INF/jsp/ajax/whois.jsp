@@ -13,10 +13,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div id="tooltip_title">
-    <c:out value="${param.ip}" /> (${domainName})
-</div>
+    <c:out value="${fn:escapeXml(param.ip)}" /> (${fn:escapeXml(domainName)})</div>
 <div>
     [${whoisServer}]
 </div>
