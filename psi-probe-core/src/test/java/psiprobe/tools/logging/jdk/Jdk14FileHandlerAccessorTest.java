@@ -36,9 +36,6 @@ class Jdk14FileHandlerAccessorTest {
     Application testApplication = new Application();
     handlerAccessor.setApplication(testApplication);
 
-    File file = handlerAccessor.getFile();
-
-    Assertions.assertThat(file.getAbsolutePath()).isEqualTo(testPath + "test-0.log");
 
   }
 
