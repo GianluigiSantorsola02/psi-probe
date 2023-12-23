@@ -14,11 +14,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
-        <title><c:out value="${param.cn}" /></title>
+        <title><c:out value="${fn:escapeXml(param.cn)}" /></title>
         <script src="<c:url value='/js/prototype.js'/>"></script>
         <script src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
         <script src="<c:url value='/js/func.js'/>"></script>
@@ -75,8 +76,7 @@
             </div>
 
             <div>
-                <img id="img" class="scale-image" src="${imgurl}&xz=${fullChartWidth}&yz=${fullChartHeight}" alt=""/>
-            </div>
+                <img id="img" class="scale-image" src="${fn:escapeXml(imgurl)}&amp;xz=${fn:escapeXml(fullChartWidth)}&amp;yz=${fn:escapeXml(fullChartHeight)}" alt="" />            </div>
 
             <script>
                 window.onload = onloadImg();
@@ -86,7 +86,7 @@
                     fullChartWidth = getWindowWidth() / 2;
                     fullChartHeight = getWindowHeight() / 2;
                     const scaleImage = document.getElementById("img");
-                    scaleImage.src = "${imgurl}&xz="+ fullChartWidth + "&yz=" + fullChartHeight;
+                    scaleImage.src = "${fn:escapeXml(imgurl)}&xz=" + encodeURIComponent(fullChartWidth) + "&yz=" + encodeURIComponent(fullChartHeight);
                     scaleImage.style.width = fullChartWidth + "px";
                     scaleImage.style.height = fullChartHeight + "px";
                 }
@@ -116,8 +116,7 @@
                     var height = Math.round(width / (fullChartWidth / fullChartHeight));
 
                     // reload the images
-                    document.images.img.src = '<c:out value="${imgurl}" escapeXml="false"/>&xz=' + width + '&yz=' + height;
-                    // reset the image auto-updater
+                    document.images.img.src = '<c:out value="${fn:escapeXml(imgurl)}" escapeXml="false"/>&xz=' + encodeURIComponent(width) + '&yz=' + encodeURIComponent(height);                    // reset the image auto-updater
                     // to make sure the auto-updater knows the changed image dimensions
                     if (updater) updater.stop();
                     updater = new Ajax.ImgUpdater('img', '${probe:max(collectionPeriod, 5)}');
