@@ -200,7 +200,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       // Construct the appDir using getAppBase and context name
 
       // Validate and sanitize the appDir path before deleting
-      File appDir = null;
+      File appDir = getAppBase();
       if (!isValidAppDir(appDir)) {
         // Handle invalid or malicious appDir path
         logger.error("Invalid or malicious appDir path: {}", appDir.getAbsolutePath());

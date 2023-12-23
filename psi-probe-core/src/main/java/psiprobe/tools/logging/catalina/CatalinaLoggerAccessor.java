@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import psiprobe.controllers.deploy.DirectoryTraversalException;
+import psiprobe.tools.ApplicationUtils;
 import psiprobe.tools.Instruments;
 import psiprobe.tools.logging.AbstractLogDestination;
 
@@ -49,8 +50,9 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     if (!file.isAbsolute()) {
 
 
-      File basePath = null;
-      if (!basePath.isDirectory()) {
+      File basePath = ApplicationUtils.getCatalinaBase();
+        assert basePath != null;
+        if (!basePath.isDirectory()) {
         throw new DirectoryTraversalException("Invalid catalina.base directory");
       }
 

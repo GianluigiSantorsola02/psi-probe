@@ -58,7 +58,7 @@ public final class ApplicationUtils {
   /**
    * Prevent Instantiation.
    */
-  private ApplicationUtils() {
+  public ApplicationUtils() {
     // Prevent Instantiation
   }
 
