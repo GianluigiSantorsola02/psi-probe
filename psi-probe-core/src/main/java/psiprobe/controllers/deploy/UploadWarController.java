@@ -57,8 +57,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
     File tmpWar = null;
 
     try {
-      FileItemFactory factory =
-              new DiskFileItemFactory(1048000, new File(System.getProperty("java.io.tmpdir")));
+      FileItemFactory factory = new DiskFileItemFactory();
       ServletFileUpload upload = new ServletFileUpload(factory);
       upload.setSizeMax(-1);
       upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
