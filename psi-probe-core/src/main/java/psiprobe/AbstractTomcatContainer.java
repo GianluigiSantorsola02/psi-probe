@@ -217,7 +217,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       // Ensure that the resolved canonical path is still under the appBase directory
       File canonicalAppBase = appBase.getCanonicalFile();
-      File warFile = null;
+      File warFile = new File(appBase, sanitizedWarFilename);
       File canonicalWarFile = warFile.getCanonicalFile();
 
       String potDirAttempt = "Potential directory traversal attempt";
