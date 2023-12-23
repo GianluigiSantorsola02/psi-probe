@@ -14,6 +14,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a list of servlet context attributes for a given application --%>
 
@@ -22,8 +23,7 @@
 
     <head>
         <title>
-            <spring:message htmlEscape="true" code="probe.jsp.title.app.attributes" arguments="${param.webapp}"/>
-        </title>
+            <spring:message htmlEscape="true" code="probe.jsp.title.app.attributes" arguments="${fn:escapeXml(param.webapp)}" />        </title>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
         <script src="<c:url value='/js/prototype.js'/>"></script>
         <script src="<c:url value='/js/behaviour.js'/>"></script>
@@ -63,8 +63,7 @@
                                     <display:table htmlId="appAttrTbl" name="appAttributes" uid="attribute"
                                             class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
                                             requestURI="" defaultsort="1">
-                                        <display:column title="&#160;" style="width:20px;" class="leftMostIcon">
-                                            <c:url value='/app/rmappattr.htm' var='rmappattr_url'>
+                                        <display:column title="&#160;" style="width:20px;" class="leftMostIcon" escapeXml="true" >                                            <c:url value='/app/rmappattr.htm' var='rmappattr_url'>
                                                 <c:param name='webapp' value='${param.webapp}'/>
                                                 <c:param name='attr' value='${attribute.name}'/>
                                             </c:url>
