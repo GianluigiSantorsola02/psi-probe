@@ -102,6 +102,7 @@
                     </div>
 
                     <h3><spring:message code="probe.jsp.sessionAttibutes.h3.attributes"/></h3>
+                    <c:choose>
                         <c:when test="${! empty session.attributes}">
                             <display:table name="session.attributes" uid="attribute"
                                     class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
@@ -151,11 +152,13 @@
                                         </c:if>
                                     </display:column>
                                 </c:if>
-                            </c:when>
+                            </display:table>
                         </c:when>
                         <c:otherwise>
                             <spring:message code="probe.jsp.sessionAttibutes.noattributes"/>
                         </c:otherwise>
+                    </c:choose>
+                </c:when>
                 <c:otherwise>
                     <div class="errorMessage">
                         <p>
