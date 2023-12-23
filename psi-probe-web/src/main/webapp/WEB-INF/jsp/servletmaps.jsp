@@ -14,6 +14,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a list of servlet mappings of a particular web application or all web applications --%>
 
@@ -27,8 +28,7 @@
                     <spring:message code="probe.jsp.title.servletmaps.all"/>
                 </c:when>
                 <c:otherwise>
-                    <spring:message htmlEscape="true" code="probe.jsp.title.servletmaps.app" arguments="${param.webapp}"/>
-                </c:otherwise>
+                    <spring:message htmlEscape="true" code="probe.jsp.title.servletmaps.app" arguments="${fn:escapeXml(param.webapp)}"/>                </c:otherwise>
             </c:choose>
         </title>
     </head>
