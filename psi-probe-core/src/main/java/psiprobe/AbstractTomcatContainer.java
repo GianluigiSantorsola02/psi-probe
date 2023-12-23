@@ -96,7 +96,8 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt");
+      String potDirAttempt = "Potential directory traversal attempt";
+      throw new DirectoryTraversalException(potDirAttempt);
     }
 
     // Ensure that the path is relative and does not involve directory traversal
@@ -118,11 +119,15 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt");
+      String potDirAttempt = "Potential directory traversal attempt";
+
+      throw new DirectoryTraversalException(potDirAttempt);
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt");
+      String potDirAttempt = "Potential directory traversal attempt";
+
+      throw new DirectoryTraversalException(potDirAttempt);
     }
   }
   @Override
@@ -215,8 +220,9 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       File warFile = null;
       File canonicalWarFile = warFile.getCanonicalFile();
 
+      String potDirAttempt = "Potential directory traversal attempt";
       if (!canonicalWarFile.toPath().startsWith(canonicalAppBase.toPath())) {
-        throw new DirectoryTraversalException("Potential directory traversal attempt");
+        throw new DirectoryTraversalException(potDirAttempt);
       }
 
       logger.debug(DELETE_LOG_MESSAGE, warFile.getAbsolutePath());
