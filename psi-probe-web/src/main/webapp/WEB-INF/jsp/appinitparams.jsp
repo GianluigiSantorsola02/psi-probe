@@ -14,6 +14,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a list of initialization parameters of a given application --%>
 
@@ -22,8 +23,7 @@
 
     <head>
         <title>
-            <spring:message htmlEscape="true" code="probe.jsp.title.app.initParams" arguments="${param.webapp}"/>
-        </title>
+            <spring:message htmlEscape="true" code="probe.jsp.title.app.initParams" arguments="${fn:escapeXml(param.webapp)}" />        </title>
     </head>
 
     <%-- Make Tab #1 visually "active". --%>
