@@ -13,6 +13,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a list of servlets of a particular web application or all web applications --%>
 
@@ -26,8 +27,7 @@
                     <spring:message code="probe.jsp.title.servlets.all"/>
                 </c:when>
                 <c:otherwise>
-                    <spring:message htmlEscape="true" code="probe.jsp.title.servlets.app" arguments="${param.webapp}"/>
-                </c:otherwise>
+                    <spring:message htmlEscape="true" code="probe.jsp.title.servlets.app" arguments="${fn:escapeXml(param.webapp)}"/>                </c:otherwise>
             </c:choose>
         </title>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='servlets.css'/>"/>
@@ -69,10 +69,7 @@
         </div>
 
         <script>
-            new Ajax.PeriodicalUpdater('servletListContainer',
-            '<c:url value="/servlets.ajax"/>?<c:out value="${pageContext.request.queryString}"/>',
-            {method:'get', frequency: 5});
-        </script>
+            new Ajax.PeriodicalUpdater('servletListContainer', '<c:url value="/servlets.ajax"/>?${fn:escapeXml(pageContext.request.queryString)}', {method:'get', frequency: 5});        </script>
 
     </body>
 </html>
