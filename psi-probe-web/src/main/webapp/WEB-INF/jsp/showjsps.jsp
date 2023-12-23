@@ -15,11 +15,12 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
-        <title><spring:message htmlEscape="true" code="probe.jsp.title.jsps" arguments="${param.webapp}"/></title>
+        <title><spring:message htmlEscape="true" code="probe.jsp.title.jsps" arguments="${fn:escapeXml(param.webapp)}"/></title>
         <script src="<c:url value='/js/prototype.js'/>"></script>
         <script src="<c:url value='/js/scriptaculous/scriptaculous.js'/>"></script>
     </head>
@@ -38,9 +39,8 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <form action="<c:url value='/app/recompile.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>"
-                        method="post" name="jspform" id="jspform">
-
+                <form action="<c:url value='/app/recompile.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>"
+                      method="post" name="jspform" id="jspform">
                     <ul class="options">
                         <li id="toggle">
                             <a href="#" onclick="return inverse(jspform);">
@@ -53,13 +53,11 @@
                             </a>
                         </li>
                         <li id="compileall">
-                            <a href="<c:url value='/app/jsp.htm'><c:param name='compile' value='true'/><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                                <spring:message code="probe.jsp.jsps.opt.compileall"/>
+                            <a href="<c:url value='/app/jsp.htm'><c:param name='compile' value='true'/><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                                <spring:message code="probe.jsp.jsps.opt.compileall"/>
                             </a>
                         </li>
                         <li id="delete_r">
-                            <a href="<c:url value='/adm/discard.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                                <spring:message code="probe.jsp.jsps.opt.discardscratch"/>
+                            <a href="<c:url value='/adm/discard.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                                <spring:message code="probe.jsp.jsps.opt.discardscratch"/>
                             </a>
                         </li>
                     </ul>
@@ -69,8 +67,7 @@
                                 defaultorder="descending">
                             <display:column titleKey="probe.jsp.jsps.col.name" sortable="true" class="leftmost" sortProperty="name">
                                 <input type="checkbox" name="${item.name}"/>&#160;
-                                <a href="<c:url value='/app/viewsource.htm'><c:param name='webapp' value='${param.webapp}' /><c:param name='source' value='${item.name}' /></c:url>">
-                                    ${item.name}
+                                <a href="<c:url value='/app/viewsource.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /><c:param name='source' value='${fn:escapeXml(item.name)}' /></c:url>">                                    ${item.name}
                                 </a>
                             </display:column>
                             <display:column titleKey="probe.jsp.jsps.col.size" sortable="true" sortProperty="size" style="width:30px;">
