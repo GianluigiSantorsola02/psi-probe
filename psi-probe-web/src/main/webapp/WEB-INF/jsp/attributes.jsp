@@ -36,15 +36,14 @@
     <body>
         <ul class="options">
             <li id="back">
-                <a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${param.webapp}'/><c:param name='size'><c:out value='${param.size}'/></c:param></c:url>">
+                <a href="<c:url value='/sessions.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/><c:param name='size'><c:out value='${fn:escapeXml(param.size)}'/></c:param></c:url>">
                     <spring:message code="probe.jsp.sessionAttibutes.menu.back"/>
                 </a>
             </li>
             <c:if test="${! empty session}">
 
                 <li id="delete">
-                    <a href="<c:url value='/app/expire.htm'><c:param name='webapp' value='${param.webapp}' /><c:param name='sid' value='${param.sid}' /></c:url>">
-                        <spring:message code="probe.jsp.sessionAttibutes.menu.destroy"/>
+                    <a href="<c:url value='/app/expire.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /><c:param name='sid' value='${fn:escapeXml(param.sid)}' /></c:url>">                        <spring:message code="probe.jsp.sessionAttibutes.menu.destroy"/>
                     </a>
                 </li>
 
