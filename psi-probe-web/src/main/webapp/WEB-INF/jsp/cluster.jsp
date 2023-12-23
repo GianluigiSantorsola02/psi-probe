@@ -14,8 +14,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
-<%@ taglib prefix="fn" uri="http://displaytag.sf.net" %>
-<%@ page import="org.apache.commons.text.StringEscapeUtils" %>
 
 <%-- Cluster statistic view. Displays cluster members and sender and receiver traffic stats. --%>
 <!DOCTYPE html>
@@ -137,8 +135,6 @@
                     new Ajax.ImgUpdater('cl_requests', '${probe:max(collectionPeriod, 5)}');
                     new Ajax.PeriodicalUpdater('dd_traffic', '<c:url value="/cluster/traffic.ajax"/>', {frequency: 3});
                     new Ajax.PeriodicalUpdater('dd_requests', '<c:url value="/cluster/requests.ajax"/>', {frequency: 3});
-                    new Ajax.PeriodicalUpdater('members', '<c:url value="/cluster/members.ajax"/>?${fn:escapeJs(StringEscapeUtils.escapeHtml4(request.getQueryString()))}', {method:'get', frequency: 3});                </script>
-
             </c:otherwise>
         </c:choose>
 

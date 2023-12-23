@@ -53,18 +53,22 @@
                         </a>
                     </li>
                     <li id="appStop" ${app.available ? '' : 'style="display: none;"'}>
-                        <a href="<c:url value='/app/stop_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.stop"/>
+                        <a href="<c:url value='/app/stop_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">
+                            <spring:message code="probe.jsp.app.summary.menu.stop"/>
                         </a>
                     </li>
                     <li id="appStart" ${app.available ? 'style="display: none;"' : ''}>
-                        <a href="<c:url value='/app/start_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.start"/>
+                        <a href="<c:url value='/app/start_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">
+                            <spring:message code="probe.jsp.app.summary.menu.start"/>
                         </a>
                     </li>
                     <li id="appReload">
-                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>"> <spring:message code="probe.jsp.app.summary.menu.reload"/>                        </a>
+                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>">
+                            <spring:message code="probe.jsp.app.summary.menu.reload"/>                        </a>
                     </li>
                     <li id="appUndeploy">
-                        <a href="<c:url value='/adm/undeploy_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>" onclick="return confirm('${fn:escapeJs(confirmMessage)}')">                            <spring:message code="probe.jsp.app.summary.menu.undeploy"/>
+                        <a href="<c:url value='/adm/undeploy_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>" >
+                            <spring:message code="probe.jsp.app.summary.menu.undeploy"/>
                         </a>
                     </li>
                     <c:choose>
