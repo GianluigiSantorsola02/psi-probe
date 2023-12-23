@@ -2,6 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="${lang}">
@@ -23,25 +24,17 @@
 
         <ul class="options">
             <li id="back">
-                <a href="<c:url value='/app/jsp.htm'>
-                        <c:param name='webapp' value='${param.webapp}'/>
-                        </c:url>">
+                <a href="<c:url value='/app/jsp.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">
                     <spring:message code="probe.jsp.viewsource.opt.back"/>
                 </a>
             </li>
             <li id="viewJSP">
-                <a href="<c:url value='/app/viewsource.htm'>
-                        <c:param name='webapp' value='${param.webapp}'/>
-                        <c:param name='source' value='${param.source}'/>
-                        </c:url>">
+                <a href="<c:url value='/app/viewsource.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/><c:param name='source' value='${fn:escapeXml(param.source)}'/></c:url>">
                     <spring:message code="probe.jsp.servlet_source.opt.jsp"/>
                 </a>
             </li>
             <li id="download">
-                <a href="<c:url value='/app/downloadserv.htm'>
-                        <c:param name='webapp' value='${param.webapp}'/>
-                        <c:param name='source' value='${param.source}'/>
-                        </c:url>">
+                <a href="<c:url value='/app/downloadserv.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/><c:param name='source' value='${fn:escapeXml(param.source)}'/></c:url>">
                     <spring:message code="probe.jsp.follow.menu.download"/>
                 </a>
             </li>
