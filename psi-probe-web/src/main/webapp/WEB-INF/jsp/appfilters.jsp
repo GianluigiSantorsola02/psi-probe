@@ -15,6 +15,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a list of web application filters --%>
 
@@ -23,7 +24,7 @@
 
     <head>
         <title>
-            <spring:message htmlEscape="true" code="probe.jsp.title.app.filters" arguments="${param.webapp}"/>
+            <spring:message htmlEscape="true" code="probe.jsp.title.app.filters" arguments="${fn:escapeXml(param.webapp)}" />
         </title>
     </head>
 
@@ -36,8 +37,7 @@
 
         <ul class="options">
             <li id="viewAppFilterMaps">
-                <a href="<c:url value='/appfiltermaps.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                    <spring:message code="probe.jsp.app.filters.opt.maps"/>
+                <a href="<c:url value='/appfiltermaps.htm' ><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>">                    <spring:message code="probe.jsp.app.filters.opt.maps"/>
                 </a>
             </li>
         </ul>
