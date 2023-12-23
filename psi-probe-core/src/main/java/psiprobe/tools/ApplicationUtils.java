@@ -10,6 +10,7 @@
  */
 package psiprobe.tools;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -293,7 +294,13 @@ public final class ApplicationUtils {
 
     return sbean;
   }
-  public void processSessionAttributes(HttpSession httpSession, boolean calcSize, boolean addAttributes, List<Object> processedObjects) {
+
+    public static File getCatalinaBase() {
+      File catalinaBase = null;
+      return catalinaBase;
+    }
+
+    public void processSessionAttributes(HttpSession httpSession, boolean calcSize, boolean addAttributes, List<Object> processedObjects) {
     ApplicationSession sbean = null;
     for (String name : Collections.list(httpSession.getAttributeNames())) {
       Object obj = httpSession.getAttribute(name);

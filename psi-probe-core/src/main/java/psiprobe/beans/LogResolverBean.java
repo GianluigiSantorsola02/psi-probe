@@ -400,7 +400,7 @@ public class LogResolverBean {
       return null;
     }
 
-    File logsDirectory = new File(System.getProperty("catalina.base"), "logs");
+    File logsDirectory = getLogsDirectory();
     File stdout = new File(logsDirectory, fileName);
 
 // Ensure that the resolved canonical path is still under the logs directory
@@ -420,6 +420,10 @@ public class LogResolverBean {
       return fla;
     }
     return null;
+  }
+
+  private File getLogsDirectory() {
+    return new File(ApplicationUtils.getCatalinaBase(), "logs");
   }
 
 

@@ -10,6 +10,7 @@
  */
 package psiprobe.tools.logging;
 
+import org.apache.catalina.Container;
 import psiprobe.controllers.deploy.DirectoryTraversalException;
 
 import java.io.File;
@@ -41,7 +42,8 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
    * @return the stdout file
    */
   protected File getStdoutFile() throws IOException {
-    File catalinaBase = new File(System.getProperty("catalina.base"));
+    Container ApplicationUtils = null;
+    File catalinaBase = ApplicationUtils.getCatalinaBase();
     if (!catalinaBase.isDirectory()) {
       throw new DirectoryTraversalException("Invalid catalina.base directory");
     }
