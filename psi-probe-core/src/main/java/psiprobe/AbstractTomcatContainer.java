@@ -200,7 +200,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       // Construct the appDir using getAppBase and context name
 
       // Validate and sanitize the appDir path before deleting
-      File appDir = null;
+      File appDir = getAppBase();
       if (!isValidAppDir(appDir)) {
         // Handle invalid or malicious appDir path
         logger.error("Invalid or malicious appDir path: {}", appDir.getAbsolutePath());
@@ -217,7 +217,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
 
       // Ensure that the resolved canonical path is still under the appBase directory
       File canonicalAppBase = appBase.getCanonicalFile();
-      File warFile = null;
+      File warFile = new File(appBase, sanitizedWarFilename);
       File canonicalWarFile = warFile.getCanonicalFile();
 
       String potDirAttempt = "Potential directory traversal attempt";

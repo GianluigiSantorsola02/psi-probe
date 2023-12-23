@@ -108,7 +108,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
       File canonicalTmpDir = tmpDir.getCanonicalFile();
 
-    File systemTmpDir = null;
+    File systemTmpDir = Files.createTempDirectory("psiprobe").toFile();
     if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
         throw new ClassCastException("Potential directory traversal attempt");
       }
