@@ -15,13 +15,13 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="${lang}">
 
     <head>
-        <title><spring:message htmlEscape="true" code="probe.jsp.title.resources" arguments="${param.webapp}"/></title>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='resources.css'/>"/>
+        <title><spring:message htmlEscape="true" code="probe.jsp.title.resources" arguments="${fn:escapeXml(param.webapp)}"/></title>        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='resources.css'/>"/>
     </head>
 
     <body>
