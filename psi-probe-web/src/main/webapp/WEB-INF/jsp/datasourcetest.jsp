@@ -76,8 +76,7 @@
 
             <form id="sqlForm" action="" method="post">
                 <c:if test="${param.webapp != null}">
-                    <input type="hidden" name="webapp" value='<c:out value="${param.webapp}" />'/>
-                </c:if>
+                    <input type="hidden" name="webapp" value="${fn:escapeXml(param.webapp)}" />                </c:if>
                 <input type="hidden" name="resource" value='<c:out value="${fn:escapeXml(param.resource)}" />'/>                <dl id="sqlDL">
                     <dt><label for="sql"><spring:message code="probe.jsp.dataSourceTest.sqlForm.sql.label"/></label></dt>
                     <dd id="sqlContainer">
@@ -157,15 +156,13 @@
                 <dl>
                     <dt><spring:message code="probe.jsp.dataSourceTest.chart.usage.title"/></dt>
                     <dd class="image">
-                        <img id='<c:out value="usage-${param.resource}" />' border="0" src="${usage_img}" width="${chartWidth}" height="${chartHeight}" alt="Datasource usage"/>
-                    </dd>
+                        <img id="usage-${fn:escapeXml(param.resource)}" border="0" src="${fn:escapeXml(usage_img)}" width="${fn:escapeXml(chartWidth)}" height="${fn:escapeXml(chartHeight)}" alt="Datasource usage"/>                    </dd>
                 </dl>
             </div>
         </div>
 
         <script>
-            new Ajax.ImgUpdater('<c:out value="usage-${param.resource}" />', '${probe:max(collectionPeriod, 5)}');
-            setupAjaxActions(
+            new Ajax.ImgUpdater('usage-${fn:escapeXml(param.resource)}', '${fn:escapeXml(probe:max(collectionPeriod, 5))}');            setupAjaxActions(
                 '<c:url value="/sql/connection.ajax"/>',
                 '<c:url value="/sql/recordset.ajax"/>',
                 '<c:url value="/sql/queryHistory.ajax"/>');
