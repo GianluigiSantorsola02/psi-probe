@@ -76,8 +76,8 @@ public class ContainerWrapperBean {
             initializeTomcatContainer(wrapper);
             return;
           }
-        } finally {
-          lock.notifyAll();
+        } catch (Exception e) {
+          logger.error("", e);
         }
       }
     }
