@@ -96,7 +96,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      base = new File(System.getProperty(CATALINA_BASE), host.getAppBase());
+      throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
     // Ensure that the path is relative and does not involve directory traversal
@@ -127,7 +127,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   }
   @Override
   public String getConfigBase() {
-    File configBase = new File(System.getProperty(CATALINA_BASE), "conf");
+    File configBase = new File(host.getConfigBaseFile( ).getAbsolutePath());
     Container baseHost = null;
     Container thisContainer = host;
     while (thisContainer != null) {

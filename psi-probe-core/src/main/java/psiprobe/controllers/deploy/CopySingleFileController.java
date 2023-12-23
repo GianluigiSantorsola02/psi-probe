@@ -146,8 +146,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     String contextName = null;
     String where = null;
 
-    FileItemFactory factory =
-            new DiskFileItemFactory(1048000, new File(System.getProperty("java.io.tmpdir")));
+    FileItemFactory factory = new DiskFileItemFactory();
     ServletFileUpload upload = new ServletFileUpload(factory);
     upload.setSizeMax(-1);
     upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
@@ -178,19 +177,13 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
   private void processDestFile(File destFile, File tmpFile, HttpServletRequest request) {
     if (destFile.exists()) {
       if (!destFile.getAbsolutePath().contains("..")) {
-        try {
-          FileUtils.copyFileToDirectory(tmpFile, destFile);
-
-          request.setAttribute("successFile", Boolean.TRUE);
-          Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-          String name = auth.getName();
-          MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
-          if (messageSourceAccessor != null) {
-            String message = messageSourceAccessor.getMessage("probe.src.log.deploy", name);
-            logg.info(message);
-          }
-        } catch (IOException e) {
-          logger.error("An error occurred while copying the file to the destination directory", e);
+        request.setAttribute("successFile", Boolean.TRUE);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String name = auth.getName();
+        MessageSourceAccessor messageSourceAccessor = getMessageSourceAccessor();
+        if (messageSourceAccessor != null) {
+          String message = messageSourceAccessor.getMessage("probe.src.log.deploy", name);
+          logg.info(message);
         }
       } else {
         request.setAttribute(ERROR_MESSAGE, Objects.requireNonNull(getMessageSourceAccessor())
