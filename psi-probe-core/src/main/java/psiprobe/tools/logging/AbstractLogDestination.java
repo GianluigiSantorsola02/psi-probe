@@ -9,12 +9,12 @@
  * PURPOSE.
  */
 package psiprobe.tools.logging;
+
 import psiprobe.controllers.deploy.DirectoryTraversalException;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.io.IOException;
-import java.net.URI;
+import java.sql.Timestamp;
 /**
  * The Class AbstractLogDestination.
  */
@@ -57,32 +57,6 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
     return resolvedFile;
   }
 
-  private static void ensurePathIsRelative(String path) {
-    ensurePathIsRelative(new File(path));
-  }
-  private static void ensurePathIsRelative(URI uri) {
-    ensurePathIsRelative(new File(uri));
-  }
-  private static void ensurePathIsRelative(File file) {
-
-    String canonicalPath;
-    String absolutePath;
-
-    if (file.isAbsolute()) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt - absolute path not allowed");
-    }
-
-    try {
-      canonicalPath = file.getCanonicalPath();
-      absolutePath = file.getAbsolutePath();
-    } catch (IOException e) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt");
-    }
-
-    if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new DirectoryTraversalException("Potential directory traversal attempt");
-    }
-  }
   @Override
   public File getFile() throws IllegalAccessException, IOException {
     return getStdoutFile();
