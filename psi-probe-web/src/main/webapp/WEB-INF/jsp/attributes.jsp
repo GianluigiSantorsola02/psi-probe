@@ -15,6 +15,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Session attributes view, nothing spectacular. --%>
 <!DOCTYPE html>
@@ -75,8 +76,7 @@
                     <div class="shadow">
                         <div class="info">
                             <p>
-                            <spring:message code="probe.jsp.sessionAttibutes.card.application"/>&#160;<span class="value"><c:out value="${param.webapp}" /></span>
-                            <spring:message code="probe.jsp.sessionAttibutes.card.id"/>&#160;<span class="value">${session.id}</span>
+                                <spring:message code="probe.jsp.sessionAttibutes.card.application" htmlEscape="true" />&#160;<span class="value"><c:out value="${fn:escapeXml(param.webapp)}" /></span>                            <spring:message code="probe.jsp.sessionAttibutes.card.id"/>&#160;<span class="value">${session.id}</span>
                             <spring:message code="probe.jsp.sessionAttibutes.card.serializable"/>&#160;
                             <c:choose>
                                 <c:when test="${session.serializable}">
@@ -107,8 +107,7 @@
                             <display:table name="session.attributes" uid="attribute"
                                     class="genericTbl" style="padding:0;border-spacing:0;border-collapse:separate;"
                                     requestURI="">
-                                <display:column title="&#160;" class="leftmost" style="width: 20px;">
-                                    <c:url value="/app/rmsattr.htm" var="rmsattr_url">
+                                <display:column title="&#160;" class="leftmost" style="width: 20px;" escapeXml="true" />                                    <c:url value="/app/rmsattr.htm" var="rmsattr_url">
                                         <c:param name="webapp" value="${param.webapp}"/>
                                         <c:param name="sid" value="${param.sid}"/>
                                         <c:param name="attr" value="${attribute.name}"/>
@@ -118,7 +117,7 @@
                                                 alt="<spring:message code='probe.jsp.sessionAttibutes.col.delete'/>"
                                                 title="<spring:message code='probe.jsp.sessionAttibutes.col.delete.title'/>"/>
                                     </a>
-                                </display:column>
+                                </display:table>
                                 <display:column property="name" sortable="true"
                                         titleKey="probe.jsp.sessionAttibutes.col.name"/>
                                 <display:column property="type" sortable="true" titleKey="probe.jsp.sessionAttibutes.col.type"/>
@@ -153,7 +152,7 @@
                                         </c:if>
                                     </display:column>
                                 </c:if>
-                            </display:table>
+                            </c:when>
                         </c:when>
                         <c:otherwise>
                             <spring:message code="probe.jsp.sessionAttibutes.noattributes"/>
