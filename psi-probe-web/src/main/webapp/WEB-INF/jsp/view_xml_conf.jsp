@@ -2,12 +2,12 @@
 <%@ page contentType="text/html;charset=UTF-8" session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="${lang}">
     <head>
-        <title><spring:message htmlEscape="true" code="probe.jsp.title.app.viewXMLConf" arguments="${param.webapp},${fileDesc}"/></title>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='syntax.css'/>"/>
+        <title><spring:message htmlEscape="true" code="probe.jsp.title.app.viewXMLConf" arguments="${fn:escapeXml(param.webapp)},${fn:escapeXml(fileDesc)}"/></title>        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='syntax.css'/>"/>
         <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}<spring:theme code='scroller.css'/>"/>
         <script src="<c:url value='/js/prototype.js'/>"></script>
         <script src="<c:url value='/js/behaviour.js'/>"></script>
@@ -38,8 +38,7 @@
             <c:otherwise>
                 <ul class="options">
                     <li id="download">
-                        <a href="<c:url value='${downloadUrl}'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                            <spring:message code="probe.jsp.follow.menu.download"/>
+                        <a href="<c:url value='${fn:escapeXml(downloadUrl)}'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                            <spring:message code="probe.jsp.follow.menu.download"/>
                         </a>
                     </li>
                 </ul>
