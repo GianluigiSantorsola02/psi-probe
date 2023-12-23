@@ -22,8 +22,7 @@
 <html lang="${lang}">
     <head>
         <title>
-            <spring:message htmlEscape="true" code="probe.jsp.title.app.summary" arguments="${param.webapp}"/>
-        </title>
+            <spring:message htmlEscape="true" code="probe.jsp.title.app.summary" arguments="${fn:escapeXml(param.webapp)}"/>        </title>
     </head>
 
     <c:set var="navTabApps" value="active" scope="request"/>
@@ -46,8 +45,7 @@
                 <script src="<c:url value='/js/behaviour.js'/>"></script>
 
                 <c:set var="confirmMessage">
-                    <spring:message htmlEscape="true" code="probe.jsp.app.summary.undeploy.confirm" arguments="${param.webapp}"/>
-                </c:set>
+                    <spring:message htmlEscape="true" code="probe.jsp.app.summary.undeploy.confirm" arguments="${fn:escapeXml(param.webapp)}"/>                </c:set>
                 <ul class="options">
                     <li id="appSurfTo">
                         <a href="${app.name}${app.name ne '/' ? '/' : ''}" target="_blank" rel="noopener">>
@@ -55,22 +53,18 @@
                         </a>
                     </li>
                     <li id="appStop" ${app.available ? '' : 'style="display: none;"'}>
-                        <a href="<c:url value='/app/stop_summary.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                            <spring:message code="probe.jsp.app.summary.menu.stop"/>
+                        <a href="<c:url value='/app/stop_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.stop"/>
                         </a>
                     </li>
                     <li id="appStart" ${app.available ? 'style="display: none;"' : ''}>
-                        <a href="<c:url value='/app/start_summary.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                            <spring:message code="probe.jsp.app.summary.menu.start"/>
+                        <a href="<c:url value='/app/start_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.start"/>
                         </a>
                     </li>
                     <li id="appReload">
-                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.reload"/>
-                        </a>
+                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>"> <spring:message code="probe.jsp.app.summary.menu.reload"/>                        </a>
                     </li>
                     <li id="appUndeploy">
-                        <a href="<c:url value='/adm/undeploy_summary.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>" onclick="return confirm('${confirmMessage}')">
-                            <spring:message code="probe.jsp.app.summary.menu.undeploy"/>
+                        <a href="<c:url value='/adm/undeploy_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}'/></c:url>" onclick="return confirm('${fn:escapeJs(confirmMessage)}')">                            <spring:message code="probe.jsp.app.summary.menu.undeploy"/>
                         </a>
                     </li>
                     <c:choose>
@@ -120,8 +114,7 @@
 
                     function updateAppInfo() {
                         new Ajax.Updater('runtimeAppInfo',
-                        '<c:url value="/appruntimeinfo.ajax"/>?<c:out value="${pageContext.request.queryString}"/>',
-                        {method:'get', asynchronous: false});
+                            '<c:url value="/appruntimeinfo.ajax"/>?<c:out value="${fn:escapeXml(pageContext.request.queryString)}"/>',                        {method:'get', asynchronous: false});
 
                         // changing visibility of markup items that depend on an application status
                         if ($('r_appStatusUp')) {
@@ -196,8 +189,7 @@
                                 <dl>
                                     <dt><spring:message code="probe.jsp.app.summary.charts.requests.title"/></dt>
                                     <dd class="image">
-                                        <img id="req_chart" border="0" src="${req_url}" width="${chartWidth}" height="${chartHeight}" alt="+"/>
-                                    </dd>
+                                        <img id="req_chart" border="0" src="${fn:escapeXml(req_url)}" width="${fn:escapeXml(chartWidth)}" height="${fn:escapeXml(chartHeight)}" alt="+"/>                                    </dd>
                                     <dd id="dd-req">
                                         <div class="ajax_activity"></div>
                                     </dd>
@@ -208,8 +200,7 @@
                                 <dl>
                                     <dt><spring:message code="probe.jsp.app.summary.charts.avgProcTime.title"/></dt>
                                     <dd class="image">
-                                        <img id="avg_proc_time_chart" border="0" src="${avg_proc_time_url}" width="${chartWidth}" height="${chartHeight}" alt="+"/>
-                                    </dd>
+                                        <img id="avg_proc_time_chart" border="0" src="${fn:escapeXml(avg_proc_time_url)}" width="${fn:escapeXml(chartWidth)}" height="${fn:escapeXml(chartHeight)}" alt="+"/>                                    </dd>
                                     <dd id="dd-proc_time">
                                         <div class="ajax_activity"></div>
                                     </dd>
@@ -264,12 +255,12 @@
                         var rules = {
                             '#req_chart': function(element) {
                                 element.onclick = function() {
-                                    zoomIn('${req_url_full}', '<spring:message code="probe.jsp.app.summary.charts.requests.title"/>');
+                                    zoomIn('${fn:escapeJs(req_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.requests.title"/>');
                                 }
                             },
                             '#avg_proc_time_chart': function(element) {
                                 element.onclick = function() {
-                                    zoomIn('${avg_proc_time_url_full}', '<spring:message code="probe.jsp.app.summary.charts.avgProcTime.title"/>');
+                                    zoomIn('${fn:escapeJs(avg_proc_time_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.avgProcTime.title"/>');
                                 }
                             },
                             '#full_chart': function(element) {
