@@ -37,7 +37,7 @@
         <ul class="options">
             <li id="viewAppFilters">
                 <a href="<c:url value='${fn:escapeXml(param.webapp)}' />">
-                    <c:param name='webapp' value='${fn:escapeXml(param.webapp)}' />
+                    <p> <c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></p>
                     <spring:message code="probe.jsp.app.filtermaps.opt.defs" htmlEscape="true" />
                 </a>
 

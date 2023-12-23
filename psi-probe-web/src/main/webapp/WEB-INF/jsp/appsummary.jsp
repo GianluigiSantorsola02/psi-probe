@@ -259,12 +259,12 @@
                         var rules = {
                             '#req_chart': function(element) {
                                 element.onclick = function() {
-                                    zoomIn('${fn:escapeJs(req_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.requests.title"/>');
+                                    zoomIn('${fn:escapeXml(req_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.requests.title"/>');
                                 }
                             },
                             '#avg_proc_time_chart': function(element) {
                                 element.onclick = function() {
-                                    zoomIn('${fn:escapeJs(avg_proc_time_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.avgProcTime.title"/>');
+                                    zoomIn('${fn:escapeXml(avg_proc_time_url_full)}', '<spring:message code="probe.jsp.app.summary.charts.avgProcTime.title"/>');
                                 }
                             },
                             '#full_chart': function(element) {
