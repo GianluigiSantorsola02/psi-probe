@@ -117,7 +117,7 @@
                                                 alt="<spring:message code='probe.jsp.sessionAttibutes.col.delete'/>"
                                                 title="<spring:message code='probe.jsp.sessionAttibutes.col.delete.title'/>"/>
                                     </a>
-                                </display:table>
+                                </display:column>
                                 <display:column property="name" sortable="true"
                                         titleKey="probe.jsp.sessionAttibutes.col.name"/>
                                 <display:column property="type" sortable="true" titleKey="probe.jsp.sessionAttibutes.col.type"/>
