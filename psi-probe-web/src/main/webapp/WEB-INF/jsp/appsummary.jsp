@@ -14,6 +14,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Displays a web application information summary and application statistics charts --%>
 
@@ -64,8 +65,7 @@
                         </a>
                     </li>
                     <li id="appReload">
-                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${param.webapp}'/></c:url>">
-                            <spring:message code="probe.jsp.app.summary.menu.reload"/>
+                        <a href="<c:url value='/app/reload_summary.htm'><c:param name='webapp' value='${fn:escapeXml(param.webapp)}' /></c:url>">                            <spring:message code="probe.jsp.app.summary.menu.reload"/>
                         </a>
                     </li>
                     <li id="appUndeploy">
