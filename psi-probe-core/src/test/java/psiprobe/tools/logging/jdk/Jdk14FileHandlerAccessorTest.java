@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.FileHandler;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import psiprobe.model.Application;
@@ -36,6 +36,7 @@ class Jdk14FileHandlerAccessorTest {
     Application testApplication = new Application();
     handlerAccessor.setApplication(testApplication);
 
+    Assertions.assertThrowsExactly(IllegalStateException.class, handlerAccessor::getFile);
 
   }
 
