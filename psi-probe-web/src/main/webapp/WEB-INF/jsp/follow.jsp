@@ -15,6 +15,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://displaytag.sf.net" prefix="display" %>
 <%@ taglib uri="https://github.com/psi-probe/psi-probe/jsp/tags" prefix="probe" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%-- Log file view. The view is a simple markup that gets updated via AJAX calls. Top menu does not go to the server but
  rather does DOM tricks to modify content appearance. --%>
@@ -231,8 +232,7 @@
                 method:'get',
                 parameters: {
                     logType: '${probe:escapeJS(log.logType)}',
-                    webapp: '<c:out value="${param.webapp}" />',
-                    context: '${log.context}',
+                    webapp: '${fn:escapeXml(param.webapp)}',                    context: '${log.context}',
                     root: '${log.root}',
                     logName: '${probe:escapeJS(log.name)}',
                     logIndex: '${probe:escapeJS(log.index)}'
@@ -254,7 +254,7 @@
                     method:'get',
                     parameters: {
                         logType: '${probe:escapeJS(log.logType)}',
-                        webapp: '<c:out value="${param.webapp}" />',
+                        webapp: '${fn:escapeXml(param.webapp)}',
                         context: '${log.context}',
                         root: '${log.root}',
                         logName: '${probe:escapeJS(log.name)}',
@@ -395,8 +395,7 @@
         <c:if test="${cookie['file_content_font_size'] != null}">
             <script>
                 Event.observe(window, 'load', function() {
-                    setFontSize($(file_content_div), `<c:out value='${cookie["file_content_font_size"].value}' />`, false);
-                });
+                    setFontSize($(file_content_div), '${fn:escapeXml(cookie["file_content_font_size"].value)}', false);                });
             </script>
         </c:if>
 
