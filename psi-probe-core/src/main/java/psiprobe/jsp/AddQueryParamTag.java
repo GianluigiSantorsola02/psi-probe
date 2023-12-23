@@ -45,7 +45,7 @@ public class AddQueryParamTag extends TagSupport {
       }
     }
     try {
-      pageContext.getOut().print(query);
+      pageContext.getOut().print(org.apache.commons.text.StringEscapeUtils.escapeHtml4(String.valueOf(query)));
     } catch (IOException e) {
       throw new JspException("Exception printing query string to JspWriter", e);
     }
