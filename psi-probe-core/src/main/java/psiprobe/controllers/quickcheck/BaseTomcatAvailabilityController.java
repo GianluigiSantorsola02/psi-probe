@@ -106,8 +106,8 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
       File canonicalTmpDir = tmpDir.getCanonicalFile();
 // Set read, write, and execute permissions for the owner only
-      File systemTmpDir = new File(System.getProperty("java.io.tmpdir"));
 
+      File systemTmpDir= Files.createTempDirectory("tmp").toFile();
       if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
           throw new ClassCastException("Potential directory traversal attempt");
       }
