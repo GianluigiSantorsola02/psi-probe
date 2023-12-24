@@ -59,11 +59,10 @@ public class RememberVisibilityController extends AbstractController {
       // Build the Set-Cookie header with the sanitized values and expiration date
       String sanitizedCookieName = sanitizeHeaderValue(cookieName);
       String sanitizedState = sanitizeHeaderValue(state);
-      String setCookieHeader = sanitizedCookieName + "=" + sanitizedState + "; Expires=" + expirationDateString + "; Secure=true; HttpOnly=true";
+      String setCookieHeader = sanitizedCookieName + "=" + sanitizedState + "; Expires=" + expirationDateString + "; Secure=true; HttpsOnly=true";
 
       // Add the Set-Cookie header to the response
-      response.addHeader("Set-Cookie", setCookieHeader);
-    }
+      response.setHeader("Set-Cookie", setCookieHeader);}
     return null;
   }
 
