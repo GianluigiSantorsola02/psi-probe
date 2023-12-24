@@ -62,7 +62,6 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       // Validate and sanitize user input (trustStore)
       String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
       if (StringUtils.isNotBlank(trustStorePath)) {
-        loadKeyStore(Files.newInputStream(Paths.get(trustStorePath)), null);
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
           attributes = new HashMap<>();
