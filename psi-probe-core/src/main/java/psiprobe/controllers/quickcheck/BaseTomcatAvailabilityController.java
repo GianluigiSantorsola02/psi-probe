@@ -10,6 +10,16 @@
  */
 package psiprobe.controllers.quickcheck;
 
+import org.apache.catalina.Context;
+import org.springframework.web.servlet.ModelAndView;
+import psiprobe.controllers.AbstractTomcatContainerController;
+import psiprobe.model.ApplicationResource;
+import psiprobe.model.DataSourceInfo;
+import psiprobe.model.TomcatTestReport;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,19 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.catalina.Context;
-import org.apache.commons.io.FileUtils;
-import org.springframework.web.servlet.ModelAndView;
-
-import psiprobe.controllers.AbstractTomcatContainerController;
-import psiprobe.model.ApplicationResource;
-import psiprobe.model.DataSourceInfo;
-import psiprobe.model.TomcatTestReport;
 
 /**
  * "Quick check" base controller.
@@ -110,13 +107,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
       File canonicalTmpDir = tmpDir.getCanonicalFile();
 // Set read, write, and execute permissions for the owner only
       File systemTmpDir = new File(System.getProperty("java.io.tmpdir"));
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-          try {
-              FileUtils.deleteDirectory(systemTmpDir);
-          } catch (IOException e) {
-              logger.trace("", e);
-          }
-      }));
+
       if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
           throw new ClassCastException("Potential directory traversal attempt");
       }
