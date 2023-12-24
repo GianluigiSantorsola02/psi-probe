@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
+import org.apache.commons.io.FileUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 import psiprobe.controllers.AbstractTomcatContainerController;
@@ -102,38 +103,49 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
   private void performFileTest(TomcatTestReport tomcatTestReport) throws IOException {
 // Validate and sanitize the tmpDir path
-    File tmpDir = getValidatedTmpDir();
+      File tmpDir = getValidatedTmpDir();
 
 // Ensure that the resolved canonical path is still under the system tmpdir directory
 
       File canonicalTmpDir = tmpDir.getCanonicalFile();
+// Set read, write, and execute permissions for the owner only
+      File systemTmpDir = new File(System.getProperty("java.io.tmpdir"));
+      systemTmpDir.setReadable(true, false);
+      systemTmpDir.setWritable(true, false);
+      systemTmpDir.setExecutable(true, false);
 
-    File systemTmpDir = Files.createTempDirectory("psiprobe").toFile();
-    if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
-        throw new ClassCastException("Potential directory traversal attempt");
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+          try {
+              FileUtils.deleteDirectory(systemTmpDir);
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+      }));
+      if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
+          throw new ClassCastException("Potential directory traversal attempt");
       }
 
-    int fileCount = tomcatTestReport.getDefaultFileCount();
-    List<File> files = new ArrayList<>();
-    List<OutputStream> fileStreams = new ArrayList<>();
+      int fileCount = tomcatTestReport.getDefaultFileCount();
+      List<File> files = new ArrayList<>();
+      List<OutputStream> fileStreams = new ArrayList<>();
 
-    try {
-      for (; fileCount > 0; fileCount--) {
-        File file = new File(tmpDir, "tctest_" + fileCount);
-        try (OutputStream fos = Files.newOutputStream(file.toPath())) {
-          files.add(file);
-          fileStreams.add(fos);
-          fos.write("this is a test".getBytes(StandardCharsets.UTF_8));
-        }
+      try {
+          for (; fileCount > 0; fileCount--) {
+              File file = new File(tmpDir, "tctest_" + fileCount);
+              try (OutputStream fos = Files.newOutputStream(file.toPath())) {
+                  files.add(file);
+                  fileStreams.add(fos);
+                  fos.write("this is a test".getBytes(StandardCharsets.UTF_8));
+              }
+          }
+          tomcatTestReport.setFileTest(TomcatTestReport.TEST_PASSED);
+      } catch (IOException e) {
+          tomcatTestReport.setFileTest(TomcatTestReport.TEST_FAILED);
+          logger.trace("", e);
+      } finally {
+          closeFileStreams(fileStreams);
+          deleteFiles(files);
       }
-      tomcatTestReport.setFileTest(TomcatTestReport.TEST_PASSED);
-    } catch (IOException e) {
-      tomcatTestReport.setFileTest(TomcatTestReport.TEST_FAILED);
-      logger.trace("", e);
-    } finally {
-      closeFileStreams(fileStreams);
-      deleteFiles(files);
-    }
   }
 
   private File getValidatedTmpDir() {
@@ -141,14 +153,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
     return new File("/path/to/safe/directory");
   }
 
-  private String sanitizePath(String path) {
-    if (path == null || path.isEmpty()) {
-      return "";
-    }
-    return path.replaceAll("[^A-Za-z0-9]", "_");
-  }
-
-  private void closeFileStreams(List<OutputStream> fileStreams) {
+    private void closeFileStreams(List<OutputStream> fileStreams) {
     for (OutputStream fileStream : fileStreams) {
       try {
         fileStream.close();
