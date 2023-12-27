@@ -296,8 +296,8 @@ public final class ApplicationUtils {
   }
 
     public static File getCatalinaBase() {
-      File catalinaBase = null;
-      return catalinaBase;
+      return new File(System.getProperty("catalina.base"));
+
     }
 
     public void processSessionAttributes(HttpSession httpSession, boolean calcSize, boolean addAttributes, List<Object> processedObjects) {

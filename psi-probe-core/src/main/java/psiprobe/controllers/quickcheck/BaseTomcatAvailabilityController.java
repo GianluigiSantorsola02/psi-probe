@@ -117,7 +117,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
     File canonicalTmpDir = tmpDir.getCanonicalFile();
     // Set read, write, and execute permissions for the owner only
 
-    File systemTmpDir = Files.createTempDirectory("tmp").toFile();
+    File systemTmpDir = File.listRoots()[0];
       try (Stream<Path> paths = Files.walk(systemTmpDir.toPath())) {
           paths.sorted(Comparator.reverseOrder())
                   .map(Path::toFile)
