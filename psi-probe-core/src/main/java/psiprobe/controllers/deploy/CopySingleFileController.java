@@ -35,7 +35,6 @@ import psiprobe.controllers.AbstractTomcatContainerController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -124,7 +123,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
 
   private File getSafeTempDir() {
     // Customize this path according to your application's requirements
-    return new File("/path/to/safe/temp/dir");
+    return new File("psiprobe/controllers/deploy/CopySingleFileController.java");
   }
 
   private String sanitizeFileName(String fileName) {
@@ -136,7 +135,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
 
   private File getSafeDirectory() {
     // Customize this path according to your application's requirements
-    return new File("/path/to/safe/directory");
+    return new File("psiprobe/controllers/deploy/CopySingleFileController.java");
   }
 
   private String sanitizePath(String path) {
@@ -179,7 +178,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
     }
   }
 
-  private void processDestFile(File destFile, File tmpFile, HttpServletRequest request) {
+  private void processDestFile(File destFile, HttpServletRequest request) {
     if (destFile.exists()) {
       if (!destFile.getAbsolutePath().contains("..")) {
         request.setAttribute("successFile", Boolean.TRUE);
@@ -213,7 +212,7 @@ public class CopySingleFileController extends AbstractTomcatContainerController 
                   contextName + where);
 
           if (destFile.exists()) {
-            processDestFile(destFile, tmpFile, request);
+            processDestFile(destFile, request);
           } else {
             errMsg = Objects.requireNonNull(getMessageSourceAccessor())
                     .getMessage("probe.src.deploy.file.notPath");

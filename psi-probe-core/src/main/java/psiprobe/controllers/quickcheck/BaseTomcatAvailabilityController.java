@@ -155,7 +155,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
   private File getValidatedTmpDir() {
     // Customize this path according to your application's requirements
-    return new File("/path/to/safe/directory");
+    return new File("psiprobe/controllers/quickcheck/BaseTomcatAvailabilityController.java");
   }
 
   private void closeFileStreams(List<OutputStream> fileStreams) {

@@ -1,6 +1,7 @@
 package psiprobe.controllers.deploy;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.InternalResourceView;
 
+import psiprobe.beans.ContainerListenerBean;
 import psiprobe.controllers.AbstractTomcatContainerController;
 
 /**
@@ -90,7 +92,7 @@ public class UploadWarController extends AbstractTomcatContainerController {
     return new File(SAFE_TEMP_DIR);
   }
 
-  private boolean isValidFilePath(File file) throws Exception {
+  private boolean isValidFilePath(File file) throws IOException {
     // Ensure that the resolved canonical path is under the safe directory
     return file.getCanonicalPath().startsWith(new File(SAFE_TEMP_DIR).getCanonicalPath());
   }

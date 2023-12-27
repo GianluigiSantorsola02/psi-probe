@@ -52,7 +52,7 @@ import java.util.Map.Entry;
  * adapters.
  */
 public abstract class AbstractTomcatContainer implements TomcatContainer {
-  public static final String potDirAttempt = "Potential directory traversal attempt";
+  public static final String POT_DIR_ATTEMPT = "Potential directory traversal attempt";
   /** The logger. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
   /** The Constant NO_JSP_SERVLET. */
@@ -96,7 +96,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      throw new DirectoryTraversalException(potDirAttempt);
+      throw new DirectoryTraversalException(POT_DIR_ATTEMPT);
     }
 
     // Ensure that the path is relative and does not involve directory traversal
@@ -119,11 +119,11 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
 
-      throw new DirectoryTraversalException(potDirAttempt);
+      throw new DirectoryTraversalException(POT_DIR_ATTEMPT);
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      throw new DirectoryTraversalException(potDirAttempt);
+      throw new DirectoryTraversalException(POT_DIR_ATTEMPT);
     }
   }
   @Override
