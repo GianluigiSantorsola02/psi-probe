@@ -1,17 +1,16 @@
 package psiprobe.tools.logging.catalina;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import psiprobe.controllers.deploy.DirectoryTraversalException;
 import psiprobe.tools.ApplicationUtils;
 import psiprobe.tools.Instruments;
 import psiprobe.tools.logging.AbstractLogDestination;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CatalinaLoggerAccessor extends AbstractLogDestination {
 

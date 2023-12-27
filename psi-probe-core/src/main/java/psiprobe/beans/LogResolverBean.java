@@ -743,10 +743,8 @@ public class LogResolverBean {
         String name2;
       try {
         name2 = convertToString(o2);
-      } catch (IllegalAccessException e) {
+      } catch (IllegalAccessException | IOException e) {
         throw new ClassCastException(e.getMessage());
-      } catch (IOException e) {
-          throw new RuntimeException(e);
       }
         return name1.compareTo(name2);
     }

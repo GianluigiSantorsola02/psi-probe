@@ -18,18 +18,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import psiprobe.controllers.AbstractTomcatContainerController;
-import psiprobe.controllers.certificates.KeyStoreLoadException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -62,7 +55,6 @@ public class TrustStoreController extends AbstractTomcatContainerController {
       // Validate and sanitize user input (trustStore)
       String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
       if (StringUtils.isNotBlank(trustStorePath)) {
-        loadKeyStore(Files.newInputStream(Paths.get(trustStorePath)), null);
         Map<String, String> attributes;
         for (String alias : Collections.list(ks.aliases())) {
           attributes = new HashMap<>();
@@ -83,23 +75,6 @@ public class TrustStoreController extends AbstractTomcatContainerController {
     ModelAndView mv = new ModelAndView(getViewName());
     mv.addObject("certificates", certificateList);
     return mv;
-  }
-
-  private void loadKeyStore(InputStream fis, char[] chars) throws KeyStoreLoadException {
-    try {
-      KeyStore ks = KeyStore.getInstance("JKS");
-      ks.load(fis, chars);
-    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-      String errorMessage = "Failed to load keystore: " + e.getMessage();
-      mylogger.error(errorMessage, e);
-      throw new KeyStoreLoadException(errorMessage, e);
-    }
-  }
-
-  // Validate and sanitize user input (trustStorePassword)
-  private char[] getPasswordFromUserInput() {
-    String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-    return StringUtils.isNotBlank(trustStorePassword) ? trustStorePassword.toCharArray() : new char[0];
   }
 
   @Value("truststore")

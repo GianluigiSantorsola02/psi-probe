@@ -69,8 +69,7 @@ public class ContainerWrapperBean {
   @Value("false")
 
   public void setWrapper(Wrapper wrapper) {
-    if (tomcatContainer == null) {
-      if (lock.equals(wrapper)) {
+    if (tomcatContainer == null && lock.equals(wrapper)) {
         try {
           if (tomcatContainer == null) {
             initializeTomcatContainer(wrapper);
@@ -80,10 +79,10 @@ public class ContainerWrapperBean {
           logger.error("", e);
         }
       }
-    }
-
     unregisterContainerAdapter(wrapper);
   }
+
+
   private void initializeTomcatContainer(Wrapper wrapper) {
     String serverInfo = ServerInfo.getServerInfo();
     logger.info("Server info: {}", serverInfo);

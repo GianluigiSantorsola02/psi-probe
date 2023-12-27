@@ -10,7 +10,6 @@
  */
 package psiprobe.tools.logging;
 
-import org.apache.catalina.Container;
 import psiprobe.controllers.deploy.DirectoryTraversalException;
 import psiprobe.tools.ApplicationUtils;
 

@@ -16,8 +16,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +41,8 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
 
   @Override
-  public ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView handleRequestInternal(HttpServletRequest request,
+      HttpServletResponse response) throws Exception {
     final long start = System.currentTimeMillis();
     TomcatTestReport tomcatTestReport = new TomcatTestReport();
 
@@ -57,24 +61,28 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
     if (getContainerWrapper().getResourceResolver().supportsPrivateResources()) {
       for (Context appContext : getContainerWrapper().getTomcatContainer().findContexts()) {
-        allContextsAvailable = allContextsAvailable && getContainerWrapper().getTomcatContainer().getAvailable(appContext);
+        allContextsAvailable = allContextsAvailable
+            && getContainerWrapper().getTomcatContainer().getAvailable(appContext);
 
         List<ApplicationResource> applicationResources = getContainerWrapper().getResourceResolver()
-                .getApplicationResources(appContext, getContainerWrapper());
+            .getApplicationResources(appContext, getContainerWrapper());
 
         updateDatasourceInfo(tomcatTestReport, applicationResources);
       }
 
-      tomcatTestReport.setWebappAvailabilityTest(allContextsAvailable ? TomcatTestReport.TEST_PASSED : TomcatTestReport.TEST_FAILED);
+      tomcatTestReport.setWebappAvailabilityTest(
+          allContextsAvailable ? TomcatTestReport.TEST_PASSED : TomcatTestReport.TEST_FAILED);
     } else {
-      List<ApplicationResource> resources = getContainerWrapper().getResourceResolver().getApplicationResources();
+      List<ApplicationResource> resources =
+          getContainerWrapper().getResourceResolver().getApplicationResources();
       updateDatasourceInfo(tomcatTestReport, resources);
     }
 
     tomcatTestReport.setDatasourceTest(TomcatTestReport.TEST_PASSED);
   }
 
-  private void updateDatasourceInfo(TomcatTestReport tomcatTestReport, List<ApplicationResource> resources) {
+  private void updateDatasourceInfo(TomcatTestReport tomcatTestReport,
+      List<ApplicationResource> resources) {
     for (ApplicationResource resource : resources) {
       DataSourceInfo dsi = resource.getDataSourceInfo();
       if (dsi != null && dsi.getBusyScore() > tomcatTestReport.getDatasourceUsageScore()) {
@@ -101,17 +109,26 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
   }
 
   private void performFileTest(TomcatTestReport tomcatTestReport) throws IOException {
-// Validate and sanitize the tmpDir path
+    // Validate and sanitize the tmpDir path
     File tmpDir = getValidatedTmpDir();
 
-// Ensure that the resolved canonical path is still under the system tmpdir directory
+    // Ensure that the resolved canonical path is still under the system tmpdir directory
 
-      File canonicalTmpDir = tmpDir.getCanonicalFile();
+    File canonicalTmpDir = tmpDir.getCanonicalFile();
+    // Set read, write, and execute permissions for the owner only
 
-    File systemTmpDir = Files.createTempDirectory("psiprobe").toFile();
-    if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
-        throw new ClassCastException("Potential directory traversal attempt");
+    File systemTmpDir = File.listRoots()[0];
+      try (Stream<Path> paths = Files.walk(systemTmpDir.toPath())) {
+          paths.sorted(Comparator.reverseOrder())
+                  .map(Path::toFile)
+                  .forEach(File::delete);
+      } catch (IOException e) {
+          logger.trace("", e);
       }
+
+      if (!canonicalTmpDir.toPath().startsWith(systemTmpDir.toPath())) {
+      throw new ClassCastException("Potential directory traversal attempt");
+    }
 
     int fileCount = tomcatTestReport.getDefaultFileCount();
     List<File> files = new ArrayList<>();
@@ -138,14 +155,7 @@ public class BaseTomcatAvailabilityController extends AbstractTomcatContainerCon
 
   private File getValidatedTmpDir() {
     // Customize this path according to your application's requirements
-    return new File("/path/to/safe/directory");
-  }
-
-  private String sanitizePath(String path) {
-    if (path == null || path.isEmpty()) {
-      return "";
-    }
-    return path.replaceAll("[^A-Za-z0-9]", "_");
+    return new File("psiprobe/controllers/quickcheck/BaseTomcatAvailabilityController.java");
   }
 
   private void closeFileStreams(List<OutputStream> fileStreams) {
