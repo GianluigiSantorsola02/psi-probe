@@ -52,6 +52,7 @@ import java.util.Map.Entry;
  * adapters.
  */
 public abstract class AbstractTomcatContainer implements TomcatContainer {
+  public static final String potDirAttempt = "Potential directory traversal attempt";
   /** The logger. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
   /** The Constant NO_JSP_SERVLET. */
@@ -95,7 +96,6 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
   public File getAppBase() {
     File base = new File(host.getAppBase());
     if (!base.isAbsolute()) {
-      String potDirAttempt = "Potential directory traversal attempt";
       throw new DirectoryTraversalException(potDirAttempt);
     }
 
@@ -118,14 +118,11 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
       canonicalPath = file.getCanonicalPath();
       absolutePath = file.getAbsolutePath();
     } catch (IOException e) {
-      String potDirAttempt = "Potential directory traversal attempt";
 
       throw new DirectoryTraversalException(potDirAttempt);
     }
 
     if (!canonicalPath.startsWith(absolutePath) || !canonicalPath.equals(absolutePath)) {
-      String potDirAttempt = "Potential directory traversal attempt";
-
       throw new DirectoryTraversalException(potDirAttempt);
     }
   }
@@ -537,7 +534,7 @@ public abstract class AbstractTomcatContainer implements TomcatContainer {
     try {
       Boolean result = (Boolean) mbeanServer.invoke(deployerOName, "isServiced", new String[] {name},
               new String[] {String.class.getName()});
-      if (!result) {
+      if (Boolean.TRUE.equals(result)) {
         mbeanServer.invoke(deployerOName, "addServiced", new String[] {name},
                 new String[] {String.class.getName()});
         try {
