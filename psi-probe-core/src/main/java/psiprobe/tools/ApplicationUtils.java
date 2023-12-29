@@ -412,6 +412,10 @@ public final class ApplicationUtils {
     return containerWrapper.getTomcatContainer().getApplicationFilters(context);
   }
 
+  public static int getCatalinaBase() {
+      return 1;
+  }
+
   public static class ApplicationResourcesException extends Exception {
     public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
       super(errorRetrievingApplicationResources, e);

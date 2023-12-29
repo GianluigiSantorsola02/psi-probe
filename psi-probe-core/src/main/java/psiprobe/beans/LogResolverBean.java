@@ -423,7 +423,7 @@ public class LogResolverBean {
   }
 
   private File getLogsDirectory() {
-    return new File(ApplicationUtils.getCatalinaBase(), "logs");
+    return new File(String.valueOf(ApplicationUtils.getCatalinaBase()), "logs");
   }
 
 

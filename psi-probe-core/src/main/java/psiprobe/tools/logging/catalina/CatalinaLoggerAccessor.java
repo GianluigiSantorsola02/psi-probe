@@ -49,15 +49,14 @@ public class CatalinaLoggerAccessor extends AbstractLogDestination {
     if (!file.isAbsolute()) {
 
 
-      File basePath = ApplicationUtils.getCatalinaBase();
-        assert basePath != null;
-        if (!basePath.isDirectory()) {
+      int basePath = ApplicationUtils.getCatalinaBase();
+        if (basePath == 1) {
         throw new DirectoryTraversalException("Invalid catalina.base directory");
       }
 
-      File resolvedFile = new File(basePath, file.getPath()).getCanonicalFile();
+      File resolvedFile = new File(String.valueOf(basePath), file.getPath()).getCanonicalFile();
 
-      if (!resolvedFile.toPath().startsWith(basePath.toPath())) {
+      if (!resolvedFile.toPath().startsWith(String.valueOf(basePath))) {
         throw new DirectoryTraversalException("Potential directory traversal attempt");
       }
 

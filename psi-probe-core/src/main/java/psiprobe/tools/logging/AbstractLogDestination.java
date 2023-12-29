@@ -44,17 +44,17 @@ public abstract class AbstractLogDestination extends DefaultAccessor implements 
   protected File getStdoutFile() throws IOException {
 
 
-    File catalinaBase = ApplicationUtils.getCatalinaBase();
-      assert catalinaBase != null;
-      if (!catalinaBase.isDirectory()) {
+    int catalinaBase = ApplicationUtils.getCatalinaBase();
+
+      if (catalinaBase == 1) {
       throw new DirectoryTraversalException("Invalid catalina.base directory");
     }
 
     // Resolve the file against the base path and get its canonical path
-    File resolvedFile = new File(catalinaBase, "logs/catalina.out").getCanonicalFile();
+    File resolvedFile = new File(String.valueOf(catalinaBase), "logs/catalina.out").getCanonicalFile();
 
     // Ensure that the resolved canonical path is still under the base path
-    if (!resolvedFile.toPath().startsWith(catalinaBase.toPath())) {
+    if (!resolvedFile.toPath().startsWith(String.valueOf(catalinaBase))) {
       throw new DirectoryTraversalException("Potential directory traversal attempt");
     }
 
