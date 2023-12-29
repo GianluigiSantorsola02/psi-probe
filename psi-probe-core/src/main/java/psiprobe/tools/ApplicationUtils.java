@@ -10,22 +10,6 @@
  */
 package psiprobe.tools;
 
-import java.io.File;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Session;
@@ -35,17 +19,16 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-
 import psiprobe.beans.ContainerWrapperBean;
 import psiprobe.beans.ResourceResolver;
-import psiprobe.model.Application;
-import psiprobe.model.ApplicationParam;
-import psiprobe.model.ApplicationResource;
-import psiprobe.model.ApplicationSession;
-import psiprobe.model.Attribute;
-import psiprobe.model.FilterInfo;
-import psiprobe.model.ServletInfo;
-import psiprobe.model.ServletMapping;
+import psiprobe.model.*;
+
+import javax.naming.NamingException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * The Class ApplicationUtils.
@@ -293,52 +276,6 @@ public final class ApplicationUtils {
     }
 
     return sbean;
-  }
-
-    public static File getCatalinaBase() {
-      return new File(System.getProperty("catalina.base"));
-
-    }
-
-    public void processSessionAttributes(HttpSession httpSession, boolean calcSize, boolean addAttributes, List<Object> processedObjects) {
-    ApplicationSession sbean = null;
-    for (String name : Collections.list(httpSession.getAttributeNames())) {
-      Object obj = httpSession.getAttribute(name);
-
-      long objSize = 0;
-      if (calcSize) {
-        try {
-          objSize += Instruments.sizeOf(name, (ClassLoader) processedObjects);
-          objSize += Instruments.sizeOf(obj, (ClassLoader) processedObjects);
-        } catch (Exception ex) {
-          logger.error("Cannot estimate size of attribute '{}'", name, ex);
-        }
-      }
-
-      if (addAttributes) {
-        Attribute saBean = new Attribute();
-        saBean.setName(name);
-        saBean.setType(ClassUtils.getQualifiedName(obj.getClass()));
-        saBean.setValue(obj);
-        saBean.setSize(objSize);
-        saBean.setSerializable(obj instanceof Serializable);
-          assert sbean != null;
-          sbean.addAttribute(saBean);
-      }
-    }
-    String lastAccessedIp = (String) httpSession.getAttribute(ApplicationSession.LAST_ACCESSED_BY_IP);
-    if (lastAccessedIp != null) {
-        assert sbean != null;
-        sbean.setLastAccessedIp(lastAccessedIp);
-      sbean.setLastAccessedIpLocale((Locale) httpSession.getAttribute(ApplicationSession.LAST_ACCESSED_LOCALE));
-    }
-    try {
-      processSessionAttributes(httpSession, calcSize, addAttributes, processedObjects);
-    } catch (IllegalStateException e) {
-      logger.info("Session appears to be invalidated, ignore");
-      logger.trace("", e);
-    }
-
   }
 
 
