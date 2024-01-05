@@ -38,14 +38,8 @@ public final class ApplicationUtils {
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
 
-  /**
-   * Prevent Instantiation.
-   */
-  public ApplicationUtils() {
-    // Prevent Instantiation
-  }
 
-  /**
+    /**
    * Gets the application.
    *
    * @param context the context
@@ -61,8 +55,7 @@ public final class ApplicationUtils {
    * Creates Application instance from Tomcat Context object. If ResourceResolver is passed the
    * method will also collect additional information about the application such as session count,
    * session attribute count, application attribute count, servlet count, servlet stats summary and
-   * datasource usage summary. Collecting additional information can be CPU intensive and time
-   * consuming so this should be avoided unless absolutely required. Some datasource implementations
+   * datasource usage summary. Collecting additional information can be CPU intensive and time-   * consuming so this should be avoided unless absolutely required. Some datasource implementations
    * (c3p0) are known to be prone to internal deadlocks, so this method can also hang is datasource
    * usage stats is to be collected.
    *
@@ -412,9 +405,7 @@ public final class ApplicationUtils {
     return containerWrapper.getTomcatContainer().getApplicationFilters(context);
   }
 
-  public static int getCatalinaBase() {
-      return 1;
-  }
+  public static final int CATALINA_BASE = 1;
 
   public static class ApplicationResourcesException extends Exception {
     public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
