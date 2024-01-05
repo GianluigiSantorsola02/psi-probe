@@ -384,7 +384,7 @@ public class LogResolverBean {
         }
       }
     }
-    return null;
+      return null;
   }
 
   /**

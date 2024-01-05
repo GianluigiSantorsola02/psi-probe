@@ -407,6 +407,10 @@ public final class ApplicationUtils {
 
   public static final int CATALINA_BASE = 1; // CATALINA_BASE
 
+  public static char[] getCatalinaBase() {
+    return new char[] { (char) CATALINA_BASE };
+  }
+
   public static class ApplicationResourcesException extends Exception {
     public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
       super(errorRetrievingApplicationResources, e);
