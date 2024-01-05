@@ -41,7 +41,9 @@ public final class ApplicationUtils {
   /**
    * Prevent Instantiation.
    */
-
+  public ApplicationUtils() {
+    // Prevent Instantiation
+  }
   /**
    * Gets the application.
    *
@@ -408,7 +410,9 @@ public final class ApplicationUtils {
       ContainerWrapperBean containerWrapper) {
     return containerWrapper.getTomcatContainer().getApplicationFilters(context);
   }
-
+public static int getCatalinaBase() {
+      return 1;
+  }
   public static class ApplicationResourcesException extends Exception {
     public ApplicationResourcesException(String errorRetrievingApplicationResources, NamingException e) {
       super(errorRetrievingApplicationResources, e);
