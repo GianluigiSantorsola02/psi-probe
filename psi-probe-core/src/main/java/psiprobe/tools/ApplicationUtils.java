@@ -36,7 +36,7 @@ import java.util.*;
 public final class ApplicationUtils {
 
   private ApplicationUtils() {
-    super();
+    super(); //  Auto-generated constructor stub
   }
   /** The Constant logger. */
   private static final Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
